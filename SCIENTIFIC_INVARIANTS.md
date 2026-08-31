@@ -134,3 +134,129 @@ when each stage is approved:
 - EQA
 - BV / RCV
 - PBRTQC
+
+---
+
+## Stage 2 — Statistical QC Rule Engine
+
+**Source module:** `src/rules/engine.js`
+**Provenance:** Class A — directly recovered from `recovery/original-v0.8.html` (lines ~2817–3196)
+
+---
+
+### INVAR-08: Strict Exceedance — No Border Values Trigger
+
+All rule thresholds use `>` (strictly greater) not `>=`. A z-score exactly equal to ±1, ±2, or ±3 does NOT trigger any rule.
+
+- **Functions:** `exceedsPositive`, `exceedsNegative`, `exceedsAbs`
+- **Tests:** T-THRESH-01 through T-THRESH-14
+
+---
+
+### INVAR-09: Zero Interrupts Same-Side Sequences
+
+A z-score of exactly 0 is classified as "zero" (not positive, not negative) and interrupts any same-side sequential rule (4_1s, 8x, 10x).
+
+- **Function:** `sideOf(z)` → "zero" when z === 0
+- **Tests:** T-SIDE-03, T-41S-03, T-8X-05, T-10X-04
+
+---
+
+### INVAR-10: 1_2s is a WARNING, Never a Rejection
+
+The 1_2s rule always produces `status: "warning"`. It is never a rejection criterion in this engine, regardless of context.
+
+- **Function:** `detect12s`
+- **Tests:** T-12S-01 through T-12S-06
+
+---
+
+### INVAR-11: 1_3s — Single Observation Beyond ±3 SD
+
+Fires when a single z-score strictly exceeds ±3 SD. Status: rejection.
+
+- **Function:** `detect13s`
+- **Tests:** T-13S-01 through T-13S-06
+
+---
+
+### INVAR-12: 2_2s — Same-Side Only, Two Configurations
+
+Fires when two observations both exceed the same side of ±2 SD. Two supported configurations: (A) within one run across materials; (B) same material across two consecutive runs. Opposite-side pairs never trigger 2_2s.
+
+- **Function:** `detect22s`
+- **Tests:** T-22S-01 through T-22S-07
+
+---
+
+### INVAR-13: R_4s — Within-Run Only (Critical Invariant)
+
+R_4s evaluates only observations within the same analytical run. One result > +2 SD AND another result < -2 SD within the same run. Cross-run R_4s is deliberately NOT implemented.
+
+- **Function:** `detectR4s`
+- **Tests:** T-R4S-01 through T-R4S-08 (including explicit cross-run regression tests)
+
+---
+
+### INVAR-14: 4_1s — Four Consecutive Same-Side (>±1 SD)
+
+Two configurations: (A) same material, 4 consecutive runs; (B) both materials, 2 consecutive runs (4 points). Zero or opposite-side value interrupts sequence. Boundary z=±1.0 does not qualify.
+
+- **Function:** `detect41s`
+- **Tests:** T-41S-01 through T-41S-08
+
+---
+
+### INVAR-15: 8x — Distinct from 10x (Critical Invariant)
+
+8x is a separately implemented rule (v0.3.1) requiring 8 consecutive same-side observations (no magnitude threshold). It is NOT implemented by calling 10x with a different label. Two configurations: (A) same material, 8 runs; (B) both materials, 4 runs.
+
+- **Function:** `detect8x` (separate function from `detect10x`)
+- **Tests:** T-8X-01 through T-8X-07, T-DIST-01 through T-DIST-04
+
+---
+
+### INVAR-16: 10x — Ten Consecutive Same-Side
+
+10x requires 10 consecutive same-side observations (no magnitude threshold). Two configurations: (A) same material, 10 runs; (B) both materials, 5 runs. Zero or side-change interrupts.
+
+- **Function:** `detect10x`
+- **Tests:** T-10X-01 through T-10X-06
+
+---
+
+### INVAR-17: 8x NOT in RULE_ORDER
+
+`RULE_ORDER` contains the 6 rules taught together since v0.2. 8x is evaluated separately via `RULE_DETECTORS["8x"]` or `evaluateRuleSet(runs, ["8x"])`. This ensures that adding 8x does not change Inspect-Sequence or Rule-Detective regression behaviour.
+
+- **Tests:** T-GEN-12, T-EVAL-04, T-EVAL-06
+
+---
+
+### INVAR-18: Insufficient Data Returns Empty Array
+
+When runs are empty or there are insufficient observations for a rule's window, the detector returns `[]` — never a false positive.
+
+- **Tests:** T-GEN-09, T-GEN-10, T-8X-04, T-10X-03, T-41S-05
+
+---
+
+### Stage 2 Test Summary
+
+| Category | Count | Status |
+|----------|-------|--------|
+| Boundary/threshold tests | 17 | ✅ pass |
+| General/structural tests | 13 | ✅ pass |
+| 1_2s tests | 6 | ✅ pass |
+| 1_3s tests | 6 | ✅ pass |
+| 2_2s tests | 7 | ✅ pass |
+| R_4s tests (incl. cross-run regression) | 8 | ✅ pass |
+| 4_1s tests | 8 | ✅ pass |
+| 8x tests | 7 | ✅ pass |
+| 10x tests | 6 | ✅ pass |
+| Rule distinction (8x≠10x) | 4 | ✅ pass |
+| evaluateRuleSet integration | 14 | ✅ pass |
+| Multi-level / edge cases | 6 | ✅ pass |
+| **Total Stage 2** | **102** | **✅ all pass** |
+
+**Directly recovered rule fixtures:** None found in HTML (no distinct rule fixture block analogous to the statistics VALIDATION_FIXTURES). All Stage 2 tests are **Class B — reconstructed scientific regression tests**.

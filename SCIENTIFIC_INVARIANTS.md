@@ -260,3 +260,103 @@ When runs are empty or there are insufficient observations for a rule's window, 
 | **Total Stage 2** | **102** | **✅ all pass** |
 
 **Directly recovered rule fixtures:** None found in HTML (no distinct rule fixture block analogous to the statistics VALIDATION_FIXTURES). All Stage 2 tests are **Class B — reconstructed scientific regression tests**.
+
+---
+
+## Stage 3A — Operating Characteristics (Ped / Pfr)
+
+**Source module:** `src/opchar/functions.js`
+**Provenance:** Class A — directly recovered from `recovery/original-v0.8.html` (lines ~4155–4282)
+
+---
+
+### INVAR-19: Numerical Scope Restricted to Pure 1_3s Only
+
+Validated numerical Ped/Pfr calculations are implemented **only** for the single 1_3s rule applied on its own to N independent control measurements. All other rule configurations (multirule, 8x alone, 10x alone, or any combination) return `{ supported: false, validated: false }`.
+
+- **Dispatcher:** `operatingCharacteristic(ruleIds, N, deltaSE)`
+- **Direct function:** `operatingCharacteristic13s(N, deltaSE)`
+- **Tests:** T-DISP-01 through T-DISP-14
+
+---
+
+### INVAR-20: Ped Definition (Recovered)
+
+Ped = probability of error detection for the 1_3s rule applied independently to N control measurements, given a systematic shift of `deltaSE` SD units: at least one of N independent results exceeds ±3 SD.
+
+```
+Ped = 1 - (1 - pedSingle1_3s(deltaSE))^N
+pedSingle1_3s(deltaSE) = P(X > 3) + P(X < -3)  for X ~ N(deltaSE, 1)
+```
+
+- **Functions:** `ped1_3s`, `pedSingle1_3s`
+- **Tests:** T-PED-01 through T-PED-10, FIXTURE-PED-01 through FIXTURE-PED-04
+
+---
+
+### INVAR-21: Pfr Definition (Recovered)
+
+Pfr = probability that a stable (in-control) process produces at least one result beyond ±3 SD among N independent control measurements.
+
+```
+Pfr = 1 - (2*Phi(3) - 1)^N
+pfr1_3sSingle() = 1 - (2*normalCDF(3) - 1)  ≈ 0.0027
+```
+
+- **Functions:** `pfr1_3s`, `pfr1_3sSingle`
+- **Tests:** T-PFR-01 through T-PFR-06
+
+---
+
+### INVAR-22: Two-Sided Rule — Symmetric Detection
+
+Because 1_3s is a two-sided rule (detects exceedance of either +3 SD or -3 SD), `pedSingle1_3s(deltaSE)` is symmetric: `pedSingle1_3s(+x) = pedSingle1_3s(-x)` for any x. The implementation computes both tails explicitly.
+
+- **Tests:** T-PED-04, T-PED-05
+
+---
+
+### INVAR-23: N = QC Measurements Per Analytical Run
+
+N is the number of independent QC measurements available at a single QC event/run. It must not be confused with R (consecutive runs), M (patient samples per run), or PBRTQC window size W.
+
+The `operatingCharacteristic` dispatcher guard: `typeof N === "number" && N > 0`.
+When N ≤ 0 with a valid rule: dispatcher returns `unsupportedOperatingCharacteristic()`, not null.
+When N ≤ 0 called directly to `operatingCharacteristic13s`: returns null.
+
+- **Tests:** T-N-01 through T-N-06, T-DISP-11, T-DISP-12
+
+---
+
+### INVAR-24: No Multirule Probability Combination
+
+The implementation never adds individual rule probabilities together, multiplies them as though statistically independent, or infers Ped/Pfr from Sigma alone for any multirule procedure.
+
+Exact unsupported note (from HTML, verbatim): **"Numerical operating-characteristic calculation is not implemented for this multirule procedure in the current version."**
+
+- **Tests:** T-UNS-01 through T-UNS-05, T-DISP-02 through T-DISP-10
+
+---
+
+### INVAR-25: erf Approximation — Abramowitz & Stegun 7.1.26
+
+The error function uses the A&S 7.1.26 rational approximation (`|error| ≤ 1.5e-7`). At extreme inputs (|x| ≥ ~10), the approximation returns exactly ±1, and `normalCDF(±10)` returns exactly 0 or 1.
+
+- **Tests:** T-ERF-01 through T-ERF-06, T-CDF-01 through T-CDF-08
+
+---
+
+### Stage 3A Directly Recovered Fixtures
+
+| Fixture | Source | Value | Status |
+|---------|--------|-------|--------|
+| `normalCDF(0) = 0.5` | HTML line 4164 (comment) | 0.5 exactly | ✅ pass |
+| `normalCDF(3) = 0.99865` | HTML line 4164 (comment) | within 0.00001 | ✅ pass |
+| `ped1_3s(3.000, 1) ≈ 0.50` | HTML CHANGE_PED preset | within 0.001 | ✅ pass |
+| `ped1_3s(3.674, 1) ≈ 0.75` | HTML CHANGE_PED preset | within 0.001 | ✅ pass |
+| `ped1_3s(4.282, 1) ≈ 0.90` | HTML CHANGE_PED preset | within 0.001 | ✅ pass |
+| `ped1_3s(5.326, 1) ≈ 0.99` | HTML CHANGE_PED preset | within 0.001 | ✅ pass |
+
+**Total Stage 3A tests:** 76 / 76 passed  
+**Directly recovered fixtures:** 6 / 6  
+**Reconstructed tests (Class B):** 70

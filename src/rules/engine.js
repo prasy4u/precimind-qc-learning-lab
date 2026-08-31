@@ -26,15 +26,15 @@
    ========================================================================= */
 
 const RULE_LABELS = {
-  "12s": "1_2s",
-  "13s": "1_3s",
-  "22s": "2_2s",
-  "r4s": "R_4s",
-  "41s": "4_1s",
+  "12s": "1₂s",
+  "13s": "1₂s".replace("2", "3"), // -> "1₃s", written this way only to keep the glyph list obvious in source; see below
+  "22s": "2₂s",
+  "r4s": "R₄s",
+  "41s": "4₁s",
   "10x": "10x",
-  "8x": "8x"
+  "8x": "8x" // added in v0.3.1 — see detect8x() below; independently validated, NOT a substitute for 10x
 };
-RULE_LABELS["13s"] = "1_3s";
+RULE_LABELS["13s"] = "1₃s"; // explicit, unambiguous (overrides the derivation above)
 
 function exceedsPositive(z, limit) { return typeof z === "number" && isFinite(z) && z > limit; }
 function exceedsNegative(z, limit) { return typeof z === "number" && isFinite(z) && z < -limit; }

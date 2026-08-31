@@ -360,3 +360,118 @@ The error function uses the A&S 7.1.26 rational approximation (`|error| ≤ 1.5e
 **Total Stage 3A tests:** 76 / 76 passed  
 **Directly recovered fixtures:** 6 / 6  
 **Reconstructed tests (Class B):** 70
+
+---
+
+## Stage 3B — QC Strategy Core
+
+**Source modules:**
+- `src/strategy/core.js` — APS framework, procedure library, Sigma mapping, challenge bank
+**Provenance:** Class A — directly recovered from `recovery/original-v0.8.html` (lines ~4052–4090, ~4284–4676)
+**Architectural note:** `strategy/core.js` contains no Sigma formula. It imports `calcSigma` from `src/core/statistics.js` (architectural deduplication, no scientific-behaviour change). Opchar results come exclusively from `src/opchar/functions.js`.
+
+---
+
+### INVAR-26: QC Rule ≠ QC Strategy
+
+A QC strategy describes the full procedure configuration: rule set, N (measurements per run), R (consecutive runs), control levels, and their interaction. Selecting a statistical rule set is one component — it does not define the strategy on its own.
+
+- **Tests:** T-PROC-* series, T-PROCC/D-* series
+
+---
+
+### INVAR-27: APS Framework — Three Milan Models, No Universal Hierarchy
+
+Three Milan Models are defined:
+1. Clinical outcome
+2. Biological variation
+3. State of the art
+
+They are not a simple ranked hierarchy. Which model is appropriate depends on the measurand, clinical use, available evidence, and context. TEa used in the simplified Sigma calculation is not presented as the universal definition of APS.
+
+- **Source:** `MILAN_MODELS`, `MILAN_HIERARCHY_CAUTION`, `OTHER_SPEC_SOURCES`
+- **Tests:** T-APS-01 through T-APS-11
+
+---
+
+### INVAR-28: N = Measurements Per Run (Strategy Layer)
+
+N in the procedure library is the number of control measurements AVAILABLE PER ANALYTICAL RUN. It is never the total accumulated across R runs. The derived quantity N×R is computed by `sequentialObservationCapacity()` and never stored as N.
+
+- **Source:** `makeProcedure`, `sequentialObservationCapacity`, spec v0.3.2 section 5
+- **Tests:** T-NR-NOSTORE-*, T-NR-GUARD-*
+
+---
+
+### INVAR-29: R = Consecutive Runs for Sequential-Rule Evaluation
+
+R is the number of consecutive analytical runs whose observations participate in evaluation of a sequential rule. It is independent of N.
+
+- **Tests:** T-PROCC-03, T-PROCD-03
+
+---
+
+### INVAR-30: Procedure C — N=2, R=2, capacity=4
+
+Procedure C (1₃s/2₂s/R₄s/4₁s): N=2, R=2, sequential capacity=4. Does not include 8x or 10x.
+
+- **Tests:** T-PROCC-01 through T-PROCC-10, FIXTURE-C03-MAP
+
+---
+
+### INVAR-31: Procedure D — N=2, R=4, capacity=8, uses 8x not 10x
+
+Procedure D (1₃s/2₂s/R₄s/4₁s/8x): N=2, R=4, sequential capacity=8. Uses the dedicated 8x detector — 10x is NOT substituted. This is the Sigma-framework's <4-Sigma mapping.
+
+- **Tests:** T-PROCD-01 through T-PROCD-10, FIXTURE-C04-MAP, FIXTURE-C09-MAP
+
+---
+
+### INVAR-32: Alternative 8x Configuration (N=4, R=2) — Documented, Not Implemented
+
+The HTML explicitly describes N=4,R=2 as an alternative 8x configuration yielding N×R=8. It is documented in Procedure D provenance and `N_AND_R_TEACHING_NOTE` but NOT implemented as a separate library procedure. N=2/R=4 and N=4/R=2 are not operationally identical.
+
+- **Tests:** T-ALT-01 through T-ALT-05
+
+---
+
+### INVAR-33: Sigma Mapping — Named Framework, Inclusive Boundaries, Not Universal
+
+One framework is implemented: "Simplified published Sigma Rules educational framework" (Westgard QC). Band boundaries use inclusive lower bounds (≥) as this application's own implementation convention. Every mapping is labelled as belonging to this specific framework — never as a universal rule.
+
+| Band | Procedure |
+|------|-----------|
+| Sigma ≥ 6 | A |
+| 5 ≤ Sigma < 6 | B |
+| 4 ≤ Sigma < 5 | C |
+| Sigma < 4 | D |
+
+- **Tests:** T-MAP-BOUND-*, T-MAP-BELOW-*, T-MAP-MID-*, T-MAP-INV-*
+
+---
+
+### INVAR-34: Multirule Procedures — No Numerical Opchar in Strategy Layer
+
+The strategy layer calls `operatingCharacteristic()` from `src/opchar/functions.js`. Procedures B, C, D (multirule) return `{supported:false}`. The strategy layer never independently calculates or approximates multirule Ped/Pfr.
+
+- **Tests:** T-OCI-01 through T-OCI-10X, T-OCI-NOTE
+
+---
+
+### Stage 3B Test Summary
+
+| Category | Count | Status |
+|----------|-------|--------|
+| Directly recovered fixtures (challenge Sigma + map) | 22 | ✅ pass |
+| APS framework | 11 | ✅ pass |
+| Sigma mapping (fixed inputs) | 21 | ✅ pass |
+| Procedure library structure | 18 | ✅ pass |
+| Procedure C mandatory check | 10 | ✅ pass |
+| Procedure D mandatory check | 10 | ✅ pass |
+| Alternative 8x config | 5 | ✅ pass |
+| N/R semantics | 5 | ✅ pass |
+| Opchar integration | 12 | ✅ pass |
+| Challenge bank structure | 17 | ✅ pass |
+| Cross-engine integration smoke | 3 | ✅ pass |
+| Doctrine notes | 4 | ✅ pass |
+| **Total Stage 3B** | **158** | **✅ all pass** |

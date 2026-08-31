@@ -34,7 +34,9 @@
 | `tests/stage1-statistics.test.js` | **D** | New recovery tests — NOT historical test suite |
 | `tests/stage2-rules.test.js` | **D** | New recovery tests — NOT historical rule suite |
 | `tests/stage3a-opchar.test.js` | **D** | New recovery tests — NOT historical opchar suite |
-| `SCIENTIFIC_INVARIANTS.md` | **D** | New recovery documentation (Stages 1–3A) |
+| `src/strategy/core.js` | **A** | Directly extracted from HTML (Stage 3B, lines ~4052–4090, ~4284–4676) |
+| `tests/stage3b-strategy.test.js` | **D** | New recovery tests — NOT historical strategy suite |
+| `SCIENTIFIC_INVARIANTS.md` | **D** | New recovery documentation (Stages 1–3B) |
 | Historical Git repository | **E** | Lost — not recoverable |
 | Historical test files | **E** | Lost — not recoverable |
 | Historical commit `3cc62b1` | **C** | Reported externally; not independently recovered |

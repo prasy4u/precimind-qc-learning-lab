@@ -130,9 +130,12 @@ assert('T-PFR-03', near(pfr1_3s(1), pfr1_3sSingle(), 0.0000001), 'pfr1_3s(N=1) =
 // pfr1_3s increases with N (more controls → more chance of false rejection)
 assert('T-PFR-04', pfr1_3s(1) < pfr1_3s(2) && pfr1_3s(2) < pfr1_3s(4), 'pfr increases with N');
 
-// pfr1_3s(N) increases with N but A&S float behaviour limits exact ceiling
-// At N=1000, the approximation gives ~0.933 due to floating point in Math.pow near 0
-// The key invariant is that pfr increases monotonically with N, tested in T-PFR-04
+// pfr1_3s(N) is the probability that at least one of N independent results
+// exceeds ±3 SD when the process is in control. At N=1000, pfr1_3s(1000) ≈ 0.933
+// is the correct model output for this event-level false-rejection calculation:
+// with 1000 independent measurements per event, there is approximately a 93.3%
+// chance that at least one will exceed ±3 SD by chance. This is the expected
+// behaviour of the recovered model — not a floating-point defect.
 assert('T-PFR-05', pfr1_3s(1000) > pfr1_3s(100), 'pfr1_3s(1000) > pfr1_3s(100) — monotonically increasing with N');
 
 // pfr1_3s stays in (0,1) for reasonable N

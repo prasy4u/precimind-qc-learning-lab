@@ -368,7 +368,7 @@ The error function uses the A&S 7.1.26 rational approximation (`|error| ≤ 1.5e
 **Source modules:**
 - `src/strategy/core.js` — APS framework, procedure library, Sigma mapping, challenge bank
 **Provenance:** Class A — directly recovered from `recovery/original-v0.8.html` (lines ~4052–4090, ~4284–4676)
-**Architectural note:** `strategy/core.js` contains no Sigma formula. It imports `calcSigma` from `src/core/statistics.js` (architectural deduplication, no scientific-behaviour change). Opchar results come exclusively from `src/opchar/functions.js`.
+**Architectural note:** `strategy/core.js` is a static strategy scientific/data module and contains no independent Sigma or Ped/Pfr calculation, and no `require`/`import` of any other module. Cross-engine recovery tests verify compatibility with the canonical recovered statistics (`src/core/statistics.js`) and operating-characteristic (`src/opchar/functions.js`) engines. Application/UI integration will later use those canonical engines rather than duplicate their calculations.
 
 ---
 

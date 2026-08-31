@@ -24,10 +24,18 @@
    tests. The strategy module itself (core.js) contains no Sigma formula
    — confirmed by absence of any require/formula in the source file.
 
-   DIRECTLY RECOVERED STRATEGY FIXTURES (Class A):
-   Challenge case TEa/bias/CV values are encoded in HTML source.
-   Expected Sigma values below are independently computed ONCE from the
-   locked formula, then hard-coded here with provenance noted.
+   DIRECTLY RECOVERED SOURCE DATA (Class A):
+   Challenge case TEa/bias/CV inputs and correctProcedureIds are encoded
+   directly in HTML source. These are the Class A grounded facts.
+
+   Expected Sigma values (FIXTURE-CXX-SIGMA tests) are independently
+   computed ONCE during recovery from the locked formula (TEa-|Bias|)/CV
+   and hard-coded. These are Class B RECONSTRUCTED TEST EXPECTATIONS,
+   not directly recovered fixtures — the HTML encodes inputs and expected
+   procedure outcomes, not intermediate Sigma values.
+
+   FIXTURE-CXX-MAP tests use the HTML-encoded correctProcedureIds as the
+   authority and are source-grounded (Class A).
 
    Run: node tests/stage3b-strategy.test.js
    ========================================================================= */
@@ -395,13 +403,21 @@ assert('T-DOC-04', NO_TRAFFIC_LIGHT_SIGMA_NOTE.length > 0, 'NO_TRAFFIC_LIGHT_SIG
    SUMMARY
    ----------------------------------------------------------------------- */
 const total = passed + failed;
-const directFixtures = 22;  // FIXTURE-C01..C10 rows (sigma + map each, plus case10 nulls)
-const reconstructed = total - directFixtures;
+// Provenance accounting (corrected per Stage 3B closure):
+// Class A source-grounded: FIXTURE-CXX-MAP tests (10) + case10 null assertions (2) = 12
+//   These use HTML-encoded correctProcedureIds and challenge structure as authority.
+// Class B SIGMA tests: FIXTURE-CXX-SIGMA (10) — Sigma values independently computed
+//   once during recovery from (TEa-|Bias|)/CV and hard-coded; not directly encoded in HTML.
+// Class B other: all remaining reconstructed tests
+const classAFixtures = 12;   // MAP assertions + case10 structure (source-grounded)
+const classBSigma = 10;      // SIGMA assertions (reconstructed expected values)
+const classBOther = total - classAFixtures - classBSigma;
 
 console.log(`\n${'='.repeat(60)}`);
 console.log(`Stage 3B Strategy Tests: ${passed}/${total} passed, ${failed} failed`);
-console.log(`  Directly recovered fixtures (Class A): ${directFixtures}`);
-console.log(`  Reconstructed tests (Class B): ${reconstructed}`);
+console.log(`  Class A source-grounded fixtures: ${classAFixtures} (MAP/structure)`);
+console.log(`  Class B reconstructed (Sigma expectations): ${classBSigma}`);
+console.log(`  Class B reconstructed (other): ${classBOther}`);
 if (failed > 0) {
   console.error('STAGE 3B FAILED — do not commit.');
   process.exit(1);

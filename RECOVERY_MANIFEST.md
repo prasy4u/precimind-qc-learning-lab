@@ -36,7 +36,9 @@
 | `tests/stage3a-opchar.test.js` | **D** | New recovery tests — NOT historical opchar suite |
 | `src/strategy/core.js` | **A** | Directly extracted from HTML (Stage 3B, lines ~4052–4090, ~4284–4676) |
 | `tests/stage3b-strategy.test.js` | **D** | New recovery tests — NOT historical strategy suite |
-| `SCIENTIFIC_INVARIANTS.md` | **D** | New recovery documentation (Stages 1–3B) |
+| `src/risk/detection-delay.js` | **A** | Directly extracted from HTML (Stage 4A, lines ~5340–5495) |
+| `tests/stage4a-detection-delay.test.js` | **D** | New recovery tests — NOT historical suite |
+| `SCIENTIFIC_INVARIANTS.md` | **D** | New recovery documentation (Stages 1–4A) |
 | Historical Git repository | **E** | Lost — not recoverable |
 | Historical test files | **E** | Lost — not recoverable |
 | Historical commit `3cc62b1` | **C** | Reported externally; not independently recovered |

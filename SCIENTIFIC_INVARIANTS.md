@@ -475,3 +475,93 @@ The strategy layer calls `operatingCharacteristic()` from `src/opchar/functions.
 | Cross-engine integration smoke | 3 | ✅ pass |
 | Doctrine notes | 4 | ✅ pass |
 | **Total Stage 3B** | **158** | **✅ all pass** |
+
+---
+
+## Stage 4A — Detection-Delay Engine
+
+**Source module:** `src/risk/detection-delay.js`
+**Provenance:** Class A — directly recovered from `recovery/original-v0.8.html` (lines ~5340–5495)
+**Architectural note:** This module is a static calculation layer with no `require`/`import` of other modules. Application/UI integration will supply `p` from `src/opchar/functions.js` rather than this module duplicating the Ped equation.
+
+---
+
+### INVAR-35: Numerical Delay Support Restricted to Pure 1_3s Only
+
+Detection-delay modelling is numerically supported only for the exact single-rule case `["13s"]`. All other rule sets (multirule, 8x alone, 10x alone, etc.) return `{supported: false}`.
+
+- **Functions:** `isDetectionDelaySupportedRuleSet`, `detectionDelaySupportForRuleIds`
+- **Note text (verbatim from HTML):** "Numerical detection-delay modelling is not implemented for this multirule procedure in the current version."
+- **Tests:** T-SUP-01 through T-SUP-10
+
+---
+
+### INVAR-36: Geometric Expected Detection Delay = 1/p
+
+Expected number of QC events until first detection = 1/p (geometric distribution expectation for Bernoulli(p) trials). Guard: 0 < p ≤ 1; p=0 returns `{supported:false}` (no finite expectation).
+
+```
+expectedQcEventsToDetectionGeometric(p) = 1/p
+```
+
+- **Function:** `expectedQcEventsToDetectionGeometric`
+- **Tests:** T-FVAL-GEO-01 through T-FVAL-GEO-04, T-GUARD-GEO-01 through T-GUARD-GEO-05
+
+---
+
+### INVAR-37: Immediate-Onset Patient Exposure = M/p
+
+Expected patient samples exposed before detection, assuming failure begins immediately after a successful QC event (Mode A, near-worst-case).
+
+```
+expectedPatientExposureImmediateOnset(M, p) = M / p
+```
+
+- **Function:** `expectedPatientExposureImmediateOnset`
+- **Tests:** T-FVAL-IMM-01 through T-FVAL-IMM-03
+
+---
+
+### INVAR-38: Uniform-Onset Patient Exposure = M/2 + M*(1−p)/p
+
+Educational expected exposure assuming failure onset uniformly distributed within the QC interval (Mode B). Algebraically equivalent to M*(1/p − 1/2).
+
+```
+expectedPatientExposureUniformOnset(M, p) = M/2 + M*(1-p)/p
+                                           = M*(1/p - 1/2)
+```
+
+- **Function:** `expectedPatientExposureUniformOnset`
+- **Tests:** T-FVAL-UNI-01 through T-FVAL-UNI-04
+
+---
+
+### INVAR-39: This Is NOT Parvin MaxE(Nuf)
+
+The geometric model is explicitly distinguished from Parvin's MaxE(Nuf). The model name, provenance string, assumptions, and limitations all carry explicit statements to this effect. The module never calculates MaxE(Nuf) or any probability of patient harm.
+
+- **Tests:** T-DIST-01 through T-DIST-06
+
+---
+
+### INVAR-40: M = Patient Samples Between QC Events
+
+M is the number of patient samples processed between successive QC events. It is distinct from N (QC measurements per run), R (consecutive runs), and W (PBRTQC window size).
+
+- **Tests:** T-M-01 through T-M-03
+
+---
+
+### INVAR-41: Exposure Result Is Patient-Sample Count, Not Clinical Harm
+
+The output of the exposure calculations is labelled `units: "patient samples"` — the count of samples potentially processed while out of control. It does not equal the count of unacceptable results or any measure of clinical harm.
+
+- **Tests:** T-BEH-07
+
+---
+
+### Stage 4A Directly Recovered Fixtures
+
+None — the HTML encodes the equations and assumptions verbatim, but contains no distinct numeric output table analogous to the opchar CHANGE_PED presets. All 75 Stage 4A tests are Class B (reconstructed from the recovered equations).
+
+**Total Stage 4A tests:** 75 / 75 passed

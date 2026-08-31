@@ -28,6 +28,9 @@
 |------|-------|-------|
 | `recovery/original-v0.8.html` | **A** | Directly recovered from surviving HTML file |
 | `RECOVERY_MANIFEST.md` | **D** | New recovery infrastructure |
+| `src/core/statistics.js` | **A** | Directly extracted from HTML (Stage 1) |
+| `tests/stage1-statistics.test.js` | **D** | New recovery tests — NOT historical test suite |
+| `SCIENTIFIC_INVARIANTS.md` | **D** | New recovery documentation (Stage 1) |
 | Historical Git repository | **E** | Lost — not recoverable |
 | Historical test files | **E** | Lost — not recoverable |
 | Historical commit `3cc62b1` | **C** | Reported externally; not independently recovered |

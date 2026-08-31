@@ -69,7 +69,9 @@ function assert(id, condition, detail) {
 const near = (a, b, tol = 0.0001) => typeof a === 'number' && typeof b === 'number' && isFinite(a) && isFinite(b) && Math.abs(a - b) <= tol;
 
 /* -----------------------------------------------------------------------
-   SECTION 1: DIRECTLY RECOVERED STRATEGY FIXTURES (Class A)
+   SECTION 1: SOURCE-GROUNDED STRATEGY CASE ASSERTIONS — mixed Class A/Class B provenance
+   Class A source-grounded: MAP assertions (correct procedure IDs from HTML) and case10 structure
+   Class B reconstructed: SIGMA assertions (expected Sigma independently computed from formula)
 
    Challenge cases: TEa, bias, CV are encoded in HTML source
    (STRATEGY_CHALLENGE_CASES array, "pre-computed and cross-checked against
@@ -79,7 +81,9 @@ const near = (a, b, tol = 0.0001) => typeof a === 'number' && typeof b === 'numb
    formula  Sigma = (TEa - |Bias|) / CV  and hard-coded here.
    calcSigma() is NOT called at test runtime for these expected values.
    ----------------------------------------------------------------------- */
-console.log('\n=== DIRECTLY RECOVERED STRATEGY FIXTURES (Class A) ===');
+console.log('\n=== SOURCE-GROUNDED STRATEGY CASE ASSERTIONS (mixed Class A/Class B provenance) ===');
+    console.log('    Class A: MAP/structure assertions (HTML-encoded correctProcedureIds as authority)');
+    console.log('    Class B: SIGMA assertions (independently computed expected values, hard-coded)');
 console.log('    Sigma = (TEa - |Bias|) / CV  [independently computed, hard-coded]');
 
 const FWK = SIGMA_MAPPING_FRAMEWORKS[0].id; // the single recovered framework

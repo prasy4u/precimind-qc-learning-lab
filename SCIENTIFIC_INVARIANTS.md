@@ -121,19 +121,21 @@ Sigma = (TEa% − |Bias%|) / CV%
 
 ---
 
-## Stage 2+ (not yet recovered)
+## Recovery Status (updated after Stage 4B)
 
-The following modules are pending recovery and will be documented here
-when each stage is approved:
+Modules already recovered and documented in this file:
+- Stage 1: Core Statistics (calcMean, calcSampleSD, calcCVPercent, calcBiasPercent, calcSigma)
+- Stage 2: QC Rule Engine (1_2s, 1_3s, 2_2s, R_4s, 4_1s, 8x, 10x)
+- Stage 3A: Operating Characteristics (Ped/Pfr for pure 1_3s)
+- Stage 3B: QC Strategy Core (APS, procedure library A-D, Sigma mapping, challenge bank)
+- Stage 4A: Detection-Delay Engine (geometric model, immediate/uniform onset)
+- Stage 4B: Risk & Frequency Teaching Data (in progress / completed this stage)
 
-- Rule engine (Westgard, multirule)
-- Ped / Pfr
-- QC Strategy
-- Risk / frequency
-- Investigation
+Pending recovery (not yet extracted):
+- Investigation Lab
 - EQA
-- BV / RCV
-- PBRTQC
+- Biological Variation / RCV
+- PBRTQC patient surveillance
 
 ---
 
@@ -565,3 +567,107 @@ The output of the exposure calculations is labelled `units: "patient samples"` �
 None — the HTML encodes the equations and assumptions verbatim, but contains no distinct numeric output table analogous to the opchar CHANGE_PED presets. All 75 Stage 4A tests are Class B (reconstructed from the recovered equations).
 
 **Total Stage 4A tests:** 75 / 75 passed
+
+---
+
+## Stage 4B — Risk & Frequency Teaching Data
+
+**Source module:** `src/risk/data.js`
+**Provenance:** Class A — directly recovered from `recovery/original-v0.8.html` (lines ~5499–5870)
+**Architectural note:** `data.js` is a static teaching/data module with no `require`/`import` and no calculation functions. All computation lives in `src/opchar/functions.js` and `src/risk/detection-delay.js`. Confirmed: no erf/normalCDF/Ped/Pfr/geometric equations duplicated.
+
+---
+
+### INVAR-42: QC Procedure / Event / Frequency / Run Are Distinct
+
+Four separately defined concepts with mandatory "do not imply" cautions:
+1. Run ≠ calendar day or shift
+2. Run size ≠ N (QC measurements per event)
+3. QC frequency ≠ R (sequential rule look-back)
+
+- **Source:** `QC_PROCEDURE_DEFINITION`, `QC_EVENT_DEFINITION`, `QC_FREQUENCY_DEFINITION`, `ANALYTICAL_RUN_V4_DEFINITION`, `CORE_DISTINCTION_CAUTIONS`
+- **Tests:** T-DEF-01 through T-DEF-08, T-RUN-01, T-RUN-02
+
+---
+
+### INVAR-43: N / R / M Are Separately Defined and Non-Derivable
+
+N = QC measurements per event; R = consecutive runs for sequential rule look-back; M = patient samples between QC events. None can be derived from either of the others. Changing M does not change N or R, and vice versa.
+
+- **Source:** `N_LABEL`, `R_LABEL`, `M_LABEL`, `N_R_M_DISTINCTION_NOTE`
+- **Tests:** T-NRM-01 through T-NRM-10
+
+---
+
+### INVAR-44: Startup QC Does Not Eliminate Monitoring Need
+
+A successful startup QC event does not eliminate the need for monitoring QC during ongoing production. No universal timing is prescribed.
+
+- **Source:** `STARTUP_VS_MONITORING_NOTE`
+- **Tests:** T-STARTUP-01 through T-STARTUP-05
+
+---
+
+### INVAR-45: Bracketed QC Does Not Auto-Invalidate All Results
+
+A failed bracket does not automatically mean every specimen within it is invalid, nor does it mean none are. Investigation determines scope.
+
+- **Source:** `BRACKETED_QC_NOTE`, `OUT_OF_CONTROL_EVENT_PREVIEW`
+- **Tests:** T-BRKT-01 through T-BRKT-05
+
+---
+
+### INVAR-46: More QC Is Not Always Better
+
+More frequent QC has operational costs (control material, capacity, false rejection). The objective is appropriate frequency, not maximal frequency.
+
+- **Source:** `MORE_QC_NOT_ALWAYS_BETTER_NOTE`
+- **Tests:** T-MQCN-01 through T-MQCN-03
+
+---
+
+### INVAR-47: High Sigma Does Not Make QC Frequency Irrelevant
+
+Analytical capability alone does not remove the need for appropriate surveillance interval. A high-Sigma method can still develop a sudden problem.
+
+- **Source:** `HIGH_SIGMA_FREQUENCY_MISCONCEPTION_NOTE`
+- **Tests:** T-HSMIS-01 through T-HSMIS-03
+
+---
+
+### INVAR-48: Patient Exposure ≠ Clinical Harm
+
+Patient samples exposed = process concept (count of specimens tested while out of control). Unacceptable final patient results = a patient-risk model output. These must not be used interchangeably.
+
+- **Source:** `PATIENT_SAMPLES_EXPOSED_DEFINITION`, `UNACCEPTABLE_RESULTS_DEFINITION`, `RISK_MODEL_LIMITATION_NOTE`
+- **Tests:** T-HARM-01 through T-HARM-05
+
+---
+
+### INVAR-49: MaxE(Nuf) Not Numerically Implemented
+
+MaxE(Nuf) is introduced conceptually only. Full numerical calculation is intentionally not implemented — preferable to a fabricated calculator. Parvin's framework is not presented as the only patient-risk model.
+
+- **Source:** `MAXE_NUF_BOUNDARY_NOTE`, `MAXE_NUF_NOT_ONLY_FRAMEWORK_NOTE`, `MAXE_GOAL_NOTE`
+- **Tests:** T-MAXE-01 through T-MAXE-08
+
+---
+
+### Stage 4B Challenge Bank
+
+10 deterministic Frequency Challenge Cases (IDs 1–10). Artifact provenance: Class A. Test expectation provenance: source-grounded (correctWhatChanged, correctLikelyEffect, misconceptionFlag).
+
+| Case | correctWhatChanged | correctLikelyEffect | misconceptionFlag |
+|------|--------------------|---------------------|-------------------|
+| 1 | m | exposure | — |
+| 2 | m | exposure | high-sigma-frequency |
+| 3 | m | exposure | — |
+| 4 | n | detection | n-vs-m |
+| 5 | r | insufficient | r-vs-m |
+| 6 | m | exposure | startup-sufficiency |
+| 7 | m | exposure | — |
+| 8 | m | exposure | high-sigma-frequency |
+| 9 | m | exposure | frequency-fixes-performance |
+| 10 | insufficient | insufficient | — |
+
+**Total Stage 4B tests:** 143 / 143 passed

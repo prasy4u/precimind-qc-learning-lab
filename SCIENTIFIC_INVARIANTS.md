@@ -770,3 +770,90 @@ Test expectation provenance (audited assertion-by-assertion):
 **Candidate-window format limitation:** `isWithinCandidateWindow()` performs lexicographic string comparison. String inputs are assumed to be valid zero-padded same-day 24-hour HH:MM values. Format validation is **not** implemented in the recovered v0.8 function — malformed strings that pass the `typeof` check are not rejected. This is a recovered implementation limitation, not a reason to modify the source.
 
 **Total Stage 5A tests:** 118 / 118 passed
+
+---
+
+## Stage 5B — Investigation Lab Static Data and Scenario Bank
+
+**Source module:** `src/investigation/data.js`
+**Provenance:** Class A — directly recovered from `recovery/original-v0.8.html` (lines 6684–7447)
+**Architectural note:** Static data/teaching module only. No `require`/`import`. Exactly one function exported (`hypothesisLabel`). No Bayesian, PBRTQC, root-cause, auto-correction, auto-amendment, or auto-notification code.
+
+---
+
+### INVAR-57: QC Signal ≠ Proven Process Departure (Investigation Banner)
+
+Core banner: *"A QC signal is not a root cause."* Four explicit separations: QC signal detected → analytical mechanism established → all patient results invalid → clinical harm established. False rejection is explicitly possible; signal is not proof of departure from stability.
+
+- **Source:** `CORE_BANNER_TITLE`, `CORE_BANNER_SEPARATIONS`, `SIGNAL_VS_CONDITION_CAUTION`
+- **Tests:** C-01 through C-06
+
+---
+
+### INVAR-58: Repeat-Until-Pass Is Not Sound
+
+Repeating QC solely until a result falls inside limits is not sound analytical reasoning. A passing repeat provides new evidence but does not retrospectively erase the original signal.
+
+- **Source:** `REPEAT_QC_PRINCIPLE_NOTE`, `REPEAT_QC_EXERCISE`, `TARGETED_REPEAT_VS_REPEAT_UNTIL_PASS`
+- **Tests:** C-07, C-08, C-09
+
+---
+
+### INVAR-59: No Quantitative Causal Certainty
+
+This application never fabricates quantitative certainty for a hypothesis — no causal percentages, no AI causal score, no Bayesian likelihood ratio, no weighted root-cause ranking.
+
+- **Source:** `NO_QUANTITATIVE_CERTAINTY_NOTE`
+- **Tests:** C-13, C-14, C-15
+
+---
+
+### INVAR-60: Three-Layer Patient Model Not Collapsed
+
+Layer 1 (exposure) ≠ Layer 2 (analytical effect) ≠ Layer 3 (clinical consequence). Exposure does not prove effect; effect does not prove harm.
+
+- **Source:** `THREE_LAYER_MODEL`, `THREE_LAYER_CAUTION`, `CLINICAL_SIGNIFICANCE_GUARDRAIL`
+- **Tests:** C-18, C-19, C-20
+
+---
+
+### INVAR-61: Process Recovery ≠ Historical Result Disposition (Investigation)
+
+The two timelines — current process recovery and historical result review — must not be collapsed. A recovered analyser does not automatically mean all held results are released. Case 5 is the critical independence fixture.
+
+- **Source:** `CORE_DISTINCTION_RECOVERY_VS_DISPOSITION`, `PROCESS_RECOVERY_VS_RESULT_RELEASE_GUARDRAIL_NOTE`, `TWO_QUESTION_RECOVERY_NOTE`, `TWO_TIMELINE_EXPLANATION_NOTE`
+- **Scenario fixture:** Case 5 — ProcessStatus=recovered, ResultDispositionStatus=review-required simultaneously
+- **Tests:** C-21 through C-24, F-C5-01 through F-C5-05
+
+---
+
+### INVAR-62: No Automatic Patient Correction, Amendment, or Notification
+
+`NO_AUTO_CORRECTION_NOTE`, `NO_AUTO_AMENDMENT_NOTE`, `NO_AUTO_NOTIFICATION_NOTE` are all present and substantive. No function in this module implements any of these.
+
+- **Tests:** C-25, C-26, C-27, A-07, A-08, A-09
+
+---
+
+### INVAR-63: Recovery Challenge Bank — 13 Scenarios, Fixed Schema
+
+13 deterministic scenarios, IDs 1–13. Each has: id, title, qcData, candidateHypothesisIds, evidenceItems, progressionByStage, finalInterpretation, correctResumeDecision, correctResultDispositionDecision. No scenario has `supportedHypothesisId = "confirmed"`.
+
+Critical case regressions:
+- Case 5: ProcessStatus=recovered AND ResultDispositionStatus=review-required (independence invariant)
+- Case 6: passing repeat does NOT auto-close; supportedHypothesisId=instrument (late evidence)
+- Case 7: supportedHypothesisId=null, CauseStatus=unresolved, ProcessStatus=apparently-stable
+- Case 10: window start=10:30, end=12:00; patientImpactStatus=analytical-impact-evidence-present; 4 patient records
+- Case 11: supportedHypothesisId=null, all statuses unresolved/indeterminate; recoveryEvidence empty
+- Case 12: qc-material, no-impact-demonstrated, correctResultDispositionDecision=yes (no indiscriminate retesting)
+- Case 13: shift precedes lot change; supportedHypothesisId=null; correctResumeDecision=no
+
+---
+
+### Stage 5B Test Provenance
+
+Test file: Artifact **Class D** (recovery infrastructure)
+
+Source-grounded expectations: **147 / 371**
+Reconstructed expectations: **224 / 371**
+Total Stage 5B: **371 / 371** passed

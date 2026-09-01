@@ -42,7 +42,9 @@
 | `tests/stage4b-risk-data.test.js` | **D** | New recovery tests — NOT historical suite |
 | `src/investigation/calc.js` | **A** | Directly extracted from HTML (Stage 5A, lines ~6536–6683) |
 | `tests/stage5a-investigation-calc.test.js` | **D** | New recovery tests — NOT historical suite |
-| `SCIENTIFIC_INVARIANTS.md` | **D** | New recovery documentation (Stages 1–5A) |
+| `src/investigation/data.js` | **A** | Directly extracted from HTML (Stage 5B, lines 6684–7447) |
+| `tests/stage5b-investigation-data.test.js` | **D** | New recovery tests — NOT historical suite |
+| `SCIENTIFIC_INVARIANTS.md` | **D** | New recovery documentation (Stages 1–5B) |
 | Historical Git repository | **E** | Lost — not recoverable |
 | Historical test files | **E** | Lost — not recoverable |
 | Historical commit `3cc62b1` | **C** | Reported externally; not independently recovered |

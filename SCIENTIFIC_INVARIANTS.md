@@ -857,3 +857,90 @@ Test file: Artifact **Class D** (recovery infrastructure)
 Source-grounded expectations: **147 / 371**
 Reconstructed expectations: **224 / 371**
 Total Stage 5B: **371 / 371** passed
+
+---
+
+## Stage 6A — External Assurance Lab Calc Engine
+
+**Source module:** `src/eqa/calc.js`
+**Provenance:** Class A — directly recovered from `recovery/original-v0.8.html` (lines 8368–8670)
+**Architectural note:** Pure calc/status-model module. 17 exports, 6 functions (`calculateEqaAbsoluteDeviation`, `calculateEqaRelativeDeviation`, `calculateEqaZScore`, `calculatePairedDifference`, `calculatePairedRelativeDifference`, `describeSchemeCapability`). No React, no scenario content, no Miller Category classifier, no Passing-Bablok/Deming/Bland-Altman, no automatic patient-result action, no root-cause engine.
+
+---
+
+### INVAR-64: Target-Value Types Are Not All "The True Value"
+
+7 distinct target-value types. Each answers a different question. A peer-group mean is not automatically reference truth.
+
+- **Source:** `TARGET_VALUE_TYPES`, `TARGET_VALUE_TYPE_LABELS`
+- **Tests:** B-01 through B-07
+
+---
+
+### INVAR-65: commutability-not-established ≠ noncommutable
+
+Unknown commutability must never be silently treated as demonstrated failure. `describeSchemeCapability` produces different limitation text for the two states.
+
+- **Source:** `COMMUTABILITY_STATUSES` (4 values), spec sections 10–12
+- **Tests:** C-01 through C-10
+
+---
+
+### INVAR-66: Current EQA Status ≠ Longitudinal EQA Status
+
+`CURRENT_EQA_STATUSES` (4 values) describes this round's result vs criterion. `LONGITUDINAL_EQA_STATUSES` (8 values) describes a multi-round authored pattern. One round's status must never silently overwrite the longitudinal state.
+
+- **Tests:** D-01 through D-09
+
+---
+
+### INVAR-67: Signed EQA Deviation Calculations
+
+`calculateEqaAbsoluteDeviation = participant - assigned` (signed).
+`calculateEqaRelativeDeviation = (participant - assigned) / assigned × 100` (signed).
+Assigned value = 0 → unsupported (no Infinity/NaN). Non-finite inputs → structured unsupported.
+
+- **Tests:** F-01 through F-09, G-01 through G-10
+
+---
+
+### INVAR-68: SDPA > 0 Required for Z-Score
+
+`calculateEqaZScore = (participant - assigned) / SDPA`. SDPA = 0 or SDPA < 0 → structured unsupported. Non-finite inputs → structured unsupported.
+
+- **Tests:** H-01 through H-11
+
+---
+
+### INVAR-69: Illustrative Z-Score Bands Are Not Universal Pass/Fail
+
+3 bands (`|z| ≤ 2`, `2 < |z| ≤ 3`, `|z| > 3`), all labelled "Illustrative". `ILLUSTRATIVE_ZSCORE_BANDS_CAUTION` explicitly states: "not a universal laboratory pass/fail rule." Provider-specific criteria always take precedence.
+
+- **Tests:** I-01 through I-08
+
+---
+
+### INVAR-70: Paired Difference Direction = B − A
+
+`calculatePairedDifference = resultB - resultA`. Analyzer A is "designated comparator for this teaching exercise" — NOT automatically "reference method".
+`calculatePairedRelativeDifference = (B - A) / A × 100`. A = 0 → unsupported.
+
+- **Tests:** J-01 through J-08, K-01 through K-09
+
+---
+
+### INVAR-71: describeSchemeCapability — Qualitative Only, No Miller Category
+
+Returns qualitative statements and limitations from scheme's own stated properties. Booleans: `canAssessHarmonisation` (requires commutabilityVerified AND higherOrderTargetAvailable AND methodGroupsDefined), `canAssessMethodPerformance` (methodGroupsDefined AND (higherOrder OR perfSpec)), `canAssessParticipantPerformance` (any one of the three). Null/undefined = "not stated". No category number or capability score.
+
+- **Tests:** L-01 through L-27
+
+---
+
+### Stage 6A Test Provenance
+
+Test file: Artifact **Class D** (recovery infrastructure)
+
+Source-grounded expectations: **104 / 139**
+Reconstructed expectations: **35 / 139**
+Total Stage 6A: **139 / 139** passed

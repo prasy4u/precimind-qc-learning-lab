@@ -944,3 +944,101 @@ Test file: Artifact **Class D** (recovery infrastructure)
 Source-grounded expectations: **89 / 139**
 Reconstructed expectations: **50 / 139**
 Total Stage 6A: **139 / 139** passed
+
+---
+
+## Stage 6B — External Assurance Lab Static Data and Challenge Bank
+
+**Source module:** `src/eqa/data.js`
+**Provenance:** Class A — directly recovered from `recovery/original-v0.8.html` (lines 8671–9545)
+**Architectural note:** Static data/teaching module. 76 exports, 0 functions. No React, no scenario content, no calc-engine duplication, no advanced method-comparison, no automatic EQA trend classifier, no root-cause engine, no automatic patient-result impact.
+
+---
+
+### INVAR-72: Stable IQC Does Not Prove Trueness
+
+`GOOD_IQC_DOES_NOT_PROVE_TRUENESS_NOTE` explicitly states stable IQC ≠ proof of trueness. `SIGNATURE_MISCONCEPTION_CASE` demonstrates coexistence of stable IQC and persistent EQA bias (correct answer = "Yes." they can coexist).
+
+- **Tests:** B-05, B-08, B-09
+
+---
+
+### INVAR-73: Poor EQA Does Not Automatically Prove Patient Bias
+
+`POOR_EQA_DOES_NOT_AUTOMATICALLY_PROVE_BIAS_NOTE`, `NO_EQA_FAIL_EQUALS_PATIENT_RESULTS_WRONG_NOTE`. A poor EQA result is evidence requiring interpretation, not automatic proof of patient harm.
+
+- **Tests:** B-06, I-02
+
+---
+
+### INVAR-74: EQA Is Periodic, Not Real-Time IQC
+
+`EQA_NOT_REALTIME_IQC_NOTE` explicitly states EQA does not substitute for day-to-day IQC surveillance.
+
+- **Tests:** B-10
+
+---
+
+### INVAR-75: Peer-Group Mean Is Not Automatically Reference Truth
+
+`NEVER_ALL_CALLED_TRUE_VALUE_NOTE`, `PEER_GROUP_NOT_TRUTH_PRINCIPLE`, `NO_PEER_MEAN_EQUALS_REFERENCE_VALUE_NOTE`. Different target-value types answer different questions.
+
+- **Tests:** C-01, C-02, I-03
+
+---
+
+### INVAR-76: commutability-not-established ≠ noncommutable (Stage 6B)
+
+`UNKNOWN_NOT_EQUAL_FAILED_NOTE`, `COMMUTABILITY_STATUS_DESCRIPTIONS` — distinct description for "not established" versus "noncommutable". Case 5 is the critical fixture.
+
+- **Tests:** D-07, D-08, M-C5-01, M-C5-02
+
+---
+
+### INVAR-77: No Automatic EQA Trend Root-Cause Diagnosis
+
+`LONGITUDINAL_STATUSES_ARE_DESCRIPTIONS_NOTE`, `NO_AUTOMATIC_TREND_ROOT_CAUSE_NOTE`. Longitudinal patterns are authored descriptions, not automatically diagnosed causes.
+
+- **Tests:** F-04, F-05
+
+---
+
+### INVAR-78: EQA Specimen Handling Integrity
+
+`SAMPLE_HANDLING_INTEGRITY_NOTE`, `SAMPLE_HANDLING_DISCOURAGED`. EQA is not an examination to "pass" — specimens should be handled in routine fashion.
+
+- **Tests:** G-04, G-05
+
+---
+
+### INVAR-79: QC Material vs Patient-Sample Comparability Distinction
+
+`CONTROL_MATERIAL_TRAP_CASE`, `PATIENT_COMPARISON_TRAP_CASE`. Disagreement on QC material does not automatically prove patient-sample noncomparability; agreement does not automatically prove patient-sample comparability.
+
+- **Tests:** H-13, H-14
+
+---
+
+### INVAR-80: No Automatic Patient-Result Impact from EQA
+
+`NO_AUTO_PATIENT_IMPACT_FROM_EQA_NOTE`, `NO_AUTO_TRANSFER_BETWEEN_MODULES_NOTE`. EQA module never automatically generates patient-result disposition, root cause, or corrective action.
+
+- **Tests:** I-05, I-06
+
+---
+
+### Stage 6B Challenge Bank
+
+14 deterministic cases, IDs 1–14. Cross-module vocabulary integration verified for all 14 cases against Stage 6A status vocabularies.
+
+Critical case regressions: Cases 1, 2, 3, 4, 5 (CRITICAL: commutability-not-established ≠ noncommutable), 6, 7, 8, 9, 10, 11, 12, 13, 14 — all source-grounded truth values verified.
+
+---
+
+### Stage 6B Test Provenance
+
+Test file: Artifact **Class D** (recovery infrastructure)
+
+Source-grounded expectations: **170 / 313**
+Reconstructed expectations: **143 / 313**
+Total Stage 6B: **313 / 313** passed

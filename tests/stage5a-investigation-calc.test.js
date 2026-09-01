@@ -5,13 +5,43 @@
    Tests for the recovered Investigation Lab calc engine in
    src/investigation/calc.js.
 
-   PROVENANCE CLASSIFICATION:
-   - Class A source-grounded: spec-referenced tests cited by number/letter
-     in the HTML source (spec sections 3-4 Test 3, Test 4, section 90 Test D,
-     sections 36-37, section 98). These are not numeric fixture tables —
-     they are behavioural invariants explicitly referenced in the HTML spec
-     comments. All are verified by running the recovered functions.
-   - Class B reconstructed: all other structural and guard tests.
+   ARTIFACT PROVENANCE: Class D (recovery infrastructure, not a historical test).
+   This file is new recovery-test infrastructure written during Stage 5A.
+
+   TEST EXPECTATION PROVENANCE:
+   Two categories, classified assertion-by-assertion:
+
+   SOURCE-GROUNDED EXPECTATION (80 of 118):
+     Expected value, mapping, status, return structure, omission or behaviour
+     explicitly encoded in recovery/original-v0.8.html. Includes:
+       S1 (29): enum array literals (values + deliberate omissions) from HTML
+       S2 (2):  T-S2-TEST3, T-S2-TEST4 — named spec tests cited in HTML
+       S3 (18): stage array values, index lookups, visibility logic — all from HTML
+       S4 (3):  T-S4-TESTD-01/02/03 — the three explicit branches in HTML source
+       S5 (4):  T-S5-ABS-01/02/03/04 — formula values + units field from HTML
+       S6 (6):  T-S6-REL-01/02/03/04 — formula values + units; REL-05/06 — zero-denom guard from HTML
+       S7 (5):  T-S7-ACR-01/02/03/04/05 — exact return shape + reason substrings from HTML
+       S8 (5):  T-S8-WIN-01/02/03/04/05 — core window semantics from HTML (>=/<=, strictly-before note)
+       S9 (8):  all 8 — deliberate omissions explicitly stated in HTML spec comment
+
+   RECONSTRUCTED EXPECTATION (38 of 118):
+     Boundary, negative, structural, cross-check or independently-chosen
+     inputs written during recovery to verify the recovered behaviour.
+       S2 (3):  T-S2-ONLY2/NOPROCESS/NOESCAPE — structural consequences
+       S4 (4):  T-S4-TESTD-04/05/06 + CRIT-01 — guard inputs + emphasis duplicate
+       S5 (6):  T-S5-ABS-05 through ABS-10 — guard inputs chosen during recovery
+       S6 (4):  T-S6-REL-07/08/09/10 — guard inputs chosen during recovery
+       S7 (1):  T-S7-ACR-06 — calling with arguments (not in HTML)
+       S8 (6):  T-S8-WIN-06/07/08/09 (null/non-string guards) + WIN-10/11 (edge pairs)
+       S10 (14): all 14 — loop-generated and specific pairs chosen during recovery
+
+   CANDIDATE-WINDOW FORMAT LIMITATION:
+   isWithinCandidateWindow() performs lexicographic string comparison.
+   String inputs are assumed to be valid zero-padded same-day 24-hour
+   HH:MM values. Format validation is NOT implemented in the recovered
+   v0.8 function — malformed strings that pass the typeof check (e.g.
+   "99:99", "abc") are not caught. This is a recovered implementation
+   limitation documented here; no datetime parsing is added during recovery.
 
    ANTI-CIRCULAR DISCIPLINE:
    - absoluteDifference and relativeDifferencePercent have simple, closed-form
@@ -272,6 +302,10 @@ assert('T-S7-ACR-06', autoCorr2.supported === false, 'autoCorrectPatientResult a
    HH:MM lexicographic comparison for same-day zero-padded timestamps.
    ----------------------------------------------------------------------- */
 console.log('\n=== SECTION 8: isWithinCandidateWindow — spec sections 27-28, 95 (source-grounded) ===');
+// FORMAT LIMITATION: String inputs are assumed to be valid zero-padded same-day 24-hour
+// HH:MM values. Format validation is NOT implemented in the recovered v0.8 function.
+// Malformed strings that pass typeof (e.g. "99:99", "abc") are NOT caught — this is
+// a recovered implementation limitation, NOT a reason to modify the source.
 
 // Basic inclusion
 assert('T-S8-WIN-01', isWithinCandidateWindow('10:30', '10:00', '11:00') === true, 'within window: true');
@@ -349,15 +383,17 @@ assert('T-S10-NOLEAK', isVisibleAtStage('resume-decision', 'signal') === false, 
    SUMMARY
    ----------------------------------------------------------------------- */
 const total = passed + failed;
-// Source-grounded (directly cited by spec section/test number in HTML):
-//   S1 (status arrays), S2 (Tests 3+4), S4 (Test D), S5 formulas,
-//   S6 formulas, S7 (§98), S8 (§27-28,95), S9 (omission invariants)
-const sourceGrounded = 'S1+S2+S4+S5+S6+S7+S8+S9 (all directly cited in HTML spec comments)';
+// Exact provenance (audited assertion-by-assertion, see file header):
+//   Source-grounded (80): S1(29)+S2(2)+S3(18)+S4(3)+S5(4)+S6(6)+S7(5)+S8(5)+S9(8)
+//   Reconstructed   (38): S2(3)+S4(4)+S5(6)+S6(4)+S7(1)+S8(6)+S10(14)
+const sourceGroundedCount = 80;
+const reconstructedCount = 38;
 
 console.log(`\n${'='.repeat(60)}`);
 console.log(`Stage 5A Investigation Calc Tests: ${passed}/${total} passed, ${failed} failed`);
-console.log(`  Source-grounded: ${sourceGrounded}`);
-console.log(`  Reconstructed: S3 (stage mechanics), S10 (ordering exhaustive), structural guards`);
+console.log(`  Source-grounded expectations: ${sourceGroundedCount}/118`);
+console.log(`  Reconstructed expectations:   ${reconstructedCount}/118`);
+console.log(`  Artifact class: D (recovery infrastructure)`);
 if (failed > 0) {
   console.error('STAGE 5A FAILED — do not commit.');
   process.exit(1);

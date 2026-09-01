@@ -753,12 +753,20 @@ Zero denominator in relative difference → `{supported: false}` (never Infinity
 
 `isWithinCandidateWindow(timestamp, windowStart, windowEnd)` uses lexicographic comparison of "HH:MM" strings (safe for same-day zero-padded 24h strings). Results strictly before windowStart are never included. Per spec sections 27–28, 95.
 
+**Format limitation (recovered implementation):** Non-string inputs return false (guarded by `typeof`). String inputs are assumed to be valid zero-padded same-day 24-hour HH:MM values — format validation is not implemented. Malformed strings that are nonetheless `typeof string` (e.g. "99:99", "abc") are not caught. This is a recovered limitation of the v0.8 implementation.
+
 - **Tests:** T-S8-WIN-01 through T-S8-WIN-11
 
 ---
 
-### Stage 5A Fixture Provenance
+### Stage 5A Test Provenance
 
-All 118 tests are source-grounded against explicit spec section or test references in the HTML source comments. No separate numeric fixture table exists for this module; the spec-cited behavioural invariants (Tests 3, 4, D; sections 34-37, 90, 96-98) serve as the Class A authority.
+Test file (`tests/stage5a-investigation-calc.test.js`): Artifact **Class D** (recovery infrastructure — not a historical test file).
+
+Test expectation provenance (audited assertion-by-assertion):
+- **Source-grounded expectations: 80 / 118** — expected value, mapping, status, return structure, omission, or behaviour explicitly encoded in HTML source. Includes: enum array literals (S1: 29), named spec Tests 3 and 4 (S2: 2), reasoning-stage array and visibility semantics (S3: 18), the three explicit `deriveQcSignalStatus` branches (S4: 3), formula values and units fields (S5: 4, S6: 6), `autoCorrectPatientResult` return shape and reason strings (S7: 5), core window semantics `>=`/`<=` (S8: 5), deliberate-omission invariants from HTML spec comment (S9: 8).
+- **Reconstructed expectations: 38 / 118** — boundary, negative, structural, and cross-check expectations written during recovery. Includes structural consequences of spec tests (S2: 3), guard inputs chosen during recovery (S4: 4, S5: 6, S6: 4, S7: 1, S8: 6), and exhaustive loop-generated stage-ordering checks (S10: 14).
+
+**Candidate-window format limitation:** `isWithinCandidateWindow()` performs lexicographic string comparison. String inputs are assumed to be valid zero-padded same-day 24-hour HH:MM values. Format validation is **not** implemented in the recovered v0.8 function — malformed strings that pass the `typeof` check are not rejected. This is a recovered implementation limitation, not a reason to modify the source.
 
 **Total Stage 5A tests:** 118 / 118 passed

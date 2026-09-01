@@ -679,3 +679,86 @@ MaxE(Nuf) is introduced conceptually only. Full numerical calculation is intenti
 | 10 | insufficient | insufficient | — |
 
 **Total Stage 4B tests:** 143 / 143 passed
+
+---
+
+## Stage 5A — Investigation Lab Calc Engine
+
+**Source module:** `src/investigation/calc.js`
+**Provenance:** Class A — directly recovered from `recovery/original-v0.8.html` (lines ~6536–6683)
+**Architectural note:** Pure calc/status-model helpers only. No React, no scenario content, no automated root-cause inference, no causal-interval inference engine. All reasoning is scenario-authored.
+
+---
+
+### INVAR-50: No Automated Root-Cause Diagnosis
+
+This module deliberately does NOT implement automated root-cause diagnosis, scoring, Bayesian inference, or causal-interval inference. Reasoning is scenario-authored, not computed.
+
+- **Source:** HTML spec comments, sections 18, 29, 66
+- **Tests:** T-S9-NORC-*, T-S9-NOCAUSAL, T-S9-NONOTIFY
+
+---
+
+### INVAR-51: No "confirmed" CauseStatus or "harmed"/"invalid" PatientImpactStatus
+
+`CAUSE_STATUSES` contains no "confirmed" value. `PATIENT_IMPACT_STATUSES` and `PATIENT_RESULT_CATEGORIES` contain no "harmed" or "invalid" values. These are deliberate omissions per spec section 4.
+
+- **Source:** Status array literals in HTML
+- **Tests:** T-S1-PS-08, T-S1-CS-04, T-S1-PIS-02/03, T-S1-PRC-05, T-S1-RDS-05
+
+---
+
+### INVAR-52: Process Recovery and Result Disposition Are Decoupled
+
+`initialResultDispositionStatus(withinCandidateWindow)` takes exactly one argument — the candidate window boolean — never ProcessStatus. This ensures "process recovered" and "result disposition" are never coupled by a shared computation path.
+
+- Inside candidate window → "review-required" (spec Test 4)
+- Outside candidate window → "routine-release" (spec Test 3; never held regardless of investigation status)
+- Never auto-produces "amendment-or-reissue-being-considered" (scenario-authored only)
+
+- **Tests:** T-S2-TEST3, T-S2-TEST4, T-S2-NOESCAPE, T-S2-NOPROCESS
+
+---
+
+### INVAR-53: QC Signal Is Never Silently Upgraded
+
+`deriveQcSignalStatus(signalType)`: "warning" → "warning" (never upgraded to "rejection-signal"); absent/unknown → "none" (never upgraded). Per spec section 90, Test D.
+
+- **Tests:** T-S4-TESTD-01 through T-S4-TESTD-06, T-S4-CRIT-01
+
+---
+
+### INVAR-54: Patient-Result Calculations Are Not Auto-Correct
+
+`autoCorrectPatientResult()` always returns `{supported: false, value: null}` — the only function related to "correcting" a patient result, and it always refuses. Per spec section 98.
+
+`absoluteDifference(original, postRecovery) = postRecovery - original`
+`relativeDifferencePercent(original, postRecovery) = (postRecovery - original) / original × 100`
+
+Zero denominator in relative difference → `{supported: false}` (never Infinity or silent NaN).
+
+- **Tests:** T-S7-ACR-01 through T-S7-ACR-06, T-S5-*, T-S6-*
+
+---
+
+### INVAR-55: Evidence Gating Is Forward-Only
+
+`isVisibleAtStage(revealStage, currentStage)` returns true only when `stageIndex(revealStage) ≤ stageIndex(currentStage)`. Evidence from later stages never leaks into earlier ones. Per spec sections 68–69, 93.
+
+- **Tests:** T-S3-VIS-*, T-S10-*
+
+---
+
+### INVAR-56: Candidate Window Is Inclusive of Start and End, Exclusive of Strictly Before
+
+`isWithinCandidateWindow(timestamp, windowStart, windowEnd)` uses lexicographic comparison of "HH:MM" strings (safe for same-day zero-padded 24h strings). Results strictly before windowStart are never included. Per spec sections 27–28, 95.
+
+- **Tests:** T-S8-WIN-01 through T-S8-WIN-11
+
+---
+
+### Stage 5A Fixture Provenance
+
+All 118 tests are source-grounded against explicit spec section or test references in the HTML source comments. No separate numeric fixture table exists for this module; the spec-cited behavioural invariants (Tests 3, 4, D; sections 34-37, 90, 96-98) serve as the Class A authority.
+
+**Total Stage 5A tests:** 118 / 118 passed

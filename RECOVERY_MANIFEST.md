@@ -40,7 +40,9 @@
 | `tests/stage4a-detection-delay.test.js` | **D** | New recovery tests — NOT historical suite |
 | `src/risk/data.js` | **A** | Directly extracted from HTML (Stage 4B, lines ~5499–5870) |
 | `tests/stage4b-risk-data.test.js` | **D** | New recovery tests — NOT historical suite |
-| `SCIENTIFIC_INVARIANTS.md` | **D** | New recovery documentation (Stages 1–4B) |
+| `src/investigation/calc.js` | **A** | Directly extracted from HTML (Stage 5A, lines ~6536–6683) |
+| `tests/stage5a-investigation-calc.test.js` | **D** | New recovery tests — NOT historical suite |
+| `SCIENTIFIC_INVARIANTS.md` | **D** | New recovery documentation (Stages 1–5A) |
 | Historical Git repository | **E** | Lost — not recoverable |
 | Historical test files | **E** | Lost — not recoverable |
 | Historical commit `3cc62b1` | **C** | Reported externally; not independently recovered |

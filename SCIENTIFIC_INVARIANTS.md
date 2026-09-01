@@ -951,7 +951,7 @@ Total Stage 6A: **139 / 139** passed
 
 **Source module:** `src/eqa/data.js`
 **Provenance:** Class A — directly recovered from `recovery/original-v0.8.html` (lines 8671–9545)
-**Architectural note:** Static data/teaching module. 76 exports, 0 functions. No React, no scenario content, no calc-engine duplication, no advanced method-comparison, no automatic EQA trend classifier, no root-cause engine, no automatic patient-result impact.
+**Architectural note:** Static data/teaching module. 76 exports, 0 functions. Contains the deterministic 14-case External Assurance Challenge Bank (`EXTERNAL_ASSURANCE_CASES`). No React/UI, no calc-engine duplication, no advanced method-comparison implementation, no automatic EQA trend classifier, no root-cause engine, and no automatic patient-result impact engine.
 
 ---
 

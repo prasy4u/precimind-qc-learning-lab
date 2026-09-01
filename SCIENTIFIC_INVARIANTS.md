@@ -864,7 +864,7 @@ Total Stage 5B: **371 / 371** passed
 
 **Source module:** `src/eqa/calc.js`
 **Provenance:** Class A — directly recovered from `recovery/original-v0.8.html` (lines 8368–8670)
-**Architectural note:** Pure calc/status-model module. 17 exports, 6 functions (`calculateEqaAbsoluteDeviation`, `calculateEqaRelativeDeviation`, `calculateEqaZScore`, `calculatePairedDifference`, `calculatePairedRelativeDifference`, `describeSchemeCapability`). No React, no scenario content, no Miller Category classifier, no Passing-Bablok/Deming/Bland-Altman, no automatic patient-result action, no root-cause engine.
+**Architectural note:** Pure calc/status-model module. 17 exports, 6 functions (`calculateEqaAbsoluteDeviation`, `calculateEqaRelativeDeviation`, `calculateEqaZScore`, `calculatePairedDifference`, `calculatePairedRelativeDifference`, `describeSchemeCapability`). No React, no scenario content, no Miller Category classifier, no Passing-Bablok, Deming regression, or Bland-Altman implementation, no automatic patient-result action, no root-cause engine.
 
 ---
 
@@ -941,6 +941,6 @@ Returns qualitative statements and limitations from scheme's own stated properti
 
 Test file: Artifact **Class D** (recovery infrastructure)
 
-Source-grounded expectations: **104 / 139**
-Reconstructed expectations: **35 / 139**
+Source-grounded expectations: **89 / 139**
+Reconstructed expectations: **50 / 139**
 Total Stage 6A: **139 / 139** passed

@@ -313,7 +313,7 @@ assert('K-09', calculatePairedRelativeDifference(Infinity, 100).supported === fa
    SECTION L: describeSchemeCapability (source-grounded)
    Exact boolean logic from HTML source recovered verbatim.
    ----------------------------------------------------------------------- */
-console.log('\n=== SECTION L: describeSchemeCapability ===');
+console.log('\n=== SECTION L: describeSchemeCapability (source-grounded + reconstructed expectations) ===');
 
 // All true — full capability
 const capAll = describeSchemeCapability({
@@ -344,31 +344,31 @@ assert('L-10', capNull.canAssessHarmonisation === false, 'null profile: canAsses
 assert('L-11', capNull.canAssessParticipantPerformance === false, 'null profile: canAssessParticipantPerformance = false', 'sg');
 
 // canAssessHarmonisation requires ALL THREE: commutabilityVerified AND higherOrderTargetAvailable AND methodGroupsDefined
-assert('L-12', describeSchemeCapability({ commutabilityVerified: true, higherOrderTargetAvailable: true, methodGroupsDefined: false }).canAssessHarmonisation === false, 'Harmonisation: needs methodGroupsDefined=true', 'sg');
-assert('L-13', describeSchemeCapability({ commutabilityVerified: true, higherOrderTargetAvailable: false, methodGroupsDefined: true }).canAssessHarmonisation === false, 'Harmonisation: needs higherOrderTargetAvailable=true', 'sg');
-assert('L-14', describeSchemeCapability({ commutabilityVerified: false, higherOrderTargetAvailable: true, methodGroupsDefined: true }).canAssessHarmonisation === false, 'Harmonisation: needs commutabilityVerified=true', 'sg');
-assert('L-15', describeSchemeCapability({ commutabilityVerified: true, higherOrderTargetAvailable: true, methodGroupsDefined: true }).canAssessHarmonisation === true, 'Harmonisation: all three true → true', 'sg');
+assert('L-12', describeSchemeCapability({ commutabilityVerified: true, higherOrderTargetAvailable: true, methodGroupsDefined: false }).canAssessHarmonisation === false, 'Harmonisation: needs methodGroupsDefined=true', 'rc');
+assert('L-13', describeSchemeCapability({ commutabilityVerified: true, higherOrderTargetAvailable: false, methodGroupsDefined: true }).canAssessHarmonisation === false, 'Harmonisation: needs higherOrderTargetAvailable=true', 'rc');
+assert('L-14', describeSchemeCapability({ commutabilityVerified: false, higherOrderTargetAvailable: true, methodGroupsDefined: true }).canAssessHarmonisation === false, 'Harmonisation: needs commutabilityVerified=true', 'rc');
+assert('L-15', describeSchemeCapability({ commutabilityVerified: true, higherOrderTargetAvailable: true, methodGroupsDefined: true }).canAssessHarmonisation === true, 'Harmonisation: all three true → true', 'rc');
 
 // canAssessMethodPerformance: methodGroupsDefined AND (higherOrder OR performanceSpec)
-assert('L-16', describeSchemeCapability({ methodGroupsDefined: true, higherOrderTargetAvailable: false, performanceSpecificationStated: false }).canAssessMethodPerformance === false, 'MethodPerf: groups + neither spec → false', 'sg');
-assert('L-17', describeSchemeCapability({ methodGroupsDefined: true, higherOrderTargetAvailable: true, performanceSpecificationStated: false }).canAssessMethodPerformance === true, 'MethodPerf: groups + higherOrder → true', 'sg');
-assert('L-18', describeSchemeCapability({ methodGroupsDefined: true, higherOrderTargetAvailable: false, performanceSpecificationStated: true }).canAssessMethodPerformance === true, 'MethodPerf: groups + perfSpec → true', 'sg');
-assert('L-19', describeSchemeCapability({ methodGroupsDefined: false, higherOrderTargetAvailable: true, performanceSpecificationStated: true }).canAssessMethodPerformance === false, 'MethodPerf: no groups → false', 'sg');
+assert('L-16', describeSchemeCapability({ methodGroupsDefined: true, higherOrderTargetAvailable: false, performanceSpecificationStated: false }).canAssessMethodPerformance === false, 'MethodPerf: groups + neither spec → false', 'rc');
+assert('L-17', describeSchemeCapability({ methodGroupsDefined: true, higherOrderTargetAvailable: true, performanceSpecificationStated: false }).canAssessMethodPerformance === true, 'MethodPerf: groups + higherOrder → true', 'rc');
+assert('L-18', describeSchemeCapability({ methodGroupsDefined: true, higherOrderTargetAvailable: false, performanceSpecificationStated: true }).canAssessMethodPerformance === true, 'MethodPerf: groups + perfSpec → true', 'rc');
+assert('L-19', describeSchemeCapability({ methodGroupsDefined: false, higherOrderTargetAvailable: true, performanceSpecificationStated: true }).canAssessMethodPerformance === false, 'MethodPerf: no groups → false', 'rc');
 
 // canAssessParticipantPerformance: at least one of methodGroups, perfSpec, higherOrder
-assert('L-20', describeSchemeCapability({ methodGroupsDefined: true, higherOrderTargetAvailable: false, performanceSpecificationStated: false }).canAssessParticipantPerformance === true, 'ParticipantPerf: groups alone → true', 'sg');
-assert('L-21', describeSchemeCapability({ methodGroupsDefined: false, higherOrderTargetAvailable: true, performanceSpecificationStated: false }).canAssessParticipantPerformance === true, 'ParticipantPerf: higherOrder alone → true', 'sg');
-assert('L-22', describeSchemeCapability({ methodGroupsDefined: false, higherOrderTargetAvailable: false, performanceSpecificationStated: true }).canAssessParticipantPerformance === true, 'ParticipantPerf: perfSpec alone → true', 'sg');
-assert('L-23', describeSchemeCapability({ methodGroupsDefined: false, higherOrderTargetAvailable: false, performanceSpecificationStated: false }).canAssessParticipantPerformance === false, 'ParticipantPerf: all false → false', 'sg');
+assert('L-20', describeSchemeCapability({ methodGroupsDefined: true, higherOrderTargetAvailable: false, performanceSpecificationStated: false }).canAssessParticipantPerformance === true, 'ParticipantPerf: groups alone → true', 'rc');
+assert('L-21', describeSchemeCapability({ methodGroupsDefined: false, higherOrderTargetAvailable: true, performanceSpecificationStated: false }).canAssessParticipantPerformance === true, 'ParticipantPerf: higherOrder alone → true', 'rc');
+assert('L-22', describeSchemeCapability({ methodGroupsDefined: false, higherOrderTargetAvailable: false, performanceSpecificationStated: true }).canAssessParticipantPerformance === true, 'ParticipantPerf: perfSpec alone → true', 'rc');
+assert('L-23', describeSchemeCapability({ methodGroupsDefined: false, higherOrderTargetAvailable: false, performanceSpecificationStated: false }).canAssessParticipantPerformance === false, 'ParticipantPerf: all false → false', 'rc');
 
 // Missing properties treated as "not stated" (not guessed)
 const capPartial = describeSchemeCapability({ methodGroupsDefined: true });
-assert('L-24', capPartial.canAssessHarmonisation === false, 'Partial: missing higherOrder/commutability → harmonisation false', 'sg');
+assert('L-24', capPartial.canAssessHarmonisation === false, 'Partial: missing higherOrder/commutability → harmonisation false', 'rc');
 assert('L-25', capPartial.limitations.some(l => l.includes('not stated') || l.includes('unknown') || l.includes('not been established')), 'Partial: unstated properties produce limitation text', 'sg');
 
 // No Miller Category classifier
-assert('L-26', !('categoryNumber' in capAll) && !('millerCategory' in capAll), 'No Miller Category number in result', 'sg');
-assert('L-27', !('capabilityScore' in capAll), 'No capability score in result', 'sg');
+assert('L-26', !('categoryNumber' in capAll) && !('millerCategory' in capAll), 'No Miller Category number in result', 'rc');
+assert('L-27', !('capabilityScore' in capAll), 'No capability score in result', 'rc');
 
 /* -----------------------------------------------------------------------
    SECTION M: ARCHITECTURE (reconstructed)

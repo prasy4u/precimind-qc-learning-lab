@@ -78,7 +78,7 @@ const near = (a, b, tol = 0.0001) =>
   typeof a === 'number' && typeof b === 'number' && isFinite(a) && isFinite(b) && Math.abs(a - b) <= tol;
 
 /* -----------------------------------------------------------------------
-   SECTION 1: STATUS MODEL ENUMERATIONS (Class A — source-grounded)
+   SECTION 1: STATUS MODEL ENUMERATIONS (source-grounded expectations)
    Exact values are encoded in the HTML as array literals.
    ----------------------------------------------------------------------- */
 console.log('\n=== SECTION 1: Status model enumerations (source-grounded) ===');
@@ -128,7 +128,7 @@ assert('T-S1-CCS-01', Array.isArray(COMMUNICATION_CONSIDERATION_STATUSES) && COM
 assert('T-S1-CCS-02', !COMMUNICATION_CONSIDERATION_STATUSES.some(s => s.includes('auto')), 'CommunicationConsideration: no automatic entries');
 
 /* -----------------------------------------------------------------------
-   SECTION 2: initialResultDispositionStatus — spec Tests 3 and 4 (Class A)
+   SECTION 2: initialResultDispositionStatus — spec Tests 3 and 4 (source-grounded expectations)
    These are directly cited in the HTML spec comments as "Test 3" and "Test 4".
    ----------------------------------------------------------------------- */
 console.log('\n=== SECTION 2: initialResultDispositionStatus — spec Tests 3 & 4 (source-grounded) ===');

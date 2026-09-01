@@ -1071,11 +1071,13 @@ Total Stage 6B: **313 / 313** passed
 
 ---
 
-### INVAR-83: CVG=0 Guard Distinction — II vs APS
+### INVAR-83: CVG=0 and Missing-CVG Guard Distinctions — II vs APS
 
-CVG=0 is **unsupported** for `calculateIndexOfIndividuality` (strict >0 required). CVG=0 is **usable** for `calculateBvAps` (≥0 acceptable; bias = biasFactor × sqrt(CVI²+0) remains computable). These two guards must not be harmonised.
+CVG=0 is **unsupported** for `calculateIndexOfIndividuality` (strict >0 required). CVG=0 is **usable** for `calculateBvAps` (`cvgAvailable=true`, ≥0 acceptable; bias = biasFactor × CVI remains finite). For CVI=5, CVG=0: optimum bias = 0.625 (hard-coded). These guards must not be harmonised.
 
-- **Tests:** E-09, F-07, F-08, F-09, F-10
+**Missing CVG (undefined)** is distinct from CVG=0 in APS: `cvgAvailable=false`; imprecision supported (=1.25 for CVI=5); bias unsupported (null); optional TEa unsupported (null, disclosureOnly=true).
+
+- **Tests:** E-09, F-07 through F-18
 
 ---
 
@@ -1136,8 +1138,21 @@ Exceedance results contain no clinical significance, diagnosis, disease progress
 
 Test file: Artifact **Class D** (recovery infrastructure)
 
-Source-grounded expectations: **84 / 128**
-Reconstructed expectations: **44 / 128**
-Total Stage 7A: **128 / 128** passed
+Source-grounded expectations: **89 / 133**
+Reconstructed expectations: **44 / 133**
+Total Stage 7A: **133 / 133** passed
 
-**Note on CVG=0 APS behaviour:** The recovered source's `cvgUsable` semantics treats CVG=0 as acceptable for APS calculations (bias = biasFactor × CVI when CVG=0). This differs from II where CVG=0 is explicitly rejected. Tests F-09 and F-10 were corrected from initially incorrect expectations to match the actual recovered source behaviour. No source was modified.
+**CVG=0 APS behaviour (source-faithful):** `cvgAvailable=true`; bias = biasFactor × √(CVI²+0) = biasFactor × CVI. For CVI=5, CVG=0: optimum imprecision=1.25, optimum bias=0.625, optional TEa=2.6875.
+
+**Missing CVG (undefined) APS behaviour (source-grounded, F-14 through F-18):** `cvgAvailable=false`; imprecision remains supported; bias unsupported (value=null); optional TEa unsupported (value=null, disclosureOnly=true). This is scientifically distinct from CVG=0.
+
+**Numerical regression constants hard-coded (closure):**
+- Classical RCV (CVA=3,CVI=5,z=1.96): 16.16257405242123 %
+- Classical RCV (unidirectional): 13.565017508282104 %
+- Log-normal sigma: 0.05826004692768121
+- Log-normal k: 0.16148861107885468
+- Log-normal increase: 17.52590731492456 %
+- Log-normal decrease: 14.912377802761245 %
+- Optimum APS bias (CVI=5,CVG=3): 0.7288689868556626 %
+
+**Log-normal decrease units (source-exact):** `"% (magnitude of the allowable fall)"`

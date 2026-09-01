@@ -179,20 +179,25 @@ console.log('\n=== SECTION F: calculateBvAps ===');
 const aps = calculateBvAps(5, 3);
 assert('F-01', aps.supported === true, 'APS(5,3) supported', 'sg');
 assert('F-02', aps.levels.optimum.imprecision.supported && near(aps.levels.optimum.imprecision.value, 1.25), 'Optimum imprecision = 1.25 [independently: 0.25*5]', 'sg');
-assert('F-03', aps.levels.optimum.bias.supported && near(aps.levels.optimum.bias.value, 0.125 * Math.sqrt(25+9), 0.0001), 'Optimum bias = 0.125*sqrt(34) [independently]', 'sg');
+// Hard-coded: 0.125 * sqrt(CVI^2 + CVG^2) = 0.125 * sqrt(25+9) = 0.125 * sqrt(34) = 0.7288689868556626
+assert('F-03', aps.levels.optimum.bias.supported && near(aps.levels.optimum.bias.value, 0.7288689868556626, 0.0000001), 'Optimum bias = 0.7288689868556626 [independently hard-coded: 0.125*sqrt(34)]', 'sg');
 assert('F-04', aps.levels.desirable.imprecision.supported && near(aps.levels.desirable.imprecision.value, 2.5), 'Desirable imprecision = 2.5 [independently: 0.50*5]', 'sg');
 assert('F-05', aps.levels.minimum.imprecision.supported && near(aps.levels.minimum.imprecision.value, 3.75), 'Minimum imprecision = 3.75 [independently: 0.75*5]', 'sg');
 assert('F-06', aps.levels.optimum.tea.supported && aps.levels.optimum.tea.disclosureOnly === true, 'TEa disclosureOnly = true', 'sg');
 
-// CVG=0 — CRITICAL: imprecision still supported, bias unsupported
+// CVG=0 is USABLE for BV-derived APS calculations (cvgAvailable=true, >=0 semantics).
+// For CVI=5, CVG=0:
+//   cvgAvailable = true
+//   optimum imprecision = 0.25 * 5 = 1.25 (unchanged)
+//   optimum bias = 0.125 * sqrt(5^2 + 0^2) = 0.125 * 5 = 0.625 (hard-coded)
+//   optimum optional TEa = 1.65 * 1.25 + 0.625 = 2.0625 + 0.625 = 2.6875 (hard-coded)
+// This is DELIBERATELY DISTINCT from II where CVG=0 → unsupported (II=CVI/CVG would be infinite).
 const apsZ = calculateBvAps(5, 0);
-assert('F-07', apsZ.supported === true, 'APS(CVI=5, CVG=0) overall supported (imprecision computable)', 'sg');
-assert('F-08', apsZ.levels.optimum.imprecision.supported === true, 'APS(CVG=0): imprecision still supported', 'sg');
-// CVG=0 is usable in APS (cvgUsable semantics: CVG >= 0)
-// bias = 0.125 * sqrt(5^2 + 0^2) = 0.125 * 5 = 0.625 — still computable
-// (This is distinct from II where CVG=0 is unsupported; do not harmonise)
-assert('F-09', apsZ.levels.optimum.bias.supported === true && apsZ.cvgAvailable === true,
-  'APS(CVG=0): bias supported (0 is cvgAvailable >=0); independently: 0.125*5=0.625', 'sg');
+assert('F-07', apsZ.supported === true, 'APS(CVI=5, CVG=0) overall supported (cvgAvailable>=0)', 'sg');
+assert('F-08', apsZ.levels.optimum.imprecision.supported === true && near(apsZ.levels.optimum.imprecision.value, 1.25), 'APS(CVG=0): imprecision=1.25 [hard-coded: 0.25*5]', 'sg');
+// Strengthened F-09: verify numeric bias value 0.625
+assert('F-09', apsZ.levels.optimum.bias.supported === true && apsZ.cvgAvailable === true && near(apsZ.levels.optimum.bias.value, 0.625, 0.0000001),
+  'APS(CVG=0): bias=0.625 supported [hard-coded: 0.125*5]; cvgAvailable=true', 'sg');
 
 // CVG=0 is USABLE for APS but NOT for II — verify the distinction
 // The II guard: CVG > 0 strictly required (II = CVI/CVG would be infinite)
@@ -208,6 +213,20 @@ assert('F-11', apsCVI0.supported === true && apsCVI0.levels.optimum.imprecision.
 assert('F-12', calculateBvAps(-1, 5).supported === false, 'APS(CVI=-1) unsupported', 'rc');
 assert('F-13', calculateBvAps(NaN, 5).supported === false, 'APS(NaN, 5) unsupported', 'rc');
 
+// Missing CVG (undefined) — source-grounded regression: distinct from CVG=0
+// calculateBvAps(5, undefined) → overall supported (imprecision ok), cvgAvailable=false
+const apsMissing = calculateBvAps(5, undefined);
+assert('F-14', apsMissing.supported === true && apsMissing.cvgAvailable === false,
+  'APS(CVG=undefined): overall supported=true, cvgAvailable=false', 'sg');
+assert('F-15', apsMissing.inputs.cvg === null,
+  'APS(CVG=undefined): inputs.cvg === null', 'sg');
+assert('F-16', apsMissing.levels.optimum.imprecision.supported === true && near(apsMissing.levels.optimum.imprecision.value, 1.25),
+  'APS(CVG=undefined): imprecision=1.25 remains supported [0.25*5]', 'sg');
+assert('F-17', apsMissing.levels.optimum.bias.supported === false && apsMissing.levels.optimum.bias.value === null,
+  'APS(CVG=undefined): bias unsupported, value=null', 'sg');
+assert('F-18', apsMissing.levels.optimum.tea.supported === false && apsMissing.levels.optimum.tea.value === null && apsMissing.levels.optimum.tea.disclosureOnly === true,
+  'APS(CVG=undefined): TEa unsupported, value=null, disclosureOnly=true', 'sg');
+
 /* -----------------------------------------------------------------------
    SECTION G: calculateClassicalRcv (source-grounded + reconstructed)
    Formula: RCV = z * sqrt(2) * sqrt(CVA^2 + CVI^2)
@@ -215,17 +234,18 @@ assert('F-13', calculateBvAps(NaN, 5).supported === false, 'APS(NaN, 5) unsuppor
 console.log('\n=== SECTION G: calculateClassicalRcv ===');
 
 // CVA=3, CVI=5, bidirectional z=1.96
-// Independently: 1.96 * sqrt(2) * sqrt(9+25) = 1.96 * 1.41421 * 5.83095 ≈ 16.1572
-const expectedRcvBi = 1.96 * Math.sqrt(2) * Math.sqrt(9 + 25);
+// Hard-coded reference value: 1.96 * sqrt(2) * sqrt(9+25) = 16.16257405242123
+const CLASSICAL_RCV_BI_35 = 16.16257405242123;
 const rcvBi = calculateClassicalRcv(3, 5, 'bidirectional-95');
-assert('G-01', rcvBi.supported && near(rcvBi.value, expectedRcvBi, 0.001), `Classical RCV(3,5,bi) ≈ ${expectedRcvBi.toFixed(4)} [independently computed]`, 'sg');
+assert('G-01', rcvBi.supported && near(rcvBi.value, CLASSICAL_RCV_BI_35, 0.00001), 'Classical RCV(3,5,bi) = 16.16257405242123 [hard-coded reference value]', 'sg');
 assert('G-02', rcvBi.units === '%', 'Classical RCV units = %', 'sg');
 assert('G-03', typeof rcvBi.modelId === 'string' && rcvBi.modelId.length > 0, 'Classical RCV has modelId', 'sg');
 
 // CVA=3, CVI=5, unidirectional z=1.645
-const expectedRcvUni = 1.645 * Math.sqrt(2) * Math.sqrt(9 + 25);
+// Hard-coded reference value: 1.645 * sqrt(2) * sqrt(9+25) = 13.565017508282104
+const CLASSICAL_RCV_UNI_35 = 13.565017508282104;
 const rcvUni = calculateClassicalRcv(3, 5, 'unidirectional-95');
-assert('G-04', rcvUni.supported && near(rcvUni.value, expectedRcvUni, 0.001), `Classical RCV(3,5,uni) ≈ ${expectedRcvUni.toFixed(4)} [independently computed]`, 'sg');
+assert('G-04', rcvUni.supported && near(rcvUni.value, CLASSICAL_RCV_UNI_35, 0.00001), 'Classical RCV(3,5,uni) = 13.565017508282104 [hard-coded reference value]', 'sg');
 
 // Bidirectional > unidirectional for same CVA/CVI (larger z)
 assert('G-05', rcvBi.value > rcvUni.value, 'Bidirectional z gives larger threshold than unidirectional', 'rc');
@@ -253,23 +273,27 @@ assert('G-12', calculateClassicalRcv(3, 5, 'bad-convention').supported === false
    ----------------------------------------------------------------------- */
 console.log('\n=== SECTION H: calculateLognormalRcv ===');
 
-// CVA=3, CVI=5, z=1.96 — independently computed:
-const z196 = 1.96, CVT = Math.sqrt(9+25)/100;
-const sigma = Math.sqrt(Math.log(1 + CVT*CVT));
-const k = z196 * Math.sqrt(2) * sigma;
-const expInc = (Math.exp(k) - 1) * 100;
-const expDec = (1 - Math.exp(-k)) * 100;
+// Hard-coded reference values (independently computed):
+// CVT = sqrt(9+25)/100 = 0.05830951894845301
+// sigma = sqrt(ln(1 + CVT^2)) = 0.05826004692768121
+// k = 1.96 * sqrt(2) * sigma = 0.16148861107885468
+// increase = (exp(k) - 1)*100 = 17.52590731492456
+// decrease = (1 - exp(-k))*100 = 14.912377802761245
+const LN_SIGMA_35 = 0.05826004692768121;
+const LN_K_35 = 0.16148861107885468;
+const LN_INC_35 = 17.52590731492456;
+const LN_DEC_35 = 14.912377802761245;
 
 const lnRcv = calculateLognormalRcv(3, 5, 'bidirectional-95');
 assert('H-01', lnRcv.supported, 'Log-normal RCV(3,5,bi) supported', 'sg');
-assert('H-02', near(lnRcv.increase.value, expInc, 0.01), `LN RCV increase ≈ ${expInc.toFixed(4)} [independently computed]`, 'sg');
-assert('H-03', near(lnRcv.decrease.value, expDec, 0.01), `LN RCV decrease ≈ ${expDec.toFixed(4)} [independently computed]`, 'sg');
+assert('H-02', near(lnRcv.increase.value, LN_INC_35, 0.00001), 'LN RCV increase = 17.52590731492456 [hard-coded reference value]', 'sg');
+assert('H-03', near(lnRcv.decrease.value, LN_DEC_35, 0.00001), 'LN RCV decrease = 14.912377802761245 [hard-coded reference value]', 'sg');
 assert('H-04', lnRcv.increase.value !== lnRcv.decrease.value, 'LN RCV: increase ≠ decrease (asymmetric)', 'sg');
 assert('H-05', lnRcv.increase.value > lnRcv.decrease.value, 'LN RCV: increase > decrease for positive variation', 'sg');
 assert('H-06', lnRcv.decrease.value < 100, 'LN RCV decrease magnitude < 100%', 'sg');
 // increase.units = '%', decrease.units = '% (magnitude of the allowable fall)'
 assert('H-07', lnRcv.increase.units === '%', 'LN RCV increase.units = %', 'sg');
-assert('H-07b', typeof lnRcv.decrease.units === 'string' && lnRcv.decrease.units.startsWith('%'), 'LN RCV decrease.units starts with %', 'sg');
+assert('H-07b', lnRcv.decrease.units === '% (magnitude of the allowable fall)', 'LN RCV decrease.units exact: "% (magnitude of the allowable fall)"', 'sg');
 
 // CVG absent from inputs
 assert('H-08', !('cvg' in (lnRcv.inputs || {})), 'CVG absent from log-normal RCV inputs', 'sg');
@@ -336,11 +360,9 @@ assert('J-06', calculateSerialRelativeChange(Infinity, 100).supported === false,
    ----------------------------------------------------------------------- */
 console.log('\n=== SECTION K: evaluateClassicalRcvExceedance — strict semantics ===');
 
-// Helper: compute expected classical RCV for known values
-// CVA=3, CVI=5, z=1.96: independently computed ≈ 16.1572
-const classRcvVal = 1.96 * Math.sqrt(2) * Math.sqrt(9 + 25);
+// Hard-coded oracle CLASSICAL_RCV_BI_35 = 16.16257405242123 (defined in Section G)
 
-// Clearly above threshold: relChange=25% > 16.16% → exceeds=true
+// Clearly above threshold: relChange=25% > 16.16257...% → exceeds=true
 const exc1 = evaluateClassicalRcvExceedance(100, 125, 3, 5, 'bidirectional-95');
 assert('K-01', exc1.supported && exc1.exceeds === true, 'Classical: 25% change > threshold → exceeds', 'sg');
 
@@ -348,12 +370,12 @@ assert('K-01', exc1.supported && exc1.exceeds === true, 'Classical: 25% change >
 const exc2 = evaluateClassicalRcvExceedance(100, 110, 3, 5, 'bidirectional-95');
 assert('K-02', exc2.supported && exc2.exceeds === false, 'Classical: 10% change < threshold → not exceeded', 'sg');
 
-// Exact threshold equality: |relChange| = RCV exactly → exceeds=false (strict)
-// If prev=100, curr=prev*(1+rcv/100): relChange = rcv exactly
-const currExact = 100 * (1 + classRcvVal / 100);
+// Exact threshold equality: use hard-coded CLASSICAL_RCV_BI_35 = 16.16257405242123
+// prev=100, curr=100*(1+16.16257405242123/100) = 116.16257405242123
+const currExact = 100 * (1 + CLASSICAL_RCV_BI_35 / 100);
 const excExact = evaluateClassicalRcvExceedance(100, currExact, 3, 5, 'bidirectional-95');
 assert('K-03', excExact.supported && excExact.exceeds === false,
-  'CRITICAL: Classical exact threshold equality → exceeds=false (strict semantics)', 'sg');
+  'CRITICAL: Classical exact threshold equality → exceeds=false (hard-coded oracle)', 'sg');
 
 // Decrease: |relChange| clearly above threshold
 const excDec = evaluateClassicalRcvExceedance(125, 100, 3, 5, 'bidirectional-95');
@@ -385,7 +407,7 @@ assert('L-01', lnExcInc.supported && lnExcInc.exceeds === true, 'LN: 25% increas
 assert('L-02', lnExcInc.direction === 'increase', 'LN: increase direction recorded', 'sg');
 
 // Decrease clearly below (magnitude) decrease threshold
-// For CVA=3,CVI=5,z=1.96: decrease ≈ 14.91%
+// For CVA=3,CVI=5,z=1.96: hard-coded decrease = 14.912377802761245 %
 // A decrease of 20% should exceed (|change| > decrease_threshold)
 const lnExcDec = evaluateLognormalRcvExceedance(125, 100, 3, 5, 'bidirectional-95');
 assert('L-03', lnExcDec.supported && lnExcDec.exceeds === true, 'LN: 20% decrease > decrease threshold → exceeds', 'sg');
@@ -399,12 +421,12 @@ assert('L-05', lnExcInc.threshold !== lnExcDec.threshold,
 const lnExcNC = evaluateLognormalRcvExceedance(100, 100, 3, 5, 'bidirectional-95');
 assert('L-06', lnExcNC.supported && lnExcNC.exceeds === false && lnExcNC.direction === 'no-change', 'LN: no change → not exceeded', 'sg');
 
-// Exact threshold equality → exceeds=false (strict semantics)
-const lnRcvVals = calculateLognormalRcv(3, 5, 'bidirectional-95');
-const currLnExact = 100 * (1 + lnRcvVals.increase.value / 100);
+// Exact threshold equality: use hard-coded LN_INC_35 = 17.52590731492456
+// prev=100, curr=100*(1+17.52590731492456/100) = 117.52590731492456
+const currLnExact = 100 * (1 + LN_INC_35 / 100);
 const lnExcExact = evaluateLognormalRcvExceedance(100, currLnExact, 3, 5, 'bidirectional-95');
 assert('L-07', lnExcExact.supported && lnExcExact.exceeds === false,
-  'CRITICAL: LN exact threshold equality → exceeds=false (strict semantics)', 'sg');
+  'CRITICAL: LN exact threshold equality → exceeds=false (hard-coded oracle)', 'sg');
 
 // Invalid inputs
 assert('L-08', evaluateLognormalRcvExceedance(NaN, 110, 3, 5, 'bidirectional-95').supported === false, 'LN exc: NaN previous → unsupported', 'rc');

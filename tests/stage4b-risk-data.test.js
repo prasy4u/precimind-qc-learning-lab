@@ -356,13 +356,20 @@ assert('T-FEL-05', FREQUENCY_EXPOSURE_LAB.teachingPoint.includes('inappropriate 
    SUMMARY
    ----------------------------------------------------------------------- */
 const total = passed + failed;
-const sourceGrounded = 79;  // Approximate count of assertions with direct HTML authority
-const reconstructed = total - sourceGrounded;
+// Provenance classification by section (no numeric approximations):
+// Source-grounded (HTML-encoded values): S1-NODUP, S2-DEF (definitions/cautions),
+//   S3-NRM (labels/notes), S4-RUN, S5-STARTUP, S6-BRKT, S7-MQCN, S8-HSMIS,
+//   S9-HARM, S10-MAXE, S11-PEDM (presets), S12-QUAD, S13-CHAL (correctWhatChanged,
+//   correctLikelyEffect, misconceptionFlags, titles), S14-OPT, S15-ONSET,
+//   S16-FDD, S17-SHIFT, S18-NOM, S19-ANPED, S20-FEL.
+// Reconstructed (structural/boundary): all string-presence, length, and
+//   cross-module independence checks.
 
 console.log(`\n${'='.repeat(60)}`);
 console.log(`Stage 4B Risk Data Tests: ${passed}/${total} passed, ${failed} failed`);
-console.log(`  Source-grounded test expectations: ~${sourceGrounded}`);
-console.log(`  Reconstructed test expectations: ~${reconstructed}`);
+console.log(`  Provenance: source-grounded (sections S1-S20 HTML-encoded values)`);
+console.log(`             + reconstructed (structural/boundary tests)`);
+console.log(`  See test file header for section-level classification.`);
 if (failed > 0) {
   console.error('STAGE 4B FAILED — do not commit.');
   process.exit(1);

@@ -460,23 +460,31 @@ The strategy layer calls `operatingCharacteristic()` from `src/opchar/functions.
 
 ---
 
-### Stage 3B Test Summary
+### Stage 3B Test Summary (provenance accounting corrected)
 
-| Category | Count | Status |
-|----------|-------|--------|
-| Directly recovered fixtures (challenge Sigma + map) | 22 | ✅ pass |
-| APS framework | 11 | ✅ pass |
-| Sigma mapping (fixed inputs) | 21 | ✅ pass |
-| Procedure library structure | 18 | ✅ pass |
-| Procedure C mandatory check | 10 | ✅ pass |
-| Procedure D mandatory check | 10 | ✅ pass |
-| Alternative 8x config | 5 | ✅ pass |
-| N/R semantics | 5 | ✅ pass |
-| Opchar integration | 12 | ✅ pass |
-| Challenge bank structure | 17 | ✅ pass |
-| Cross-engine integration smoke | 3 | ✅ pass |
-| Doctrine notes | 4 | ✅ pass |
-| **Total Stage 3B** | **158** | **✅ all pass** |
+Provenance corrected from initial draft; see tests/stage3b-strategy.test.js.
+
+Total: **158 tests** composed of:
+- **12 source-grounded** (Class A authority): FIXTURE-CXX-MAP (10) + case10 null structure (2) — use HTML-encoded correctProcedureIds as authority
+- **10 reconstructed Sigma expectations** (Class B): FIXTURE-CXX-SIGMA — independently computed from (TEa−|Bias|)/CV and hard-coded
+- **136 other reconstructed tests** (Class B): all remaining sections
+
+| Section | Count | Provenance | Status |
+|---------|-------|-----------|--------|
+| MAP assertions + case10 (source-grounded) | 12 | Source-grounded | ✅ pass |
+| SIGMA assertions (reconstructed expectations) | 10 | Reconstructed | ✅ pass |
+| APS framework | 11 | Reconstructed | ✅ pass |
+| Sigma mapping (fixed inputs) | 21 | Reconstructed | ✅ pass |
+| Procedure library structure | 18 | Reconstructed | ✅ pass |
+| Procedure C mandatory check | 10 | Reconstructed | ✅ pass |
+| Procedure D mandatory check | 10 | Reconstructed | ✅ pass |
+| Alternative 8x config | 5 | Reconstructed | ✅ pass |
+| N/R semantics | 5 | Reconstructed | ✅ pass |
+| Opchar integration | 12 | Reconstructed | ✅ pass |
+| Challenge bank structure | 17 | Reconstructed | ✅ pass |
+| Cross-engine smoke | 3 | Reconstructed | ✅ pass |
+| Doctrine notes | 4 | Reconstructed | ✅ pass |
+| **Total** | **158** | **12 source-grounded / 146 reconstructed** | **✅ all pass** |
 
 ---
 

@@ -50,7 +50,9 @@
 | `tests/stage6b-eqa-data.test.js` | **D** | New recovery tests — NOT historical suite |
 | `src/bv/calc.js` | **A** | Directly extracted from HTML (Stage 7A, lines 10405–10731) |
 | `tests/stage7a-bv-calc.test.js` | **D** | New recovery tests — NOT historical suite |
-| `SCIENTIFIC_INVARIANTS.md` | **D** | New recovery documentation (Stages 1–7A) |
+| `src/bv/data.js` | **A** | Directly extracted from HTML (Stage 7B, lines 10734–11301) |
+| `tests/stage7b-bv-data.test.js` | **D** | New recovery tests — NOT historical suite |
+| `SCIENTIFIC_INVARIANTS.md` | **D** | New recovery documentation (Stages 1–7B) |
 | Historical Git repository | **E** | Lost — not recoverable |
 | Historical test files | **E** | Lost — not recoverable |
 | Historical commit `3cc62b1` | **C** | Reported externally; not independently recovered |

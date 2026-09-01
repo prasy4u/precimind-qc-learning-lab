@@ -1156,3 +1156,92 @@ Total Stage 7A: **133 / 133** passed
 - Optimum APS bias (CVI=5,CVG=3): 0.7288689868556626 %
 
 **Log-normal decrease units (source-exact):** `"% (magnitude of the allowable fall)"`
+
+---
+
+## Stage 7B — BV & RCV Lab Static Data and Challenge Bank
+
+**Source module:** `src/bv/data.js`
+**Provenance:** Class A — directly recovered from `recovery/original-v0.8.html` (lines 10734–11301)
+**Architectural note:** Static data/teaching module. 33 exports, 0 functions. Contains the 16-case Serial Result Challenge Bank, the 8-record deterministic educational BV dataset, and all BV/RCV/APS/II doctrine notes. No live database queries, no formula duplication, no BIVAC scoring engine.
+
+---
+
+### INVAR-90: CVG Absent from RCV — Explicitly Stated in Data Layer
+
+`CVG_NOT_IN_RCV_STATEMENT` explicitly documents that CVG is absent from both classical and log-normal RCV. `COMPONENT_QUESTION_PANEL` (3 questions) and `CVG_SIGNATURE_EXPERIMENT` reinforce this at the data level.
+
+- **Tests:** C-07, D-07, D-08
+
+---
+
+### INVAR-91: II Changes with CVG; Classical RCV Does Not
+
+`CVG_SIGNATURE_EXPERIMENT` (fixedCva=2, fixedCvi=6, cvgSteps=[6,12,24]) demonstrates that as CVG doubles and quadruples, II falls (from 1.0 to 0.5 to 0.25) while classical RCV remains unchanged at 17.53077...%.
+
+- **Cross-layer hard-coded references:** II(6,6)=1.0; II(6,12)=0.5; II(6,24)=0.25; classical RCV(2,6)=17.53077294359835%
+- **Tests:** D-04 through D-08
+
+---
+
+### INVAR-92: RI and RCV Are Independent — Two Signature Cases
+
+`RI_VS_RCV_SIGNATURE_CASES` (cva=2, cvi=6, z=bidirectional-95, RI=70–110):
+- Case A: previous=80→current=100 (both inside RI); relative change=25%; exceeds RCV (17.53%): **yes**
+- Case B: previous=112→current=114 (both outside RI); relative change≈1.79%; exceeds RCV: **no**
+
+These two cases demonstrate that RI status and RCV exceedance are independent questions.
+
+- **Tests:** I-02 through I-11
+
+---
+
+### INVAR-93: Null BV Fields Stay Null — Never Substituted
+
+BV dataset contains deliberate nulls. Key examples:
+- bv-4: CVA=null (TSH literature-derived snapshot — not generalisable)
+- bv-5: CVG=null → RCV computable from CVA+CVI, but II unsupported, bias APS unsupported
+- bv-6: CVA=null → RCV unsupported; null must never be treated as zero
+- bv-8: CVI=null, CVG=null (subgroup records, no global pooled estimate)
+
+`BV_MISSING_FIELDS_STAY_MISSING_NOTE` documents this invariant.
+
+- **Tests:** K-05 through K-13
+
+---
+
+### INVAR-94: CVA Substitution Trap — APS CVA ≠ Lab CVA
+
+`CVA_SUBSTITUTION_TRAP_CASE` (CVI=6, desirableApsCva=3, actualLabCva=5): using the BV-derived APS target CVA as the actual CVA underestimates RCV. RCV(3,6,bi)=18.59%<RCV(5,6,bi)=21.65%.
+
+- **Tests:** J-03 through J-09
+
+---
+
+### INVAR-95: Classical and Log-Normal RCV Give Different Answers
+
+`SERIAL_RESULT_CHALLENGE_CASES` includes case `case-classical-vs-lognormal` (correctAnswer=`classical-only`) — a change that exceeds the classical threshold but not the log-normal (asymmetric) increase threshold.
+
+Cross-layer validation (CVA=2,CVI=6,change≈18.5%): classical RCV=17.53%→exceeds; LN increase=19.14%→does not exceed.
+
+- **Hard-coded:** LN RCV(2,6,bi) increase=19.14044252346827%
+- **Tests:** P-05 through P-07
+
+---
+
+### Stage 7B Test Provenance
+
+Test file: Artifact **Class D** (recovery infrastructure)
+
+Source-grounded expectations: **144 / 195**
+Reconstructed expectations: **51 / 195**
+Total Stage 7B: **195 / 195** passed
+
+**Cross-layer hard-coded reference values (all verified from Stage 7A engine):**
+- Classical RCV(CVA=2,CVI=6,z=1.96): 17.53077294359835 %
+- Classical RCV(CVA=6,CVI=6,z=1.96): 23.52 %
+- Classical RCV(CVA=3,CVI=6,z=1.96): 18.59419264179007 %
+- Classical RCV(CVA=5,CVI=6,z=1.96): 21.64890759368703 %
+- Classical RCV(CVA=1,CVI=6,z=1.96): 16.860557523403546 %
+- LN RCV increase(CVA=2,CVI=6,z=1.96): 19.14044252346827 %
+- II(CVI=6,CVG=6): 1.0 ; II(CVI=6,CVG=12): 0.5 ; II(CVI=6,CVG=24): 0.25

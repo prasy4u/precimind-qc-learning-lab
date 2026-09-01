@@ -1042,3 +1042,102 @@ Test file: Artifact **Class D** (recovery infrastructure)
 Source-grounded expectations: **170 / 313**
 Reconstructed expectations: **143 / 313**
 Total Stage 6B: **313 / 313** passed
+
+---
+
+## Stage 7A — BV & RCV Lab Calculation Engine
+
+**Source module:** `src/bv/calc.js`
+**Provenance:** Class A — directly recovered from `recovery/original-v0.8.html` (lines 10405–10731)
+**Architectural note:** Pure calc/enum module. 12 exports, 8 exported functions, 2 internal-only helpers (`isFiniteNonNegativeNumber`, `directionOf`). No React, no scenario bank, no BV estimation from raw data, no BIVAC scoring, no RI generation, no MU engine.
+
+**Symbol discipline:** CVA = analytical CV; CVI = within-subject biological CV; CVG = between-subject biological CV. All inputs are percentage numbers (6 = 6%, not 0.06).
+
+---
+
+### INVAR-81: CVG Structurally Absent from RCV Functions
+
+`calculateClassicalRcv(cva, cvi, zConventionId)` and `calculateLognormalRcv(cva, cvi, zConventionId)` each take exactly 3 arguments. CVG is structurally absent — it does not appear in either function's signature, implementation, or return value inputs field.
+
+- **Tests:** A-05, A-06, G-07, H-08, M-03
+
+---
+
+### INVAR-82: Index of Individuality — II = CVI/CVG; CVG>0 Required
+
+`calculateIndexOfIndividuality(cvi, cvg)`: II = CVI/CVG. CVG=0 → unsupported (strict >0 guard; prevents Infinity). Heuristic bands (inclusive boundaries): II<0.6 = marked; 0.6≤II≤1.4 = intermediate; II>1.4 = low.
+
+- **Tests:** E-01 through E-16
+
+---
+
+### INVAR-83: CVG=0 Guard Distinction — II vs APS
+
+CVG=0 is **unsupported** for `calculateIndexOfIndividuality` (strict >0 required). CVG=0 is **usable** for `calculateBvAps` (≥0 acceptable; bias = biasFactor × sqrt(CVI²+0) remains computable). These two guards must not be harmonised.
+
+- **Tests:** E-09, F-07, F-08, F-09, F-10
+
+---
+
+### INVAR-84: BV APS — Optimum/Desirable/Minimum Factors
+
+Three levels with exact factors:
+- Optimum: imprecisionFactor=0.25, biasFactor=0.125
+- Desirable: imprecisionFactor=0.50, biasFactor=0.250
+- Minimum: imprecisionFactor=0.75, biasFactor=0.375
+
+Imprecision = factor × CVI (CVG not required). Bias = factor × √(CVI²+CVG²). Optional TEa = 1.65×imprecision + bias; `disclosureOnly=true`.
+
+- **Tests:** C-01 through C-07, F-01 through F-13
+
+---
+
+### INVAR-85: Classical Symmetric RCV = z×√2×√(CVA²+CVI²)
+
+Single symmetric threshold — same magnitude for increase and decrease. No CVG. Invalid or unknown z convention → structured unsupported result.
+
+- **Tests:** G-01 through G-12
+
+---
+
+### INVAR-86: Log-Normal Asymmetric RCV — Distinct from Classical
+
+CVT=√(CVA²+CVI²)/100; sigma=√(ln(1+CVT²)); k=z×√2×sigma; increase=(exp(k)−1)×100; decrease=(1−exp(−k))×100. Returns separate increase and decrease thresholds. No CVG. Asymmetric: increase≠decrease (for non-zero variation).
+
+- **Tests:** H-01 through H-12
+
+---
+
+### INVAR-87: Z Conventions Are Explicit
+
+`Z_CONVENTION_IDS`: `['bidirectional-95', 'unidirectional-95']`. z=1.96 (bidirectional) and z=1.645 (unidirectional) encoded exactly. Unknown convention → unsupported. Convention must not be inferred from change direction.
+
+- **Tests:** B-01 through B-07
+
+---
+
+### INVAR-88: Strict RCV Exceedance Semantics
+
+`EXCEEDANCE_EPSILON = 1e-9`. Strictly above threshold → exceeds=true. Exactly at threshold → exceeds=false. Below threshold → exceeds=false. Log-normal exceedance uses direction-specific threshold (increase uses increase RCV; decrease uses decrease RCV; no-change → exceeds=false).
+
+- **Tests:** D-01, K-03, K-07, L-06, L-07
+
+---
+
+### INVAR-89: RCV Exceedance ≠ Clinical Significance
+
+Exceedance results contain no clinical significance, diagnosis, disease progression, or therapeutic response fields. RCV is a statistical threshold; exceedance does not prove disease progression; non-exceedance does not prove clinical stability.
+
+- **Tests:** M-06, M-07
+
+---
+
+### Stage 7A Test Provenance
+
+Test file: Artifact **Class D** (recovery infrastructure)
+
+Source-grounded expectations: **84 / 128**
+Reconstructed expectations: **44 / 128**
+Total Stage 7A: **128 / 128** passed
+
+**Note on CVG=0 APS behaviour:** The recovered source's `cvgUsable` semantics treats CVG=0 as acceptable for APS calculations (bias = biasFactor × CVI when CVG=0). This differs from II where CVG=0 is explicitly rejected. Tests F-09 and F-10 were corrected from initially incorrect expectations to match the actual recovered source behaviour. No source was modified.

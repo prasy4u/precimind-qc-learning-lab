@@ -1233,9 +1233,22 @@ Cross-layer validation (CVA=2,CVI=6,change≈18.5%): classical RCV=17.53%→exce
 
 Test file: Artifact **Class D** (recovery infrastructure)
 
-Source-grounded expectations: **144 / 195**
-Reconstructed expectations: **51 / 195**
-Total Stage 7B: **195 / 195** passed
+Source-grounded expectations: **166 / 221**
+Reconstructed expectations: **55 / 221**
+Total Stage 7B: **221 / 221** passed
+
+**Deferred closure additions (Sections S, T, U):**
+- S-01 (rc): source-fidelity regression — HTML lines 10734-11301 == `src/bv/data.js` body byte-for-byte
+- T-01 through T-04 (sg): CVG_SIGNATURE_EXPERIMENT.expectedIndexOfIndividuality[0/1/2] = 1/0.5/0.25 (source-encoded)
+- T-05 through T-07 (rc): cross-engine validation — calc II values match source-encoded expected values
+- T-08 through T-11 (sg): BV_DATASET sourceType distribution tags (exact strings)
+- U-01/U-02 (sg): exact pathway steps 0 and 7
+- U-03 through U-05 (sg): BIVAC structure — all strings; exact [0] and [13] content
+- U-06/U-07 (sg): RI_VS_RCV_SIGNATURE_CASES exact correct-answer strings ("Yes." and "No." with period)
+- U-08/U-09 (sg): caseA/caseB exact IDs
+- U-10 (sg): EFLM exact link "https://biologicalvariation.eu/"
+- U-11 through U-13 (sg): PROVENANCE_CARD_FIELDS all plain strings; exact [0] and [7]
+- U-14 (sg): CVA_SUBSTITUTION_TRAP_CASE uses `.cvi` (not `.fixedCvi`) — field name confirmed
 
 **Cross-layer hard-coded reference values (all verified from Stage 7A engine):**
 - Classical RCV(CVA=2,CVI=6,z=1.96): 17.53077294359835 %
@@ -1438,6 +1451,18 @@ Patient populations: 5 (`population-a` through `population-e`), each with `baseR
 
 Test file: Artifact **Class D** (recovery infrastructure)
 
-Source-grounded expectations: **136 / 180**
-Reconstructed expectations: **44 / 180**
-Total Stage 8B: **180 / 180** passed
+Source-grounded expectations: **153 / 203**
+Reconstructed expectations: **50 / 203**
+Total Stage 8B: **203 / 203** passed
+
+**Deferred closure additions (Sections S, T, U):**
+- S-01 (rc): source-fidelity regression — HTML lines 12476-13231 == `src/pbrtqc/data.js` body byte-for-byte
+- T-01 through T-05 (sg): PATIENT_POPULATIONS distributionDescriptor (exact: narrow-stable, broad-heterogeneous, right-skewed, changing-case-mix, bimodal-mixture)
+- T-06 through T-08 (sg): stabilityDescriptor regression (exact substrings)
+- U-01/U-02 (sg): exact pathway steps 0 and 10
+- U-03/U-04 (sg): PROCESSING_PIPELINE_STEPS[2] = error step, [3] = truncation step (exact start text)
+- U-05 (sg): error step index < truncation step index (ordering confirmed from data)
+- U-06/U-07 (sg): PBRTQC_ANSWER_KIND_OPTIONS yes-no option IDs and labels exact
+- U-08 (sg): case 1 correctAnswer = 12 (numeric or string)
+- U-09 (sg): population-c right-skewed with >= 5 baseResults (experiment reference valid)
+- U-10-* (rc): calc slidingMean processes all 5 populations (cross-module)

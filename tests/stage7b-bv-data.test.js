@@ -432,6 +432,101 @@ assert('R-02', !srcText.match(/fetch\(|http\.get\(|axios\./), 'No API client', '
 assert('R-03', !srcText.match(/new XMLHttpRequest/), 'No XHR client', 'rc');
 
 /* -----------------------------------------------------------------------
+   SECTION S: SOURCE-FIDELITY REGRESSION (reconstructed)
+   HTML lines 10734-11301 must exactly match src/bv/data.js body.
+   ----------------------------------------------------------------------- */
+console.log('\n=== SECTION S: Source-fidelity regression ===');
+
+const _fs = require('fs'), _path = require('path');
+const _htmlLines = _fs.readFileSync(_path.join(__dirname, '../recovery/original-v0.8.html'), 'utf8').split('\n');
+const _authoritativeBlock = _htmlLines.slice(10733, 11301).join('\n') + '\n';
+const _dataFull = _fs.readFileSync(_path.join(__dirname, '../src/bv/data.js'), 'utf8');
+const _dataHeaderEnd = _dataFull.indexOf('\n\n') + 2;
+const _dataBody = _dataFull.slice(_dataHeaderEnd);
+assert('S-01', _authoritativeBlock === _dataBody,
+  'src/bv/data.js body exactly matches HTML lines 10734-11301 (source fidelity)', 'rc');
+
+/* -----------------------------------------------------------------------
+   SECTION T: DISTRIBUTION-TAG REGRESSIONS (source-grounded)
+   CVG_SIGNATURE_EXPERIMENT.expectedIndexOfIndividuality verified against
+   Stage 7A engine; RI_VS_RCV_SIGNATURE_CASES exact correct-answer strings.
+   ----------------------------------------------------------------------- */
+console.log('\n=== SECTION T: Distribution-tag regressions ===');
+
+// CVG_SIGNATURE_EXPERIMENT: expectedIndexOfIndividuality hard-coded in source
+assert('T-01', Array.isArray(CVG_SIGNATURE_EXPERIMENT.expectedIndexOfIndividuality) && CVG_SIGNATURE_EXPERIMENT.expectedIndexOfIndividuality.length === 3,
+  'CVG_SIGNATURE_EXPERIMENT.expectedIndexOfIndividuality: 3 entries', 'sg');
+assert('T-02', CVG_SIGNATURE_EXPERIMENT.expectedIndexOfIndividuality[0] === 1,
+  'expectedII[0] = 1 (CVI=6, CVG=6) [hard-coded in source]', 'sg');
+assert('T-03', CVG_SIGNATURE_EXPERIMENT.expectedIndexOfIndividuality[1] === 0.5,
+  'expectedII[1] = 0.5 (CVI=6, CVG=12) [hard-coded in source]', 'sg');
+assert('T-04', CVG_SIGNATURE_EXPERIMENT.expectedIndexOfIndividuality[2] === 0.25,
+  'expectedII[2] = 0.25 (CVI=6, CVG=24) [hard-coded in source]', 'sg');
+
+// Cross-engine validation: calc engine II values must match source-encoded expected values
+const _ii_6_6 = calc.calculateIndexOfIndividuality(6, 6);
+const _ii_6_12 = calc.calculateIndexOfIndividuality(6, 12);
+const _ii_6_24 = calc.calculateIndexOfIndividuality(6, 24);
+assert('T-05', _ii_6_6.supported && near(_ii_6_6.value, CVG_SIGNATURE_EXPERIMENT.expectedIndexOfIndividuality[0]),
+  'calc II(6,6) = 1.0 matches source-encoded expectedIndexOfIndividuality[0]', 'rc');
+assert('T-06', _ii_6_12.supported && near(_ii_6_12.value, CVG_SIGNATURE_EXPERIMENT.expectedIndexOfIndividuality[1]),
+  'calc II(6,12) = 0.5 matches source-encoded expectedIndexOfIndividuality[1]', 'rc');
+assert('T-07', _ii_6_24.supported && near(_ii_6_24.value, CVG_SIGNATURE_EXPERIMENT.expectedIndexOfIndividuality[2]),
+  'calc II(6,24) = 0.25 matches source-encoded expectedIndexOfIndividuality[2]', 'rc');
+
+// BV_DATASET sourceType distribution tags (source-grounded exact values)
+const _st = Object.fromEntries(BV_DATASET.map(r => [r.id, r.sourceType]));
+assert('T-08', _st['bv-1'] === 'illustrative-teaching-value', 'bv-1 sourceType: illustrative-teaching-value', 'sg');
+assert('T-09', _st['bv-4'] === 'literature-derived-snapshot', 'bv-4 sourceType: literature-derived-snapshot', 'sg');
+assert('T-10', _st['bv-7'] === 'single-small-study', 'bv-7 sourceType: single-small-study', 'sg');
+assert('T-11', _st['bv-8'] === 'subgroup-records-no-global-pooled-estimate', 'bv-8 sourceType: subgroup-records-no-global-pooled-estimate', 'sg');
+
+/* -----------------------------------------------------------------------
+   SECTION U: EXACT PATHWAY / BIVAC / STATIC-TRUTH REGRESSIONS (source-grounded)
+   ----------------------------------------------------------------------- */
+console.log('\n=== SECTION U: Exact pathway/BIVAC/static-truth regressions ===');
+
+// BV_PATHWAY_STEPS: exact first and last steps
+assert('U-01', BV_PATHWAY_STEPS[0] === 'Understand variation',
+  'BV_PATHWAY_STEPS[0] = "Understand variation" (exact)', 'sg');
+assert('U-02', BV_PATHWAY_STEPS[7] === 'State limitations',
+  'BV_PATHWAY_STEPS[7] = "State limitations" (exact)', 'sg');
+
+// BIVAC_QUALITY_ITEMS: all strings, exact first and last
+assert('U-03', BIVAC_QUALITY_ITEMS.every(s => typeof s === 'string'),
+  'BIVAC_QUALITY_ITEMS: all strings (no objects)', 'sg');
+assert('U-04', BIVAC_QUALITY_ITEMS[0].startsWith('Study subjects:'),
+  'BIVAC_QUALITY_ITEMS[0] starts with "Study subjects:"', 'sg');
+assert('U-05', BIVAC_QUALITY_ITEMS[13].includes('independent appraisal'),
+  'BIVAC_QUALITY_ITEMS[13] includes "independent appraisal"', 'sg');
+
+// RI_VS_RCV_SIGNATURE_CASES exact correct-answer strings (source-grounded)
+assert('U-06', RI_VS_RCV_SIGNATURE_CASES.caseA.correctAnswer === 'Yes.',
+  'caseA correctAnswer = "Yes." (exact, with period)', 'sg');
+assert('U-07', RI_VS_RCV_SIGNATURE_CASES.caseB.correctAnswer === 'No.',
+  'caseB correctAnswer = "No." (exact, with period)', 'sg');
+assert('U-08', RI_VS_RCV_SIGNATURE_CASES.caseA.id === 'ri-vs-rcv-case-a',
+  'caseA id = "ri-vs-rcv-case-a" (exact)', 'sg');
+assert('U-09', RI_VS_RCV_SIGNATURE_CASES.caseB.id === 'ri-vs-rcv-case-b',
+  'caseB id = "ri-vs-rcv-case-b" (exact)', 'sg');
+
+// EFLM_BV_DATABASE_REFERENCE exact link (source-grounded)
+assert('U-10', EFLM_BV_DATABASE_REFERENCE.link === 'https://biologicalvariation.eu/',
+  'EFLM link = "https://biologicalvariation.eu/" (exact)', 'sg');
+
+// PROVENANCE_CARD_FIELDS: all plain strings (not objects)
+assert('U-11', PROVENANCE_CARD_FIELDS.every(f => typeof f === 'string'),
+  'PROVENANCE_CARD_FIELDS: all plain strings (not objects)', 'sg');
+assert('U-12', PROVENANCE_CARD_FIELDS[0] === 'measurand',
+  'PROVENANCE_CARD_FIELDS[0] = "measurand" (exact)', 'sg');
+assert('U-13', PROVENANCE_CARD_FIELDS[7] === 'transportabilityCautions',
+  'PROVENANCE_CARD_FIELDS[7] = "transportabilityCautions" (exact)', 'sg');
+
+// CVA_SUBSTITUTION_TRAP_CASE: cvi not fixedCvi (structural discovery)
+assert('U-14', CVA_SUBSTITUTION_TRAP_CASE.cvi === 6 && !('fixedCvi' in CVA_SUBSTITUTION_TRAP_CASE),
+  'CVA trap uses .cvi=6 (not .fixedCvi) — field name confirmed', 'sg');
+
+/* -----------------------------------------------------------------------
    SUMMARY
    ----------------------------------------------------------------------- */
 const total = passed + failed;

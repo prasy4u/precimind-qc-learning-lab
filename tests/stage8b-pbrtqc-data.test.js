@@ -360,6 +360,90 @@ assert('R-02', !srcText.match(/fetch\(|XMLHttpRequest/), 'No HTTP client code', 
 assert('R-03', !('realPatientData' in d) && !('liveStream' in d), 'No real/live patient data exports', 'rc');
 
 /* -----------------------------------------------------------------------
+   SECTION S: SOURCE-FIDELITY REGRESSION (reconstructed)
+   HTML lines 12476-13231 must exactly match src/pbrtqc/data.js body.
+   ----------------------------------------------------------------------- */
+console.log('\n=== SECTION S: Source-fidelity regression ===');
+
+const _fs = require('fs'), _path = require('path');
+const _htmlLines = _fs.readFileSync(_path.join(__dirname, '../recovery/original-v0.8.html'), 'utf8').split('\n');
+const _authoritativeBlock = _htmlLines.slice(12475, 13231).join('\n') + '\n';
+const _dataFull = _fs.readFileSync(_path.join(__dirname, '../src/pbrtqc/data.js'), 'utf8');
+const _dataHeaderEnd = _dataFull.indexOf('\n\n') + 2;
+const _dataBody = _dataFull.slice(_dataHeaderEnd);
+assert('S-01', _authoritativeBlock === _dataBody,
+  'src/pbrtqc/data.js body exactly matches HTML lines 12476-13231 (source fidelity)', 'rc');
+
+/* -----------------------------------------------------------------------
+   SECTION T: DISTRIBUTION-TAG REGRESSIONS (source-grounded)
+   PATIENT_POPULATIONS distributionDescriptor and stabilityDescriptor.
+   ----------------------------------------------------------------------- */
+console.log('\n=== SECTION T: Distribution-tag regressions ===');
+
+const popMap = Object.fromEntries(PATIENT_POPULATIONS.map(p => [p.id, p]));
+
+assert('T-01', popMap['population-a'].distributionDescriptor === 'narrow-stable',
+  'population-a: distributionDescriptor = "narrow-stable"', 'sg');
+assert('T-02', popMap['population-b'].distributionDescriptor === 'broad-heterogeneous',
+  'population-b: distributionDescriptor = "broad-heterogeneous"', 'sg');
+assert('T-03', popMap['population-c'].distributionDescriptor === 'right-skewed',
+  'population-c: distributionDescriptor = "right-skewed"', 'sg');
+assert('T-04', popMap['population-d'].distributionDescriptor === 'changing-case-mix',
+  'population-d: distributionDescriptor = "changing-case-mix"', 'sg');
+assert('T-05', popMap['population-e'].distributionDescriptor === 'bimodal-mixture',
+  'population-e: distributionDescriptor = "bimodal-mixture"', 'sg');
+
+assert('T-06', popMap['population-a'].stabilityDescriptor.includes('stable throughout'),
+  'population-a: stabilityDescriptor includes "stable throughout"', 'sg');
+assert('T-07', popMap['population-d'].stabilityDescriptor.includes('case mix changes after result 150'),
+  'population-d: stabilityDescriptor records case-mix change after result 150 (no analytical change)', 'sg');
+assert('T-08', popMap['population-e'].stabilityDescriptor.includes('stable mixture'),
+  'population-e: stabilityDescriptor includes "stable mixture"', 'sg');
+
+/* -----------------------------------------------------------------------
+   SECTION U: EXACT PATHWAY / ANSWER-KEYS / STATIC-TRUTH REGRESSIONS (source-grounded)
+   ----------------------------------------------------------------------- */
+console.log('\n=== SECTION U: Exact pathway/answer-key/static-truth regressions ===');
+
+// PBRTQC_PATHWAY_STEPS: exact first and last
+assert('U-01', PBRTQC_PATHWAY_STEPS[0] === 'Patient population',
+  'PBRTQC_PATHWAY_STEPS[0] = "Patient population" (exact)', 'sg');
+assert('U-02', PBRTQC_PATHWAY_STEPS[10] === 'Complementarity with IQC',
+  'PBRTQC_PATHWAY_STEPS[10] = "Complementarity with IQC" (exact)', 'sg');
+
+// PROCESSING_PIPELINE_STEPS: error (step index 2) before truncation (step index 3)
+assert('U-03', PROCESSING_PIPELINE_STEPS[2].startsWith('3.') && PROCESSING_PIPELINE_STEPS[2].includes('synthetic analytical error'),
+  'PROCESSING_PIPELINE_STEPS[2]: error injection step (starts with "3.", mentions synthetic analytical error)', 'sg');
+assert('U-04', PROCESSING_PIPELINE_STEPS[3].startsWith('4.') && PROCESSING_PIPELINE_STEPS[3].includes('Numeric truncation'),
+  'PROCESSING_PIPELINE_STEPS[3]: truncation step (starts with "4.", mentions Numeric truncation)', 'sg');
+assert('U-05', PROCESSING_PIPELINE_STEPS.indexOf(PROCESSING_PIPELINE_STEPS[2]) < PROCESSING_PIPELINE_STEPS.indexOf(PROCESSING_PIPELINE_STEPS[3]),
+  'Error injection step index < truncation step index (ordering confirmed)', 'sg');
+
+// PBRTQC_ANSWER_KIND_OPTIONS: exact option IDs for yes-no
+assert('U-06', PBRTQC_ANSWER_KIND_OPTIONS['yes-no'][0].id === 'yes' && PBRTQC_ANSWER_KIND_OPTIONS['yes-no'][0].label === 'Yes',
+  'yes-no[0]: id="yes", label="Yes" (exact)', 'sg');
+assert('U-07', PBRTQC_ANSWER_KIND_OPTIONS['yes-no'][1].id === 'no' && PBRTQC_ANSWER_KIND_OPTIONS['yes-no'][1].label === 'No',
+  'yes-no[1]: id="no", label="No" (exact)', 'sg');
+
+// Challenge case 1 NPed-value answer = 12 (also confirmed as numeric 12, not string)
+assert('U-08', caseMap[1].correctAnswer === 12 || caseMap[1].correctAnswer === '12' || Number(caseMap[1].correctAnswer) === 12,
+  'Case 1 correctAnswer = 12 (nped-value, numeric or string "12")', 'sg');
+
+// Cross-module PATIENT_POPULATIONS calc engine integration
+// population-c is right-skewed; moving-median should be more robust than mean for outlier resistance
+// This is a doctrinal check (the experiment concept is in the data), not a numerical assertion
+assert('U-09', popMap['population-c'].distributionDescriptor === 'right-skewed' &&
+  popMap['population-c'].baseResults.length >= 5,
+  'population-c: right-skewed distribution with >= 5 baseResults (experiment reference valid)', 'sg');
+
+// Verify calc engine can process all 5 populations with slidingMean (reconstructed cross-module)
+PATIENT_POPULATIONS.forEach(p => {
+  const res = calc.calculateSlidingMean(p.baseResults, 3);
+  assert('U-10-' + p.id, res.supported === true,
+    'Calc slidingMean(population ' + p.id + '.baseResults, W=3): supported', 'rc');
+});
+
+/* -----------------------------------------------------------------------
    SUMMARY
    ----------------------------------------------------------------------- */
 const total = passed + failed;

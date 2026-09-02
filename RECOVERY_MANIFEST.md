@@ -59,7 +59,10 @@
 | `src/ui/original-v0.8.css` | **A** | Stage 9A, HTML lines 8–529, SHA fda2285c... |
 | `src/ui/shared-components.jsx` | **A** | Stage 9A, HTML lines 1827–2095, SHA bd848d01... |
 | `tests/stage9a-shared-ui.test.js` | **D** | Stage 9A recovery tests |
-| `SCIENTIFIC_INVARIANTS.md` | **D** | New recovery documentation (Stages 1–9A, UI Invariants) |
+| `src/investigation/ui-components.jsx` | **A** | Stage 9B, HTML lines 7449–7701, SHA 26a0ae70... |
+| `src/investigation/screens.jsx` | **A** | Stage 9B, HTML lines 7704–8365, SHA d2794c94... |
+| `tests/stage9b-investigation-ui.test.js` | **D** | Stage 9B recovery tests |
+| `SCIENTIFIC_INVARIANTS.md` | **D** | New recovery documentation (Stages 1–9B) |
 | Historical Git repository | **E** | Lost — not recoverable |
 | Historical test files | **E** | Lost — not recoverable |
 | Historical commit `3cc62b1` | **C** | Reported externally; not independently recovered |

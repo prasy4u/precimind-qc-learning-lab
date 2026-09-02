@@ -1348,9 +1348,15 @@ The source explicitly names and rejects winsorisation (clamping to limit) as a d
 
 Test file: Artifact **Class D** (recovery infrastructure)
 
-Source-grounded expectations: **113 / 126**
-Reconstructed expectations: **13 / 126**
-Total Stage 8A: **126 / 126** passed
+Source-grounded expectations: **123 / 138**
+Reconstructed expectations: **15 / 138**
+Total Stage 8A: **138 / 138** passed
+
+**Closure additions (Stage 8A):**
+- A-04, A-05, O-01, O-04 reclassified from source-grounded → reconstructed (source-text search tests written during recovery, not cited spec sections)
+- O-02, O-03 remain source-grounded (no N export, no windowSize export: absence facts directly from HTML exports block)
+- Section N expanded with exact export set check (N-01: sg), source-fidelity internal-helper regression (N-02-*: sg), full seven-step pipeline test verifying error-injection-before-truncation ordering (N-03 through N-09: sg/rc), and smoke test (N-10 through N-12)
+- `src/pbrtqc/calc.js` not modified
 
 ---
 

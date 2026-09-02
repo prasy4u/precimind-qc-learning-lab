@@ -446,26 +446,75 @@ assert('M-12', summarizeNpedTrials([]).supported === false, 'Empty trials: unsup
 assert('M-13', summarizeNpedTrials(null).supported === false, 'null trials: unsupported', 'rc');
 
 /* -----------------------------------------------------------------------
-   SECTION N: runPbrtqcStream — smoke test only (reconstructed)
+   SECTION N: runPbrtqcStream — seven-step pipeline validation + exact export set
+   (source-grounded + reconstructed)
    ----------------------------------------------------------------------- */
-console.log('\n=== SECTION N: runPbrtqcStream (smoke test) ===');
+console.log('\n=== SECTION N: runPbrtqcStream pipeline + export set ===');
 
-// Minimal valid stream: raw values, moving-mean, W=3, no error, no truncation
-const rawResults = [100, 102, 98, 103, 101, 99, 105];
-const config = {
+// EXACT EXPORT SET (source-grounded: directly from HTML module.exports block)
+const EXPECTED_EXPORTS = new Set([
+  'validateWindowSize', 'calculateSlidingMean', 'calculateSlidingMedian', 'calculateEWMA',
+  'applyMetadataFilter', 'injectAnalyticalError', 'SUPPORTED_ERROR_TYPES',
+  'applyHardTruncation', 'evaluateControlLimit', 'calculatePointwiseFalseFlagRate',
+  'calculateNPed', 'summarizeNpedTrials', 'runPbrtqcStream'
+]);
+const actualExports = new Set(Object.keys(m));
+assert('N-01', EXPECTED_EXPORTS.size === actualExports.size && [...EXPECTED_EXPORTS].every(k => actualExports.has(k)),
+  'Export set matches HTML source module.exports exactly (13 names)', 'sg');
+
+// SOURCE-FIDELITY REGRESSION: internal helpers must NOT be exported
+const internalNames = ['isFinitePositiveInteger', 'isFiniteNumber', 'eligibleValuesFrom', 'runStatistic'];
+internalNames.forEach(fn => {
+  assert(`N-02-${fn}`, !(fn in m), `Internal helper ${fn} not exported`, 'sg');
+});
+
+// SEVEN-STEP PIPELINE (source-grounded: spec section ordering verified in source comments):
+// 1. Metadata generated
+// 2. Metadata filter applied
+// 3. Synthetic error injected   ← BEFORE truncation
+// 4. Numeric truncation applied ← AFTER error injection
+// 5. Eligible value enters algorithm
+// 6. Algorithm statistic computed
+// 7. Control limit evaluated
+// Test: persistent-additive error with hard truncation, verify that a result
+// shifted by the error can be subsequently truncated out.
+// Raw value=95; additive magnitude=20 → injected=115; truncation upper=110 → excluded.
+// So a result that would be in-range clean (95) is shifted out-of-range and then excluded.
+const pipelineRaw = [90, 95, 100, 105];  // raw numeric values
+const pipelineConfig = {
   algorithmId: 'moving-mean',
-  windowSize: 3,
-  lowerControlLimit: 90,
-  upperControlLimit: 115,
-  errorScenario: { errorType: 'none', magnitude: 0, onsetIndex: 1 },
-  verificationDatasetId: 'test'
+  windowSize: 2,
+  lowerControlLimit: 85,
+  upperControlLimit: 110,
+  lowerTruncationLimit: 85,
+  upperTruncationLimit: 110,
+  errorScenario: { errorType: 'persistent-additive', magnitude: 20, onsetIndex: 2 },
+  verificationDatasetId: 'pipeline-test'
 };
-const stream = runPbrtqcStream(rawResults, config);
-assert('N-01', typeof stream === 'object' && stream !== null, 'runPbrtqcStream returns an object', 'rc');
-assert('N-02', 'supported' in stream, 'Stream result has supported field', 'rc');
-if (stream.supported) {
-  assert('N-03', Array.isArray(stream.points) || 'points' in stream, 'Stream has points array', 'rc');
+const pipelineStream = runPbrtqcStream(pipelineRaw, pipelineConfig);
+assert('N-03', typeof pipelineStream === 'object' && pipelineStream !== null, 'runPbrtqcStream returns object', 'rc');
+assert('N-04', 'supported' in pipelineStream, 'Pipeline stream has supported field', 'rc');
+if (pipelineStream.supported) {
+  assert('N-05', typeof pipelineStream.rawCount === 'number', 'Stream has rawCount', 'sg');
+  assert('N-06', typeof pipelineStream.eligibleCount === 'number', 'Stream has eligibleCount', 'sg');
+  assert('N-07', typeof pipelineStream.excludedCount === 'number', 'Stream has excludedCount', 'sg');
+  // After error onset (index 2, 1-based), values 95 and 105 become 115 and 125 — both exceed upper=110
+  // So they are excluded by truncation after injection
+  assert('N-08', pipelineStream.excludedCount >= 2, 'Error-shifted values are truncation-excluded (injection before truncation)', 'sg');
+  assert('N-09', pipelineStream.eligibleCount < pipelineStream.rawCount, 'Eligible count < raw count (exclusions occurred)', 'rc');
 }
+
+// SIMPLE SMOKE TEST: no error, no truncation, moving-mean
+const smokeRaw = [100, 102, 98, 103, 101, 99, 105];
+const smokeConfig = {
+  algorithmId: 'moving-mean', windowSize: 3,
+  lowerControlLimit: 90, upperControlLimit: 115,
+  errorScenario: { errorType: 'none', magnitude: 0, onsetIndex: 1 }
+};
+const smokeStream = runPbrtqcStream(smokeRaw, smokeConfig);
+assert('N-10', smokeStream.supported === true, 'Smoke test: supported', 'rc');
+assert('N-11', Array.isArray(smokeStream.points) || smokeStream.points != null, 'Smoke test: points present', 'rc');
+assert('N-12', smokeStream.rawCount === 7, 'Smoke test: rawCount=7', 'sg');
 
 /* -----------------------------------------------------------------------
    SECTION O: W vs N symbol discipline (source-grounded)

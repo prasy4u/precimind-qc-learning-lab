@@ -244,6 +244,114 @@ SCIENTIFIC_MODULES.forEach(rel => {
 
 // -----------------------------------------------------------------------
 // SUMMARY
+/* -----------------------------------------------------------------------
+   SECTION K: SliderField deep guards (source-grounded)
+   ----------------------------------------------------------------------- */
+console.log('\n=== SECTION K: SliderField deep guards ===');
+
+const sfB = jsx.slice(jsx.indexOf('function SliderField('), jsx.indexOf('function MetricCard('));
+assert('K-01', sfB.includes('{ label, value, min, max, step, onChange, suffix, id, hint, signed }'),
+  'SliderField: exact prop signature', 'sg');
+assert('K-02', sfB.includes('aria-valuetext'), 'SliderField: aria-valuetext on range input', 'sg');
+assert('K-03', sfB.includes('numeric entry'), 'SliderField: numeric entry aria-label', 'sg');
+assert('K-04', sfB.includes('Set negative'), 'SliderField: "Set negative" quick-sign button', 'sg');
+assert('K-05', sfB.includes('Zero'), 'SliderField: "Zero" quick-sign button', 'sg');
+assert('K-06', sfB.includes('Set positive'), 'SliderField: "Set positive" quick-sign button', 'sg');
+assert('K-07', sfB.includes('fmtSigned('), 'SliderField: signed display uses fmtSigned()', 'sg');
+assert('K-08', sfB.includes('parseFloat('), 'SliderField: numeric entry uses parseFloat()', 'sg');
+assert('K-09', sfB.includes('!isNaN(v)'), 'SliderField: NaN guard prevents onChange call', 'sg');
+
+/* -----------------------------------------------------------------------
+   SECTION L: Modal deep guards (source-grounded)
+   ----------------------------------------------------------------------- */
+console.log('\n=== SECTION L: Modal deep guards ===');
+
+const mB = jsx.slice(jsx.indexOf('function Modal('), jsx.indexOf('function LJChart('));
+assert('L-01', mB.includes('addEventListener("keydown", onKey)') || mB.includes("addEventListener('keydown', onKey)"),
+  'Modal: addEventListener for keydown (onKey)', 'sg');
+assert('L-02', mB.includes('removeEventListener'), 'Modal: removeEventListener cleanup', 'sg');
+assert('L-03', mB.includes('e.target === e.currentTarget'), 'Modal: overlay click guard e.target===e.currentTarget', 'sg');
+assert('L-04', mB.includes('tabIndex={-1}'), 'Modal: tabIndex={-1} on panel', 'sg');
+assert('L-05', mB.includes('aria-modal="true"') || mB.includes("aria-modal={true}") || mB.includes("aria-modal='true'"),
+  'Modal: aria-modal="true"', 'sg');
+assert('L-06', mB.includes('aria-label'), 'Modal: aria-label on dialog', 'sg');
+assert('L-07', mB.includes('"Close " + title'), 'Modal: close button aria-label = "Close " + title', 'sg');
+
+/* -----------------------------------------------------------------------
+   SECTION M: LJChart deep guards (source-grounded)
+   ----------------------------------------------------------------------- */
+console.log('\n=== SECTION M: LJChart deep guards ===');
+
+const ljB = jsx.slice(jsx.indexOf('function LJChart('), jsx.indexOf('function DistributionView('));
+assert('M-01', ljB.includes('const W = 760, H = 398;'), 'LJChart: const W=760, H=398 (exact)', 'sg');
+assert('M-02', ljB.includes('const gridLevels = [-3, -2, -1, 0, 1, 2, 3];'), 'LJChart: gridLevels=[-3,-2,-1,0,1,2,3] (exact)', 'sg');
+assert('M-03', ljB.includes('Math.abs(pt.z) > 3'), 'LJChart: out classification: Math.abs(pt.z) > 3', 'sg');
+assert('M-04', ljB.includes('Math.abs(pt.z) > 2'), 'LJChart: warning classification: Math.abs(pt.z) > 2', 'sg');
+assert('M-05', ljB.includes('tabIndex={0}'), 'LJChart: point tabIndex={0} (keyboard-focusable)', 'sg');
+assert('M-06', ljB.includes('role="button"') || ljB.includes("role='button'"), 'LJChart: point role="button"', 'sg');
+assert('M-07', ljB.includes('Show data table (text alternative)'), 'LJChart: summary="Show data table (text alternative)"', 'sg');
+assert('M-08', ljB.includes('<th>Run</th>') && ljB.includes('<th>Raw value</th>') && ljB.includes('<th>SD position</th>'),
+  'LJChart: table headings Run / Raw value / SD position', 'sg');
+
+/* -----------------------------------------------------------------------
+   SECTION N: DistributionView deep guards (source-grounded)
+   ----------------------------------------------------------------------- */
+console.log('\n=== SECTION N: DistributionView deep guards ===');
+
+const dvB = jsx.slice(jsx.indexOf('function DistributionView('));
+assert('N-DV-01', dvB.includes('const W = 640, H = 170;'), 'DistributionView: const W=640, H=170 (exact)', 'sg');
+assert('N-DV-02', dvB.includes('>Target<'), 'DistributionView: "Target" label distinct', 'sg');
+assert('N-DV-03', dvB.includes('>Process centre<'), 'DistributionView: "Process centre" label distinct', 'sg');
+assert('N-DV-04', dvB.includes('>Target = Process centre<'), 'DistributionView: "Target = Process centre" when coincident', 'sg');
+assert('N-DV-05', dvB.includes('target-line') || dvB.includes('"dist-target"') || dvB.includes("'dist-target'") ||
+  (dvB.includes('className') && dvB.includes('target')), 'DistributionView: target-line CSS class', 'sg');
+assert('N-DV-06', dvB.includes('mean-line') || dvB.includes('"dist-mean"') || dvB.includes('xFor(mean)'),
+  'DistributionView: mean-line/process-centre CSS class or marker', 'sg');
+assert('N-DV-07', dvB.includes('showBothMarkers'), 'DistributionView: showBothMarkers prop controls marker labelling', 'sg');
+
+/* -----------------------------------------------------------------------
+   SECTION O: CSS accessibility and theme safeguards (source-grounded)
+   ----------------------------------------------------------------------- */
+console.log('\n=== SECTION O: CSS accessibility and theme safeguards ===');
+
+assert('O-01', css.includes(':root{') || css.includes(':root {'), 'CSS: :root token block', 'sg');
+assert('O-02', css.includes('prefers-color-scheme: dark') || css.includes('prefers-color-scheme:dark'),
+  'CSS: dark theme @media prefers-color-scheme: dark', 'sg');
+assert('O-03', css.includes('prefers-reduced-motion'), 'CSS: prefers-reduced-motion handling', 'sg');
+assert('O-04', css.includes('focus-visible'), 'CSS: :focus-visible outline', 'sg');
+assert('O-05', css.includes('IBM Plex Sans'), 'CSS: IBM Plex Sans font', 'sg');
+assert('O-06', css.includes('IBM Plex Mono'), 'CSS: IBM Plex Mono font', 'sg');
+assert('O-07', css.includes('--ok:'), 'CSS: --ok colour variable', 'sg');
+assert('O-08', css.includes('--warn:'), 'CSS: --warn colour variable', 'sg');
+assert('O-09', css.includes('--danger:'), 'CSS: --danger colour variable', 'sg');
+assert('O-10', css.includes('--focus:'), 'CSS: --focus colour variable', 'sg');
+assert('O-11', css.includes('--radius:'), 'CSS: --radius variable', 'sg');
+assert('O-12', css.includes('--shadow:'), 'CSS: --shadow variable', 'sg');
+assert('O-13', css.includes('max-width: 600px') || css.includes('max-width:600px'),
+  'CSS: responsive @media max-width: 600px rule', 'sg');
+
+/* -----------------------------------------------------------------------
+   SECTION P: Exact seven-function inventory (reconstructed)
+   ----------------------------------------------------------------------- */
+console.log('\n=== SECTION P: Exact seven-function inventory ===');
+
+const topLevelFns = [...jsx.matchAll(/^function ([A-Za-z]+)\(/mg)].map(m => m[1]);
+assert('P-01', JSON.stringify(topLevelFns) === JSON.stringify(['Badge','ScientificBasisNote','SliderField','MetricCard','Modal','LJChart','DistributionView']),
+  'Exactly seven top-level function declarations in exact order', 'sg');
+
+/* -----------------------------------------------------------------------
+   SECTION Q: No build configuration (reconstructed)
+   ----------------------------------------------------------------------- */
+console.log('\n=== SECTION Q: No build configuration ===');
+
+const path_mod = require('path');
+const BUILD_FILES = ['package.json','webpack.config.js','vite.config.js','babel.config.js','rollup.config.js'];
+BUILD_FILES.forEach(f => {
+  assert('Q-' + f.replace(/[^a-zA-Z]/g,'').substring(0,8),
+    !require('fs').existsSync(path_mod.join(__dirname, '..', f)),
+    'No build config: ' + f, 'rc');
+});
+
 // -----------------------------------------------------------------------
 const total = passed + failed;
 console.log(`\n${'='.repeat(60)}`);

@@ -56,7 +56,10 @@
 | `tests/stage8a-pbrtqc-calc.test.js` | **D** | New recovery tests — NOT historical suite |
 | `src/pbrtqc/data.js` | **A** | Directly extracted from HTML (Stage 8B, lines 12476–13231) |
 | `tests/stage8b-pbrtqc-data.test.js` | **D** | New recovery tests — NOT historical suite |
-| `SCIENTIFIC_INVARIANTS.md` | **D** | New recovery documentation (Stages 1–8B, Scientific Core Frozen) |
+| `src/ui/original-v0.8.css` | **A** | Stage 9A, HTML lines 8–529, SHA fda2285c... |
+| `src/ui/shared-components.jsx` | **A** | Stage 9A, HTML lines 1827–2095, SHA bd848d01... |
+| `tests/stage9a-shared-ui.test.js` | **D** | Stage 9A recovery tests |
+| `SCIENTIFIC_INVARIANTS.md` | **D** | New recovery documentation (Stages 1–9A, UI Invariants) |
 | Historical Git repository | **E** | Lost — not recoverable |
 | Historical test files | **E** | Lost — not recoverable |
 | Historical commit `3cc62b1` | **C** | Reported externally; not independently recovered |

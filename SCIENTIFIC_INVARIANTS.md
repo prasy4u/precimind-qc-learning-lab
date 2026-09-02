@@ -1477,3 +1477,73 @@ Total Stage 8B: **261 / 261** passed
 - U-08 (sg): case 1 correctAnswer = 12 (numeric or string)
 - U-09 (sg): population-c right-skewed with >= 5 baseResults (experiment reference valid)
 - U-10-* (rc): calc slidingMean processes all 5 populations (cross-module)
+
+---
+
+## Stage 9A — Shared UI Primitives and Original Stylesheet
+
+**Source modules:** `src/ui/original-v0.8.css` (Class A, HTML lines 8–529) and `src/ui/shared-components.jsx` (Class A, HTML lines 1827–2095)
+
+**Scientific core frozen at:** `51ba199` (all 14 scientific modules immutable)
+
+---
+
+### INVAR-UI-01: Original Stylesheet Is Monolithic and Must Not Be Split
+
+`src/ui/original-v0.8.css` is recovered verbatim from HTML lines 8–529 (522 lines). Do not split into domain-specific files; do not reformat, sort, or modernise. SHA-256: `fda2285c...`
+
+### INVAR-UI-02: Shared JSX Is Source-Identical to HTML Lines 1827–2095
+
+`src/ui/shared-components.jsx` matches HTML lines 1827–2095 (269 lines) byte-for-byte. SHA-256: `bd848d01...` No imports, no module exports added.
+
+### INVAR-UI-03: Exactly Seven Shared Components, No More
+
+Badge, ScientificBasisNote, SliderField, MetricCard, Modal, LJChart, DistributionView — in that order. No screen components. No domain-specific reusable components.
+
+`LJ_KEY_RUNS = new Set([1, 5, 10, 15, 20])` exact.
+
+### INVAR-UI-04: Modal Accessibility Semantics (Locked)
+
+- `role="dialog"`, `aria-modal="true"`, `aria-label={title}`, `tabIndex={-1}`
+- Escape key closes; listener removed on cleanup (`removeEventListener`)
+- Panel receives focus on mount
+- Overlay click closes only when `e.target === e.currentTarget`
+- Close button: `aria-label={"Close " + title}`
+
+### INVAR-UI-05: SliderField Signed-Mode Semantics
+
+- Range + numeric dual input; `label htmlFor={id}`
+- Signed mode: Set negative / Zero / Set positive quick-controls; `fmtSigned()` for display
+- `aria-valuetext` on range input; `aria-label` on numeric input
+- `parseFloat()` for numeric entry; `!isNaN(v)` guard prevents `onChange` for NaN
+
+### INVAR-UI-06: LJChart Is Presentation Only, Not a QC Rule Engine
+
+- SVG only (no canvas); `role="img"`, `aria-label`
+- `W = 760, H = 398`; ±4 SD visual domain
+- `gridLevels = [-3, -2, -1, 0, 1, 2, 3]` exact
+- `Math.abs(pt.z) > 3` = out; `Math.abs(pt.z) > 2 && <= 3` = warning
+- Points: `tabIndex={0}`, `role="button"`, `aria-label` with run/value/SD
+- Text alternative: `<summary>Show data table (text alternative)</summary>`; table headings: Run / Raw value / SD position
+
+### INVAR-UI-07: DistributionView Is a Visualization Component, Not a Density Engine
+
+- SVG only (no canvas); `role="img"`, `aria-label`
+- `W = 640, H = 170`
+- `showBothMarkers=true`: "Target" and "Process centre" are distinct labelled markers
+- `showBothMarkers=false`: label is "Target = Process centre"
+- Bell curve via normal-density path; not a histogram
+
+### INVAR-UI-08: Browser/Runtime Equivalence Not Yet Established
+
+No JSX was transpiled or rendered in Node.js for Stage 9A. Structural validation only. Browser equivalence awaits later build reconstruction stages.
+
+---
+
+### Stage 9A Test Provenance
+
+Test file: Artifact **Class D** (recovery infrastructure)
+
+Source-grounded expectations: **88 / 122**
+Reconstructed expectations: **34 / 122**
+Total Stage 9A: **122 / 122** passed

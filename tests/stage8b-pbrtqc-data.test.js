@@ -444,6 +444,178 @@ PATIENT_POPULATIONS.forEach(p => {
 });
 
 /* -----------------------------------------------------------------------
+   SECTION V: FINAL SCIENTIFIC CORE FREEZE — Stage 8B
+   Exact export order, distribution tags, pathway, pipeline, algorithm scope,
+   population structure, cross-layer signatures, workflow, learner levels,
+   error-detection flow.
+   All assertions source-grounded against HTML lines 12476-13231.
+   ----------------------------------------------------------------------- */
+console.log('\n=== SECTION V: Final Scientific Core Freeze — Stage 8B ===');
+
+// V-EXPORDER: exact 74-export order
+const EXPECTED_PBRTQC_EXPORT_ORDER = [
+  'PBRTQC_PATHWAY_STEPS','PBRTQC_PATHWAY_CAUTION','PBRTQC_CORE_PRINCIPLE',
+  'PBRTQC_COMPLEMENTARY_NOTE','PBRTQC_NOT_JUST_MOVING_AVERAGE_NOTE','NEVER_CALIBRATION_FAILURE_NOTE',
+  'PATIENT_POPULATION_SCENARIO_FIELDS','ANALYTICAL_ERROR_SCENARIO_FIELDS','PBRTQC_ALGORITHM_CONFIGURATION_FIELDS',
+  'N_R_M_W_DISTINCTION_EXAMPLE','N_R_M_W_DISTINCTION_STATEMENT','PBRTQC_VS_RCV_DISTINCTION',
+  'PBRTQC_VS_CVG_DISTINCTION','ALGORITHMS_IMPLEMENTED','ALGORITHMS_MENTIONED_NOT_IMPLEMENTED',
+  'ALGORITHMS_EXCLUDED_FROM_V08','ALGORITHM_SCOPE_NOTE','SLIDING_VS_BLOCKS_NOTE',
+  'PROCESSING_PIPELINE_STEPS','PROCESSING_ORDER_NOTE','METADATA_EXCLUSION_EXAMPLES',
+  'METADATA_FILTER_CAUTION','TRUNCATION_NOTE','NO_UNIVERSAL_TRUNCATION_NOTE',
+  'PARAMETER_PROVENANCE_OPTIONS','STARTING_CONFIGURATION_LANGUAGE_NOTE','CONTROL_LIMIT_PROVENANCE_NOTE',
+  'ALERT_BOUNDARY_NOTE','CONTROL_LIMIT_TRADEOFF_NOTE','ALERT_INTERPRETATION_STATEMENT',
+  'STABLE_PBRTQC_DOES_NOT_VALIDATE_STATEMENT','PBRTQC_NOT_DELTA_CHECK_STATEMENT','PBRTQC_NOT_EQA_STATEMENT',
+  'ALERT_ROUTES_TO_INVESTIGATION_NOTE','FALSE_FLAG_RATE_NOTE','TRAINING_VERIFICATION_SEPARATION_NOTE',
+  'VERIFICATION_LEAKAGE_NOTE','HISTORICAL_DATA_NOTE','NO_LIVE_DATA_NOTE','SYNTHETIC_DATA_CARD_LABEL',
+  'PRIVACY_BRIEF_NOTE','INFORMATICS_RELIABILITY_TOPICS','INFORMATICS_CHALLENGE_SCENARIO',
+  'VALIDATION_LIFECYCLE_STEPS','VALIDATION_LIFECYCLE_NOTE','MATERIAL_CHANGE_EXAMPLES',
+  'MATERIAL_CHANGE_LIST_CAUTION','NO_AUTO_OPTIMIZER_NOTE','NO_UNIVERSAL_TARGETS_NOTE',
+  'IQC_FREQUENCY_CONNECTION_EXPERIMENT','V04_ANPED_REMINDER_NOTE','NPED_VS_MAXENUF_NOTE',
+  'REPORT_FROM_BACK_NOTE','THROUGHPUT_NOTE','THROUGHPUT_EXAMPLE','THROUGHPUT_ASSUMPTION_LABEL',
+  'MULTIPLE_ANALYZER_NOTE','MULTIPLE_ANALYZER_EXPERIMENT','CASE_MIX_EXCLUSION_DANGER_NOTE',
+  'PBRTQC_LEVEL_EXPLANATION','ERROR_DETECTION_RECOMMENDED_FLOW','PBRTQC_WORKFLOW_QUESTIONS',
+  'PBRTQC_CONFIDENCE_NEVER_ALTERS_SCORE_NOTE','FORBIDDEN_BLANKET_STATEMENTS',
+  'METHODOLOGICAL_DEVELOPMENT_NOTE','PBRTQC_EXCLUSION_LIST','PATIENT_POPULATIONS',
+  'DISTRIBUTION_SIGNATURE_EXPERIMENT','POPULATION_SHIFT_WITHOUT_ERROR_SCENARIO',
+  'AGGRESSIVE_TRUNCATION_EXPERIMENT','MEAN_VS_MEDIAN_ROBUSTNESS_NOTE','MEDIAN_NOT_UNIVERSALLY_BETTER_NOTE',
+  'PBRTQC_CHALLENGE_CASES','PBRTQC_ANSWER_KIND_OPTIONS'
+];
+assert('V-EXPORDER', JSON.stringify(Object.keys(d)) === JSON.stringify(EXPECTED_PBRTQC_EXPORT_ORDER),
+  'PBRTQC data.js: exact 74-export order matches HTML module.exports', 'sg');
+
+// V-DIST: PBRTQC_CHALLENGE_CASES distribution-tag counts
+// Tags are comma-separated strings on each case; count individual tag occurrences
+const _pbrtqcDist = {};
+PBRTQC_CHALLENGE_CASES.forEach(c => {
+  // distribution is an array of strings (not comma-separated string)
+  const tags = Array.isArray(c.distribution) ? c.distribution : [];
+  tags.forEach(tag => { _pbrtqcDist[tag] = (_pbrtqcDist[tag]||0) + 1; });
+});
+assert('V-DIST-01', _pbrtqcDist['population-distribution'] === 4, 'PBRTQC dist: population-distribution = 4', 'sg');
+assert('V-DIST-02', _pbrtqcDist['false-non-analytical-alert'] === 6, 'PBRTQC dist: false-non-analytical-alert = 6', 'sg');
+assert('V-DIST-03', _pbrtqcDist['insufficient-evidence-for-analytical-failure'] === 6, 'PBRTQC dist: insufficient-evidence-for-analytical-failure = 6', 'sg');
+assert('V-DIST-04', _pbrtqcDist['algorithm-comparison'] === 4, 'PBRTQC dist: algorithm-comparison = 4', 'sg');
+assert('V-DIST-05', _pbrtqcDist['truncation-inclusion'] === 2, 'PBRTQC dist: truncation-inclusion = 2', 'sg');
+assert('V-DIST-06', _pbrtqcDist['multiple-analyzer'] === 1, 'PBRTQC dist: multiple-analyzer = 1', 'sg');
+assert('V-DIST-07', _pbrtqcDist['throughput'] === 1, 'PBRTQC dist: throughput = 1', 'sg');
+assert('V-DIST-08', _pbrtqcDist['verification-leakage'] === 1, 'PBRTQC dist: verification-leakage = 1', 'sg');
+assert('V-DIST-09', _pbrtqcDist['informatics'] === 1, 'PBRTQC dist: informatics = 1', 'sg');
+assert('V-DIST-10', _pbrtqcDist['pbrtqc-vs-rcv'] === 1, 'PBRTQC dist: pbrtqc-vs-rcv = 1', 'sg');
+
+// V-PATH: exact 11-step pathway
+const EXACT_PATHWAY = ['Patient population','Data conditioning','Algorithm','Window','Control limit',
+  'Analytical error','Alert','Detection delay','False alerts','Validation','Complementarity with IQC'];
+EXACT_PATHWAY.forEach((step, i) => {
+  assert('V-PATH-' + String(i).padStart(2,'0'), PBRTQC_PATHWAY_STEPS[i] === step,
+    'PATH[' + i + '] = "' + step + '"', 'sg');
+});
+
+// V-PIPELINE: exact 7-step processing pipeline (exact strings)
+assert('V-PL-00', PROCESSING_PIPELINE_STEPS[0] === '1. Metadata is generated for the patient result (subgroup, instrument, timing).', 'PL[0] exact', 'sg');
+assert('V-PL-01', PROCESSING_PIPELINE_STEPS[1] === '2. Metadata inclusion/exclusion filtering is applied.', 'PL[1] exact', 'sg');
+assert('V-PL-02', PROCESSING_PIPELINE_STEPS[2] === '3. Any synthetic analytical error is applied to the result.', 'PL[2] exact', 'sg');
+assert('V-PL-03', PROCESSING_PIPELINE_STEPS[3] === '4. Numeric truncation (hard exclusion) is applied.', 'PL[3] exact', 'sg');
+assert('V-PL-04', PROCESSING_PIPELINE_STEPS[4] === '5. The eligible value enters the configured algorithm.', 'PL[4] exact', 'sg');
+assert('V-PL-05', PROCESSING_PIPELINE_STEPS[5] === "6. The algorithm's statistic is calculated.", 'PL[5] exact', 'sg');
+assert('V-PL-06', PROCESSING_PIPELINE_STEPS[6] === '7. The statistic is compared with the configured control limits.', 'PL[6] exact', 'sg');
+
+// V-ALGSCOPE: exact algorithm scope
+assert('V-ALGSCOPE-IMPL', ALGORITHMS_IMPLEMENTED.length === 3 &&
+  ALGORITHMS_IMPLEMENTED.map(a => a.id).join(',') === 'moving-mean,moving-median,ewma',
+  'ALGORITHMS_IMPLEMENTED: 3, IDs moving-mean/moving-median/ewma in order', 'sg');
+assert('V-ALGSCOPE-EXCL', ALGORITHMS_EXCLUDED_FROM_V08[0] === 'CUSUM-based PBRTQC.',
+  'ALGORITHMS_EXCLUDED_FROM_V08[0] = "CUSUM-based PBRTQC." exact', 'sg');
+
+// V-POP: five-population exact structure
+assert('V-POP-A', popMap['population-a'].baseResults.length === 150 && !Array.isArray(popMap['population-a'].subgroupLabels),
+  'population-a: 150 baseResults, no subgroupLabels', 'sg');
+assert('V-POP-B', popMap['population-b'].baseResults.length === 150, 'population-b: 150 baseResults', 'sg');
+assert('V-POP-C', popMap['population-c'].baseResults.length === 150, 'population-c: 150 baseResults', 'sg');
+assert('V-POP-D', popMap['population-d'].baseResults.length === 300 && Array.isArray(popMap['population-d'].subgroupLabels) && popMap['population-d'].subgroupLabels.length === 300,
+  'population-d: 300 baseResults, 300 subgroupLabels', 'sg');
+assert('V-POP-E', popMap['population-e'].baseResults.length === 150, 'population-e: 150 baseResults', 'sg');
+
+// V-SIG: Cross-layer signatures (runPbrtqcStream against Population A, B, D)
+// Config: moving-mean W=20, limits 137-143, persistent-additive+6, onset=81
+const _sigConfigAB = {
+  algorithmId: 'moving-mean', windowSize: 20,
+  lowerControlLimit: 137, upperControlLimit: 143,
+  errorScenario: { errorType: 'persistent-additive', magnitude: 6, onsetIndex: 81 }
+};
+const _streamA = calc.runPbrtqcStream(popMap['population-a'].baseResults.map(v=>({value:v})), _sigConfigAB);
+assert('V-SIG-A-01', _streamA.firstAlertRawIndex === 93, 'Pop A: firstAlertRawIndex=93', 'rc');
+const _npedA = calc.calculateNPed(81, _streamA.firstAlertRawIndex, 150);
+assert('V-SIG-A-02', _npedA.supported && _npedA.detected && _npedA.nped === 12, 'Pop A: NPed=12 [hard-coded: 93-81]', 'rc');
+
+// Population B: same config → alert at 65, BEFORE onset 81 → calculateNPed must be unsupported
+const _streamB = calc.runPbrtqcStream(popMap['population-b'].baseResults.map(v=>({value:v})), _sigConfigAB);
+assert('V-SIG-B-01', _streamB.firstAlertRawIndex === 65, 'Pop B: firstAlertRawIndex=65 (before onset 81)', 'rc');
+const _npedB = calc.calculateNPed(81, _streamB.firstAlertRawIndex, 150);
+assert('V-SIG-B-02', _npedB.supported === false,
+  'CRITICAL: Pop B alert at 65 before onset 81 → calculateNPed must be unsupported (alert before onset)', 'rc');
+
+// Population D: moving-mean W=20, limits 133-148, errorType=none → first alert from case-mix shift
+const _streamD = calc.runPbrtqcStream(
+  popMap['population-d'].baseResults.map(v=>({value:v})),
+  { algorithmId:'moving-mean', windowSize:20, lowerControlLimit:133, upperControlLimit:148,
+    errorScenario:{ errorType:'none', magnitude:0, onsetIndex:1 } }
+);
+assert('V-SIG-D-01', _streamD.firstAlertRawIndex === 168, 'Pop D: firstAlertRawIndex=168 with errorType=none', 'rc');
+
+// V-TRUNC: Aggressive truncation experiment
+// No truncation: additive+8, onset=81, limits 133-147 → firstAlert=106, NPed=25, excluded=0
+const _noTrunc = calc.runPbrtqcStream(
+  popMap['population-a'].baseResults.map(v=>({value:v})),
+  { algorithmId:'moving-mean', windowSize:20, lowerControlLimit:133, upperControlLimit:147,
+    errorScenario:{ errorType:'persistent-additive', magnitude:8, onsetIndex:81 } }
+);
+assert('V-TRUNC-01', _noTrunc.firstAlertRawIndex === 106, 'No truncation: firstAlertRawIndex=106', 'rc');
+const _npedNoTrunc = calc.calculateNPed(81, _noTrunc.firstAlertRawIndex, 150);
+assert('V-TRUNC-02', _npedNoTrunc.nped === 25, 'No truncation: NPed=25 [hard-coded: 106-81]', 'rc');
+assert('V-TRUNC-03', _noTrunc.excludedCount === 0, 'No truncation: excludedCount=0', 'rc');
+
+// With aggressive truncation upper=146: same error, same limits, upperTruncation=146
+// Error-shifted values (≥146) are truncated out → no alert, NPed=undefined, excluded=51
+const _withTrunc = calc.runPbrtqcStream(
+  popMap['population-a'].baseResults.map(v=>({value:v})),
+  { algorithmId:'moving-mean', windowSize:20, lowerControlLimit:133, upperControlLimit:147,
+    upperTruncationLimit:146,
+    errorScenario:{ errorType:'persistent-additive', magnitude:8, onsetIndex:81 } }
+);
+assert('V-TRUNC-04', _withTrunc.firstAlertRawIndex === null, 'With truncation upper=146: no alert (firstAlertRawIndex=null)', 'rc');
+const _npedWithTrunc = calc.calculateNPed(81, _withTrunc.firstAlertRawIndex, 150);
+assert('V-TRUNC-05', _npedWithTrunc.detected === false && _npedWithTrunc.nped === undefined,
+  'With truncation: detected=false, nped=undefined (error-bearing values hidden by truncation)', 'rc');
+assert('V-TRUNC-06', _withTrunc.excludedCount === 51, 'With truncation upper=146: excludedCount=51', 'rc');
+
+// V-MEANMED: mean vs median [100,100,100,100,160], W=5 → mean=112, median=100
+const _mmVals = [100,100,100,100,160].map(v=>({value:v}));
+const _meanStream = calc.runPbrtqcStream(_mmVals, {algorithmId:'moving-mean',windowSize:5,lowerControlLimit:0,upperControlLimit:999,errorScenario:{errorType:'none',magnitude:0,onsetIndex:1}});
+const _medStream  = calc.runPbrtqcStream(_mmVals, {algorithmId:'moving-median',windowSize:5,lowerControlLimit:0,upperControlLimit:999,errorScenario:{errorType:'none',magnitude:0,onsetIndex:1}});
+assert('V-MEANMED-01', _meanStream.points[4].statistic === 112,
+  'Mean W=5 on [100,100,100,100,160]: statistic=112 [hard-coded: 560/5]', 'rc');
+assert('V-MEANMED-02', _medStream.points[4].statistic === 100,
+  'Median W=5 on [100,100,100,100,160]: statistic=100 [hard-coded: sorted [100,100,100,100,160] → 100]', 'rc');
+
+// V-WFTEXT: exact PBRTQC workflow question texts (7 entries, using .text field)
+assert('V-WFQ-A', PBRTQC_WORKFLOW_QUESTIONS[0].text === 'What changed?', 'WFQ[A].text exact', 'sg');
+assert('V-WFQ-B', PBRTQC_WORKFLOW_QUESTIONS[1].text === 'What remained unchanged?', 'WFQ[B].text exact', 'sg');
+assert('V-WFQ-C', PBRTQC_WORKFLOW_QUESTIONS[2].text === 'Is the alert analytically interpretable from this evidence alone?', 'WFQ[C].text exact', 'sg');
+assert('V-WFQ-D', PBRTQC_WORKFLOW_QUESTIONS[3].text === 'What does the available evidence support?', 'WFQ[D].text exact', 'sg');
+assert('V-WFQ-E', PBRTQC_WORKFLOW_QUESTIONS[4].text === 'What does it NOT prove?', 'WFQ[E].text exact', 'sg');
+assert('V-WFQ-F', PBRTQC_WORKFLOW_QUESTIONS[5].text === 'What should be reviewed next?', 'WFQ[F].text exact', 'sg');
+assert('V-WFQ-G', PBRTQC_WORKFLOW_QUESTIONS[6].text === 'How confident are you in this reading? (metacognitive only)', 'WFQ[G].text exact', 'sg');
+
+// V-LEVELS: exact PBRTQC learner-level keys
+assert('V-LEVELS', JSON.stringify(Object.keys(PBRTQC_LEVEL_EXPLANATION)) === JSON.stringify(['beginner','intermediate','advanced','expert']),
+  'PBRTQC_LEVEL_EXPLANATION: exact keys [beginner,intermediate,advanced,expert]', 'sg');
+
+// V-ERRFLOW: exact error-detection recommended flow (7 steps)
+assert('V-ERRFLOW', JSON.stringify(ERROR_DETECTION_RECOMMENDED_FLOW) === JSON.stringify(['Population','Inclusion / truncation','Error injection','Algorithm','Control limits','Alert','NPed']),
+  'ERROR_DETECTION_RECOMMENDED_FLOW: exact 7-step array', 'sg');
+
+
+/* -----------------------------------------------------------------------
    SUMMARY
    ----------------------------------------------------------------------- */
 const total = passed + failed;

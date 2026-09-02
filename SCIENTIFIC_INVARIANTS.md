@@ -1233,9 +1233,9 @@ Cross-layer validation (CVA=2,CVI=6,change≈18.5%): classical RCV=17.53%→exce
 
 Test file: Artifact **Class D** (recovery infrastructure)
 
-Source-grounded expectations: **166 / 221**
-Reconstructed expectations: **55 / 221**
-Total Stage 7B: **221 / 221** passed
+Source-grounded expectations: **218 / 273**
+Reconstructed expectations: **55 / 273**
+Total Stage 7B: **273 / 273** passed
 
 **Deferred closure additions (Sections S, T, U):**
 - S-01 (rc): source-fidelity regression — HTML lines 10734-11301 == `src/bv/data.js` body byte-for-byte
@@ -1319,7 +1319,11 @@ W must be a finite, whole, positive number (≥1). W=0, W<0, W=non-integer → i
 
 `injectAnalyticalError` is applied BEFORE `applyHardTruncation` — never after. This is documented in the source and enforced by `runPbrtqcStream`. No "calibration failure" or "reagent failure" labels are applied to injected errors; neutral language only.
 
-- **Tests:** H-08, H-09
+**Executable evidence (Stage 8A N-PIPE/N-META):**
+- N-PIPE-06/07: raw=95, +20 additive → errorAffectedValue=115; upper truncation=110 → excluded; `exclusionReason` contains "upper truncation limit" and "110"
+- N-META-04: metadata-excluded point has `errorAffected=false`, `errorAffectedValue=null` (metadata exclusion prevents error injection)
+
+- **Tests:** H-08, H-09, N-PIPE-06, N-PIPE-07, N-META-04
 
 ---
 
@@ -1345,7 +1349,14 @@ The source explicitly names and rejects winsorisation (clamping to limit) as a d
 - No alert (null firstAlertRawIndex) → `{detected:false, nped:undefined}` — never Infinity or placeholder
 - Onset=0 or negative → invalid
 
-- **Tests:** L-01 through L-10
+**Executable evidence (Stage 8A N-IDX/N-NPED; Stage 8B V-SIG):**
+- N-IDX-02/05: `firstAlertRawIndex=3` (raw); excluded point at raw index 2 has `eligiblePatientIndex=null`
+- N-NPED-03: NPed(onset=1, alert=3)=2 confirmed using raw indices across excluded-point gap
+- V-SIG-A-01/02: Population A firstAlertRawIndex=93, NPed=12
+- V-SIG-B-02: Population B alert at raw 65 before onset 81 → `calculateNPed` unsupported
+- V-SIG-D-01: Population D (errorType=none) firstAlertRawIndex=168 (case-mix shift, no analytical error)
+
+- **Tests:** L-01 through L-10, N-IDX-01 through N-IDX-07, N-NPED-01 through N-NPED-03, V-SIG-A-01, V-SIG-A-02, V-SIG-B-01, V-SIG-B-02, V-SIG-D-01
 
 ---
 
@@ -1361,8 +1372,8 @@ The source explicitly names and rejects winsorisation (clamping to limit) as a d
 
 Test file: Artifact **Class D** (recovery infrastructure)
 
-Source-grounded expectations: **113 / 166**
-Reconstructed expectations: **53 / 166**
+Source-grounded expectations: **111 / 166**
+Reconstructed expectations: **55 / 166**
 Total Stage 8A: **166 / 166** passed
 
 **Closure additions:**
@@ -1451,9 +1462,9 @@ Patient populations: 5 (`population-a` through `population-e`), each with `baseR
 
 Test file: Artifact **Class D** (recovery infrastructure)
 
-Source-grounded expectations: **153 / 203**
-Reconstructed expectations: **50 / 203**
-Total Stage 8B: **203 / 203** passed
+Source-grounded expectations: **198 / 261**
+Reconstructed expectations: **63 / 261**
+Total Stage 8B: **261 / 261** passed
 
 **Deferred closure additions (Sections S, T, U):**
 - S-01 (rc): source-fidelity regression — HTML lines 12476-13231 == `src/pbrtqc/data.js` body byte-for-byte

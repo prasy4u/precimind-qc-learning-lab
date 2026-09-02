@@ -526,6 +526,128 @@ assert('U-13', PROVENANCE_CARD_FIELDS[7] === 'transportabilityCautions',
 assert('U-14', CVA_SUBSTITUTION_TRAP_CASE.cvi === 6 && !('fixedCvi' in CVA_SUBSTITUTION_TRAP_CASE),
   'CVA trap uses .cvi=6 (not .fixedCvi) — field name confirmed', 'sg');
 
+
+/* -----------------------------------------------------------------------
+   SECTION V: FINAL SCIENTIFIC CORE FREEZE — Stage 7B
+   Exact export order, distribution tags, pathway, lessons, component panel,
+   EFLM structure, BIVAC array, scenario answers, dataset values,
+   provenance card, learner levels, workflow prompts, reasoning dimensions.
+   All assertions source-grounded against HTML lines 10734-11301.
+   ----------------------------------------------------------------------- */
+console.log('\n=== SECTION V: Final Scientific Core Freeze — Stage 7B ===');
+
+// V-EXPORDER: exact 33-export order
+const EXPECTED_BV_EXPORT_ORDER = [
+  'BV_PATHWAY_STEPS','BV_PATHWAY_CAUTION','MANDATORY_LESSONS',
+  'BV_SYMBOL_GLOSSARY','BV_SYMBOL_DISCIPLINE_NOTE','COMPONENT_QUESTION_PANEL',
+  'CVG_NOT_IN_RCV_STATEMENT','CVG_SIGNATURE_EXPERIMENT','BV_ESTIMATE_FIELDS',
+  'BV_MISSING_FIELDS_STAY_MISSING_NOTE','BV_ESTIMATES_NOT_CONSTANTS_NOTE',
+  'EFLM_BV_DATABASE_REFERENCE','BIVAC_QUALITY_ITEMS','BIVAC_TEACHING_NOTE',
+  'BIVAC_MISCONCEPTION_EXERCISE','TRANSPORTABILITY_HEALTHY_POPULATION_GUARDRAIL',
+  'TRANSPORTABILITY_TIME_SCALE_GUARDRAIL','BIOLOGICAL_RHYTHMS_NOTE',
+  'II_HEURISTIC_CAUTION','RI_VS_RCV_SIGNATURE_CASES','APS_VS_RCV_DISTINCTION_PANEL',
+  'CVA_SUBSTITUTION_TRAP_CASE','RCV_NOT_DIAGNOSTIC_CUTOFF_STATEMENT',
+  'PREANALYTICAL_TRAP_SCENARIO','DISEASE_POPULATION_TRANSPORTABILITY_SCENARIO',
+  'SAMPLING_INTERVAL_TRANSPORTABILITY_SCENARIO','BV_DATASET','PROVENANCE_CARD_FIELDS',
+  'BV_LEVEL_EXPLANATION','SERIAL_RESULT_CHALLENGE_CASES','BV_WORKFLOW_QUESTIONS',
+  'BV_REASONING_DIMENSIONS','BV_CONFIDENCE_NEVER_ALTERS_SCORE_NOTE'
+];
+assert('V-EXPORDER', JSON.stringify(Object.keys(d)) === JSON.stringify(EXPECTED_BV_EXPORT_ORDER),
+  'BV data.js: exact 33-export order matches HTML module.exports', 'sg');
+
+// V-DIST: SERIAL_RESULT_CHALLENGE_CASES distribution-tag counts
+const _srccDist = {};
+SERIAL_RESULT_CHALLENGE_CASES.forEach(c => {
+  (c.distribution || []).forEach(tag => { _srccDist[tag] = (_srccDist[tag]||0) + 1; });
+});
+assert('V-DIST-01', _srccDist['ri-vs-rcv'] === 2, 'SRCC dist: ri-vs-rcv = 2', 'sg');
+assert('V-DIST-02', _srccDist['cva-cvi-cvg-distinction'] === 4, 'SRCC dist: cva-cvi-cvg-distinction = 4', 'sg');
+assert('V-DIST-03', _srccDist['provenance-transportability'] === 5, 'SRCC dist: provenance-transportability = 5', 'sg');
+assert('V-DIST-04', _srccDist['insufficient-information'] === 4, 'SRCC dist: insufficient-information = 4', 'sg');
+assert('V-DIST-05', _srccDist['missing-component'] === 3, 'SRCC dist: missing-component = 3', 'sg');
+assert('V-DIST-06', _srccDist['aps-vs-rcv-trap'] === 1, 'SRCC dist: aps-vs-rcv-trap = 1', 'sg');
+assert('V-DIST-07', _srccDist['log-normal'] === 1, 'SRCC dist: log-normal = 1', 'sg');
+assert('V-DIST-08', _srccDist['preanalytical'] === 1, 'SRCC dist: preanalytical = 1', 'sg');
+
+// V-PATH: exact full BV pathway (all 8 steps)
+assert('V-PATH-00', BV_PATHWAY_STEPS[0] === 'Understand variation', 'PATH[0] exact', 'sg');
+assert('V-PATH-01', BV_PATHWAY_STEPS[1] === 'Identify CVA/CVI/CVG', 'PATH[1] exact', 'sg');
+assert('V-PATH-02', BV_PATHWAY_STEPS[2] === 'Check data provenance', 'PATH[2] exact', 'sg');
+assert('V-PATH-03', BV_PATHWAY_STEPS[3] === 'Assess individuality', 'PATH[3] exact', 'sg');
+assert('V-PATH-04', BV_PATHWAY_STEPS[4] === 'Derive BV-based APS', 'PATH[4] exact', 'sg');
+assert('V-PATH-05', BV_PATHWAY_STEPS[5] === 'Select an RCV model', 'PATH[5] exact', 'sg');
+assert('V-PATH-06', BV_PATHWAY_STEPS[6] === 'Interpret serial change', 'PATH[6] exact', 'sg');
+assert('V-PATH-07', BV_PATHWAY_STEPS[7] === 'State limitations', 'PATH[7] exact', 'sg');
+
+// V-LESSONS: exact mandatory lessons (both strings)
+assert('V-LESSONS-01', MANDATORY_LESSONS[0] === 'A population reference interval and a reference change value answer different questions.', 'MANDATORY_LESSONS[0] exact', 'sg');
+assert('V-LESSONS-02', MANDATORY_LESSONS[1] === 'A change exceeding an RCV is not automatically a pathological, clinically important, or treatment-requiring change.', 'MANDATORY_LESSONS[1] exact', 'sg');
+
+// V-CQP: exact component question panel (3 entries, exact text)
+assert('V-CQP-00', COMPONENT_QUESTION_PANEL[0].component === 'CVA' &&
+  COMPONENT_QUESTION_PANEL[0].question === 'How much does the measurement procedure itself add to the noise in a single result?',
+  'CQP[0] CVA exact', 'sg');
+assert('V-CQP-01', COMPONENT_QUESTION_PANEL[1].component === 'CVI' &&
+  COMPONENT_QUESTION_PANEL[1].question.includes('matters for interpreting a change in ONE person over time'),
+  'CQP[1] CVI exact', 'sg');
+assert('V-CQP-02', COMPONENT_QUESTION_PANEL[2].component === 'CVG' &&
+  COMPONENT_QUESTION_PANEL[2].question.includes('determines how useful a POPULATION reference interval is for THIS person'),
+  'CQP[2] CVG exact', 'sg');
+
+// V-EFLM: exact EFLM object keys and link
+assert('V-EFLM-KEYS', JSON.stringify(Object.keys(EFLM_BV_DATABASE_REFERENCE)) === JSON.stringify(['name','informs','doesNotEstablish','link','linkLabel']),
+  'EFLM keys exact: [name,informs,doesNotEstablish,link,linkLabel]', 'sg');
+assert('V-EFLM-LINK', EFLM_BV_DATABASE_REFERENCE.link === 'https://biologicalvariation.eu/', 'EFLM link exact', 'sg');
+assert('V-EFLM-LABEL', EFLM_BV_DATABASE_REFERENCE.linkLabel === 'biologicalvariation.eu — EFLM Biological Variation Database', 'EFLM linkLabel exact', 'sg');
+
+// V-BIVAC: exact 14-item array (all strings, exact content spot-checks)
+assert('V-BIVAC-00', BIVAC_QUALITY_ITEMS[0] === 'Study subjects: number, health status and selection criteria clearly described', 'BIVAC[0] exact', 'sg');
+assert('V-BIVAC-04', BIVAC_QUALITY_ITEMS[4] === 'Standardised sample collection conditions (time, posture, fasting status, etc.)', 'BIVAC[4] exact', 'sg');
+assert('V-BIVAC-08', BIVAC_QUALITY_ITEMS[8] === 'Samples analysed in a single analytical run/batch where relevant, to control CVA', 'BIVAC[8] exact', 'sg');
+assert('V-BIVAC-11', BIVAC_QUALITY_ITEMS[11] === 'Statistical (e.g. ANOVA-based) method for deriving CVI/CVG stated', 'BIVAC[11] exact', 'sg');
+assert('V-BIVAC-13', BIVAC_QUALITY_ITEMS[13] === 'Data and methodology reported with enough detail for independent appraisal', 'BIVAC[13] exact', 'sg');
+
+// V-SCENANS: exact scenario answers (transportability cases)
+const _srccMap = Object.fromEntries(SERIAL_RESULT_CHALLENGE_CASES.map(c => [c.id, c]));
+assert('V-SCENANS-healthy', _srccMap['case-healthy-to-disease'].correctAnswer === 'no', 'case-healthy-to-disease: correctAnswer=no', 'sg');
+assert('V-SCENANS-sampling', _srccMap['case-sampling-interval-mismatch'].correctAnswer === 'no', 'case-sampling-interval-mismatch: correctAnswer=no', 'sg');
+assert('V-SCENANS-preanalytical', _srccMap['case-preanalytical-confounding'].correctAnswer === 'no', 'case-preanalytical-confounding: correctAnswer=no', 'sg');
+assert('V-SCENANS-different', _srccMap['case-different-patient-context'].correctAnswer === 'yes', 'case-different-patient-context: correctAnswer=yes', 'sg');
+
+// V-DATASET: bv-2/bv-3/bv-7 complete values
+const _bvMap = Object.fromEntries(BV_DATASET.map(r => [r.id, r]));
+assert('V-BV2', _bvMap['bv-2'].cva === 2 && _bvMap['bv-2'].cvi === 3 && _bvMap['bv-2'].cvg === 15 && _bvMap['bv-2'].sourceType === 'illustrative-teaching-value',
+  'bv-2: cva=2, cvi=3, cvg=15, sourceType=illustrative-teaching-value', 'sg');
+assert('V-BV3', _bvMap['bv-3'].cva === 2 && _bvMap['bv-3'].cvi === 15 && _bvMap['bv-3'].cvg === 8 && _bvMap['bv-3'].sourceType === 'illustrative-teaching-value',
+  'bv-3: cva=2, cvi=15, cvg=8, sourceType=illustrative-teaching-value', 'sg');
+assert('V-BV7', _bvMap['bv-7'].cva === 3 && _bvMap['bv-7'].cvi === 11 && _bvMap['bv-7'].cvg === 18 && _bvMap['bv-7'].sourceType === 'single-small-study',
+  'bv-7: cva=3, cvi=11, cvg=18, sourceType=single-small-study', 'sg');
+
+// V-PCF: exact provenance card (all 8 fields, exact order)
+assert('V-PCF', JSON.stringify(PROVENANCE_CARD_FIELDS) === JSON.stringify(['measurand','population','healthStatus','samplingInterval','sourceType','sourceCitation','bivacStatus','transportabilityCautions']),
+  'PROVENANCE_CARD_FIELDS: 8 fields, exact order', 'sg');
+
+// V-LEVELS: exact learner-level keys
+assert('V-LEVELS', JSON.stringify(Object.keys(BV_LEVEL_EXPLANATION)) === JSON.stringify(['beginner','intermediate','advanced','expert']),
+  'BV_LEVEL_EXPLANATION: exact keys [beginner,intermediate,advanced,expert]', 'sg');
+
+// V-WFPROMPTS: exact BV workflow question prompts (all 8, using .prompt field)
+assert('V-WFQ-A', BV_WORKFLOW_QUESTIONS[0].prompt.startsWith('What does the population reference interval tell you here'), 'BV WFQ[A] prompt exact start', 'sg');
+assert('V-WFQ-B', BV_WORKFLOW_QUESTIONS[1].prompt.startsWith('Which BV components'), 'BV WFQ[B] prompt exact start', 'sg');
+assert('V-WFQ-C', BV_WORKFLOW_QUESTIONS[2].prompt.startsWith('Is the index of individuality computable'), 'BV WFQ[C] prompt exact start', 'sg');
+assert('V-WFQ-D', BV_WORKFLOW_QUESTIONS[3].prompt.startsWith('Which RCV model'), 'BV WFQ[D] prompt exact start', 'sg');
+assert('V-WFQ-E', BV_WORKFLOW_QUESTIONS[4].prompt.startsWith('What is the calculated RCV threshold'), 'BV WFQ[E] prompt exact start', 'sg');
+assert('V-WFQ-F', BV_WORKFLOW_QUESTIONS[5].prompt.startsWith('Are there any provenance or transportability cautions'), 'BV WFQ[F] prompt exact start', 'sg');
+assert('V-WFQ-G', BV_WORKFLOW_QUESTIONS[6].prompt.startsWith('What can you responsibly conclude'), 'BV WFQ[G] prompt exact start', 'sg');
+assert('V-WFQ-H', BV_WORKFLOW_QUESTIONS[7].prompt.startsWith('What is your confidence'), 'BV WFQ[H] prompt exact start', 'sg');
+
+// V-RD: exact reasoning dimensions (5, as plain strings)
+assert('V-RD-00', BV_REASONING_DIMENSIONS[0] === 'Component identification', 'RD[0] exact', 'sg');
+assert('V-RD-01', BV_REASONING_DIMENSIONS[1] === 'Provenance & transportability judgement', 'RD[1] exact', 'sg');
+assert('V-RD-02', BV_REASONING_DIMENSIONS[2] === 'Model selection', 'RD[2] exact', 'sg');
+assert('V-RD-03', BV_REASONING_DIMENSIONS[3] === 'Threshold interpretation', 'RD[3] exact', 'sg');
+assert('V-RD-04', BV_REASONING_DIMENSIONS[4] === 'Guarded conclusion language', 'RD[4] exact', 'sg');
+
 /* -----------------------------------------------------------------------
    SUMMARY
    ----------------------------------------------------------------------- */

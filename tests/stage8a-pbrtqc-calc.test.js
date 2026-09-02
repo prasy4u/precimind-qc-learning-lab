@@ -528,8 +528,8 @@ assert('N-PIPE-05', pp1.rawPatientIndex === 1 && pp1.errorAffected === false && 
 const pp2 = pipelineStream.points[1];
 assert('N-PIPE-06', pp2.rawValue === 95 && pp2.errorAffected === true && pp2.errorAffectedValue === 115 && pp2.included === false && pp2.eligiblePatientIndex === null,
   'Pipeline P2: rawValue=95, errorAffected=true, errorAffectedValue=115, excluded (115>110)', 'rc');
-assert('N-PIPE-07', pp2.inclusionReason !== undefined || pp2.exclusionReason !== undefined || pp2.included === false,
-  'Pipeline P2: exclusion reason references upper truncation', 'rc');
+assert('N-PIPE-07', typeof pp2.exclusionReason === 'string' && pp2.exclusionReason.includes('upper truncation limit') && pp2.exclusionReason.includes('110'),
+  'Pipeline P2: exclusionReason is a string including "upper truncation limit" and "110"', 'rc');
 const pp3 = pipelineStream.points[2];
 assert('N-PIPE-08', pp3.errorAffectedValue === 120 && pp3.included === false, 'Pipeline P3: errorAffectedValue=120, excluded', 'rc');
 const pp4 = pipelineStream.points[3];
@@ -619,10 +619,10 @@ const smokeStream = runPbrtqcStream(smokeRaw, {
 });
 assert('N-SMOKE-01', smokeStream.supported === true, 'Smoke: supported', 'rc');
 assert('N-SMOKE-02', smokeStream.rawCount === 7 && smokeStream.eligibleCount === 7 && smokeStream.excludedCount === 0,
-  'Smoke: rawCount=7, eligibleCount=7, excludedCount=0 (no truncation or error)', 'sg');
+  'Smoke: rawCount=7, eligibleCount=7, excludedCount=0 (no truncation or error)', 'rc');
 const ep3 = smokeStream.points.find(p => p.eligiblePatientIndex === 3);
 assert('N-SMOKE-03', ep3 && ep3.statistic === 100 && ep3.warmupStatus === 'complete',
-  'Smoke: eligible P3 statistic=100 [hard-coded: (100+102+98)/3=100], complete', 'sg');
+  'Smoke: eligible P3 statistic=100 [hard-coded: (100+102+98)/3=100], complete', 'rc');
 
 // -----------------------------------------------------------------------
 // N-MED: MOVING-MEDIAN orchestration

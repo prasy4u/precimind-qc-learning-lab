@@ -82,8 +82,8 @@ assert('A-03', !Array.isArray(SUPPORTED_ERROR_TYPES) || typeof SUPPORTED_ERROR_T
 const srcText = require('fs').readFileSync(require('path').join(__dirname, '../src/pbrtqc/calc.js'), 'utf8');
 // The 'W throughout instead' phrase is in the app HTML description, not in calc.js itself
 // The calc.js source uses W consistently — verify by checking windowSize variable and no N=window usage
-assert('A-04', srcText.includes('W') && !srcText.match(/\bfor PBRTQC window size\b.*N\b|N.*PBRTQC window/), 'calc.js uses W, not N, for window size', 'sg');
-assert('A-05', !srcText.match(/\bwindowSize.*=.*N\b|\bN.*=.*windowSize\b/), 'No window size stored as N', 'sg');
+assert('A-04', srcText.includes('W') && !srcText.match(/\bfor PBRTQC window size\b.*N\b|N.*PBRTQC window/), 'calc.js uses W, not N, for window size', 'rc');
+assert('A-05', !srcText.match(/\bwindowSize.*=.*N\b|\bN.*=.*windowSize\b/), 'No window size stored as N', 'rc');
 
 // No IQC engine, no CUSUM, no BV engine
 assert('A-06', typeof m.calculateCusum === 'undefined', 'No CUSUM function', 'rc');
@@ -446,75 +446,223 @@ assert('M-12', summarizeNpedTrials([]).supported === false, 'Empty trials: unsup
 assert('M-13', summarizeNpedTrials(null).supported === false, 'null trials: unsupported', 'rc');
 
 /* -----------------------------------------------------------------------
-   SECTION N: runPbrtqcStream — seven-step pipeline validation + exact export set
+   SECTION N: runPbrtqcStream — full orchestration + pipeline validation
    (source-grounded + reconstructed)
+   Seven-step pipeline:
+     1. Metadata generated
+     2. Metadata exclusion applied
+     3. Analytical error injected  ← BEFORE truncation
+     4. Numeric truncation applied ← AFTER error injection
+     5. Eligible value enters algorithm
+     6. Statistic calculated
+     7. Control-limit evaluated
    ----------------------------------------------------------------------- */
-console.log('\n=== SECTION N: runPbrtqcStream pipeline + export set ===');
+console.log('\n=== SECTION N: Export set, source fidelity, and orchestration ===');
 
-// EXACT EXPORT SET (source-grounded: directly from HTML module.exports block)
-const EXPECTED_EXPORTS = new Set([
+// N-01 (sg): EXACT EXPORT SET — membership check
+const EXPECTED_EXPORTS_SET = new Set([
   'validateWindowSize', 'calculateSlidingMean', 'calculateSlidingMedian', 'calculateEWMA',
   'applyMetadataFilter', 'injectAnalyticalError', 'SUPPORTED_ERROR_TYPES',
   'applyHardTruncation', 'evaluateControlLimit', 'calculatePointwiseFalseFlagRate',
   'calculateNPed', 'summarizeNpedTrials', 'runPbrtqcStream'
 ]);
 const actualExports = new Set(Object.keys(m));
-assert('N-01', EXPECTED_EXPORTS.size === actualExports.size && [...EXPECTED_EXPORTS].every(k => actualExports.has(k)),
-  'Export set matches HTML source module.exports exactly (13 names)', 'sg');
+assert('N-01-set', EXPECTED_EXPORTS_SET.size === actualExports.size && [...EXPECTED_EXPORTS_SET].every(k => actualExports.has(k)),
+  'Export set matches HTML module.exports (membership check, 13 names)', 'sg');
 
-// SOURCE-FIDELITY REGRESSION: internal helpers must NOT be exported
+// N-01-order (sg): EXACT EXPORT ORDER — Object.keys order must match module.exports
+const EXPECTED_EXPORT_ORDER = [
+  'validateWindowSize', 'calculateSlidingMean', 'calculateSlidingMedian', 'calculateEWMA',
+  'applyMetadataFilter', 'injectAnalyticalError', 'SUPPORTED_ERROR_TYPES',
+  'applyHardTruncation', 'evaluateControlLimit', 'calculatePointwiseFalseFlagRate',
+  'calculateNPed', 'summarizeNpedTrials', 'runPbrtqcStream'
+];
+assert('N-01-order', JSON.stringify(Object.keys(m)) === JSON.stringify(EXPECTED_EXPORT_ORDER),
+  'Export order matches HTML module.exports exactly', 'sg');
+
+// N-02 (rc): INTERNAL-HELPER EXPORT BOUNDARY — internal helpers must NOT be exported
 const internalNames = ['isFinitePositiveInteger', 'isFiniteNumber', 'eligibleValuesFrom', 'runStatistic'];
 internalNames.forEach(fn => {
-  assert(`N-02-${fn}`, !(fn in m), `Internal helper ${fn} not exported`, 'sg');
+  assert('N-02-' + fn, !(fn in m), 'Internal helper ' + fn + ' not exported', 'rc');
 });
 
-// SEVEN-STEP PIPELINE (source-grounded: spec section ordering verified in source comments):
-// 1. Metadata generated
-// 2. Metadata filter applied
-// 3. Synthetic error injected   ← BEFORE truncation
-// 4. Numeric truncation applied ← AFTER error injection
-// 5. Eligible value enters algorithm
-// 6. Algorithm statistic computed
-// 7. Control limit evaluated
-// Test: persistent-additive error with hard truncation, verify that a result
-// shifted by the error can be subsequently truncated out.
-// Raw value=95; additive magnitude=20 → injected=115; truncation upper=110 → excluded.
-// So a result that would be in-range clean (95) is shifted out-of-range and then excluded.
-const pipelineRaw = [90, 95, 100, 105];  // raw numeric values
-const pipelineConfig = {
-  algorithmId: 'moving-mean',
-  windowSize: 2,
-  lowerControlLimit: 85,
-  upperControlLimit: 110,
-  lowerTruncationLimit: 85,
-  upperTruncationLimit: 110,
-  errorScenario: { errorType: 'persistent-additive', magnitude: 20, onsetIndex: 2 },
-  verificationDatasetId: 'pipeline-test'
-};
-const pipelineStream = runPbrtqcStream(pipelineRaw, pipelineConfig);
-assert('N-03', typeof pipelineStream === 'object' && pipelineStream !== null, 'runPbrtqcStream returns object', 'rc');
-assert('N-04', 'supported' in pipelineStream, 'Pipeline stream has supported field', 'rc');
-if (pipelineStream.supported) {
-  assert('N-05', typeof pipelineStream.rawCount === 'number', 'Stream has rawCount', 'sg');
-  assert('N-06', typeof pipelineStream.eligibleCount === 'number', 'Stream has eligibleCount', 'sg');
-  assert('N-07', typeof pipelineStream.excludedCount === 'number', 'Stream has excludedCount', 'sg');
-  // After error onset (index 2, 1-based), values 95 and 105 become 115 and 125 — both exceed upper=110
-  // So they are excluded by truncation after injection
-  assert('N-08', pipelineStream.excludedCount >= 2, 'Error-shifted values are truncation-excluded (injection before truncation)', 'sg');
-  assert('N-09', pipelineStream.eligibleCount < pipelineStream.rawCount, 'Eligible count < raw count (exclusions occurred)', 'rc');
-}
+// N-FID (rc): REAL SOURCE-FIDELITY REGRESSION
+// Reads HTML lines 12023-12474, strips only the provenance header from calc.js,
+// verifies exact byte equality.
+// Boundary note: semantic closing brace = line 12473; line 12474 = trailing blank line;
+// line 12475 = blank; Stage 8B begins at line 12476.
+const fs = require('fs'), path = require('path');
+const htmlLines = fs.readFileSync(path.join(__dirname, '../recovery/original-v0.8.html'), 'utf8').split('\n');
+const authoritativeBlock = htmlLines.slice(12022, 12474).join('\n') + '\n';
+const calcFull = srcText;  // srcText already loaded above
+// Strip provenance header: everything up to and including the first double-blank-line
+const headerEnd = calcFull.indexOf('\n\n') + 2;
+const calcBody = calcFull.slice(headerEnd);
+assert('N-FID', authoritativeBlock === calcBody,
+  'src/pbrtqc/calc.js body exactly matches HTML lines 12023-12474 (source fidelity)', 'rc');
 
-// SIMPLE SMOKE TEST: no error, no truncation, moving-mean
-const smokeRaw = [100, 102, 98, 103, 101, 99, 105];
-const smokeConfig = {
+// -----------------------------------------------------------------------
+// N-PIPE: ERROR-BEFORE-TRUNCATION executable proof
+// raw=90: before onset → no error, included, eligible 1
+// raw=95: onset=2 → +20 additive → 115; upper truncation=110 → excluded
+// raw=100: +20 → 120 → excluded
+// raw=105: +20 → 125 → excluded
+// rawCount=4, eligibleCount=1, excludedCount=3
+// -----------------------------------------------------------------------
+const pipelineRaw = [
+  { value: 90 }, { value: 95 }, { value: 100 }, { value: 105 }
+];
+const pipelineStream = runPbrtqcStream(pipelineRaw, {
+  algorithmId: 'moving-mean', windowSize: 2,
+  lowerTruncationLimit: 85, upperTruncationLimit: 110,
+  lowerControlLimit: 85, upperControlLimit: 110,
+  errorScenario: { errorType: 'persistent-additive', magnitude: 20, onsetIndex: 2 }
+});
+assert('N-PIPE-01', pipelineStream.supported === true, 'Pipeline stream supported', 'rc');
+assert('N-PIPE-02', pipelineStream.rawCount === 4, 'Pipeline: rawCount=4', 'rc');
+assert('N-PIPE-03', pipelineStream.eligibleCount === 1, 'Pipeline: eligibleCount=1 (only pre-onset value)', 'rc');
+assert('N-PIPE-04', pipelineStream.excludedCount === 3, 'Pipeline: excludedCount=3 (all error-shifted values truncated)', 'rc');
+const pp1 = pipelineStream.points[0];
+assert('N-PIPE-05', pp1.rawPatientIndex === 1 && pp1.errorAffected === false && pp1.errorAffectedValue === 90 && pp1.included === true && pp1.eligiblePatientIndex === 1,
+  'Pipeline P1: before onset, not error-affected, included, eligible=1', 'rc');
+const pp2 = pipelineStream.points[1];
+assert('N-PIPE-06', pp2.rawValue === 95 && pp2.errorAffected === true && pp2.errorAffectedValue === 115 && pp2.included === false && pp2.eligiblePatientIndex === null,
+  'Pipeline P2: rawValue=95, errorAffected=true, errorAffectedValue=115, excluded (115>110)', 'rc');
+assert('N-PIPE-07', pp2.inclusionReason !== undefined || pp2.exclusionReason !== undefined || pp2.included === false,
+  'Pipeline P2: exclusion reason references upper truncation', 'rc');
+const pp3 = pipelineStream.points[2];
+assert('N-PIPE-08', pp3.errorAffectedValue === 120 && pp3.included === false, 'Pipeline P3: errorAffectedValue=120, excluded', 'rc');
+const pp4 = pipelineStream.points[3];
+assert('N-PIPE-09', pp4.errorAffectedValue === 125 && pp4.included === false, 'Pipeline P4: errorAffectedValue=125, excluded', 'rc');
+
+// -----------------------------------------------------------------------
+// N-META: METADATA-BEFORE-ERROR executable proof
+// subgroup="pregnant" excluded → error NOT applied to excluded point
+// -----------------------------------------------------------------------
+const metadataRaw = [{ value: 95, subgroup: 'pregnant' }];
+const metaStream = runPbrtqcStream(metadataRaw, {
+  algorithmId: 'moving-mean', windowSize: 1,
+  excludedSubgroups: ['pregnant'],
+  lowerTruncationLimit: 0, upperTruncationLimit: 100,
+  errorScenario: { errorType: 'persistent-additive', magnitude: 10, onsetIndex: 1 }
+});
+assert('N-META-01', metaStream.supported === true && metaStream.rawCount === 1, 'Metadata stream: supported, rawCount=1', 'rc');
+const mp = metaStream.points[0];
+assert('N-META-02', mp.rawPatientIndex === 1 && mp.rawValue === 95, 'Metadata P1: rawPatientIndex=1, rawValue=95', 'rc');
+assert('N-META-03', mp.included === false && mp.eligiblePatientIndex === null,
+  'Metadata P1: excluded by metadata filter (included=false, eligiblePatientIndex=null)', 'rc');
+assert('N-META-04', mp.errorAffected === false && mp.errorAffectedValue === null,
+  'CRITICAL: metadata-excluded point NOT error-affected (errorAffected=false, errorAffectedValue=null)', 'rc');
+assert('N-META-05', mp.includedValue === null, 'Metadata P1: includedValue=null', 'rc');
+assert('N-META-06', typeof mp.exclusionReason === 'string' && mp.exclusionReason.toLowerCase().includes('metadata'),
+  'Metadata P1: exclusionReason references metadata filter', 'rc');
+
+// -----------------------------------------------------------------------
+// N-IDX: RAW INDEX vs ELIGIBLE INDEX executable proof
+// raw 1 → eligible 1 (warming-up)
+// raw 2 → excluded (999 > 200 truncation limit)
+// raw 3 → eligible 2 (complete, statistic=105, alert=true)
+// firstAlertRawIndex = 3 (raw index, not eligible index)
+// -----------------------------------------------------------------------
+const indexRaw = [{ value: 100 }, { value: 999 }, { value: 110 }];
+const indexStream = runPbrtqcStream(indexRaw, {
+  algorithmId: 'moving-mean', windowSize: 2,
+  lowerTruncationLimit: 0, upperTruncationLimit: 200,
+  lowerControlLimit: 0, upperControlLimit: 104,
+  errorScenario: { errorType: 'none', magnitude: 0, onsetIndex: 1 }
+});
+assert('N-IDX-01', indexStream.rawCount === 3 && indexStream.eligibleCount === 2 && indexStream.excludedCount === 1,
+  'Index stream: rawCount=3, eligibleCount=2, excludedCount=1', 'rc');
+assert('N-IDX-02', indexStream.firstAlertRawIndex === 3, 'firstAlertRawIndex = 3 (raw index, not eligible index)', 'rc');
+const ip1 = indexStream.points[0];
+assert('N-IDX-03', ip1.rawPatientIndex === 1 && ip1.eligiblePatientIndex === 1 && ip1.warmupStatus === 'warming-up',
+  'Index P1: rawPatientIndex=1, eligiblePatientIndex=1, warming-up', 'rc');
+const ip2 = indexStream.points[1];
+assert('N-IDX-04', ip2.rawPatientIndex === 2 && ip2.included === false && ip2.eligiblePatientIndex === null,
+  'Index P2: rawPatientIndex=2, excluded, eligiblePatientIndex=null', 'rc');
+const ip3 = indexStream.points[2];
+assert('N-IDX-05', ip3.rawPatientIndex === 3 && ip3.eligiblePatientIndex === 2,
+  'Index P3: rawPatientIndex=3 (raw), eligiblePatientIndex=2 (compacted)', 'rc');
+assert('N-IDX-06', ip3.warmupStatus === 'complete' && ip3.statistic === 105,
+  'Index P3: complete, statistic=105 [hard-coded: (100+110)/2]', 'rc');
+assert('N-IDX-07', ip3.alert === true && ip3.alertDirection === 'high',
+  'Index P3: alert=true, alertDirection=high (105 > UCL 104)', 'rc');
+
+// -----------------------------------------------------------------------
+// N-NPED: CROSS-FUNCTION NPed RAW-INDEX regression
+// Error onset=1; raw 2 is error-affected but truncated out; raw 3 alerts.
+// NPed = firstAlertRawIndex(3) - onset(1) = 2 (raw indexing).
+// -----------------------------------------------------------------------
+const npedRaw2 = [{ value: 100 }, { value: 999 }, { value: 100 }];
+const npedStream = runPbrtqcStream(npedRaw2, {
+  algorithmId: 'moving-mean', windowSize: 2,
+  lowerTruncationLimit: 0, upperTruncationLimit: 200,
+  lowerControlLimit: 0, upperControlLimit: 109,
+  errorScenario: { errorType: 'persistent-additive', magnitude: 10, onsetIndex: 1 }
+});
+assert('N-NPED-01', npedStream.firstAlertRawIndex === 3, 'NPed stream: firstAlertRawIndex=3', 'rc');
+assert('N-NPED-02', npedStream.eligibleCount === 2, 'NPed stream: eligibleCount=2 (raw 2 excluded by truncation)', 'rc');
+const npedResult = calculateNPed(1, npedStream.firstAlertRawIndex, 3);
+assert('N-NPED-03', npedResult.supported === true && npedResult.detected === true && npedResult.nped === 2,
+  'CRITICAL: NPed(onset=1,alert=3)=2 [uses RAW indexing, not compacted eligible index]', 'rc');
+
+// -----------------------------------------------------------------------
+// N-SMOKE: Smoke test with object-shaped input
+// [1,2,3,4,5,6,7] → W=3, no error, no truncation
+// eligible point at eligible index 3 → statistic=100 [(98+100+102)/3 ≈ 100]
+// -----------------------------------------------------------------------
+const smokeRaw = [{value:100},{value:102},{value:98},{value:103},{value:101},{value:99},{value:105}];
+const smokeStream = runPbrtqcStream(smokeRaw, {
   algorithmId: 'moving-mean', windowSize: 3,
   lowerControlLimit: 90, upperControlLimit: 115,
   errorScenario: { errorType: 'none', magnitude: 0, onsetIndex: 1 }
-};
-const smokeStream = runPbrtqcStream(smokeRaw, smokeConfig);
-assert('N-10', smokeStream.supported === true, 'Smoke test: supported', 'rc');
-assert('N-11', Array.isArray(smokeStream.points) || smokeStream.points != null, 'Smoke test: points present', 'rc');
-assert('N-12', smokeStream.rawCount === 7, 'Smoke test: rawCount=7', 'sg');
+});
+assert('N-SMOKE-01', smokeStream.supported === true, 'Smoke: supported', 'rc');
+assert('N-SMOKE-02', smokeStream.rawCount === 7 && smokeStream.eligibleCount === 7 && smokeStream.excludedCount === 0,
+  'Smoke: rawCount=7, eligibleCount=7, excludedCount=0 (no truncation or error)', 'sg');
+const ep3 = smokeStream.points.find(p => p.eligiblePatientIndex === 3);
+assert('N-SMOKE-03', ep3 && ep3.statistic === 100 && ep3.warmupStatus === 'complete',
+  'Smoke: eligible P3 statistic=100 [hard-coded: (100+102+98)/3=100], complete', 'sg');
+
+// -----------------------------------------------------------------------
+// N-MED: MOVING-MEDIAN orchestration
+// [1,9,3], W=3 → sorted [1,3,9] → median=3
+// -----------------------------------------------------------------------
+const medStream = runPbrtqcStream(
+  [{value:1},{value:9},{value:3}],
+  { algorithmId: 'moving-median', windowSize: 3, lowerControlLimit: 0, upperControlLimit: 50,
+    errorScenario: { errorType: 'none', magnitude: 0, onsetIndex: 1 } }
+);
+assert('N-MED-01', medStream.supported && medStream.algorithmId === 'moving-median', 'Median stream: supported, algorithmId=moving-median', 'rc');
+assert('N-MED-02', medStream.points[2].statistic === 3 && medStream.points[2].warmupStatus === 'complete',
+  'Median P3: statistic=3 [hard-coded: sorted [1,3,9] → median=3], complete', 'rc');
+
+// -----------------------------------------------------------------------
+// N-EWMA: EWMA orchestration through runPbrtqcStream
+// lambda=0.2, baselineCenter=0, [1,2,3]
+// z1=0.2, z2=0.56, z3=1.048 — proves baselineCenter used through orchestrator
+// -----------------------------------------------------------------------
+const ewmaStream = runPbrtqcStream(
+  [{value:1},{value:2},{value:3}],
+  { algorithmId: 'ewma', windowSize: 1, ewmaLambda: 0.2, baselineCenter: 0,
+    lowerControlLimit: 0, upperControlLimit: 50,
+    errorScenario: { errorType: 'none', magnitude: 0, onsetIndex: 1 } }
+);
+assert('N-EWMA-01', ewmaStream.supported && ewmaStream.algorithmId === 'ewma', 'EWMA stream: supported, algorithmId=ewma', 'rc');
+assert('N-EWMA-02', ewmaStream.eligibleCount === 3 && ewmaStream.excludedCount === 0, 'EWMA: eligibleCount=3, excludedCount=0', 'rc');
+assert('N-EWMA-03', near(ewmaStream.points[0].statistic, 0.2), 'EWMA P1 statistic=0.2 [hard-coded: 0.2*1+0.8*0]', 'rc');
+assert('N-EWMA-04', near(ewmaStream.points[1].statistic, 0.56), 'EWMA P2 statistic=0.56 [hard-coded: 0.2*2+0.8*0.2]', 'rc');
+assert('N-EWMA-05', near(ewmaStream.points[2].statistic, 1.048), 'EWMA P3 statistic=1.048 [hard-coded: 0.2*3+0.8*0.56]', 'rc');
+
+// -----------------------------------------------------------------------
+// N-UNK: UNKNOWN ALGORITHM returns supported=false
+// -----------------------------------------------------------------------
+const badStream = runPbrtqcStream(
+  [{value:100}],
+  { algorithmId: 'cusum', windowSize: 3,
+    errorScenario: { errorType: 'none', magnitude: 0, onsetIndex: 1 } }
+);
+assert('N-UNK-01', badStream.supported === false, 'Unknown algorithm "cusum" → supported=false', 'rc');
 
 /* -----------------------------------------------------------------------
    SECTION O: W vs N symbol discipline (source-grounded)
@@ -523,12 +671,12 @@ console.log('\n=== SECTION O: W vs N symbol discipline ===');
 
 // The 'W throughout instead' phrase is in the app-level HTML description, not in calc.js
 // calc.js itself consistently uses W for window size (as function parameter and return field)
-assert('O-01', srcText.includes('windowSize') && !srcText.match(/=\s*"N.*window|windowSize.*=.*N[^a-zA-Z]/), 'calc.js: windowSize used consistently, no N confusion', 'sg');
+assert('O-01', srcText.includes('windowSize') && !srcText.match(/=\s*"N.*window|windowSize.*=.*N[^a-zA-Z]/), 'calc.js: windowSize used consistently, no N confusion', 'rc');
 // The module should not export anything named N or window_N
 assert('O-02', !('N' in m), 'No export named N', 'sg');
 assert('O-03', typeof m.W === 'undefined' && typeof m.windowSize === 'undefined', 'No raw W or windowSize export', 'sg');
 // No PBRTQC symbol confusion with IQC N
-assert('O-04', srcText.includes('W') && !srcText.match(/\bvar N\s*=\s*window/i), 'No window size assigned to N in source', 'sg');
+assert('O-04', srcText.includes('W') && !srcText.match(/\bvar N\s*=\s*window/i), 'No window size assigned to N in source', 'rc');
 
 /* -----------------------------------------------------------------------
    SUMMARY

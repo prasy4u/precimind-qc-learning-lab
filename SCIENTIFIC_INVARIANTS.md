@@ -1348,14 +1348,26 @@ The source explicitly names and rejects winsorisation (clamping to limit) as a d
 
 Test file: Artifact **Class D** (recovery infrastructure)
 
-Source-grounded expectations: **123 / 138**
-Reconstructed expectations: **15 / 138**
-Total Stage 8A: **138 / 138** passed
+Source-grounded expectations: **113 / 166**
+Reconstructed expectations: **53 / 166**
+Total Stage 8A: **166 / 166** passed
 
-**Closure additions (Stage 8A):**
-- A-04, A-05, O-01, O-04 reclassified from source-grounded → reconstructed (source-text search tests written during recovery, not cited spec sections)
-- O-02, O-03 remain source-grounded (no N export, no windowSize export: absence facts directly from HTML exports block)
-- Section N expanded with exact export set check (N-01: sg), source-fidelity internal-helper regression (N-02-*: sg), full seven-step pipeline test verifying error-injection-before-truncation ordering (N-03 through N-09: sg/rc), and smoke test (N-10 through N-12)
+**Closure additions:**
+- A-04, A-05, O-01, O-04 reclassified source-grounded → reconstructed (source-text search pattern tests written during recovery, not cited spec sections)
+- O-02, O-03 remain source-grounded (no-N-export, no-windowSize-export: directly from HTML module.exports block)
+- Section N fully rebuilt with:
+  - **N-01-set (sg):** Export membership check against HTML module.exports
+  - **N-01-order (sg):** Export order check against HTML module.exports
+  - **N-02-* (rc):** Internal-helper export boundary
+  - **N-FID (rc):** Real source-fidelity regression — HTML lines 12023-12474 match calc.js body byte-for-byte
+  - **N-PIPE-* (rc):** Object-shaped fixture; error-before-truncation executable proof with exact point assertions (raw=95 +20 → 115 > upper=110 → excluded)
+  - **N-META-* (rc):** Metadata-before-error proof (metadata-excluded point: errorAffected=false, errorAffectedValue=null)
+  - **N-IDX-* (rc):** Raw-index vs eligible-index proof (firstAlertRawIndex uses raw indexing; excluded point consumes raw index but not eligible index)
+  - **N-NPED-* (rc):** Cross-function NPed raw-index regression (NPed=2 from raw onset=1, raw alert=3, eligible stream has only 2 points)
+  - **N-SMOKE-* (sg/rc):** Object-shaped smoke test; eligible P3 statistic=100 hard-coded
+  - **N-MED-* (rc):** Moving-median orchestration; unsorted [1,9,3] → sorted median=3
+  - **N-EWMA-* (rc):** EWMA orchestration; baselineCenter=0, z1=0.2, z2=0.56, z3=1.048
+  - **N-UNK-01 (rc):** Unknown algorithm ("cusum") → supported=false
 - `src/pbrtqc/calc.js` not modified
 
 ---

@@ -1351,3 +1351,75 @@ Test file: Artifact **Class D** (recovery infrastructure)
 Source-grounded expectations: **113 / 126**
 Reconstructed expectations: **13 / 126**
 Total Stage 8A: **126 / 126** passed
+
+---
+
+## Stage 8B — Patient Surveillance Lab Static Data and Challenge Bank
+
+**Source module:** `src/pbrtqc/data.js`
+**Provenance:** Class A — directly recovered from `recovery/original-v0.8.html` (lines 12476–13231)
+**Architectural note:** Static data/teaching module. 74 exports, 0 functions. Contains the 18-case PBRTQC Challenge Bank, 5 synthetic patient populations, and all PBRTQC doctrine notes. No calc-engine duplication, no live data, no auto-optimizer, no AI/ML functionality.
+
+---
+
+### INVAR-105: PBRTQC Monitors Indirectly — Alert Is Not Root-Cause Diagnosis
+
+`PBRTQC_CORE_PRINCIPLE` states PBRTQC monitors the process INDIRECTLY through patient-result statistics. An alert "is not, by itself, a root-cause diagnosis." `ALERT_ROUTES_TO_INVESTIGATION_NOTE` encodes this pathway.
+
+- **Tests:** B-03, B-04, F-05
+
+---
+
+### INVAR-106: PBRTQC and IQC Are Complementary — Not Ranked
+
+`PBRTQC_COMPLEMENTARY_NOTE` explicitly states the application "never teaches 'PBRTQC is better than IQC' or the reverse." `FORBIDDEN_BLANKET_STATEMENTS` encodes prohibited generalisations.
+
+- **Tests:** B-05, B-06, F-08
+
+---
+
+### INVAR-107: Synthetic Data Only — Never Real Patient Data
+
+`NO_LIVE_DATA_NOTE`, `SYNTHETIC_DATA_CARD_LABEL`, `PRIVACY_BRIEF_NOTE`. All 5 patient populations are synthetic (not real patient data). `PATIENT_POPULATIONS` entries have names indicating synthetic origin.
+
+- **Tests:** G-04, I-04-*
+
+---
+
+### INVAR-108: No Auto-Optimizer, No Universal Targets
+
+`NO_AUTO_OPTIMIZER_NOTE`, `NO_UNIVERSAL_TARGETS_NOTE`. PBRTQC parameters require local validation and stated provenance; no parameter is automatically optimised or universally prescribed.
+
+- **Tests:** G-05, G-06
+
+---
+
+### INVAR-109: Methodological Development Note
+
+`METHODOLOGICAL_DEVELOPMENT_NOTE` explicitly acknowledges PBRTQC is an active area of ongoing development, not a settled one-size-fits-all technique.
+
+---
+
+### Stage 8B Challenge Bank
+
+18 cases, IDs 1–18 sequential. Critical answer keys:
+- Case 1: NPed-value answer = 12
+- Cases 6, 10, 17: yes; all other yes-no cases: no
+- Case 4: median-more-robust-here
+- Cases 8, 9: tradeoff
+- Case 13: different-elapsed-time
+- Case 15: investigate-pipeline
+
+`PBRTQC_ANSWER_KIND_OPTIONS` is a keyed object (not array) mapping kind strings to option arrays.
+
+Patient populations: 5 (`population-a` through `population-e`), each with `baseResults` array (raw numeric, not objects).
+
+---
+
+### Stage 8B Test Provenance
+
+Test file: Artifact **Class D** (recovery infrastructure)
+
+Source-grounded expectations: **136 / 180**
+Reconstructed expectations: **44 / 180**
+Total Stage 8B: **180 / 180** passed

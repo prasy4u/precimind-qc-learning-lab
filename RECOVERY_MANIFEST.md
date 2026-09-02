@@ -54,7 +54,9 @@
 | `tests/stage7b-bv-data.test.js` | **D** | New recovery tests — NOT historical suite |
 | `src/pbrtqc/calc.js` | **A** | Directly extracted from HTML (Stage 8A, lines 12023–12474) |
 | `tests/stage8a-pbrtqc-calc.test.js` | **D** | New recovery tests — NOT historical suite |
-| `SCIENTIFIC_INVARIANTS.md` | **D** | New recovery documentation (Stages 1–8A) |
+| `src/pbrtqc/data.js` | **A** | Directly extracted from HTML (Stage 8B, lines 12476–13231) |
+| `tests/stage8b-pbrtqc-data.test.js` | **D** | New recovery tests — NOT historical suite |
+| `SCIENTIFIC_INVARIANTS.md` | **D** | New recovery documentation (Stages 1–8B) |
 | Historical Git repository | **E** | Lost — not recoverable |
 | Historical test files | **E** | Lost — not recoverable |
 | Historical commit `3cc62b1` | **C** | Reported externally; not independently recovered |

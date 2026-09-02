@@ -1245,3 +1245,109 @@ Total Stage 7B: **195 / 195** passed
 - Classical RCV(CVA=1,CVI=6,z=1.96): 16.860557523403546 %
 - LN RCV increase(CVA=2,CVI=6,z=1.96): 19.14044252346827 %
 - II(CVI=6,CVG=6): 1.0 ; II(CVI=6,CVG=12): 0.5 ; II(CVI=6,CVG=24): 0.25
+
+---
+
+## Stage 8A — Patient Surveillance Lab (PBRTQC) Calc Engine
+
+**Source module:** `src/pbrtqc/calc.js`
+**Provenance:** Class A — directly recovered from `recovery/original-v0.8.html` (lines 12023–12474)
+**Architectural note:** Pure calc/enum module. 13 exports: 12 functions + `SUPPORTED_ERROR_TYPES` (5-element array). No React, no scenario bank, no CUSUM, no moving-SD engine, no RI generation, no BV engine, no automatic patient-result action.
+
+**Symbol discipline:** W is the ONLY symbol for PBRTQC window size. N must never be used for window size; N retains its IQC meaning (QC measurements per run). This is explicitly stated in the HTML source and confirmed in the module.
+
+---
+
+### INVAR-96: W Is the PBRTQC Window Size Symbol — Not N
+
+The source explicitly states: "never reuses the symbol N (QC measurements per run) for PBRTQC window size, using W throughout instead." The calc module uses `windowSize` for the parameter/return field, never `N`.
+
+- **Tests:** A-04, A-05, O-01 through O-04
+
+---
+
+### INVAR-97: SUPPORTED_ERROR_TYPES — Five Types Only
+
+`['none', 'persistent-additive', 'persistent-proportional', 'temporary-additive', 'temporary-proportional']`. No imprecision modelling, no Box-Cox, no CUSUM error types.
+
+- **Tests:** B-01 through B-07
+
+---
+
+### INVAR-98: validateWindowSize — Positive Integer Required
+
+W must be a finite, whole, positive number (≥1). W=0, W<0, W=non-integer → invalid with structured reason. Never silently coerced.
+
+- **Tests:** C-01 through C-10
+
+---
+
+### INVAR-99: Sliding Algorithms — W−1 Warm-Up Points
+
+`calculateSlidingMean` and `calculateSlidingMedian` both accept raw numeric arrays. Indices 0 through W−2 have `warmupStatus='warming-up'` and `statistic=undefined`. Index W−1 onward: `warmupStatus='complete'`.
+
+- Hard-coded: [1,2,3,4,5], W=3: series[2]=2.0, [3]=3.0, [4]=4.0
+- Even-W median: mean of two central sorted values
+- **Tests:** D-01 through D-12, E-01 through E-10
+
+---
+
+### INVAR-100: EWMA — No Warm-Up; Explicit Baseline Required
+
+`calculateEWMA(values, lambda, baselineCenter)`: z₀ = `baselineCenter` (never silently from first value). All points are `complete`. 0 < lambda ≤ 1; lambda=0 invalid; lambda=1 valid (no smoothing).
+
+- Hard-coded: lambda=0.2, z0=0, [1,2,3]: z1=0.2, z2=0.56, z3=1.048
+- lambda=0.5, z0=100, x1=110: z1=105
+- **Tests:** F-01 through F-12
+
+---
+
+### INVAR-101: Error Injection Before Truncation
+
+`injectAnalyticalError` is applied BEFORE `applyHardTruncation` — never after. This is documented in the source and enforced by `runPbrtqcStream`. No "calibration failure" or "reagent failure" labels are applied to injected errors; neutral language only.
+
+- **Tests:** H-08, H-09
+
+---
+
+### INVAR-102: Hard Truncation — Inclusive Boundaries; Never Winsorisation
+
+`applyHardTruncation(value, lowerTruncationLimit, upperTruncationLimit)`:
+- Value strictly below lower → excluded
+- Value exactly at limit → **included** (inclusive)
+- Value strictly above upper → excluded
+- Missing limits → all included
+
+The source explicitly names and rejects winsorisation (clamping to limit) as a different, unimplemented technique.
+
+- **Tests:** I-01 through I-07
+
+---
+
+### INVAR-103: NPed Uses 1-Based Raw Indices; Alert Before Onset → Invalid
+
+`calculateNPed(errorOnsetRawIndex, firstAlertRawIndex, simulationHorizon)`:
+- NPed = firstAlertRawIndex − errorOnsetRawIndex (1-based raw patient indices)
+- Alert before onset → `{supported:false}` — never interpreted as negative NPed
+- No alert (null firstAlertRawIndex) → `{detected:false, nped:undefined}` — never Infinity or placeholder
+- Onset=0 or negative → invalid
+
+- **Tests:** L-01 through L-10
+
+---
+
+### INVAR-104: ANPed Only When All Trials Detected
+
+`summarizeNpedTrials(trials)`: `anped` = mean NPed **only** when `allTrialsDetected=true`. When any trial is undetected: `anped === undefined` — never averaged over detected-only subset and presented as ANPed. Separated `meanNpedAmongDetected` and `detectionRatePercent` are reported separately when censoring occurs.
+
+- **Tests:** M-01 through M-13
+
+---
+
+### Stage 8A Test Provenance
+
+Test file: Artifact **Class D** (recovery infrastructure)
+
+Source-grounded expectations: **113 / 126**
+Reconstructed expectations: **13 / 126**
+Total Stage 8A: **126 / 126** passed

@@ -1718,3 +1718,26 @@ Both files remain byte-identical to the corrected authoritative HTML blocks.
 - Five modes: `aps`, `sigma-lab`, `comparator`, `designer`, `challenge`.
 - Application shell (`NAV_ITEMS`, `function App(`, `ReactDOM`) remains unrecovered.
 - Browser/runtime equivalence not yet established.
+
+---
+
+## Risk & Frequency Lab UI — Stage 9I
+
+**Source:** `src/risk/ui-components.jsx` HTML 5877–6047 (171 lines) SHA `f443a7b1...` | `src/risk/screens.jsx` HTML 6049–6534 (486 lines) SHA `3a6171fb...`
+
+- `TIMELINE_INTERVALS = 4` (exact integer — fixed regardless of M; only internal scale changes)
+- `intervalWidthPx(M)`: log2-based width scaling, minimum 60px
+- `iconCountFor(M)`: log2-based icon count, clamped between 3 and 8
+- `QCTimeline`: references frozen `expectedQcEventsToDetectionGeometric` and `operatingCharacteristic13s` — never reimplemented
+- `QuadrantMatrix`: renders frozen `QUADRANT_MATRIX` and `QUADRANT_MATRIX_NOTE` from data layer
+- `SameFrequencyDifferentProcedurePanel`: same M ≠ same patient risk for different procedures
+- `MAXE_NUF_BOUNDARY_NOTE`: full MaxE(Nuf) not implemented — preserved in full
+- `MORE_QC_NOT_ALWAYS_BETTER_NOTE`: intensifying QC ≠ always better patient safety
+- `STARTUP_VS_MONITORING_NOTE`, `BRACKETED_QC_NOTE`: authored teaching distinctions preserved
+- `RISK_MODEL_LIMITATION_NOTE`: preserved — patient risk model has documented limitations
+- Five modes: `concepts`, `simulator`, `delay`, `explorer`, `challenge`
+- `DEFAULT_RISK_ANSWER`: `{whatChanged:null, likelyEffect:null, revealedNext:false, confidence:null, submitted:false}`
+- All detection-delay and opchar engine functions referenced but never redefined
+- `ScientificBasisNote` present in `RiskFrequencyLabScreen`
+- `h1` = `Risk &amp; Frequency Lab`, `aria-label` = `"Risk & Frequency Lab mode"` exact
+- No application shell. Browser/runtime equivalence not yet established.

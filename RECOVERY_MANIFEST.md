@@ -68,7 +68,10 @@
 | `src/bv/ui-components.jsx` | **A** | Stage 9D, HTML lines 11305–11636, SHA 66089c74... |
 | `src/bv/screens.jsx` | **A** | Stage 9D, HTML lines 11638–12021, SHA 0c398038... |
 | `tests/stage9d-bv-ui.test.js` | **D** | Stage 9D recovery tests |
-| `SCIENTIFIC_INVARIANTS.md` | **D** | New recovery documentation (Stages 1–9D) |
+| `src/pbrtqc/ui-components.jsx` | **A** | Stage 9E, HTML lines 13235–13471, SHA b615ba5c... |
+| `src/pbrtqc/screens.jsx` | **A** | Stage 9E, HTML lines 13473–13852, SHA 5dffa047... |
+| `tests/stage9e-pbrtqc-ui.test.js` | **D** | Stage 9E recovery tests |
+| `SCIENTIFIC_INVARIANTS.md` | **D** | New recovery documentation (Stages 1–9E) |
 | Historical Git repository | **E** | Lost — not recoverable |
 | Historical test files | **E** | Lost — not recoverable |
 | Historical commit `3cc62b1` | **C** | Reported externally; not independently recovered |

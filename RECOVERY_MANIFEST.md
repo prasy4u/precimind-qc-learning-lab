@@ -75,7 +75,11 @@
 | `src/ui/app-data.js` | **A** | Stage 9F, HTML 970–1824, 855 lines, SHA 81cef641... |
 | `src/ui/core-screens.jsx` | **A** | Stage 9F, HTML 2098–2813, 716 lines, SHA 90c2e858... |
 | `tests/stage9f-foundation-ui.test.js` | **D** | Stage 9F recovery tests |
-| `SCIENTIFIC_INVARIANTS.md` | **D** | New recovery documentation (Stages 1–9F) |
+| `src/rules/data.js` | **A** | Stage 9G, HTML 3199–3417, 219 lines, SHA 41453ef6... |
+| `src/rules/ui-components.jsx` | **A** | Stage 9G, HTML 3420–3633, 214 lines, SHA 4eb7a110... |
+| `src/rules/screens.jsx` | **A** | Stage 9G, HTML 3636–4043, 408 lines, SHA 8a374e0a... |
+| `tests/stage9g-rule-lab-ui.test.js` | **D** | Stage 9G recovery tests |
+| `SCIENTIFIC_INVARIANTS.md` | **D** | New recovery documentation (Stages 1–9G) |
 | Historical Git repository | **E** | Lost — not recoverable |
 | Historical test files | **E** | Lost — not recoverable |
 | Historical commit `3cc62b1` | **C** | Reported externally; not independently recovered |

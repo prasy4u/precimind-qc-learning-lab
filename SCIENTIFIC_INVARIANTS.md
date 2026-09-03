@@ -1658,3 +1658,41 @@ Both files remain byte-identical to the corrected authoritative HTML blocks.
 - Median is not universally superior.
 - No auto-optimizer or universal PBRTQC parameter target.
 - Browser/runtime equivalence not yet established.
+
+---
+
+## Foundational Application UI — Stage 9F
+
+**Source:** `src/ui/app-data.js` HTML 970–1824 (855 lines) SHA `81cef641...` | `src/ui/core-screens.jsx` HTML 2098–2813 (716 lines) SHA `90c2e858...`
+
+- Four learner levels (`beginner`, `intermediate`, `advanced`, `expert`) remain authored/deterministic — not AI-generated.
+- Evidence hierarchy is not flattened: `EVIDENCE_HIERARCHY_AUTHORITY_NOTE` and `EVIDENCE_TIERS` preserve tiered authority structure.
+- `ONGOING_DISCUSSION_AREAS` (52 items) preserves the "Areas of ongoing discussion" section without homogenising citations.
+- Learner diagnostic recommendation (`suggestLevelFromScore`, `buildDomainProfile`) is deterministic authored logic — not AI/adaptive.
+- Confidence (`CONFIDENCE_OPTIONS`, `getConfidenceNote`) is metacognitive only — not a correctness measure.
+- `SigmaSandboxScreen` references frozen `calcSigma` without reimplementing it.
+- `EvidenceScreen` renders `EVIDENCE_HIERARCHY_AUTHORITY_NOTE` and `ONGOING_DISCUSSION_AREAS`.
+- `AboutModal` preserves "Version 0.8 — PBRTQC & Patient Surveillance."
+- Application shell (`NAV_ITEMS`, `function App(`, `ReactDOM`) remains unrecovered.
+- Browser/runtime equivalence not yet established.
+
+---
+
+## Rule Laboratory UI — Stage 9G
+
+**Source:** `src/rules/data.js` HTML 3199–3417 (219 lines) | `src/rules/ui-components.jsx` HTML 3420–3633 (214 lines) | `src/rules/screens.jsx` HTML 3636–4043 (408 lines)
+
+- `RULE_IDS` = 6 IDs (`12s`, `13s`, `22s`, `r4s`, `41s`, `10x`); `RULE_DEFINITIONS` = 7 entries (also includes `8x` independently taught). 8x and 10x are distinct rules.
+- 1₂s remains a **warning criterion** (not rejection). Rejection criteria remain distinct.
+- R₄s remains within-run only in this application.
+- UI truth comes from frozen `evaluateRuleSet` — never locally reimplemented.
+- `keyFor` derives trigger-point keys used in `RuleDetectivePanel`.
+- Rule violation ≠ root-cause diagnosis; rule violation ≠ automatic patient-result invalidation.
+- Classic warning-gated evaluation ≠ universally superior to direct evaluation.
+- More rules may increase false rejection rate (`FALSE_REJECTION_NOTE`).
+- Rule Lab does not numerically calculate Ped/Pfr.
+- Confidence is metacognitive: "does not change your score."
+- Rule Detective score ≠ competency certification.
+- `MultiLevelLJChart`: W=780, H=400, ±4 SD domain, `[-3,-2,-1,0,1,2,3]` grid, SVG role=img, dual-encoding (shape AND line-style), three ring states (`mlj-ring-selected/correct/incorrect`), aria-live, text-alternative table.
+- APS/Strategy content (HTML 4046+) remains unrecovered (Stage 9H).
+- Browser/runtime equivalence not yet established.

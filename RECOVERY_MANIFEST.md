@@ -71,7 +71,7 @@
 | `src/pbrtqc/ui-components.jsx` | **A** | Stage 9E, HTML lines 13235–13471, SHA b615ba5c... |
 | `src/pbrtqc/screens.jsx` | **A** | Stage 9E, HTML lines 13473–13852, SHA 5dffa047... |
 | `tests/stage9e-pbrtqc-ui.test.js` | **D** | Stage 9E recovery tests |
-| `SCIENTIFIC_INVARIANTS.md` | **D** | New recovery documentation (Stages 1–9E) |
+| `SCIENTIFIC_INVARIANTS.md` | **D** | New recovery documentation (Stages 1–9E, boundary corrections documented) |
 | Historical Git repository | **E** | Lost — not recoverable |
 | Historical test files | **E** | Lost — not recoverable |
 | Historical commit `3cc62b1` | **C** | Reported externally; not independently recovered |

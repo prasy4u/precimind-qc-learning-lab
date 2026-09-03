@@ -1,3 +1,4 @@
+/* =========================================================================
    External Assurance Lab (QC-10) — reusable UI components: EQA-specific
    status badges (a fifth, independent icon-map family — never sharing
    glyphs with 21-investigation-components.jsx's StatusBadge, so an EQA
@@ -341,4 +342,3 @@ function LongitudinalComparabilityTable({ rows }) {
     </div>
   );
 }
-

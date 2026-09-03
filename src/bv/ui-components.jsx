@@ -1,3 +1,4 @@
+/* =========================================================================
    BV & RCV Lab (QC-07) — reusable UI components: BV-specific status badges
    (a separate icon-map family, never colour alone), the Provenance Card,
    the Variation Foundations interactive visual (individuals' set points +
@@ -328,5 +329,3 @@ function VariationFoundationsVisual({ cva, cvi, cvg }) {
     </div>
   );
 }
-
-

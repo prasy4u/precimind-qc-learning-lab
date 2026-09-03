@@ -1,3 +1,4 @@
+/* =========================================================================
    External Assurance Lab (QC-10) — screen: ONE primary nav item with five
    internal modes (IQC vs EQA | EQA Target Lab | EQA Report Interpreter |
    Comparability Lab | Longitudinal Challenge). Mirrors the architecture of
@@ -506,4 +507,3 @@ function ExternalAssuranceLabScreen({ level, markProgress, goto }) {
     </div>
   );
 }
-

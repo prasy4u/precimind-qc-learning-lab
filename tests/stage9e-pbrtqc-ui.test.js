@@ -45,10 +45,10 @@ const html   = fs.readFileSync(HTML_PATH,   'utf8').split('\n');
    ----------------------------------------------------------------------- */
 console.log('\n=== SECTION A: Source-fidelity regressions ===');
 
-const compAuth   = html.slice(13234, 13471).join('\n') + '\n';
-const screenAuth = html.slice(13472, 13852).join('\n') + '\n';
-assert('A-COMP',   compAuth   === comp, 'pbrtqc/ui-components.jsx exactly matches HTML lines 13235-13471', 'rc');
-assert('A-SCREEN', screenAuth === scr,  'pbrtqc/screens.jsx exactly matches HTML lines 13473-13852', 'rc');
+const compAuth   = html.slice(13233, 13469).join('\n') + '\n';
+const screenAuth = html.slice(13471, 13885).join('\n') + '\n';
+assert('A-COMP',   compAuth   === comp, 'pbrtqc/ui-components.jsx exactly matches HTML lines 13234-13469', 'rc');
+assert('A-SCREEN', screenAuth === scr,  'pbrtqc/screens.jsx exactly matches HTML lines 13472-13885', 'rc');
 
 /* -----------------------------------------------------------------------
    SECTION B: COMPONENT FUNCTION INVENTORY (source-grounded)
@@ -178,11 +178,11 @@ console.log('\n=== SECTION J: Screen function inventory ===');
 
 const EXPECTED_SCREEN_FNS = [
   'PbrtqcFoundationsPanel','PatientDistributionLabPanel','AlgorithmLabPanel',
-  'ErrorDetectionSimulatorPanel','PbrtqcChallengePanel'
+  'ErrorDetectionSimulatorPanel','PbrtqcChallengePanel','PatientSurveillanceLabScreen'
 ];
 const actualScrFns = [...scr.matchAll(/^function ([A-Za-z][A-Za-z0-9]*)\(/mg)].map(m=>m[1]);
 assert('J-01', JSON.stringify(actualScrFns) === JSON.stringify(EXPECTED_SCREEN_FNS),
-  'screens.jsx: exact 5-function inventory in order', 'sg');
+  'screens.jsx: exact 6-function inventory in order (incl PatientSurveillanceLabScreen)', 'sg');
 
 /* -----------------------------------------------------------------------
    SECTION K: Screen constant inventory (source-grounded)
@@ -216,9 +216,38 @@ assert('M-02', scr.includes('aria-selected'),
   'screens.jsx: aria-selected on mode buttons', 'sg');
 assert('M-03', scr.includes('role="tab"') || scr.includes("role='tab'"),
   'screens.jsx: role=tab on mode buttons', 'sg');
-// ScientificBasisNote is integrated at the app-shell level (not within these panel files)
-assert('M-04', comp.includes('PbrtqcStatusBadge') && scr.includes('PBRTQC_MODES'),
-  'Component and screen blocks structurally complete (no ScientificBasisNote duplication in panels)', 'rc');
+assert('M-04', scr.includes('ScientificBasisNote'),
+  'screens.jsx: ScientificBasisNote integrated in PatientSurveillanceLabScreen', 'sg');
+
+/* -----------------------------------------------------------------------
+   SECTION M2: PatientSurveillanceLabScreen content (source-grounded)
+   ----------------------------------------------------------------------- */
+console.log('\n=== SECTION M2: PatientSurveillanceLabScreen ===');
+
+const pslStart = scr.indexOf('function PatientSurveillanceLabScreen(');
+const psl = scr.slice(pslStart);
+
+assert('M2-01', psl.includes('<h1>Patient Surveillance Lab</h1>'),
+  'PatientSurveillanceLabScreen: <h1>Patient Surveillance Lab</h1>', 'sg');
+assert('M2-02', psl.includes('PBRTQC_PATHWAY_STEPS'),
+  'PatientSurveillanceLabScreen: PBRTQC_PATHWAY_STEPS rendered', 'sg');
+assert('M2-03', psl.includes('PBRTQC_PATHWAY_CAUTION'),
+  'PatientSurveillanceLabScreen: PBRTQC_PATHWAY_CAUTION rendered', 'sg');
+assert('M2-04', psl.includes('PBRTQC_LEVEL_EXPLANATION'),
+  'PatientSurveillanceLabScreen: PBRTQC_LEVEL_EXPLANATION rendered', 'sg');
+assert('M2-05', psl.includes('role="tablist"') || psl.includes("role='tablist'"),
+  'PatientSurveillanceLabScreen: role="tablist" on mode bar', 'sg');
+assert('M2-06', psl.includes('aria-label="Patient Surveillance Lab mode"') ||
+  psl.includes("aria-label='Patient Surveillance Lab mode'"),
+  'PatientSurveillanceLabScreen: aria-label on tablist', 'sg');
+assert('M2-07', psl.includes('PBRTQC_MODES.map'),
+  'PatientSurveillanceLabScreen: PBRTQC_MODES.map renders five mode tabs', 'sg');
+assert('M2-08', psl.includes('PBRTQC_EXCLUSION_LIST'),
+  'PatientSurveillanceLabScreen: PBRTQC_EXCLUSION_LIST rendered in details/summary', 'sg');
+assert('M2-09', psl.includes('METHODOLOGICAL_DEVELOPMENT_NOTE'),
+  'PatientSurveillanceLabScreen: METHODOLOGICAL_DEVELOPMENT_NOTE rendered', 'sg');
+assert('M2-10', psl.includes('ScientificBasisNote'),
+  'PatientSurveillanceLabScreen: ScientificBasisNote at line 13882', 'sg');
 
 /* -----------------------------------------------------------------------
    SECTION N: PbrtqcFoundationsPanel doctrine (source-grounded)

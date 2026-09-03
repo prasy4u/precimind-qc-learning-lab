@@ -46,14 +46,14 @@ const html   = fs.readFileSync(HTML_PATH,   'utf8').split('\n');
 console.log('\n=== SECTION A: Source-fidelity regressions ===');
 
 // Components: HTML lines 9549-9892 (0-indexed 9548:9892)
-const compAuth = html.slice(9548, 9892).join('\n') + '\n';
+const compAuth = html.slice(9547, 9891).join('\n') + '\n';
 assert('A-COMP', compAuth === comp,
-  'eqa/ui-components.jsx exactly matches HTML lines 9549-9892', 'rc');
+  'eqa/ui-components.jsx exactly matches HTML lines 9548-9891', 'rc');
 
 // Screens: HTML lines 9895-10403 (0-indexed 9894:10403)
-const screenAuth = html.slice(9894, 10403).join('\n') + '\n';
+const screenAuth = html.slice(9893, 10402).join('\n') + '\n';
 assert('A-SCREEN', screenAuth === scr,
-  'eqa/screens.jsx exactly matches HTML lines 9895-10403', 'rc');
+  'eqa/screens.jsx exactly matches HTML lines 9894-10402', 'rc');
 
 /* -----------------------------------------------------------------------
    SECTION B: COMPONENT FUNCTION INVENTORY (source-grounded)

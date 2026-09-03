@@ -1547,3 +1547,40 @@ Test file: Artifact **Class D** (recovery infrastructure)
 Source-grounded expectations: **88 / 122**
 Reconstructed expectations: **34 / 122**
 Total Stage 9A: **122 / 122** passed
+
+---
+
+## Stage 9C–9E UI Boundary Correction
+
+**Corrective closure commit:** Applied to all six Class A JSX files after discovery of off-by-one extraction errors in the original Stage 9C/9D/9E extraction.
+
+**Root cause:** Stages 9C, 9D, 9E were initially extracted beginning one line after the opening `/* =========================================================================` comment delimiter. Tests reproduced the same incorrect slice and passed while source was incomplete.
+
+**Stage 9E additional defect:** `src/pbrtqc/screens.jsx` stopped at HTML line 13852 and omitted the complete `PatientSurveillanceLabScreen` function (lines 13853–13885). This screen includes `<h1>Patient Surveillance Lab</h1>`, `role="tablist"`, `aria-label="Patient Surveillance Lab mode"`, `PBRTQC_MODES.map` (five mode renderings), `PBRTQC_EXCLUSION_LIST`, `METHODOLOGICAL_DEVELOPMENT_NOTE`, and `ScientificBasisNote` at line 13882.
+
+**`ScientificBasisNote` is NOT app-shell-only** — it is inside `PatientSurveillanceLabScreen` in `src/pbrtqc/screens.jsx` at HTML line 13882.
+
+### Corrected boundaries and SHA-256 values
+
+| File | HTML lines | SHA-256 |
+|------|------------|---------|
+| `src/eqa/ui-components.jsx` | 9548–9891 | `f7c973db56992f3d...` |
+| `src/eqa/screens.jsx` | 9894–10402 | `3b10aa20060305e9...` |
+| `src/bv/ui-components.jsx` | 11304–11634 | `91c0b5a18722a5e4...` |
+| `src/bv/screens.jsx` | 11637–12020 | `4698826081c3d6b0...` |
+| `src/pbrtqc/ui-components.jsx` | 13234–13469 | `b14efc6651f8b632...` |
+| `src/pbrtqc/screens.jsx` | 13472–13885 | `2e1cb56d0fa107d5...` |
+
+### PatientSurveillanceLabScreen function (lines 13853–13885)
+
+Confirmed content (all source-grounded via Section M2 tests):
+- `<h1>Patient Surveillance Lab</h1>`
+- `PBRTQC_PATHWAY_STEPS`, `PBRTQC_PATHWAY_CAUTION`, `PBRTQC_LEVEL_EXPLANATION`
+- `role="tablist"`, `aria-label="Patient Surveillance Lab mode"`
+- `PBRTQC_MODES.map` — five mode renderings
+- `PBRTQC_EXCLUSION_LIST`, `METHODOLOGICAL_DEVELOPMENT_NOTE`
+- `ScientificBasisNote` (HTML line 13882) — inside this screen, NOT app-shell-only
+
+### App shell boundary
+
+The app shell block starts at HTML line 13888 (`const NAV_ITEMS = [...]`). This is out of scope for Stage 9E.

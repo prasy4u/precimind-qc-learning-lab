@@ -1,3 +1,4 @@
+/* =========================================================================
    Patient Surveillance Lab (QC-12) — reusable UI components: a bounded/
    sampled patient-stream visual (never draws one SVG element per raw
    result when the stream is long — spec section 172), moving-statistic
@@ -233,5 +234,3 @@ function ChangedVsConstantPanel({ changed, heldConstant }) {
     </div>
   );
 }
-
-

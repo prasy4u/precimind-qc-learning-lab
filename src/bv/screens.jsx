@@ -1,3 +1,4 @@
+/* =========================================================================
    BV & RCV Lab (QC-07) — screen: ONE primary nav item with five internal
    modes (Variation Foundations | BV Explorer | APS from BV | RCV
    Laboratory | Serial Result Challenge). Mirrors the architecture of
@@ -381,4 +382,3 @@ function BvRcvLabScreen({ level, markProgress, goto }) {
     </div>
   );
 }
-

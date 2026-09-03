@@ -1,3 +1,4 @@
+/* =========================================================================
    Patient Surveillance Lab (QC-12) — screen: ONE primary nav item with
    five internal modes (PBRTQC Foundations | Patient Distribution Lab |
    Algorithm Lab | Error Detection Simulator | PBRTQC Challenge). Mirrors
@@ -378,3 +379,36 @@ function PbrtqcChallengePanel({ markProgress }) {
   );
 }
 
+/* ---------------------------- SCREEN SHELL ---------------------------- */
+function PatientSurveillanceLabScreen({ level, markProgress, goto }) {
+  const [mode, setMode] = useState("foundations");
+  return (
+    <div className="screen">
+      <h1>Patient Surveillance Lab</h1>
+      <p className="muted">Patient-based real-time quality control (PBRTQC) and advanced patient-based surveillance. This is an educational reasoning pathway — {PBRTQC_PATHWAY_STEPS.join(" → ")} — not a rigid universal sequence.</p>
+      <RecoveryFlowDiagram steps={PBRTQC_PATHWAY_STEPS} />
+      <p className="callout-inline">{PBRTQC_PATHWAY_CAUTION}</p>
+      <p className="muted small">{PBRTQC_LEVEL_EXPLANATION[level] || PBRTQC_LEVEL_EXPLANATION.intermediate}</p>
+
+      <div className="tabbar" role="tablist" aria-label="Patient Surveillance Lab mode">
+        {PBRTQC_MODES.map(m => (
+          <button key={m.id} role="tab" aria-selected={mode === m.id} className={"tab" + (mode === m.id ? " tab-active" : "")} onClick={() => setMode(m.id)}>{m.label}</button>
+        ))}
+      </div>
+
+      {mode === "foundations" && <PbrtqcFoundationsPanel markProgress={markProgress} />}
+      {mode === "distribution" && <PatientDistributionLabPanel goto={goto} />}
+      {mode === "algorithm" && <AlgorithmLabPanel />}
+      {mode === "simulator" && <ErrorDetectionSimulatorPanel markProgress={markProgress} goto={goto} />}
+      {mode === "challenge" && <PbrtqcChallengePanel markProgress={markProgress} />}
+
+      <details className="important-note">
+        <summary>What v0.8 does not implement</summary>
+        <ul className="mini-explain-list">{PBRTQC_EXCLUSION_LIST.map((e, i) => <li key={i}>{humanizePbrtqcLabel(e)}</li>)}</ul>
+      </details>
+      <p className="callout-inline">{METHODOLOGICAL_DEVELOPMENT_NOTE}</p>
+
+      <ScientificBasisNote goto={goto} text="This lab draws on Badrick, Bietenbeck, Cervinski et al. (2019) for PBRTQC review and recommendations, Loh et al. (2020) for performance-verification methodology, Bietenbeck et al. (2020) for simulation-based understanding of PBRTQC behaviour, Badrick, Cervinski & Loh (2019) for a primer on patient-based quality control techniques, van Rossum et al. (2021) for benefits/limitations/controversies, Smith, Badrick & Bowling (2020) for the role of the analyte distribution, Loh et al. (2019) for informatics specifications, Loh et al. (2021) for the effect of combining data across multiple instruments, van Andel et al. (2022) for a moving-average implementation toolbox, and Duan et al. (2024) for a survey of next-generation PBRTQC models (cited cautiously, and never used to justify any AI feature in this build) — see the Evidence page for full provenance, evidentiary tier, and scope." />
+    </div>
+  );
+}

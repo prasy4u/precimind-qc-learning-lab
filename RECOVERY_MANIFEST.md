@@ -62,14 +62,15 @@
 | `src/investigation/ui-components.jsx` | **A** | Stage 9B, HTML lines 7449–7701, SHA 26a0ae70... |
 | `src/investigation/screens.jsx` | **A** | Stage 9B, HTML lines 7704–8365, SHA d2794c94... |
 | `tests/stage9b-investigation-ui.test.js` | **D** | Stage 9B recovery tests |
-| `src/eqa/ui-components.jsx` | **A** | Stage 9C, HTML lines 9549–9892, SHA 47439fb5... |
-| `src/eqa/screens.jsx` | **A** | Stage 9C, HTML lines 9895–10403, SHA 16b10ea2... |
+| `src/eqa/ui-components.jsx` | **A** | Stage 9C (corrected), HTML 9548–9891, 344 lines, SHA f7c973db... |
+| `src/eqa/screens.jsx` | **A** | Stage 9C (corrected), HTML 9894–10402, 509 lines, SHA 3b10aa20... |
 | `tests/stage9c-eqa-ui.test.js` | **D** | Stage 9C recovery tests |
-| `src/bv/ui-components.jsx` | **A** | Stage 9D, HTML lines 11305–11636, SHA 66089c74... |
-| `src/bv/screens.jsx` | **A** | Stage 9D, HTML lines 11638–12021, SHA 0c398038... |
+| `src/bv/ui-components.jsx` | **A** | Stage 9D (corrected), HTML 11304–11634, 331 lines, SHA 91c0b5a1... |
+| `src/bv/screens.jsx` | **A** | Stage 9D (corrected), HTML 11637–12020, 384 lines, SHA 46988260... |
 | `tests/stage9d-bv-ui.test.js` | **D** | Stage 9D recovery tests |
-| `src/pbrtqc/ui-components.jsx` | **A** | Stage 9E, HTML lines 13235–13471, SHA b615ba5c... |
-| `src/pbrtqc/screens.jsx` | **A** | Stage 9E, HTML lines 13473–13852, SHA 5dffa047... |
+| `src/pbrtqc/ui-components.jsx` | **A** | Stage 9E (corrected), HTML 13234–13469, 236 lines, SHA b14efc66... |
+| `src/pbrtqc/screens.jsx` | **A** | Stage 9E (corrected), HTML 13472–13885, 414 lines, SHA 2e1cb56d...
+|  |  | PatientSurveillanceLabScreen incl (lines 13853–13885); ScientificBasisNote inside it; app shell starts 13888 |
 | `tests/stage9e-pbrtqc-ui.test.js` | **D** | Stage 9E recovery tests |
 | `SCIENTIFIC_INVARIANTS.md` | **D** | New recovery documentation (Stages 1–9E, boundary corrections documented) |
 | Historical Git repository | **E** | Lost — not recoverable |

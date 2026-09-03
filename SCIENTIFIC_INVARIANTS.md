@@ -1584,3 +1584,77 @@ Confirmed content (all source-grounded via Section M2 tests):
 ### App shell boundary
 
 The app shell block starts at HTML line 13888 (`const NAV_ITEMS = [...]`). This is out of scope for Stage 9E.
+
+---
+
+## Investigation UI Invariants — Stage 9B
+
+**Source:** `src/investigation/ui-components.jsx` HTML 7449–7701 | `src/investigation/screens.jsx` HTML 7704–8365
+
+Both files remain byte-identical to the corrected authoritative HTML blocks.
+
+- **Signal ≠ disturbance ≠ root cause.** "Candidate explanation" safeguard in HypothesisBoard. No probability/Bayesian ranking.
+- **Five status dimensions remain distinct:** `qcSignalStatus`, `processStatus`, `causeStatus`, `patientImpactStatus`, `resultDispositionStatus`. StatusBadge uses five separate icon-map families.
+- **EvidenceCard distinguishes:** Observation / Interpretation / Supports / Weakens / Neutral for. No numerical evidence weighting.
+- **Candidate-window membership ≠ automatic patient-result invalidity.** `NOT_AUTOMATICALLY_INVALID_NOTE` preserved.
+- **Current process timeline ≠ historical result-review timeline.** `TwoTimelineDiagram` keeps `CURRENT_PROCESS_TIMELINE_STEPS` and `HISTORICAL_RESULT_TIMELINE_STEPS` separate.
+- **No automatic patient-result correction/amendment/invalidation/notification.**
+- **`NO_GAMIFIED_SCORE_NOTE` remains authoritative.** Confidence ≠ correctness.
+- **Browser/runtime equivalence not yet established.**
+
+---
+
+## External Assurance UI Invariants — Stage 9C
+
+**Source:** `src/eqa/ui-components.jsx` HTML 9548–9891 | `src/eqa/screens.jsx` HTML 9894–10402
+
+- Stable IQC ≠ proof of trueness.
+- Poor EQA ≠ automatic patient-result bias.
+- Peer-group mean ≠ truth/reference value.
+- Assigned-value type must remain explicit (`TARGET_VALUE_TYPE_LABELS`).
+- Commutability "not established" ≠ noncommutable (`UNKNOWN_NOT_EQUAL_FAILED_NOTE`).
+- `NO_AUTO_PATIENT_IMPACT_FROM_EQA_NOTE` preserved.
+- "Analyzer A (designated comparator)" — not "reference method".
+- `LongitudinalEqaChart` retains SVG `role="img"` and text-alternative table.
+- `ExternalAssuranceLabScreen` retains `tablist`/`tab` semantics.
+- Browser/runtime equivalence not yet established.
+
+---
+
+## BV / RCV UI Invariants — Stage 9D
+
+**Source:** `src/bv/ui-components.jsx` HTML 11304–11634 | `src/bv/screens.jsx` HTML 11637–12020
+
+- CVA, CVI, CVG remain distinct components.
+- RI ≠ RCV.
+- RCV exceedance ≠ disease; RCV exceedance ≠ automatic clinical significance.
+- CVG does not enter RCV equations (`CVG_NOT_IN_RCV_STATEMENT`).
+- Classical RCV and log-normal RCV remain distinct models (separate display components).
+- Provenance/transportability warnings remain visible (`ProvenanceCard` 11-field display).
+- Actual demonstrated CVA must not be silently replaced by assumed CVA (`aps-cva-trap` mode).
+- TEa "Optional: combined TEa (not the primary output)" — clearly a disclosure, not the main result.
+- Browser/runtime equivalence not yet established.
+
+---
+
+## PBRTQC / Patient Surveillance UI Invariants — Stage 9E
+
+**Source:** `src/pbrtqc/ui-components.jsx` HTML 13234–13469 | `src/pbrtqc/screens.jsx` HTML 13472–13885
+
+**`PatientSurveillanceLabScreen`:** Lines 13853–13885. Contains `<h1>Patient Surveillance Lab</h1>`, `role="tablist"`, `aria-label="Patient Surveillance Lab mode"`, `PBRTQC_MODES.map`, `PBRTQC_EXCLUSION_LIST`, `METHODOLOGICAL_DEVELOPMENT_NOTE`, and `ScientificBasisNote` at line 13882.
+
+**`ScientificBasisNote` is inside `PatientSurveillanceLabScreen`** — NOT app-shell-only. App shell begins at HTML line 13888.
+
+- W is the PBRTQC window-size symbol.
+- Metadata filtering precedes analytical-error injection precedes truncation.
+- Raw patient index ≠ eligible index.
+- NPed uses raw patient indices.
+- PBRTQC alert ≠ diagnosis of analytical error.
+- Case-mix change can alert without injected analytical error (Population D).
+- Truncation can suppress error-bearing observations and alerts (aggressive truncation).
+- `MAX_RENDERED_POINTS = 180` performance cap on SVG point rendering.
+- `samplePoints` with `everyNth` sampling preserves performance.
+- PBRTQC complements IQC (never ranked above or below).
+- Median is not universally superior.
+- No auto-optimizer or universal PBRTQC parameter target.
+- Browser/runtime equivalence not yet established.

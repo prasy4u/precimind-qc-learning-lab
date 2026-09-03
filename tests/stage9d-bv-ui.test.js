@@ -318,6 +318,34 @@ Object.entries(EXPECTED_SCI_HASHES).forEach(([rel, expected]) => {
 });
 
 /* -----------------------------------------------------------------------
+   SECTION Z: Block-completeness guards (reconstructed)
+   Prevents future off-by-one fidelity tests from passing silently.
+   ----------------------------------------------------------------------- */
+console.log('\n=== SECTION Z: Block-completeness guards ===');
+
+// Z-01: Both files begin with the complete opening delimiter
+assert('Z-01-comp', comp.startsWith('/* ========================================================================='),
+  'ui-components.jsx: begins with /* ========================================================================= (complete delimiter)', 'rc');
+assert('Z-01-scr', scr.startsWith('/* ========================================================================='),
+  'screens.jsx: begins with /* ========================================================================= (complete delimiter)', 'rc');
+
+// Z-02: Both files contain the authored closing delimiter
+assert('Z-02-comp', comp.includes('========================================================================= */'),
+  'ui-components.jsx: opening block comment has authored closing delimiter', 'rc');
+assert('Z-02-scr', scr.includes('========================================================================= */'),
+  'screens.jsx: opening block comment has authored closing delimiter', 'rc');
+
+// Z-03: Expected final top-level function is present
+assert('Z-03-comp', comp.includes('function VariationFoundationsVisual('),
+  'ui-components.jsx: final function VariationFoundationsVisual is present', 'sg');
+assert('Z-03-scr', scr.includes('function BvRcvLabScreen('),
+  'screens.jsx: final function BvRcvLabScreen is present', 'sg');
+
+// Z-04: Next subsystem is NOT included
+assert('Z-04', !comp.includes('Patient Surveillance Lab') && !scr.includes('Patient Surveillance Lab'),
+  'Neither file includes next subsystem content: "Patient Surveillance Lab"', 'rc');
+
+/* -----------------------------------------------------------------------
    SUMMARY
    ----------------------------------------------------------------------- */
 const total = passed + failed;

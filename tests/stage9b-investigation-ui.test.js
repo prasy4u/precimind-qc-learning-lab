@@ -398,6 +398,78 @@ console.log('\n=== SECTION X: No build configuration ===');
 });
 
 /* -----------------------------------------------------------------------
+   SECTION Y: Stage 9B Domain UI Freeze — Strengthened High-Value Guards
+   ----------------------------------------------------------------------- */
+console.log('\n=== SECTION Y: Stage 9B strengthened guards ===');
+
+// Y-A: EvidenceCardGrid exact empty-state string (source-grounded)
+const ecgBlock = comp.slice(comp.indexOf('function EvidenceCardGrid('), comp.indexOf('function HypothesisBoard('));
+assert('Y-A-01', ecgBlock.includes('No evidence has been revealed for this reasoning stage yet.'),
+  'EvidenceCardGrid: exact empty-state "No evidence has been revealed for this reasoning stage yet."', 'sg');
+
+// Y-B: PatientImpactTable exact helper call references (source-grounded)
+const pitBlock = comp.slice(comp.indexOf('function PatientImpactTable('), comp.indexOf('function RecoveryFlowDiagram('));
+assert('Y-B-01', pitBlock.includes('absoluteDifference('), 'PatientImpactTable: calls absoluteDifference()', 'sg');
+assert('Y-B-02', pitBlock.includes('relativeDifferencePercent('), 'PatientImpactTable: calls relativeDifferencePercent()', 'sg');
+assert('Y-B-03', pitBlock.includes('isWithinCandidateWindow('), 'PatientImpactTable: calls isWithinCandidateWindow()', 'sg');
+assert('Y-B-04', pitBlock.includes('fmtSigned('), 'PatientImpactTable: calls fmtSigned() for display formatting', 'sg');
+
+// Y-C: canAdvanceStage complete gate structure (source-grounded)
+const casBlock = scr.slice(scr.indexOf('function canAdvanceStage('), scr.indexOf('function RecoveryChallengePanel('));
+assert('Y-C-01', casBlock.includes('case "signal": return ans.signalInterpretation != null;'),
+  'canAdvanceStage: signal gate = signalInterpretation != null', 'sg');
+assert('Y-C-02', casBlock.includes('case "containment": return ans.containment.length > 0;'),
+  'canAdvanceStage: containment gate = containment.length > 0', 'sg');
+assert('Y-C-03', casBlock.includes('case "characterisation": return true;'),
+  'canAdvanceStage: characterisation gate = true', 'sg');
+assert('Y-C-04', casBlock.includes('case "hypothesis": return ans.leadingHypothesis != null && ans.confidenceAtHypothesis != null;'),
+  'canAdvanceStage: hypothesis gate = leadingHypothesis && confidenceAtHypothesis', 'sg');
+assert('Y-C-05', casBlock.includes('case "evidence-1": return ans.predictedInfoOption != null;'),
+  'canAdvanceStage: evidence-1 gate = predictedInfoOption != null', 'sg');
+assert('Y-C-06', casBlock.includes('case "hypothesis-update": return ans.hypothesisAtUpdate != null && ans.confidenceAtUpdate != null;'),
+  'canAdvanceStage: hypothesis-update gate = hypothesisAtUpdate && confidenceAtUpdate', 'sg');
+assert('Y-C-07', casBlock.includes('case "intervention": return ans.interventionChoice != null;'),
+  'canAdvanceStage: intervention gate = interventionChoice != null', 'sg');
+assert('Y-C-08', casBlock.includes('case "verification": return ans.verificationJudgement != null;'),
+  'canAdvanceStage: verification gate = verificationJudgement != null', 'sg');
+assert('Y-C-09', casBlock.includes('case "patient-impact": return true;'),
+  'canAdvanceStage: patient-impact gate = true', 'sg');
+assert('Y-C-10', casBlock.includes('default: return false;'),
+  'canAdvanceStage: default gate = false', 'sg');
+
+// Y-D: EventTimeline aria-label uses time + label + TIMELINE_KIND_LABEL (source-grounded)
+const etBlock = comp.slice(comp.indexOf('function EventTimeline('), comp.indexOf('function PatientImpactTable('));
+assert('Y-D-01', etBlock.includes('ev.time + ": " + ev.label + " (" + TIMELINE_KIND_LABEL[ev.kind] + ")"'),
+  'EventTimeline: aria-label = time + label + TIMELINE_KIND_LABEL[kind] (exact)', 'sg');
+assert('Y-D-02', etBlock.includes('onClick') && etBlock.includes('onFocus'),
+  'EventTimeline: onClick and onFocus handlers present', 'sg');
+
+// Y-E: TwoTimelineDiagram exact labels within its block (source-grounded)
+const ttdBlock = comp.slice(comp.indexOf('function TwoTimelineDiagram('));
+assert('Y-E-01', ttdBlock.includes('CURRENT_PROCESS_TIMELINE_STEPS'),
+  'TwoTimelineDiagram: CURRENT_PROCESS_TIMELINE_STEPS in function block', 'sg');
+assert('Y-E-02', ttdBlock.includes('HISTORICAL_RESULT_TIMELINE_STEPS'),
+  'TwoTimelineDiagram: HISTORICAL_RESULT_TIMELINE_STEPS in function block', 'sg');
+assert('Y-E-03', ttdBlock.includes('>Current process timeline<'),
+  'TwoTimelineDiagram: >Current process timeline< label exact (JSX)', 'sg');
+assert('Y-E-04', ttdBlock.includes('>Historical result-review timeline<'),
+  'TwoTimelineDiagram: >Historical result-review timeline< label exact (JSX)', 'sg');
+assert('Y-E-05', ttdBlock.includes('TWO_TIMELINE_EXPLANATION_NOTE'),
+  'TwoTimelineDiagram: TWO_TIMELINE_EXPLANATION_NOTE in function block', 'sg');
+
+// Y-F: StatusBadge icon-map references — all five families (source-grounded)
+const sbBlock = comp.slice(comp.indexOf('function StatusBadge('), comp.indexOf('function StatusRow('));
+assert('Y-F-01', sbBlock.includes('QC_SIGNAL_ICONS'), 'StatusBadge: QC_SIGNAL_ICONS referenced', 'sg');
+assert('Y-F-02', sbBlock.includes('PROCESS_STATUS_ICONS'), 'StatusBadge: PROCESS_STATUS_ICONS referenced', 'sg');
+assert('Y-F-03', sbBlock.includes('CAUSE_STATUS_ICONS'), 'StatusBadge: CAUSE_STATUS_ICONS referenced', 'sg');
+assert('Y-F-04', sbBlock.includes('RESULT_DISPOSITION_ICONS'), 'StatusBadge: RESULT_DISPOSITION_ICONS referenced', 'sg');
+assert('Y-F-05', sbBlock.includes('PATIENT_IMPACT_STATUS_ICONS'), 'StatusBadge: PATIENT_IMPACT_STATUS_ICONS as fallback', 'sg');
+assert('Y-F-06', sbBlock.includes('kind === "qcSignal"'), 'StatusBadge: qcSignal kind selector', 'sg');
+assert('Y-F-07', sbBlock.includes('kind === "process"'), 'StatusBadge: process kind selector', 'sg');
+assert('Y-F-08', sbBlock.includes('kind === "cause"'), 'StatusBadge: cause kind selector', 'sg');
+assert('Y-F-09', sbBlock.includes('kind === "resultDisposition"'), 'StatusBadge: resultDisposition kind selector', 'sg');
+
+/* -----------------------------------------------------------------------
    SUMMARY
    ----------------------------------------------------------------------- */
 const total = passed + failed;

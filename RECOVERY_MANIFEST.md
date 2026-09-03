@@ -65,7 +65,10 @@
 | `src/eqa/ui-components.jsx` | **A** | Stage 9C, HTML lines 9549–9892, SHA 47439fb5... |
 | `src/eqa/screens.jsx` | **A** | Stage 9C, HTML lines 9895–10403, SHA 16b10ea2... |
 | `tests/stage9c-eqa-ui.test.js` | **D** | Stage 9C recovery tests |
-| `SCIENTIFIC_INVARIANTS.md` | **D** | New recovery documentation (Stages 1–9C) |
+| `src/bv/ui-components.jsx` | **A** | Stage 9D, HTML lines 11305–11636, SHA 66089c74... |
+| `src/bv/screens.jsx` | **A** | Stage 9D, HTML lines 11638–12021, SHA 0c398038... |
+| `tests/stage9d-bv-ui.test.js` | **D** | Stage 9D recovery tests |
+| `SCIENTIFIC_INVARIANTS.md` | **D** | New recovery documentation (Stages 1–9D) |
 | Historical Git repository | **E** | Lost — not recoverable |
 | Historical test files | **E** | Lost — not recoverable |
 | Historical commit `3cc62b1` | **C** | Reported externally; not independently recovered |

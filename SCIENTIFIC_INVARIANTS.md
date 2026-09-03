@@ -1696,3 +1696,25 @@ Both files remain byte-identical to the corrected authoritative HTML blocks.
 - `MultiLevelLJChart`: W=780, H=400, ±4 SD domain, `[-3,-2,-1,0,1,2,3]` grid, SVG role=img, dual-encoding (shape AND line-style), three ring states (`mlj-ring-selected/correct/incorrect`), aria-live, text-alternative table.
 - APS/Strategy content (HTML 4046+) remains unrecovered (Stage 9H).
 - Browser/runtime equivalence not yet established.
+
+---
+
+## QC Strategy / APS Lab UI — Stage 9H
+
+**Source:** `src/strategy/aps-ui-data.js` HTML 4086–4151 (66 lines, data fragment) | `src/strategy/ui-components.jsx` HTML 4675–4796 (122 lines) | `src/strategy/screens.jsx` HTML 4799–5338 (540 lines)
+
+- APS limits are sourced from `APS_SOURCE_OPTIONS` (8 categories). "insufficient-information" is a valid classification, not an error state.
+- `SPEC_SOURCE_CAUTION`: these APS sources are not conceptually equivalent — provenance must remain explicit.
+- `APS_CLASSIFICATION_CASES` (8 deterministic cases): sourced classification ≠ competency certification.
+- `qualitativeComplexity`, `qualitativeDetection`, `qualitativeFalseRejectionBurden` are ordinal/teaching labels — not numerical outputs.
+- `ComparatorTable`: "Not numerically implemented" for multirule Ped/Pfr — no fabricated values.
+- `calcSigma` referenced but not redefined; `MILAN_MODELS` referenced but not redefined (both from frozen `strategy/core.js`).
+- `WhyNotAllRulesCard` and `WhyNotOnly13sCard`: trade-off reasoning preserved (more rules ≠ always better; 1₃s alone not universal).
+- `SD_DEFAULTS = {tea:10, bias:2, cv:2, levels:2}` — exact authored defaults.
+- `VERY_LOW_SIGMA_WARNING`: intensifying QC monitoring does not correct poor analytical performance.
+- `EDUCATIONAL_STRATEGY_DISCLAIMER`: output is an educational candidate strategy, not a laboratory SOP.
+- `PATIENT_RISK_PREVIEW_NOTE`, `RUN_FREQUENCY_NOTE`, `N_AND_R_TEACHING_NOTE`, `NO_TRAFFIC_LIGHT_SIGMA_NOTE` all preserved.
+- No `ScientificBasisNote` in these files (inserted by app-shell route).
+- Five modes: `aps`, `sigma-lab`, `comparator`, `designer`, `challenge`.
+- Application shell (`NAV_ITEMS`, `function App(`, `ReactDOM`) remains unrecovered.
+- Browser/runtime equivalence not yet established.

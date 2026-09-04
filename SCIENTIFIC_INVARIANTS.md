@@ -1778,3 +1778,23 @@ Both files remain byte-identical to the corrected authoritative HTML blocks.
 **App shell contains no scientific calculations.** All frozen screens and shared components are referenced, never redefined.
 
 **Application source closes before HTML `</script>` (line 14025–14026).** Bootstrap inner JS recovered separately (lines 14028–14034). Root host element and vendor payload remain part of the document envelope — not duplicated. Standalone assembly and browser equivalence are NOT yet established. Stage 10 will adjudicate runtime assembly.
+
+---
+
+## Stage 10A — Assembly Governance
+
+**No Class A source was modified during Stage 10A.**
+
+The assembled standalone `dist/recovered-v0.8-faithful.html` is **Class B (deterministic reconstruction)**. It is NOT Class A. It is not byte-for-byte identical to the original app-source because several scientific recovery modules contain recovery infrastructure (provenance headers, guarded CommonJS exports) not present at the original HTML positions.
+
+**CommonJS recovery wrappers** are preserved unchanged in the faithful candidate. Guarded blocks (`if (typeof module !== "undefined" && module.exports)`) are harmless in browser context — confirmed by smoke test showing zero browser errors from these blocks.
+
+**The 19 repeated `ReactDOM.createRoot(rootEl).render(<App />)` mount calls** are preserved byte-for-byte in the faithful candidate. Browser measurement of the original shows zero warnings or errors from these calls — the React runtime handles them silently with the final call being the effective mount. Runtime adjudication (repair decision) belongs to Stage 10B.
+
+**Smoke equivalence** across all 23 smoke checkpoints (14 nav clicks, 2 modals, initial state) — MATCH between original and candidate. This does NOT establish full browser equivalence.
+
+**The `recovered-v0.8-validated` tag has NOT been applied.** Full browser equivalence belongs to Stage 10B.
+
+**Historical test suite:** ~1,588 Node assertions and ~15 Playwright suites are Class E (lost/unrecoverable from the HTML artifact). They have not been reconstructed. The current 3500 recovery assertions (Class D) are the valid regression baseline.
+
+**Current 3500 Class D assertions remain the authoritative regression baseline.**

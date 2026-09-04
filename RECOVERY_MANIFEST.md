@@ -90,6 +90,12 @@
 | `src/ui/runtime-bootstrap.js` | **A** | Stage 9J, HTML 14028–14034, 7 lines, 270 bytes, SHA f2bffcb0... |
 | `tests/stage9j-app-shell.test.js` | **D** | Stage 9J recovery tests |
 | `SCIENTIFIC_INVARIANTS.md` | **D** | New recovery documentation (Stages 1–9J) |
+| `tools/assemble-v08.js` | **D** | Stage 10A, deterministic assembler, fails on SHA mismatch |
+| `recovery/ASSEMBLY_MAP.md` | **D** | Stage 10A, formal module/assembly order documentation |
+| `recovery/assembly-map.json` | **D** | Stage 10A, machine-readable assembly manifest |
+| `recovery/STAGE10A_RUNTIME_BASELINE.md` | **D** | Stage 10A, original runtime baseline + smoke comparison |
+| `dist/recovered-v0.8-faithful.html` | **B** | Stage 10A, deterministic reconstruction, SHA a9fe9a3a..., NOT Class A |
+| `tests/stage10a-assembly.test.js` | **D** | Stage 10A, assembly validation tests |
 | Historical Git repository | **E** | Lost — not recoverable |
 | Historical test files | **E** | Lost — not recoverable |
 | Historical commit `3cc62b1` | **C** | Reported externally; not independently recovered |

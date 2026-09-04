@@ -1,0 +1,942 @@
+{
+  "stage": "10B",
+  "artifact_class": "D",
+  "browser": "Chromium 141.0.7390.37",
+  "viewport_desktop": "1440x1000",
+  "viewport_mobile": "390x844",
+  "font_policy": "Google Fonts requests aborted identically for both artifacts",
+  "original_sha": "e5317bf135f350b258428b985c1034a081e244a295f2e580c93cb6a6a091c8e4",
+  "candidate_sha": "a9fe9a3acbb8c35347cc735292ad63883778e5c12845f4da529129119b72c886",
+  "summary": {
+    "total": 115,
+    "match": 115,
+    "difference": 0,
+    "blocked": 0,
+    "not_tested": 0
+  },
+  "checkpoints": [
+    {
+      "id": "IS-01",
+      "domain": "initial",
+      "action": "document title",
+      "original": "PreciMind QC Learning Lab",
+      "candidate": "PreciMind QC Learning Lab",
+      "classification": "MATCH"
+    },
+    {
+      "id": "IS-02",
+      "domain": "initial",
+      "action": "initial h1",
+      "original": "Learn Quality Control by Doing It",
+      "candidate": "Learn Quality Control by Doing It",
+      "classification": "MATCH"
+    },
+    {
+      "id": "IS-03",
+      "domain": "initial",
+      "action": "nav item count",
+      "original": "14",
+      "candidate": "14",
+      "classification": "MATCH"
+    },
+    {
+      "id": "IS-04",
+      "domain": "initial",
+      "action": "nav item order",
+      "original": "Home|Competency Map|Statistics Playground|LJ Laboratory|Pattern Challenge|Rule Laboratory|QC Strategy Lab|Sigma Sandbox|Risk & Frequency Lab|Investigation Lab|External Assurance Lab|BV & RCV Lab|Patient Surveillance Lab|Evidence",
+      "candidate": "Home|Competency Map|Statistics Playground|LJ Laboratory|Pattern Challenge|Rule Laboratory|QC Strategy Lab|Sigma Sandbox|Risk & Frequency Lab|Investigation Lab|External Assurance Lab|BV & RCV Lab|Patient Surveillance Lab|Evidence",
+      "classification": "MATCH"
+    },
+    {
+      "id": "IS-05",
+      "domain": "initial",
+      "action": "level-select default",
+      "original": "beginner",
+      "candidate": "beginner",
+      "classification": "MATCH"
+    },
+    {
+      "id": "IS-06",
+      "domain": "initial",
+      "action": "active nav item",
+      "original": "Home",
+      "candidate": "Home",
+      "classification": "MATCH"
+    },
+    {
+      "id": "IS-07",
+      "domain": "initial",
+      "action": "root innerHTML hash",
+      "original": "7f6e22f27e6dcfbf",
+      "candidate": "7f6e22f27e6dcfbf",
+      "classification": "MATCH"
+    },
+    {
+      "id": "IS-08",
+      "domain": "accessibility",
+      "action": "skip link text",
+      "original": "Skip to main content",
+      "candidate": "Skip to main content",
+      "classification": "MATCH"
+    },
+    {
+      "id": "IS-09",
+      "domain": "initial",
+      "action": "footer text",
+      "original": "PreciMind QC Learning LabEducational simulation for analytical quality control.EvidenceGlossaryAbout this prototype",
+      "candidate": "PreciMind QC Learning LabEducational simulation for analytical quality control.EvidenceGlossaryAbout this prototype",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SCR-home-h1",
+      "domain": "screens",
+      "action": "Home: h1 text",
+      "original": "Learn Quality Control by Doing It",
+      "candidate": "Learn Quality Control by Doing It",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SCR-home-nav",
+      "domain": "screens",
+      "action": "Home: active nav",
+      "original": "Home",
+      "candidate": "Home",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SCR-home-dom",
+      "domain": "screens",
+      "action": "Home: root DOM hash",
+      "original": "7f6e22f27e6dcfbf",
+      "candidate": "7f6e22f27e6dcfbf",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SCR-map-h1",
+      "domain": "screens",
+      "action": "Competency Map: h1 text",
+      "original": "Competency Map",
+      "candidate": "Competency Map",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SCR-map-nav",
+      "domain": "screens",
+      "action": "Competency Map: active nav",
+      "original": "Competency Map",
+      "candidate": "Competency Map",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SCR-map-dom",
+      "domain": "screens",
+      "action": "Competency Map: root DOM hash",
+      "original": "b0f599ebcfb71476",
+      "candidate": "b0f599ebcfb71476",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SCR-stats-h1",
+      "domain": "screens",
+      "action": "Statistics Playground: h1 text",
+      "original": "Statistics Playground",
+      "candidate": "Statistics Playground",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SCR-stats-nav",
+      "domain": "screens",
+      "action": "Statistics Playground: active nav",
+      "original": "Statistics Playground",
+      "candidate": "Statistics Playground",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SCR-stats-dom",
+      "domain": "screens",
+      "action": "Statistics Playground: root DOM hash",
+      "original": "7e47178a29638c4a",
+      "candidate": "7e47178a29638c4a",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SCR-lj-h1",
+      "domain": "screens",
+      "action": "LJ Laboratory: h1 text",
+      "original": "Levey-Jennings Laboratory",
+      "candidate": "Levey-Jennings Laboratory",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SCR-lj-nav",
+      "domain": "screens",
+      "action": "LJ Laboratory: active nav",
+      "original": "LJ Laboratory",
+      "candidate": "LJ Laboratory",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SCR-lj-dom",
+      "domain": "screens",
+      "action": "LJ Laboratory: root DOM hash",
+      "original": "b4ec8cea81cc5e83",
+      "candidate": "b4ec8cea81cc5e83",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SCR-pattern-h1",
+      "domain": "screens",
+      "action": "Pattern Challenge: h1 text",
+      "original": "QC Pattern Challenge",
+      "candidate": "QC Pattern Challenge",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SCR-pattern-nav",
+      "domain": "screens",
+      "action": "Pattern Challenge: active nav",
+      "original": "Pattern Challenge",
+      "candidate": "Pattern Challenge",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SCR-pattern-dom",
+      "domain": "screens",
+      "action": "Pattern Challenge: root DOM hash",
+      "original": "0db484ef8a23d160",
+      "candidate": "0db484ef8a23d160",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SCR-rules-h1",
+      "domain": "screens",
+      "action": "Rule Laboratory: h1 text",
+      "original": "Rule Laboratory",
+      "candidate": "Rule Laboratory",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SCR-rules-nav",
+      "domain": "screens",
+      "action": "Rule Laboratory: active nav",
+      "original": "Rule Laboratory",
+      "candidate": "Rule Laboratory",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SCR-rules-dom",
+      "domain": "screens",
+      "action": "Rule Laboratory: root DOM hash",
+      "original": "b5ea01c78c5328e9",
+      "candidate": "b5ea01c78c5328e9",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SCR-strategy-h1",
+      "domain": "screens",
+      "action": "QC Strategy Lab: h1 text",
+      "original": "QC Strategy Lab",
+      "candidate": "QC Strategy Lab",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SCR-strategy-nav",
+      "domain": "screens",
+      "action": "QC Strategy Lab: active nav",
+      "original": "QC Strategy Lab",
+      "candidate": "QC Strategy Lab",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SCR-strategy-dom",
+      "domain": "screens",
+      "action": "QC Strategy Lab: root DOM hash",
+      "original": "88d4fe2496443c6e",
+      "candidate": "88d4fe2496443c6e",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SCR-sigma-h1",
+      "domain": "screens",
+      "action": "Sigma Sandbox: h1 text",
+      "original": "Sigma Sandbox",
+      "candidate": "Sigma Sandbox",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SCR-sigma-nav",
+      "domain": "screens",
+      "action": "Sigma Sandbox: active nav",
+      "original": "Sigma Sandbox",
+      "candidate": "Sigma Sandbox",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SCR-sigma-dom",
+      "domain": "screens",
+      "action": "Sigma Sandbox: root DOM hash",
+      "original": "b3ac33d92c277d21",
+      "candidate": "b3ac33d92c277d21",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SCR-risk-h1",
+      "domain": "screens",
+      "action": "Risk & Frequency Lab: h1 text",
+      "original": "Risk & Frequency Lab",
+      "candidate": "Risk & Frequency Lab",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SCR-risk-nav",
+      "domain": "screens",
+      "action": "Risk & Frequency Lab: active nav",
+      "original": "Risk & Frequency Lab",
+      "candidate": "Risk & Frequency Lab",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SCR-risk-dom",
+      "domain": "screens",
+      "action": "Risk & Frequency Lab: root DOM hash",
+      "original": "a6b86e298dff482e",
+      "candidate": "a6b86e298dff482e",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SCR-investigation-h1",
+      "domain": "screens",
+      "action": "Investigation Lab: h1 text",
+      "original": "Investigation Lab",
+      "candidate": "Investigation Lab",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SCR-investigation-nav",
+      "domain": "screens",
+      "action": "Investigation Lab: active nav",
+      "original": "Investigation Lab",
+      "candidate": "Investigation Lab",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SCR-investigation-dom",
+      "domain": "screens",
+      "action": "Investigation Lab: root DOM hash",
+      "original": "22952ff2a919cd0f",
+      "candidate": "22952ff2a919cd0f",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SCR-external-assurance-h1",
+      "domain": "screens",
+      "action": "External Assurance Lab: h1 text",
+      "original": "External Assurance Lab",
+      "candidate": "External Assurance Lab",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SCR-external-assurance-nav",
+      "domain": "screens",
+      "action": "External Assurance Lab: active nav",
+      "original": "External Assurance Lab",
+      "candidate": "External Assurance Lab",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SCR-external-assurance-dom",
+      "domain": "screens",
+      "action": "External Assurance Lab: root DOM hash",
+      "original": "bc7e804f8a0135fb",
+      "candidate": "bc7e804f8a0135fb",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SCR-bv-rcv-h1",
+      "domain": "screens",
+      "action": "BV & RCV Lab: h1 text",
+      "original": "BV & RCV Lab",
+      "candidate": "BV & RCV Lab",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SCR-bv-rcv-nav",
+      "domain": "screens",
+      "action": "BV & RCV Lab: active nav",
+      "original": "BV & RCV Lab",
+      "candidate": "BV & RCV Lab",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SCR-bv-rcv-dom",
+      "domain": "screens",
+      "action": "BV & RCV Lab: root DOM hash",
+      "original": "75d484137ace0805",
+      "candidate": "75d484137ace0805",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SCR-pbrtqc-h1",
+      "domain": "screens",
+      "action": "Patient Surveillance Lab: h1 text",
+      "original": "Patient Surveillance Lab",
+      "candidate": "Patient Surveillance Lab",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SCR-pbrtqc-nav",
+      "domain": "screens",
+      "action": "Patient Surveillance Lab: active nav",
+      "original": "Patient Surveillance Lab",
+      "candidate": "Patient Surveillance Lab",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SCR-pbrtqc-dom",
+      "domain": "screens",
+      "action": "Patient Surveillance Lab: root DOM hash",
+      "original": "81bc51868c73ce23",
+      "candidate": "81bc51868c73ce23",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SCR-evidence-h1",
+      "domain": "screens",
+      "action": "Evidence: h1 text",
+      "original": "Evidence & Scientific Basis",
+      "candidate": "Evidence & Scientific Basis",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SCR-evidence-nav",
+      "domain": "screens",
+      "action": "Evidence: active nav",
+      "original": "Evidence",
+      "candidate": "Evidence",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SCR-evidence-dom",
+      "domain": "screens",
+      "action": "Evidence: root DOM hash",
+      "original": "cdcc9cd024b26158",
+      "candidate": "cdcc9cd024b26158",
+      "classification": "MATCH"
+    },
+    {
+      "id": "LV-beginner-select",
+      "domain": "level",
+      "action": "beginner: select value after set",
+      "original": "beginner",
+      "candidate": "beginner",
+      "classification": "MATCH"
+    },
+    {
+      "id": "LV-beginner-home",
+      "domain": "level",
+      "action": "beginner: Home screen DOM hash",
+      "original": "7f6e22f27e6dcfbf",
+      "candidate": "7f6e22f27e6dcfbf",
+      "classification": "MATCH"
+    },
+    {
+      "id": "LV-beginner-map",
+      "domain": "level",
+      "action": "beginner: Competency Map DOM hash",
+      "original": "ad879a2be1d7363d",
+      "candidate": "ad879a2be1d7363d",
+      "classification": "MATCH"
+    },
+    {
+      "id": "LV-beginner-pattern",
+      "domain": "level",
+      "action": "beginner: Pattern Challenge DOM hash",
+      "original": "0db484ef8a23d160",
+      "candidate": "0db484ef8a23d160",
+      "classification": "MATCH"
+    },
+    {
+      "id": "LV-intermediate-select",
+      "domain": "level",
+      "action": "intermediate: select value after set",
+      "original": "intermediate",
+      "candidate": "intermediate",
+      "classification": "MATCH"
+    },
+    {
+      "id": "LV-intermediate-home",
+      "domain": "level",
+      "action": "intermediate: Home screen DOM hash",
+      "original": "8621bf4491712e75",
+      "candidate": "8621bf4491712e75",
+      "classification": "MATCH"
+    },
+    {
+      "id": "LV-intermediate-map",
+      "domain": "level",
+      "action": "intermediate: Competency Map DOM hash",
+      "original": "ad879a2be1d7363d",
+      "candidate": "ad879a2be1d7363d",
+      "classification": "MATCH"
+    },
+    {
+      "id": "LV-intermediate-pattern",
+      "domain": "level",
+      "action": "intermediate: Pattern Challenge DOM hash",
+      "original": "0db484ef8a23d160",
+      "candidate": "0db484ef8a23d160",
+      "classification": "MATCH"
+    },
+    {
+      "id": "LV-advanced-select",
+      "domain": "level",
+      "action": "advanced: select value after set",
+      "original": "advanced",
+      "candidate": "advanced",
+      "classification": "MATCH"
+    },
+    {
+      "id": "LV-advanced-home",
+      "domain": "level",
+      "action": "advanced: Home screen DOM hash",
+      "original": "8b7bcdc2ed472142",
+      "candidate": "8b7bcdc2ed472142",
+      "classification": "MATCH"
+    },
+    {
+      "id": "LV-advanced-map",
+      "domain": "level",
+      "action": "advanced: Competency Map DOM hash",
+      "original": "ad879a2be1d7363d",
+      "candidate": "ad879a2be1d7363d",
+      "classification": "MATCH"
+    },
+    {
+      "id": "LV-advanced-pattern",
+      "domain": "level",
+      "action": "advanced: Pattern Challenge DOM hash",
+      "original": "8104cc6d79ddfa11",
+      "candidate": "8104cc6d79ddfa11",
+      "classification": "MATCH"
+    },
+    {
+      "id": "LV-expert-select",
+      "domain": "level",
+      "action": "expert: select value after set",
+      "original": "expert",
+      "candidate": "expert",
+      "classification": "MATCH"
+    },
+    {
+      "id": "LV-expert-home",
+      "domain": "level",
+      "action": "expert: Home screen DOM hash",
+      "original": "f598b689bd9bf15d",
+      "candidate": "f598b689bd9bf15d",
+      "classification": "MATCH"
+    },
+    {
+      "id": "LV-expert-map",
+      "domain": "level",
+      "action": "expert: Competency Map DOM hash",
+      "original": "ad879a2be1d7363d",
+      "candidate": "ad879a2be1d7363d",
+      "classification": "MATCH"
+    },
+    {
+      "id": "LV-expert-pattern",
+      "domain": "level",
+      "action": "expert: Pattern Challenge DOM hash",
+      "original": "8104cc6d79ddfa11",
+      "candidate": "8104cc6d79ddfa11",
+      "classification": "MATCH"
+    },
+    {
+      "id": "MOD-glossary-dom",
+      "domain": "modals",
+      "action": "Glossary dialog DOM hash",
+      "original": "b8bb1bf882524c32",
+      "candidate": "b8bb1bf882524c32",
+      "classification": "MATCH"
+    },
+    {
+      "id": "MOD-glossary-count",
+      "domain": "modals",
+      "action": "Glossary item count",
+      "original": "14",
+      "candidate": "14",
+      "classification": "MATCH"
+    },
+    {
+      "id": "MOD-glossary-close",
+      "domain": "modals",
+      "action": "Glossary close via button",
+      "original": "closed",
+      "candidate": "closed",
+      "classification": "MATCH"
+    },
+    {
+      "id": "MOD-about-dom",
+      "domain": "modals",
+      "action": "About dialog DOM hash",
+      "original": "b31feba47bdf769b",
+      "candidate": "b31feba47bdf769b",
+      "classification": "MATCH"
+    },
+    {
+      "id": "MOD-about-version",
+      "domain": "modals",
+      "action": "About version string",
+      "original": "Version 0.8 — PBRTQC & Patient Surveillance",
+      "candidate": "Version 0.8 — PBRTQC & Patient Surveillance",
+      "classification": "MATCH"
+    },
+    {
+      "id": "MOD-about-escape",
+      "domain": "modals",
+      "action": "About Escape closes modal",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH"
+    },
+    {
+      "id": "STATS-initial",
+      "domain": "stats",
+      "action": "Stats Playground initial DOM",
+      "original": "7e47178a29638c4a",
+      "candidate": "7e47178a29638c4a",
+      "classification": "MATCH"
+    },
+    {
+      "id": "RULES-initial",
+      "domain": "rules",
+      "action": "Rule Laboratory initial DOM",
+      "original": "b5ea01c78c5328e9",
+      "candidate": "b5ea01c78c5328e9",
+      "classification": "MATCH"
+    },
+    {
+      "id": "STRAT-initial",
+      "domain": "strategy",
+      "action": "QC Strategy Lab initial DOM",
+      "original": "88d4fe2496443c6e",
+      "candidate": "88d4fe2496443c6e",
+      "classification": "MATCH"
+    },
+    {
+      "id": "RISK-initial",
+      "domain": "risk",
+      "action": "Risk Lab initial DOM",
+      "original": "a6b86e298dff482e",
+      "candidate": "a6b86e298dff482e",
+      "classification": "MATCH"
+    },
+    {
+      "id": "INV-initial",
+      "domain": "investigation",
+      "action": "Investigation Lab initial DOM",
+      "original": "22952ff2a919cd0f",
+      "candidate": "22952ff2a919cd0f",
+      "classification": "MATCH"
+    },
+    {
+      "id": "INV-mode-signals",
+      "domain": "investigation",
+      "action": "Investigation mode: signals",
+      "original": "22952ff2a919cd0f",
+      "candidate": "22952ff2a919cd0f",
+      "classification": "MATCH"
+    },
+    {
+      "id": "INV-mode-troubleshooting",
+      "domain": "investigation",
+      "action": "Investigation mode: troubleshooting",
+      "original": "0f6333589523fe57",
+      "candidate": "0f6333589523fe57",
+      "classification": "MATCH"
+    },
+    {
+      "id": "INV-mode-reconstruction",
+      "domain": "investigation",
+      "action": "Investigation mode: reconstruction",
+      "original": "cf0cab0c340461b6",
+      "candidate": "cf0cab0c340461b6",
+      "classification": "MATCH"
+    },
+    {
+      "id": "INV-mode-patient-impact",
+      "domain": "investigation",
+      "action": "Investigation mode: patient-impact",
+      "original": "81bc51868c73ce23",
+      "candidate": "81bc51868c73ce23",
+      "classification": "MATCH"
+    },
+    {
+      "id": "INV-mode-recovery",
+      "domain": "investigation",
+      "action": "Investigation mode: recovery",
+      "original": "81bc51868c73ce23",
+      "candidate": "81bc51868c73ce23",
+      "classification": "MATCH"
+    },
+    {
+      "id": "EQA-initial",
+      "domain": "eqa",
+      "action": "External Assurance initial DOM",
+      "original": "bc7e804f8a0135fb",
+      "candidate": "bc7e804f8a0135fb",
+      "classification": "MATCH"
+    },
+    {
+      "id": "BV-initial",
+      "domain": "bv",
+      "action": "BV & RCV initial DOM",
+      "original": "75d484137ace0805",
+      "candidate": "75d484137ace0805",
+      "classification": "MATCH"
+    },
+    {
+      "id": "PBRTQC-initial",
+      "domain": "pbrtqc",
+      "action": "Patient Surveillance initial DOM",
+      "original": "81bc51868c73ce23",
+      "candidate": "81bc51868c73ce23",
+      "classification": "MATCH"
+    },
+    {
+      "id": "EV-initial",
+      "domain": "evidence",
+      "action": "Evidence screen DOM",
+      "original": "cdcc9cd024b26158",
+      "candidate": "cdcc9cd024b26158",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SIGMA-initial",
+      "domain": "sigma",
+      "action": "Sigma Sandbox initial DOM",
+      "original": "b3ac33d92c277d21",
+      "candidate": "b3ac33d92c277d21",
+      "classification": "MATCH"
+    },
+    {
+      "id": "LJ-initial",
+      "domain": "lj",
+      "action": "LJ Laboratory initial DOM",
+      "original": "b4ec8cea81cc5e83",
+      "candidate": "b4ec8cea81cc5e83",
+      "classification": "MATCH"
+    },
+    {
+      "id": "CON-pageErrors",
+      "domain": "console",
+      "action": "Page errors count",
+      "original": "0",
+      "candidate": "0",
+      "classification": "MATCH"
+    },
+    {
+      "id": "CON-reactDom",
+      "domain": "console",
+      "action": "ReactDOM messages count",
+      "original": "0",
+      "candidate": "0",
+      "classification": "MATCH"
+    },
+    {
+      "id": "CON-appErrors",
+      "domain": "console",
+      "action": "Application error count",
+      "original": "1",
+      "candidate": "1",
+      "classification": "MATCH"
+    },
+    {
+      "id": "CON-babelInfo",
+      "domain": "console",
+      "action": "Babel deoptimise messages",
+      "original": "1",
+      "candidate": "1",
+      "classification": "MATCH"
+    },
+    {
+      "id": "KB-01-skip",
+      "domain": "accessibility",
+      "action": "First Tab lands on skip link",
+      "original": "Competency Map",
+      "candidate": "Competency Map",
+      "classification": "MATCH"
+    },
+    {
+      "id": "KB-02-modal-escape",
+      "domain": "accessibility",
+      "action": "Escape closes modal",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH"
+    },
+    {
+      "id": "KB-03-aria-current",
+      "domain": "accessibility",
+      "action": "aria-current=page on active nav",
+      "original": "Rule Laboratory",
+      "candidate": "Rule Laboratory",
+      "classification": "MATCH"
+    },
+    {
+      "id": "KB-04-nav-label",
+      "domain": "accessibility",
+      "action": "nav aria-label attribute",
+      "original": "Primary",
+      "candidate": "Primary",
+      "classification": "MATCH"
+    },
+    {
+      "id": "VIS-desk-home",
+      "domain": "visual-desktop",
+      "action": "Desktop 1440×1000: Home",
+      "original": "185e845c5a0e71f1",
+      "candidate": "185e845c5a0e71f1",
+      "classification": "MATCH"
+    },
+    {
+      "id": "VIS-desk-statistics_playground",
+      "domain": "visual-desktop",
+      "action": "Desktop 1440×1000: Statistics Playground",
+      "original": "b1e997aa3bf97280",
+      "candidate": "b1e997aa3bf97280",
+      "classification": "MATCH"
+    },
+    {
+      "id": "VIS-desk-rule_laboratory",
+      "domain": "visual-desktop",
+      "action": "Desktop 1440×1000: Rule Laboratory",
+      "original": "66d2bada65381c76",
+      "candidate": "66d2bada65381c76",
+      "classification": "MATCH"
+    },
+    {
+      "id": "VIS-desk-qc_strategy_lab",
+      "domain": "visual-desktop",
+      "action": "Desktop 1440×1000: QC Strategy Lab",
+      "original": "1be7b73a004a2b49",
+      "candidate": "1be7b73a004a2b49",
+      "classification": "MATCH"
+    },
+    {
+      "id": "VIS-desk-risk_frequency_lab",
+      "domain": "visual-desktop",
+      "action": "Desktop 1440×1000: Risk & Frequency Lab",
+      "original": "f60da12ef51cb3f9",
+      "candidate": "f60da12ef51cb3f9",
+      "classification": "MATCH"
+    },
+    {
+      "id": "VIS-desk-investigation_lab",
+      "domain": "visual-desktop",
+      "action": "Desktop 1440×1000: Investigation Lab",
+      "original": "582b00484cbb8c65",
+      "candidate": "582b00484cbb8c65",
+      "classification": "MATCH"
+    },
+    {
+      "id": "VIS-desk-external_assurance_lab",
+      "domain": "visual-desktop",
+      "action": "Desktop 1440×1000: External Assurance Lab",
+      "original": "ae70faa1b2aa581c",
+      "candidate": "ae70faa1b2aa581c",
+      "classification": "MATCH"
+    },
+    {
+      "id": "VIS-desk-bv_rcv_lab",
+      "domain": "visual-desktop",
+      "action": "Desktop 1440×1000: BV & RCV Lab",
+      "original": "08b4d19a937b3c9c",
+      "candidate": "08b4d19a937b3c9c",
+      "classification": "MATCH"
+    },
+    {
+      "id": "VIS-desk-patient_surveillance_lab",
+      "domain": "visual-desktop",
+      "action": "Desktop 1440×1000: Patient Surveillance Lab",
+      "original": "1d79bf7c50f611b5",
+      "candidate": "1d79bf7c50f611b5",
+      "classification": "MATCH"
+    },
+    {
+      "id": "VIS-mob-home",
+      "domain": "visual-mobile",
+      "action": "Mobile 390×844: Home",
+      "original": "d04b53a4cd7c7fed",
+      "candidate": "d04b53a4cd7c7fed",
+      "classification": "MATCH"
+    },
+    {
+      "id": "VIS-mob-rule_laboratory",
+      "domain": "visual-mobile",
+      "action": "Mobile 390×844: Rule Laboratory",
+      "original": "1662ddeff430c302",
+      "candidate": "1662ddeff430c302",
+      "classification": "MATCH"
+    },
+    {
+      "id": "VIS-mob-risk_frequency_lab",
+      "domain": "visual-mobile",
+      "action": "Mobile 390×844: Risk & Frequency Lab",
+      "original": "20d33c134f246906",
+      "candidate": "20d33c134f246906",
+      "classification": "MATCH"
+    },
+    {
+      "id": "VIS-mob-patient_surveillance_lab",
+      "domain": "visual-mobile",
+      "action": "Mobile 390×844: Patient Surveillance Lab",
+      "original": "ecb5d6cb3f7ac1fd",
+      "candidate": "ecb5d6cb3f7ac1fd",
+      "classification": "MATCH"
+    },
+    {
+      "id": "MOUNT-orig-warnings",
+      "domain": "19-mount",
+      "action": "Original: ReactDOM mount warnings",
+      "original": "0",
+      "candidate": "N/A",
+      "classification": "MATCH",
+      "notes": "Zero mount-related messages confirmed"
+    },
+    {
+      "id": "MOUNT-orig-errors",
+      "domain": "19-mount",
+      "action": "Original: page errors from mounts",
+      "original": "0",
+      "candidate": "N/A",
+      "classification": "MATCH"
+    },
+    {
+      "id": "MOUNT-cand-warnings",
+      "domain": "19-mount",
+      "action": "Candidate: ReactDOM mount warnings",
+      "original": "0",
+      "candidate": "N/A",
+      "classification": "MATCH",
+      "notes": "Zero mount-related messages confirmed"
+    },
+    {
+      "id": "MOUNT-cand-errors",
+      "domain": "19-mount",
+      "action": "Candidate: page errors from mounts",
+      "original": "0",
+      "candidate": "N/A",
+      "classification": "MATCH"
+    },
+    {
+      "id": "MOUNT-root-children",
+      "domain": "19-mount",
+      "action": "Root children count after all 19 mounts",
+      "original": "1",
+      "candidate": "1",
+      "classification": "MATCH",
+      "notes": "Internal disposition of 19 repeated mount calls: root ends with this child count"
+    }
+  ]
+}

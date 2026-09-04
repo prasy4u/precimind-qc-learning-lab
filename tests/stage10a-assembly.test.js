@@ -263,21 +263,37 @@ assert('K-01', run1.includes('Class B') || run1.includes('Artifact class: B'),
 assert('K-02', run1.includes('Artifact class: B'),
   'Assembler labels output as Class B', 'rc');
 
+/* The summary has moved after Section W (provenance checks added in Stage 10B) */
+
 /* -----------------------------------------------------------------------
-   SUMMARY
+   SECTION W: Provenance classification (added Stage 10B Part A correction)
    ----------------------------------------------------------------------- */
-const total = passed + failed;
+console.log('\n=== SECTION W: Assembly map provenance classification ===');
+
+const manif = JSON.parse(fs.readFileSync(path.join(ROOT, 'recovery', 'assembly-map.json'), 'utf8'));
+
+assert('W-01', manif.modules.length === 34,
+  'assembly-map.json: exactly 34 modules listed', 'rc');
+
+const exactA   = manif.modules.filter(m => m.artifact_class === 'A');
+const composite = manif.modules.filter(m => m.artifact_class === 'composite');
+
+assert('W-02', exactA.length === 24,
+  `assembly-map.json: exactly 24 pure Class A exact-slice modules (found ${exactA.length})`, 'rc');
+assert('W-03', composite.length === 10,
+  `assembly-map.json: exactly 10 composite A+D wrapper-bearing modules (found ${composite.length})`, 'rc');
+assert('W-04', composite.every(m => m.content_classes && m.content_classes.includes('A') && m.content_classes.includes('D')),
+  'All 10 composite modules have content_classes ["A","D"]', 'rc');
+assert('W-05', !composite.some(m => m.artifact_class === 'A'),
+  'None of the 10 composite files is labelled pure Class A', 'rc');
+assert('W-06', manif.provenance_summary && manif.provenance_summary.candidate_class === 'B',
+  'assembly-map.json: candidate_class recorded as B', 'rc');
+
+// Re-print summary
+const tot = passed + failed;
 console.log(`\n${'='.repeat(60)}`);
-console.log(`Stage 10A Assembly Tests: ${passed}/${total} passed, ${failed} failed`);
+console.log(`Stage 10A Assembly Tests (revised): ${passed}/${tot} passed, ${failed} failed`);
 console.log(`  Source-grounded expectations: ${sg}`);
 console.log(`  Reconstructed expectations:   ${rc}`);
-console.log(`  Artifact class of test file: D (recovery infrastructure)`);
-console.log(`  Candidate SHA-256: ${candSHA}`);
-console.log(`  Candidate class: B (deterministic reconstruction - NOT Class A)`);
-if (failed > 0) {
-  console.error('STAGE 10A FAILED.');
-  process.exit(1);
-} else {
-  console.log('STAGE 10A PASSED — all tests green.');
-  process.exit(0);
-}
+if (failed > 0) { console.error('STAGE 10A REVISED FAILED.'); process.exit(1); }
+else { console.log('STAGE 10A REVISED PASSED — all tests green.'); }

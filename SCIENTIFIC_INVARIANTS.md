@@ -1789,7 +1789,7 @@ The assembled standalone `dist/recovered-v0.8-faithful.html` is **Class B (deter
 
 **CommonJS recovery wrappers** are preserved unchanged in the faithful candidate. Guarded blocks (`if (typeof module !== "undefined" && module.exports)`) are harmless in browser context — confirmed by smoke test showing zero browser errors from these blocks.
 
-**The 19 repeated `ReactDOM.createRoot(rootEl).render(<App />)` mount calls** are preserved byte-for-byte in the faithful candidate. Browser measurement of the original shows zero warnings or errors from these calls — the React runtime handles them silently with the final call being the effective mount. Runtime adjudication (repair decision) belongs to Stage 10B.
+**The 19 repeated `ReactDOM.createRoot(rootEl).render(<App />)` mount calls** are preserved byte-for-byte in the faithful candidate. Browser measurement of the original shows zero warnings or errors from these calls — the React runtime handles them silently with the internal disposition of the repeated calls was not directly measured. Runtime adjudication (repair decision) belongs to Stage 10B.
 
 **Smoke equivalence** across all 23 smoke checkpoints (14 nav clicks, 2 modals, initial state) — MATCH between original and candidate. This does NOT establish full browser equivalence.
 
@@ -1798,3 +1798,34 @@ The assembled standalone `dist/recovered-v0.8-faithful.html` is **Class B (deter
 **Historical test suite:** ~1,588 Node assertions and ~15 Playwright suites are Class E (lost/unrecoverable from the HTML artifact). They have not been reconstructed. The current 3500 recovery assertions (Class D) are the valid regression baseline.
 
 **Current 3500 Class D assertions remain the authoritative regression baseline.**
+
+---
+
+## Stage 10B — Differential Browser Equivalence Validation
+
+**Assembly map provenance corrected in Stage 10B:**
+- 24 exact Class A HTML-slice modules (frozen byte-for-byte recovered source)
+- 10 composite modules (Class A scientific content + Class D recovery wrapper)
+- `recovery/assembly-map.json` updated; `recovery/ASSEMBLY_MAP.md` updated
+
+**19-mount instrumentation (Stage 10B direct measurement):**
+After all 19 `ReactDOM.createRoot(rootEl).render(<App />)` calls execute, the `#root` element contains exactly **1 child** in both the original and the candidate. The internal disposition is now directly measured. The React runtime coalesces repeated calls silently. No repair is required.
+
+**DECISION: PRESERVE RECOVERED 19-MOUNT SOURCE IN v0.8 BASELINE.**
+
+**Browser equivalence result:** 115 / 115 checkpoints MATCH across:
+- All 14 primary screens (exact DOM hash)
+- All 4 learner levels
+- All 6 modal interactions
+- Console/page-error comparison
+- Keyboard/accessibility checks
+- Pixel-exact desktop (1440×1000) and mobile (390×844) screenshots
+
+**Validation status:**  
+- Deterministic Node recovery validation complete: 3573 / 3573 assertions (26 suites)
+- Differential browser validation complete within declared matrix
+- Faithful Class B assembly behavior matches original Class A reference within declared scope
+- 19 mount calls preserved; decision: PRESERVE in v0.8 baseline
+- Historical test suite remains Class E (lost)
+- Current recovery tests remain Class D
+- `recovered-v0.8-validated` tag applied

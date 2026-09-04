@@ -90,6 +90,12 @@
 | `src/ui/runtime-bootstrap.js` | **A** | Stage 9J, HTML 14028–14034, 7 lines, 270 bytes, SHA f2bffcb0... |
 | `tests/stage9j-app-shell.test.js` | **D** | Stage 9J recovery tests |
 | `SCIENTIFIC_INVARIANTS.md` | **D** | New recovery documentation (Stages 1–9J) |
+| `tests/stage10b-browser-equivalence.js` | **D** | Stage 10B, differential Playwright harness, 115 browser checkpoints |
+| `tests/stage10b-validation.test.js` | **D** | Stage 10B, Node validation of browser result, 67 assertions |
+| `tests/helpers/browser-server.js` | **D** | Stage 10B, HTTP server helper |
+| `recovery/stage10b-equivalence.json` | **D** | Stage 10B, machine-readable equivalence result, 115 MATCH / 0 DIFF |
+| `recovery/STAGE10B_BROWSER_EQUIVALENCE.md` | **D** | Stage 10B, human-readable equivalence report |
+| `recovery/stage10b-visual/` | **D** | Stage 10B, representative paired screenshots (desktop + mobile) |
 | `tools/assemble-v08.js` | **D** | Stage 10A, deterministic assembler, fails on SHA mismatch |
 | `recovery/ASSEMBLY_MAP.md` | **D** | Stage 10A, formal module/assembly order documentation |
 | `recovery/assembly-map.json` | **D** | Stage 10A, machine-readable assembly manifest |

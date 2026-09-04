@@ -31,36 +31,36 @@
 
 | Order | Path | Type | Lines | SHA-256 (first 16) |
 |-------|------|------|-------|---------------------|
-| 1 | `src/core/statistics.js` | scientific-module-with-recovery-wrapper | 139 | `74e6d07ccd0bfae7` |
+| 1 | `src/core/statistics.js` | composite (Class A content + Class D recovery wrapper) | 139 | `74e6d07ccd0bfae7` |
 | 2 | `src/ui/app-data.js` | exact-html-slice-ui-recovery | 855 | `81cef641a844bd1e` |
 | 3 | `src/ui/shared-components.jsx` | exact-html-slice-ui-recovery | 269 | `bd848d01c124c294` |
 | 4 | `src/ui/core-screens.jsx` | exact-html-slice-ui-recovery | 716 | `90c2e85828d7aad9` |
-| 5 | `src/rules/engine.js` | scientific-module-with-recovery-wrapper | 317 | `a2ea2b71e72c3121` |
+| 5 | `src/rules/engine.js` | composite (Class A content + Class D recovery wrapper) | 317 | `a2ea2b71e72c3121` |
 | 6 | `src/rules/data.js` | exact-html-slice-ui-recovery | 219 | `41453ef63973f4d4` |
 | 7 | `src/rules/ui-components.jsx` | exact-html-slice-ui-recovery | 214 | `4eb7a11042f48962` |
 | 8 | `src/rules/screens.jsx` | exact-html-slice-ui-recovery | 408 | `8a374e0a900a591d` |
-| 9 | `src/opchar/functions.js` | scientific-module-with-recovery-wrapper | 133 | `1f17659d7fd10fdc` |
-| 10 | `src/strategy/core.js` | scientific-module-with-recovery-wrapper | 419 | `01a7431491c3e15c` |
+| 9 | `src/opchar/functions.js` | composite (Class A content + Class D recovery wrapper) | 133 | `1f17659d7fd10fdc` |
+| 10 | `src/strategy/core.js` | composite (Class A content + Class D recovery wrapper) | 419 | `01a7431491c3e15c` |
 | 11 | `src/strategy/aps-ui-data.js` | exact-html-slice-ui-recovery | 66 | `f45494a47a32498e` |
 | 12 | `src/strategy/ui-components.jsx` | exact-html-slice-ui-recovery | 122 | `46ba76ac6c508e34` |
 | 13 | `src/strategy/screens.jsx` | exact-html-slice-ui-recovery | 540 | `5283fcccc1a43c36` |
-| 14 | `src/risk/detection-delay.js` | scientific-module-with-recovery-wrapper | 162 | `2ba697e4a090d4fc` |
-| 15 | `src/risk/data.js` | scientific-module-with-recovery-wrapper | 387 | `2910e94235767ed3` |
+| 14 | `src/risk/detection-delay.js` | composite (Class A content + Class D recovery wrapper) | 162 | `2ba697e4a090d4fc` |
+| 15 | `src/risk/data.js` | composite (Class A content + Class D recovery wrapper) | 387 | `2910e94235767ed3` |
 | 16 | `src/risk/ui-components.jsx` | exact-html-slice-ui-recovery | 169 | `a71112bcad1ee82a` |
 | 17 | `src/risk/screens.jsx` | exact-html-slice-ui-recovery | 485 | `7f0897e8d15704a6` |
-| 18 | `src/investigation/calc.js` | scientific-module-with-recovery-wrapper | 153 | `a0fbf5c2457f3987` |
+| 18 | `src/investigation/calc.js` | composite (Class A content + Class D recovery wrapper) | 153 | `a0fbf5c2457f3987` |
 | 19 | `src/investigation/data.js` | exact-html-slice-ui-recovery | 774 | `5a0898859692b19e` |
 | 20 | `src/investigation/ui-components.jsx` | exact-html-slice-ui-recovery | 253 | `26a0ae70b65e4ae4` |
 | 21 | `src/investigation/screens.jsx` | exact-html-slice-ui-recovery | 662 | `d2794c94352e2ba9` |
-| 22 | `src/eqa/calc.js` | scientific-module-with-recovery-wrapper | 313 | `5eca4130aff6a3ea` |
+| 22 | `src/eqa/calc.js` | composite (Class A content + Class D recovery wrapper) | 313 | `5eca4130aff6a3ea` |
 | 23 | `src/eqa/data.js` | exact-html-slice-ui-recovery | 885 | `465ba7674103b9f5` |
 | 24 | `src/eqa/ui-components.jsx` | exact-html-slice-ui-recovery | 344 | `f7c973db56992f3d` |
 | 25 | `src/eqa/screens.jsx` | exact-html-slice-ui-recovery | 509 | `3b10aa20060305e9` |
-| 26 | `src/bv/calc.js` | scientific-module-with-recovery-wrapper | 337 | `203838b74143c183` |
+| 26 | `src/bv/calc.js` | composite (Class A content + Class D recovery wrapper) | 337 | `203838b74143c183` |
 | 27 | `src/bv/data.js` | exact-html-slice-ui-recovery | 578 | `ade1e82cc35b45c3` |
 | 28 | `src/bv/ui-components.jsx` | exact-html-slice-ui-recovery | 331 | `91c0b5a18722a5e4` |
 | 29 | `src/bv/screens.jsx` | exact-html-slice-ui-recovery | 384 | `4698826081c3d6b0` |
-| 30 | `src/pbrtqc/calc.js` | scientific-module-with-recovery-wrapper | 462 | `5d5247c6d712a4a3` |
+| 30 | `src/pbrtqc/calc.js` | composite (Class A content + Class D recovery wrapper) | 462 | `5d5247c6d712a4a3` |
 | 31 | `src/pbrtqc/data.js` | exact-html-slice-ui-recovery | 766 | `4f2dbb7c28ed1071` |
 | 32 | `src/pbrtqc/ui-components.jsx` | exact-html-slice-ui-recovery | 236 | `b14efc6651f8b632` |
 | 33 | `src/pbrtqc/screens.jsx` | exact-html-slice-ui-recovery | 414 | `2e1cb56d0fa107d5` |
@@ -82,3 +82,21 @@
 ## Provenance Note
 
 The assembled `app-source` payload is NOT byte-for-byte identical to the original `app-source` block (HTML lines 838–14025) because several scientific modules contain recovery infrastructure (provenance headers, guarded CommonJS exports) that was not present at the original HTML positions. The candidate is a faithful modular reconstruction — Class B — not a Class A byte-for-byte reproduction.
+
+---
+
+## Module Provenance Classification
+
+There are two provenance categories within the 34 frozen modules:
+
+### Exact Class A HTML-Slice Modules (24 files)
+These files are exact byte-for-byte source slices from the authoritative HTML artifact. Every byte is original recovered source. Class: **A**.
+
+Includes: `src/ui/app-data.js`, `src/ui/shared-components.jsx`, `src/ui/core-screens.jsx`, all rules/strategy/risk/investigation/eqa/bv/pbrtqc `data.js`, `ui-components.jsx`, `screens.jsx` files, and `src/ui/app-shell.jsx`.
+
+### Composite Modules (10 files)
+These files contain directly recovered Class A scientific content **plus** Class D recovery infrastructure (provenance headers and/or guarded CommonJS exports). The scientific content is Class A; the recovery wrapper is Class D. The file as a whole is labelled **composite**.
+
+Files: `src/core/statistics.js`, `src/rules/engine.js`, `src/opchar/functions.js`, `src/strategy/core.js`, `src/risk/detection-delay.js`, `src/risk/data.js`, `src/investigation/calc.js`, `src/eqa/calc.js`, `src/bv/calc.js`, `src/pbrtqc/calc.js`.
+
+The generated standalone `dist/recovered-v0.8-faithful.html` remains **Class B (deterministic reconstruction)**.

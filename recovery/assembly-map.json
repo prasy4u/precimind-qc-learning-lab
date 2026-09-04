@@ -67,7 +67,14 @@
       "type": "scientific-module-with-recovery-wrapper",
       "lines": 139,
       "sha256": "74e6d07ccd0bfae7e5cd9821078881b692e762cea3c9b4ad6eaf88799fc8f8d5",
-      "artifact_class": "A"
+      "artifact_class": "composite",
+      "content_classes": [
+        "A",
+        "D"
+      ],
+      "source_content_class": "A",
+      "recovery_wrapper_class": "D",
+      "provenance": "scientific-module-with-recovery-wrapper"
     },
     {
       "order": 2,
@@ -75,7 +82,8 @@
       "type": "exact-html-slice-ui-recovery",
       "lines": 855,
       "sha256": "81cef641a844bd1edb44ab60a81f5115f10eead0d5d6e668a8f6012e832119c1",
-      "artifact_class": "A"
+      "artifact_class": "A",
+      "provenance": "exact-html-slice-ui-recovery"
     },
     {
       "order": 3,
@@ -83,7 +91,8 @@
       "type": "exact-html-slice-ui-recovery",
       "lines": 269,
       "sha256": "bd848d01c124c2941fa11b623adda3ba4e47e89f5e29137c901a276bfd7bad51",
-      "artifact_class": "A"
+      "artifact_class": "A",
+      "provenance": "exact-html-slice-ui-recovery"
     },
     {
       "order": 4,
@@ -91,7 +100,8 @@
       "type": "exact-html-slice-ui-recovery",
       "lines": 716,
       "sha256": "90c2e85828d7aad9e6cb7899489a823290e6555d9216042f58aae6d99b30557d",
-      "artifact_class": "A"
+      "artifact_class": "A",
+      "provenance": "exact-html-slice-ui-recovery"
     },
     {
       "order": 5,
@@ -99,7 +109,14 @@
       "type": "scientific-module-with-recovery-wrapper",
       "lines": 317,
       "sha256": "a2ea2b71e72c312151c3e223b10815fac46d59b697f27912c6df4fc246ddf66b",
-      "artifact_class": "A"
+      "artifact_class": "composite",
+      "content_classes": [
+        "A",
+        "D"
+      ],
+      "source_content_class": "A",
+      "recovery_wrapper_class": "D",
+      "provenance": "scientific-module-with-recovery-wrapper"
     },
     {
       "order": 6,
@@ -107,7 +124,8 @@
       "type": "exact-html-slice-ui-recovery",
       "lines": 219,
       "sha256": "41453ef63973f4d463adbbcb0a5cac99f23469da3b3a575814dd0a0f5a2e2022",
-      "artifact_class": "A"
+      "artifact_class": "A",
+      "provenance": "exact-html-slice-ui-recovery"
     },
     {
       "order": 7,
@@ -115,7 +133,8 @@
       "type": "exact-html-slice-ui-recovery",
       "lines": 214,
       "sha256": "4eb7a11042f48962cbdcad41cdf8edf22d42b9b43593960b075ffad8e91473c5",
-      "artifact_class": "A"
+      "artifact_class": "A",
+      "provenance": "exact-html-slice-ui-recovery"
     },
     {
       "order": 8,
@@ -123,7 +142,8 @@
       "type": "exact-html-slice-ui-recovery",
       "lines": 408,
       "sha256": "8a374e0a900a591d2b810fa53e3d866f09d9e9ecbedbbd0fed629c268a4e3988",
-      "artifact_class": "A"
+      "artifact_class": "A",
+      "provenance": "exact-html-slice-ui-recovery"
     },
     {
       "order": 9,
@@ -131,7 +151,14 @@
       "type": "scientific-module-with-recovery-wrapper",
       "lines": 133,
       "sha256": "1f17659d7fd10fdc8493401d47801e93d8d6ffcccbc09b2ba1ccdb0fe8dfd4d1",
-      "artifact_class": "A"
+      "artifact_class": "composite",
+      "content_classes": [
+        "A",
+        "D"
+      ],
+      "source_content_class": "A",
+      "recovery_wrapper_class": "D",
+      "provenance": "scientific-module-with-recovery-wrapper"
     },
     {
       "order": 10,
@@ -139,7 +166,14 @@
       "type": "scientific-module-with-recovery-wrapper",
       "lines": 419,
       "sha256": "01a7431491c3e15c5c39777445a057b62a9e7b9876887fe1dc7b4ed97ad16f5e",
-      "artifact_class": "A"
+      "artifact_class": "composite",
+      "content_classes": [
+        "A",
+        "D"
+      ],
+      "source_content_class": "A",
+      "recovery_wrapper_class": "D",
+      "provenance": "scientific-module-with-recovery-wrapper"
     },
     {
       "order": 11,
@@ -147,7 +181,8 @@
       "type": "exact-html-slice-ui-recovery",
       "lines": 66,
       "sha256": "f45494a47a32498eea8272c4be696b584527bb823923f5fd3205a5231abbf827",
-      "artifact_class": "A"
+      "artifact_class": "A",
+      "provenance": "exact-html-slice-ui-recovery"
     },
     {
       "order": 12,
@@ -155,7 +190,8 @@
       "type": "exact-html-slice-ui-recovery",
       "lines": 122,
       "sha256": "46ba76ac6c508e34dc2e726e829b0d1e475de29090969e94b1d8e53d4f80e784",
-      "artifact_class": "A"
+      "artifact_class": "A",
+      "provenance": "exact-html-slice-ui-recovery"
     },
     {
       "order": 13,
@@ -163,7 +199,8 @@
       "type": "exact-html-slice-ui-recovery",
       "lines": 540,
       "sha256": "5283fcccc1a43c3687ccfd2d2c877dcabb186f486e0c5290c6da3589a05ea88a",
-      "artifact_class": "A"
+      "artifact_class": "A",
+      "provenance": "exact-html-slice-ui-recovery"
     },
     {
       "order": 14,
@@ -171,7 +208,14 @@
       "type": "scientific-module-with-recovery-wrapper",
       "lines": 162,
       "sha256": "2ba697e4a090d4fcee4b5d1dc70f5870726faf8f2197b8eb307fcd78b8175e7b",
-      "artifact_class": "A"
+      "artifact_class": "composite",
+      "content_classes": [
+        "A",
+        "D"
+      ],
+      "source_content_class": "A",
+      "recovery_wrapper_class": "D",
+      "provenance": "scientific-module-with-recovery-wrapper"
     },
     {
       "order": 15,
@@ -179,7 +223,14 @@
       "type": "scientific-module-with-recovery-wrapper",
       "lines": 387,
       "sha256": "2910e94235767ed3cce297bfa002f1c98b255fc16a7923c448eab585010f5bb2",
-      "artifact_class": "A"
+      "artifact_class": "composite",
+      "content_classes": [
+        "A",
+        "D"
+      ],
+      "source_content_class": "A",
+      "recovery_wrapper_class": "D",
+      "provenance": "scientific-module-with-recovery-wrapper"
     },
     {
       "order": 16,
@@ -187,7 +238,8 @@
       "type": "exact-html-slice-ui-recovery",
       "lines": 169,
       "sha256": "a71112bcad1ee82aed32041c65053f6b4e1f427b030a063cd5bdc6f90392e530",
-      "artifact_class": "A"
+      "artifact_class": "A",
+      "provenance": "exact-html-slice-ui-recovery"
     },
     {
       "order": 17,
@@ -195,7 +247,8 @@
       "type": "exact-html-slice-ui-recovery",
       "lines": 485,
       "sha256": "7f0897e8d15704a66c64467a0f977ca7b6c8f2149ee931daeca2bcc63e0bc5e5",
-      "artifact_class": "A"
+      "artifact_class": "A",
+      "provenance": "exact-html-slice-ui-recovery"
     },
     {
       "order": 18,
@@ -203,7 +256,14 @@
       "type": "scientific-module-with-recovery-wrapper",
       "lines": 153,
       "sha256": "a0fbf5c2457f3987dd4afd33ede6634f15080bc1be36f36ac003c9881c8e8353",
-      "artifact_class": "A"
+      "artifact_class": "composite",
+      "content_classes": [
+        "A",
+        "D"
+      ],
+      "source_content_class": "A",
+      "recovery_wrapper_class": "D",
+      "provenance": "scientific-module-with-recovery-wrapper"
     },
     {
       "order": 19,
@@ -211,7 +271,8 @@
       "type": "exact-html-slice-ui-recovery",
       "lines": 774,
       "sha256": "5a0898859692b19e446b0f5e404fa99bd4d03712e1926b533ec0b2404d5ca76e",
-      "artifact_class": "A"
+      "artifact_class": "A",
+      "provenance": "exact-html-slice-ui-recovery"
     },
     {
       "order": 20,
@@ -219,7 +280,8 @@
       "type": "exact-html-slice-ui-recovery",
       "lines": 253,
       "sha256": "26a0ae70b65e4ae422c970748eef4d196f6436e4a9f60a906501b9f51db57cd2",
-      "artifact_class": "A"
+      "artifact_class": "A",
+      "provenance": "exact-html-slice-ui-recovery"
     },
     {
       "order": 21,
@@ -227,7 +289,8 @@
       "type": "exact-html-slice-ui-recovery",
       "lines": 662,
       "sha256": "d2794c94352e2ba98aae6a06fcc1c0fa92501d876ee814205d33a014848f05cd",
-      "artifact_class": "A"
+      "artifact_class": "A",
+      "provenance": "exact-html-slice-ui-recovery"
     },
     {
       "order": 22,
@@ -235,7 +298,14 @@
       "type": "scientific-module-with-recovery-wrapper",
       "lines": 313,
       "sha256": "5eca4130aff6a3eaee7972ceb45234bb0ccce073b293dc7c4ee3ac3a9853021f",
-      "artifact_class": "A"
+      "artifact_class": "composite",
+      "content_classes": [
+        "A",
+        "D"
+      ],
+      "source_content_class": "A",
+      "recovery_wrapper_class": "D",
+      "provenance": "scientific-module-with-recovery-wrapper"
     },
     {
       "order": 23,
@@ -243,7 +313,8 @@
       "type": "exact-html-slice-ui-recovery",
       "lines": 885,
       "sha256": "465ba7674103b9f5a5f5a13dd1cdddefe23ce68abac54ded3c114a0671f99333",
-      "artifact_class": "A"
+      "artifact_class": "A",
+      "provenance": "exact-html-slice-ui-recovery"
     },
     {
       "order": 24,
@@ -251,7 +322,8 @@
       "type": "exact-html-slice-ui-recovery",
       "lines": 344,
       "sha256": "f7c973db56992f3da241e4537ff2d06e7f3b8925cfcb0495cdb1d06d006811b2",
-      "artifact_class": "A"
+      "artifact_class": "A",
+      "provenance": "exact-html-slice-ui-recovery"
     },
     {
       "order": 25,
@@ -259,7 +331,8 @@
       "type": "exact-html-slice-ui-recovery",
       "lines": 509,
       "sha256": "3b10aa20060305e9067b6349d45697015bfee1b4db7aa251f3967792755cdd86",
-      "artifact_class": "A"
+      "artifact_class": "A",
+      "provenance": "exact-html-slice-ui-recovery"
     },
     {
       "order": 26,
@@ -267,7 +340,14 @@
       "type": "scientific-module-with-recovery-wrapper",
       "lines": 337,
       "sha256": "203838b74143c1838185351428fbe92844152d8b58ac610cffd7b6fc57e3707c",
-      "artifact_class": "A"
+      "artifact_class": "composite",
+      "content_classes": [
+        "A",
+        "D"
+      ],
+      "source_content_class": "A",
+      "recovery_wrapper_class": "D",
+      "provenance": "scientific-module-with-recovery-wrapper"
     },
     {
       "order": 27,
@@ -275,7 +355,8 @@
       "type": "exact-html-slice-ui-recovery",
       "lines": 578,
       "sha256": "ade1e82cc35b45c3df3283e4983e632ec3ac1c640e9f606971e47d51a5b803ef",
-      "artifact_class": "A"
+      "artifact_class": "A",
+      "provenance": "exact-html-slice-ui-recovery"
     },
     {
       "order": 28,
@@ -283,7 +364,8 @@
       "type": "exact-html-slice-ui-recovery",
       "lines": 331,
       "sha256": "91c0b5a18722a5e48e07dee91099fea70efa9bda4356a093fb88d694ea9186aa",
-      "artifact_class": "A"
+      "artifact_class": "A",
+      "provenance": "exact-html-slice-ui-recovery"
     },
     {
       "order": 29,
@@ -291,7 +373,8 @@
       "type": "exact-html-slice-ui-recovery",
       "lines": 384,
       "sha256": "4698826081c3d6b08a7b03813b0f8901da7ded0bb65e4a272ff7e8620c8fbd2a",
-      "artifact_class": "A"
+      "artifact_class": "A",
+      "provenance": "exact-html-slice-ui-recovery"
     },
     {
       "order": 30,
@@ -299,7 +382,14 @@
       "type": "scientific-module-with-recovery-wrapper",
       "lines": 462,
       "sha256": "5d5247c6d712a4a31ce9a5028ac5e048d3b4f02c17842751f1d8067843bf908a",
-      "artifact_class": "A"
+      "artifact_class": "composite",
+      "content_classes": [
+        "A",
+        "D"
+      ],
+      "source_content_class": "A",
+      "recovery_wrapper_class": "D",
+      "provenance": "scientific-module-with-recovery-wrapper"
     },
     {
       "order": 31,
@@ -307,7 +397,8 @@
       "type": "exact-html-slice-ui-recovery",
       "lines": 766,
       "sha256": "4f2dbb7c28ed1071b0069788b55ba9c35603d9095e80fb9a4c6b135c08cfb98f",
-      "artifact_class": "A"
+      "artifact_class": "A",
+      "provenance": "exact-html-slice-ui-recovery"
     },
     {
       "order": 32,
@@ -315,7 +406,8 @@
       "type": "exact-html-slice-ui-recovery",
       "lines": 236,
       "sha256": "b14efc6651f8b632bdbfcc74525f1d72a1096675cd9e0b3e4739907dd3a6ab81",
-      "artifact_class": "A"
+      "artifact_class": "A",
+      "provenance": "exact-html-slice-ui-recovery"
     },
     {
       "order": 33,
@@ -323,7 +415,8 @@
       "type": "exact-html-slice-ui-recovery",
       "lines": 414,
       "sha256": "2e1cb56d0fa107d5680ebb59e73502fa3d03d8f308ea075cf2a1fc72559e28b7",
-      "artifact_class": "A"
+      "artifact_class": "A",
+      "provenance": "exact-html-slice-ui-recovery"
     },
     {
       "order": 34,
@@ -331,7 +424,8 @@
       "type": "exact-html-slice-ui-recovery",
       "lines": 137,
       "sha256": "56e3d5fac4fcaffa3184e81f8e8be1fa292558a35d0a77974f0639759d101da4",
-      "artifact_class": "A"
+      "artifact_class": "A",
+      "provenance": "exact-html-slice-ui-recovery"
     }
   ],
   "assembly_policy": {
@@ -340,5 +434,11 @@
     "mount_calls_policy": "all 19 ReactDOM.createRoot mount calls preserved byte-for-byte from frozen app-shell.jsx",
     "css_source": "frozen src/ui/original-v0.8.css - not reformatted or minified",
     "vendor_libraries": "reused from original HTML envelope - not duplicated into modules"
+  },
+  "provenance_summary": {
+    "exact_class_a_modules": 24,
+    "composite_A_plus_D_modules": 10,
+    "total_modules": 34,
+    "candidate_class": "B"
   }
 }

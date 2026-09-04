@@ -46,7 +46,7 @@ The original HTML source contains exactly **19** occurrences of `ReactDOM.create
 - **Root rendered correctly** — `#root` contains 5744 chars of React-rendered content
 - **Application fully functional** — all 14 screens navigable, modals open/close, level select present
 
-**Classification:** The 19 repeated `ReactDOM.createRoot` mount calls produce **no observable browser warning or error** in this Chromium runtime. The React runtime appears to handle the repeated calls silently (likely each subsequent call replaces the root, with the final call being the effective mount). The application is functional.
+**Classification:** The 19 repeated `ReactDOM.createRoot` mount calls produce **no observable browser warning or error** in this Chromium runtime. The React runtime handled the repeated calls without observable error. The internal disposition of the repeated roots was not instrumented in Stage 10A. The application is functional.
 
 **Implication for Stage 10A:** SOURCE-FAITHFUL RUNTIME — no anomalous behavior detected from the 19 repeated mounts in either the original or the candidate. Runtime adjudication does not require repair for functional equivalence; the decision to repair or not belongs to Stage 10B.
 

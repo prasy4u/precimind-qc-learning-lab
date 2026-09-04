@@ -1,3 +1,4 @@
+/* =========================================================================
    Risk & Frequency Lab — screen: five internal modes (Concepts, Frequency
    Simulator, Detection Delay, Patient-Risk Explorer, Frequency Challenge).
    Mirrors the architecture of 14-strategy-screens.jsx. Consumes
@@ -482,5 +483,3 @@ function RiskFrequencyLabScreen({ level, markProgress, goto }) {
     </div>
   );
 }
-
-

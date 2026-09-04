@@ -167,5 +167,3 @@ function QCTimeline({ M, shiftSD, N, onsetMode, onsetPositionPct, ruleIds }) {
     </div>
   );
 }
-
-

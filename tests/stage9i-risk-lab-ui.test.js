@@ -3,8 +3,8 @@
 
    NEW RECOVERY TESTS — Stage 9I (NOT the historical test suite)
    Tests for:
-     src/risk/ui-components.jsx (Class A, HTML lines 5877-6047)
-     src/risk/screens.jsx       (Class A, HTML lines 6049-6534)
+     src/risk/ui-components.jsx (Class A, HTML lines 5877-6045)
+     src/risk/screens.jsx       (Class A, HTML lines 6048-6532)
 
    ARTIFACT PROVENANCE: Class D (recovery infrastructure, not historical)
 
@@ -44,12 +44,12 @@ const html = fs.readFileSync(HTML_PATH, 'utf8').split('\n');
    ----------------------------------------------------------------------- */
 console.log('\n=== SECTION A: Source-fidelity ===');
 
-const compAuth = html.slice(5876, 6047).join('\n') + '\n';
+const compAuth = html.slice(5876, 6045).join('\n') + '\n';
 assert('A-COMP', compAuth === comp,
-  'ui-components.jsx exactly matches HTML lines 5877-6047', 'rc');
-const scrAuth = html.slice(6048, 6534).join('\n') + '\n';
+  'ui-components.jsx exactly matches HTML lines 5877-6045', 'rc');
+const scrAuth = html.slice(6047, 6532).join('\n') + '\n';
 assert('A-SCR', scrAuth === scr,
-  'screens.jsx exactly matches HTML lines 6049-6534', 'rc');
+  'screens.jsx exactly matches HTML lines 6048-6532', 'rc');
 
 /* -----------------------------------------------------------------------
    SECTION B: BLOCK-COMPLETENESS GUARDS (reconstructed)
@@ -57,17 +57,23 @@ assert('A-SCR', scrAuth === scr,
 console.log('\n=== SECTION B: Block-completeness guards ===');
 
 assert('B-01-comp', comp.startsWith('/* ========================================================================='),
-  'ui-components.jsx: begins with complete opening delimiter', 'rc');
+  'ui-components.jsx: begins with complete /* === opening delimiter', 'rc');
 assert('B-02-comp', comp.includes('========================================================================= */'),
-  'ui-components.jsx: opening comment has closing delimiter', 'rc');
-assert('B-03-comp', comp.includes('function QCTimeline('),
-  'ui-components.jsx: final function QCTimeline present', 'sg');
-assert('B-04-scr', scr.includes('function RiskFrequencyLabScreen('),
-  'screens.jsx: final function RiskFrequencyLabScreen present', 'sg');
-assert('B-05', !comp.includes('function InvestigationLabScreen(') && !scr.includes('function InvestigationLabScreen('),
+  'ui-components.jsx: opening block comment has authored closing delimiter', 'rc');
+assert('B-03-scr', scr.startsWith('/* ========================================================================='),
+  'screens.jsx: begins with complete /* === opening delimiter', 'rc');
+assert('B-04-scr', scr.includes('========================================================================= */'),
+  'screens.jsx: opening block comment has authored closing delimiter', 'rc');
+assert('B-05-comp', comp.includes('function QCTimeline('),
+  'ui-components.jsx: final function QCTimeline present (block not truncated)', 'sg');
+assert('B-06-scr', scr.includes('function RiskFrequencyLabScreen('),
+  'screens.jsx: final function RiskFrequencyLabScreen present (block not truncated)', 'sg');
+assert('B-07', !comp.includes('function InvestigationLabScreen(') && !scr.includes('function InvestigationLabScreen('),
   'No Investigation Lab leakage', 'rc');
-assert('B-06', !scr.includes('NAV_ITEMS') && !scr.includes('function App('),
+assert('B-08', !scr.includes('NAV_ITEMS') && !scr.includes('function App('),
   'No app-shell content', 'rc');
+assert('B-09', !scr.includes('Investigation Lab — v0.5') && !scr.includes('isVisibleAtStage'),
+  'screens.jsx: Investigation Lab block (line 6535+) absent', 'rc');
 
 /* -----------------------------------------------------------------------
    SECTION C: COMPONENT FUNCTION INVENTORY (source-grounded)

@@ -1723,7 +1723,7 @@ Both files remain byte-identical to the corrected authoritative HTML blocks.
 
 ## Risk & Frequency Lab UI — Stage 9I
 
-**Source:** `src/risk/ui-components.jsx` HTML 5877–6047 (171 lines) SHA `f443a7b1...` | `src/risk/screens.jsx` HTML 6049–6534 (486 lines) SHA `3a6171fb...`
+**Source:** `src/risk/ui-components.jsx` HTML 5877–6045 (169 lines) SHA `a71112bc...` | `src/risk/screens.jsx` HTML 6048–6532 (485 lines) SHA `7f0897e8...`
 
 - `TIMELINE_INTERVALS = 4` (exact integer — fixed regardless of M; only internal scale changes)
 - `intervalWidthPx(M)`: log2-based width scaling, minimum 60px

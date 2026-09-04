@@ -83,8 +83,8 @@
 | `src/strategy/ui-components.jsx` | **A** | Stage 9H, HTML 4675–4796, 122 lines, SHA 46ba76ac... |
 | `src/strategy/screens.jsx` | **A** | Stage 9H, HTML 4799–5338, 540 lines, SHA 5283fccc... |
 | `tests/stage9h-strategy-ui.test.js` | **D** | Stage 9H recovery tests |
-| `src/risk/ui-components.jsx` | **A** | Stage 9I, HTML 5877–6047, 171 lines, SHA f443a7b1... |
-| `src/risk/screens.jsx` | **A** | Stage 9I, HTML 6049–6534, 486 lines, SHA 3a6171fb... |
+| `src/risk/ui-components.jsx` | **A** | Stage 9I (corrected), HTML 5877–6045, 169 lines, SHA a71112bc... |
+| `src/risk/screens.jsx` | **A** | Stage 9I (corrected), HTML 6048–6532, 485 lines, SHA 7f0897e8... |
 | `tests/stage9i-risk-lab-ui.test.js` | **D** | Stage 9I recovery tests |
 | `SCIENTIFIC_INVARIANTS.md` | **D** | New recovery documentation (Stages 1–9I) |
 | Historical Git repository | **E** | Lost — not recoverable |

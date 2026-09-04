@@ -3,8 +3,8 @@
 
    NEW RECOVERY TESTS — Stage 9C (NOT the historical test suite)
    Tests for:
-     src/eqa/ui-components.jsx  (Class A, HTML lines 9549-9892)
-     src/eqa/screens.jsx        (Class A, HTML lines 9895-10403)
+     src/eqa/ui-components.jsx  (Class A, HTML lines 9548-9891)
+     src/eqa/screens.jsx        (Class A, HTML lines 9894-10402)
 
    ARTIFACT PROVENANCE: Class D (recovery infrastructure, not historical)
 

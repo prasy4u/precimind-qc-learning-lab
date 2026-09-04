@@ -3,8 +3,8 @@
 
    NEW RECOVERY TESTS — Stage 9E (NOT the historical test suite)
    Tests for:
-     src/pbrtqc/ui-components.jsx  (Class A, HTML lines 13235-13471)
-     src/pbrtqc/screens.jsx        (Class A, HTML lines 13473-13852)
+     src/pbrtqc/ui-components.jsx  (Class A, HTML lines 13234-13469)
+     src/pbrtqc/screens.jsx        (Class A, HTML lines 13472-13885)
 
    ARTIFACT PROVENANCE: Class D (recovery infrastructure, not historical)
 

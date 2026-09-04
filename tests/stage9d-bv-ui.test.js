@@ -3,8 +3,8 @@
 
    NEW RECOVERY TESTS — Stage 9D (NOT the historical test suite)
    Tests for:
-     src/bv/ui-components.jsx  (Class A, HTML lines 11305-11634)
-     src/bv/screens.jsx        (Class A, HTML lines 11638-12020)
+     src/bv/ui-components.jsx  (Class A, HTML lines 11304-11634)
+     src/bv/screens.jsx        (Class A, HTML lines 11637-12020)
 
    ARTIFACT PROVENANCE: Class D (recovery infrastructure, not historical)
 

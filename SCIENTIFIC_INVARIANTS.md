@@ -1741,3 +1741,40 @@ Both files remain byte-identical to the corrected authoritative HTML blocks.
 - `ScientificBasisNote` present in `RiskFrequencyLabScreen`
 - `h1` = `Risk &amp; Frequency Lab`, `aria-label` = `"Risk & Frequency Lab mode"` exact
 - No application shell. Browser/runtime equivalence not yet established.
+
+---
+
+## Application Shell & Runtime Bootstrap — Stage 9J
+
+**Source:** `src/ui/app-shell.jsx` HTML 13888–14024 (137 lines, 6124 chars/bytes) SHA `56e3d5fa...` | `src/ui/runtime-bootstrap.js` HTML 14028–14034 (7 lines, 270 chars/bytes) SHA `f2bffcb0...`
+
+**Navigation (14 authored destinations, exact order):**
+`home/Home`, `map/Competency Map`, `stats/Statistics Playground`, `lj/LJ Laboratory`, `pattern/Pattern Challenge`, `rules/Rule Laboratory`, `strategy/QC Strategy Lab`, `sigma/Sigma Sandbox`, `risk/Risk & Frequency Lab`, `investigation/Investigation Lab`, `external-assurance/External Assurance Lab`, `bv-rcv/BV & RCV Lab`, `pbrtqc/Patient Surveillance Lab`, `evidence/Evidence`
+
+**State defaults:** `level="beginner"`, `screen="home"`, `showDiagnostic=false`, `showGlossary=false`, `showAbout=false`
+
+**11 progress-tracked lab keys (all initially false):** `stats`, `lj`, `pattern`, `rules`, `strategy`, `sigma`, `risk`, `investigation`, `external-assurance`, `bv-rcv`, `pbrtqc` — `home`, `map`, `evidence` are NOT tracked.
+
+**`markProgress` idempotent expression:** `setProgress(p => (p[key] ? p : { ...p, [key]: true }))` — exact authored form preserved.
+
+**`goto(key)` navigation:** `setScreen(key)` + `window.scrollTo` — deterministic local React state, no routing library.
+
+**Screen dispatch (14 mappings):** `home`→HomeScreen, `map`→CompetencyMapScreen, `stats`→StatsPlaygroundScreen, `lj`→LJLabScreen, `pattern`→PatternChallengeScreen, `rules`→RuleLaboratoryScreen, `strategy`→QCStrategyLabScreen, `sigma`→SigmaSandboxScreen, `risk`→RiskFrequencyLabScreen, `investigation`→InvestigationLabScreen, `external-assurance`→ExternalAssuranceLabScreen, `bv-rcv`→BvRcvLabScreen, `pbrtqc`→PatientSurveillanceLabScreen, `evidence`→EvidenceScreen.
+
+**Prop wiring:** HomeScreen: `level`, `setLevel`, `goto`, `openDiagnostic`; CompetencyMapScreen: `level`, `goto`, `progress`; domain labs: `level`, `markProgress`, `goto`; EvidenceScreen: authored no-prop invocation.
+
+**Accessibility:** skip link `#main` / "Skip to main content"; `aria-label="Primary"` on nav; `aria-current` on active item; `id="main"` on content; `htmlFor="level-select"` / `id="level-select"` on level control.
+
+**Exact authoritative ReactDOM.createRoot mount count: 19.** All 19 `ReactDOM.createRoot(rootEl).render(<App />)` occurrences are preserved byte-for-byte. These are not deduplicated, repaired, or explained. Runtime adjudication is Stage 10.
+
+**rootEl lookup:** `const rootEl = document.getElementById("root");`
+
+**LEVELS/LEVEL_LABELS:** referenced, not redefined. Brand text `PreciMind`, `QC Learning Lab`, `Educational simulation` preserved.
+
+**Bootstrap runtime mechanism:** reads `document.getElementById("app-source").textContent`, applies `Babel.transform()` with React preset and `runtime: "classic"`, creates script element, sets `s.textContent = out`, appends to `document.body`. Not modernised.
+
+**Exclusions confirmed:** app-shell.jsx contains no `Babel.transform`, no `<script>`, no `</script>`, no bootstrap IIFE. runtime-bootstrap.js contains no NAV_ITEMS, no `function App(`, no ReactDOM mount call, no `<script>` or `</script>` tags.
+
+**App shell contains no scientific calculations.** All frozen screens and shared components are referenced, never redefined.
+
+**Application source closes before HTML `</script>` (line 14025–14026).** Bootstrap inner JS recovered separately (lines 14028–14034). Root host element and vendor payload remain part of the document envelope — not duplicated. Standalone assembly and browser equivalence are NOT yet established. Stage 10 will adjudicate runtime assembly.

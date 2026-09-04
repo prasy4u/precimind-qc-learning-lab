@@ -86,7 +86,10 @@
 | `src/risk/ui-components.jsx` | **A** | Stage 9I (corrected), HTML 5877–6045, 169 lines, SHA a71112bc... |
 | `src/risk/screens.jsx` | **A** | Stage 9I (corrected), HTML 6048–6532, 485 lines, SHA 7f0897e8... |
 | `tests/stage9i-risk-lab-ui.test.js` | **D** | Stage 9I recovery tests |
-| `SCIENTIFIC_INVARIANTS.md` | **D** | New recovery documentation (Stages 1–9I) |
+| `src/ui/app-shell.jsx` | **A** | Stage 9J, HTML 13888–14024, 137 lines, 6124 bytes, SHA 56e3d5fa..., 19 ReactDOM mounts (preserved) |
+| `src/ui/runtime-bootstrap.js` | **A** | Stage 9J, HTML 14028–14034, 7 lines, 270 bytes, SHA f2bffcb0... |
+| `tests/stage9j-app-shell.test.js` | **D** | Stage 9J recovery tests |
+| `SCIENTIFIC_INVARIANTS.md` | **D** | New recovery documentation (Stages 1–9J) |
 | Historical Git repository | **E** | Lost — not recoverable |
 | Historical test files | **E** | Lost — not recoverable |
 | Historical commit `3cc62b1` | **C** | Reported externally; not independently recovered |

@@ -587,8 +587,8 @@
       "id": "MOD-about-version",
       "domain": "modals",
       "action": "About version string",
-      "original": "Version 0.8 — PBRTQC & Patient Surveillance",
-      "candidate": "Version 0.8 — PBRTQC & Patient Surveillance",
+      "original": "Version 0.8 \u2014 PBRTQC & Patient Surveillance",
+      "candidate": "Version 0.8 \u2014 PBRTQC & Patient Surveillance",
       "classification": "MATCH"
     },
     {
@@ -794,7 +794,7 @@
     {
       "id": "VIS-desk-home",
       "domain": "visual-desktop",
-      "action": "Desktop 1440×1000: Home",
+      "action": "Desktop 1440\u00d71000: Home",
       "original": "185e845c5a0e71f1",
       "candidate": "185e845c5a0e71f1",
       "classification": "MATCH"
@@ -802,7 +802,7 @@
     {
       "id": "VIS-desk-statistics_playground",
       "domain": "visual-desktop",
-      "action": "Desktop 1440×1000: Statistics Playground",
+      "action": "Desktop 1440\u00d71000: Statistics Playground",
       "original": "b1e997aa3bf97280",
       "candidate": "b1e997aa3bf97280",
       "classification": "MATCH"
@@ -810,7 +810,7 @@
     {
       "id": "VIS-desk-rule_laboratory",
       "domain": "visual-desktop",
-      "action": "Desktop 1440×1000: Rule Laboratory",
+      "action": "Desktop 1440\u00d71000: Rule Laboratory",
       "original": "66d2bada65381c76",
       "candidate": "66d2bada65381c76",
       "classification": "MATCH"
@@ -818,7 +818,7 @@
     {
       "id": "VIS-desk-qc_strategy_lab",
       "domain": "visual-desktop",
-      "action": "Desktop 1440×1000: QC Strategy Lab",
+      "action": "Desktop 1440\u00d71000: QC Strategy Lab",
       "original": "1be7b73a004a2b49",
       "candidate": "1be7b73a004a2b49",
       "classification": "MATCH"
@@ -826,7 +826,7 @@
     {
       "id": "VIS-desk-risk_frequency_lab",
       "domain": "visual-desktop",
-      "action": "Desktop 1440×1000: Risk & Frequency Lab",
+      "action": "Desktop 1440\u00d71000: Risk & Frequency Lab",
       "original": "f60da12ef51cb3f9",
       "candidate": "f60da12ef51cb3f9",
       "classification": "MATCH"
@@ -834,7 +834,7 @@
     {
       "id": "VIS-desk-investigation_lab",
       "domain": "visual-desktop",
-      "action": "Desktop 1440×1000: Investigation Lab",
+      "action": "Desktop 1440\u00d71000: Investigation Lab",
       "original": "582b00484cbb8c65",
       "candidate": "582b00484cbb8c65",
       "classification": "MATCH"
@@ -842,7 +842,7 @@
     {
       "id": "VIS-desk-external_assurance_lab",
       "domain": "visual-desktop",
-      "action": "Desktop 1440×1000: External Assurance Lab",
+      "action": "Desktop 1440\u00d71000: External Assurance Lab",
       "original": "ae70faa1b2aa581c",
       "candidate": "ae70faa1b2aa581c",
       "classification": "MATCH"
@@ -850,7 +850,7 @@
     {
       "id": "VIS-desk-bv_rcv_lab",
       "domain": "visual-desktop",
-      "action": "Desktop 1440×1000: BV & RCV Lab",
+      "action": "Desktop 1440\u00d71000: BV & RCV Lab",
       "original": "08b4d19a937b3c9c",
       "candidate": "08b4d19a937b3c9c",
       "classification": "MATCH"
@@ -858,7 +858,7 @@
     {
       "id": "VIS-desk-patient_surveillance_lab",
       "domain": "visual-desktop",
-      "action": "Desktop 1440×1000: Patient Surveillance Lab",
+      "action": "Desktop 1440\u00d71000: Patient Surveillance Lab",
       "original": "1d79bf7c50f611b5",
       "candidate": "1d79bf7c50f611b5",
       "classification": "MATCH"
@@ -866,7 +866,7 @@
     {
       "id": "VIS-mob-home",
       "domain": "visual-mobile",
-      "action": "Mobile 390×844: Home",
+      "action": "Mobile 390\u00d7844: Home",
       "original": "d04b53a4cd7c7fed",
       "candidate": "d04b53a4cd7c7fed",
       "classification": "MATCH"
@@ -874,7 +874,7 @@
     {
       "id": "VIS-mob-rule_laboratory",
       "domain": "visual-mobile",
-      "action": "Mobile 390×844: Rule Laboratory",
+      "action": "Mobile 390\u00d7844: Rule Laboratory",
       "original": "1662ddeff430c302",
       "candidate": "1662ddeff430c302",
       "classification": "MATCH"
@@ -882,7 +882,7 @@
     {
       "id": "VIS-mob-risk_frequency_lab",
       "domain": "visual-mobile",
-      "action": "Mobile 390×844: Risk & Frequency Lab",
+      "action": "Mobile 390\u00d7844: Risk & Frequency Lab",
       "original": "20d33c134f246906",
       "candidate": "20d33c134f246906",
       "classification": "MATCH"
@@ -890,7 +890,7 @@
     {
       "id": "VIS-mob-patient_surveillance_lab",
       "domain": "visual-mobile",
-      "action": "Mobile 390×844: Patient Surveillance Lab",
+      "action": "Mobile 390\u00d7844: Patient Surveillance Lab",
       "original": "ecb5d6cb3f7ac1fd",
       "candidate": "ecb5d6cb3f7ac1fd",
       "classification": "MATCH"
@@ -938,5 +938,30 @@
       "classification": "MATCH",
       "notes": "Internal disposition of 19 repeated mount calls: root ends with this child count"
     }
-  ]
+  ],
+  "declared_but_not_executed": [
+    "diagnostic-modal-full-qa-flow",
+    "statistics-playground-interactive-inputs",
+    "lj-laboratory-dataset-switching",
+    "pattern-challenge-game-flow",
+    "rule-detective-case-completion",
+    "rule-inspect-sequence-interaction",
+    "aps-classification-all-8-cases",
+    "strategy-designer-interaction",
+    "strategy-challenge-completion",
+    "frequency-simulator-m-manipulation",
+    "detection-delay-interaction",
+    "frequency-challenge-completion",
+    "recovery-challenge-full-traversal",
+    "patient-impact-workflow",
+    "eqa-longitudinal-challenge-completion",
+    "eqa-comparability-interaction",
+    "bv-rcv-interactive-calculations",
+    "serial-result-challenge",
+    "pbrtqc-algorithm-interaction",
+    "pbrtqc-error-detection-simulator",
+    "pbrtqc-challenge-completion",
+    "extended-keyboard-navigation"
+  ],
+  "stage10b_note": "115 executed differential checkpoints (115 MATCH) represent initial-state, 14-screen traversal, level-switching, modals, console, keyboard, and visual equivalence. The above declared_but_not_executed interaction flows were explicitly listed in the Stage 10B report as NOT_TESTED but were omitted from the checkpoint array, causing the summary to report not_tested=0 incorrectly. Stage 10C completes these flows."
 }

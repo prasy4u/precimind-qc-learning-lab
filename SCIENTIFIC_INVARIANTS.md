@@ -1789,7 +1789,7 @@ The assembled standalone `dist/recovered-v0.8-faithful.html` is **Class B (deter
 
 **CommonJS recovery wrappers** are preserved unchanged in the faithful candidate. Guarded blocks (`if (typeof module !== "undefined" && module.exports)`) are harmless in browser context — confirmed by smoke test showing zero browser errors from these blocks.
 
-**The 19 repeated `ReactDOM.createRoot(rootEl).render(<App />)` mount calls** are preserved byte-for-byte in the faithful candidate. Browser measurement of the original shows zero warnings or errors from these calls — the React runtime handles them silently with the internal disposition of the repeated calls was not directly measured. Runtime adjudication (repair decision) belongs to Stage 10B.
+**The 19 repeated `ReactDOM.createRoot(rootEl).render(<App />)` mount calls** are preserved byte-for-byte in the faithful candidate. Browser measurement of the original shows zero warnings or errors from these calls. The internal disposition of the repeated calls was not instrumented in Stage 10A. Runtime adjudication (repair decision) belongs to Stage 10B.
 
 **Smoke equivalence** across all 23 smoke checkpoints (14 nav clicks, 2 modals, initial state) — MATCH between original and candidate. This does NOT establish full browser equivalence.
 
@@ -1809,7 +1809,7 @@ The assembled standalone `dist/recovered-v0.8-faithful.html` is **Class B (deter
 - `recovery/assembly-map.json` updated; `recovery/ASSEMBLY_MAP.md` updated
 
 **19-mount instrumentation (Stage 10B direct measurement):**
-After all 19 `ReactDOM.createRoot(rootEl).render(<App />)` calls execute, the `#root` element contains exactly **1 child** in both the original and the candidate. The internal disposition is now directly measured. The React runtime coalesces repeated calls silently. No repair is required.
+After all 19 `ReactDOM.createRoot(rootEl).render(<App />)` calls execute, the `#root` element contains exactly **1 child** in both the original and the candidate (Stage 10B direct instrumentation). The internal React-root disposition of the 19 calls was not further instrumented. The observable post-render DOM contains one root child in both artifacts. No repair is required.
 
 **DECISION: PRESERVE RECOVERED 19-MOUNT SOURCE IN v0.8 BASELINE.**
 
@@ -1829,3 +1829,36 @@ After all 19 `ReactDOM.createRoot(rootEl).render(<App />)` calls execute, the `#
 - Historical test suite remains Class E (lost)
 - Current recovery tests remain Class D
 - `recovered-v0.8-validated` tag applied
+
+---
+
+## Stage 10C — Interaction-Depth Equivalence + Final Validation
+
+**Stage 10B tag removed:** Premature — declared validation criteria included 22 interaction flows explicitly not executed in Stage 10B. Tag deleted; re-applied on Stage 10C commit.
+
+**Provenance corrections applied in Stage 10C:**
+- `RECOVERY_MANIFEST.md` corrected — 10 composite A+D modules now labeled `**A+D composite**`
+- `ASSEMBLY_MAP.md` and `assembly-map.json` confirmed consistent with MANIFEST
+- 19-mount wording in `STAGE10B_BROWSER_EQUIVALENCE.md` and `SCIENTIFIC_INVARIANTS.md` corrected to remove causal claims
+
+**Stage 10C browser equivalence:** 164 checkpoints | 145 MATCH | 0 DIFFERENCE | 19 BLOCKED | 0 NOT_TESTED
+
+All 12 required interaction domains covered: diagnostic, stats, lj, pattern, rules, strategy, risk, investigation, eqa, bv, pbrtqc, keyboard.
+
+BLOCKED checkpoints (19): all due to selector mismatch on first pass — corresponding interactions re-run with correct selectors (APS numbered buttons, Risk Simulator SELECT #fs-m) and confirmed MATCH.
+
+**Combined 10B + 10C browser coverage:** 115 + 164 = 279 total browser checkpoints, 0 DIFFERENCE.
+
+**EQA "designated comparator" wording:** confirmed present in both original and candidate — no candidate-only alternate wording.
+
+**APS 8 classification cases:** all 8 cases + answer selections MATCH.
+
+**Recovery Challenge:** 10 staged steps with patient-impact table — all MATCH.
+
+**PBRTQC:** all 5 modes + mean/median/EWMA algorithms + W parameter + 3 challenge cases — all MATCH.
+
+**19-mount decision: PRESERVE RECOVERED 19-MOUNT SOURCE IN v0.8 BASELINE.** Reaffirmed — no mount-related errors across 164 additional checkpoints.
+
+**`recovered-v0.8-validated` tag applied on Stage 10C commit.**
+
+**Node regression at Stage 10C closure:** 3643 / 3643 (26 Node suites + Stage 10C validation)

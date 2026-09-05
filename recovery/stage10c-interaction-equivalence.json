@@ -1,0 +1,1380 @@
+{
+  "stage": "10C",
+  "artifact_class": "D",
+  "browser": "Chromium 141.0.7390.37",
+  "font_policy": "Google Fonts requests aborted identically for both artifacts via Playwright route interception",
+  "viewport": "1440x1000 (desktop); 390x844 not repeated in 10C (covered in 10B)",
+  "original_sha": "e5317bf135f350b258428b985c1034a081e244a295f2e580c93cb6a6a091c8e4",
+  "candidate_sha": "a9fe9a3acbb8c35347cc735292ad63883778e5c12845f4da529129119b72c886",
+  "stage10b_note": "115 executed Stage 10B checkpoints (all MATCH) remain accurate; Stage 10C adds interaction-depth coverage",
+  "required_categories": [
+    "diagnostic",
+    "stats",
+    "lj",
+    "pattern",
+    "rules",
+    "strategy",
+    "risk",
+    "investigation",
+    "eqa",
+    "bv",
+    "pbrtqc",
+    "keyboard"
+  ],
+  "represented_categories": [
+    "bv",
+    "diagnostic",
+    "eqa",
+    "investigation",
+    "keyboard",
+    "lj",
+    "pattern",
+    "pbrtqc",
+    "risk",
+    "rules",
+    "stats",
+    "strategy"
+  ],
+  "missing_required_categories": [],
+  "summary": {
+    "total": 164,
+    "match": 145,
+    "difference": 0,
+    "blocked": 19,
+    "not_tested": 0
+  },
+  "checkpoints": [
+    {
+      "id": "DIAG-01",
+      "domain": "diagnostic",
+      "action": "modal opens",
+      "original": "5184244650ab765e",
+      "candidate": "5184244650ab765e",
+      "classification": "MATCH"
+    },
+    {
+      "id": "DIAG-02",
+      "domain": "diagnostic",
+      "action": "answered 1 questions",
+      "original": "1",
+      "candidate": "1",
+      "classification": "MATCH"
+    },
+    {
+      "id": "DIAG-03",
+      "domain": "diagnostic",
+      "action": "result dialog DOM",
+      "original": "e3b0c44298fc1c14",
+      "candidate": "e3b0c44298fc1c14",
+      "classification": "MATCH"
+    },
+    {
+      "id": "DIAG-04",
+      "domain": "diagnostic",
+      "action": "modal closes",
+      "original": "ok",
+      "candidate": "ok",
+      "classification": "MATCH"
+    },
+    {
+      "id": "STATS-A",
+      "domain": "stats",
+      "action": "default DOM",
+      "original": "7e47178a29638c4a",
+      "candidate": "7e47178a29638c4a",
+      "classification": "MATCH"
+    },
+    {
+      "id": "STATS-B",
+      "domain": "stats",
+      "action": "input 5.0 DOM",
+      "original": "8acef74a8756bea6",
+      "candidate": "8acef74a8756bea6",
+      "classification": "MATCH"
+    },
+    {
+      "id": "STATS-C",
+      "domain": "stats",
+      "action": "input 2.5 DOM",
+      "original": "cc0fa568ed494f6e",
+      "candidate": "cc0fa568ed494f6e",
+      "classification": "MATCH"
+    },
+    {
+      "id": "LJ-01",
+      "domain": "lj",
+      "action": "initial DOM",
+      "original": "b4ec8cea81cc5e83",
+      "candidate": "b4ec8cea81cc5e83",
+      "classification": "MATCH"
+    },
+    {
+      "id": "LJ-ds0",
+      "domain": "lj",
+      "action": "dataset 0 DOM",
+      "original": "b4ec8cea81cc5e83",
+      "candidate": "b4ec8cea81cc5e83",
+      "classification": "MATCH"
+    },
+    {
+      "id": "LJ-svg0",
+      "domain": "lj",
+      "action": "dataset 0 SVG length",
+      "original": "10119",
+      "candidate": "10119",
+      "classification": "MATCH"
+    },
+    {
+      "id": "LJ-ds1",
+      "domain": "lj",
+      "action": "dataset 1 DOM",
+      "original": "982e7907d8453585",
+      "candidate": "982e7907d8453585",
+      "classification": "MATCH"
+    },
+    {
+      "id": "LJ-svg1",
+      "domain": "lj",
+      "action": "dataset 1 SVG length",
+      "original": "10108",
+      "candidate": "10108",
+      "classification": "MATCH"
+    },
+    {
+      "id": "LJ-ds2",
+      "domain": "lj",
+      "action": "dataset 2 DOM",
+      "original": "65ba316544887209",
+      "candidate": "65ba316544887209",
+      "classification": "MATCH"
+    },
+    {
+      "id": "LJ-svg2",
+      "domain": "lj",
+      "action": "dataset 2 SVG length",
+      "original": "10108",
+      "candidate": "10108",
+      "classification": "MATCH"
+    },
+    {
+      "id": "LJ-ds3",
+      "domain": "lj",
+      "action": "dataset 3 DOM",
+      "original": "dabeefbacfe3582f",
+      "candidate": "dabeefbacfe3582f",
+      "classification": "MATCH"
+    },
+    {
+      "id": "LJ-svg3",
+      "domain": "lj",
+      "action": "dataset 3 SVG length",
+      "original": "10174",
+      "candidate": "10174",
+      "classification": "MATCH"
+    },
+    {
+      "id": "PAT-01",
+      "domain": "pattern",
+      "action": "initial DOM",
+      "original": "0db484ef8a23d160",
+      "candidate": "0db484ef8a23d160",
+      "classification": "MATCH"
+    },
+    {
+      "id": "PAT-pick0",
+      "domain": "pattern",
+      "action": "trial 0 pick",
+      "original": "d514c2ecde4366eb",
+      "candidate": "d514c2ecde4366eb",
+      "classification": "MATCH"
+    },
+    {
+      "id": "PAT-post0",
+      "domain": "pattern",
+      "action": "trial 0 post",
+      "original": "d514c2ecde4366eb",
+      "candidate": "d514c2ecde4366eb",
+      "classification": "MATCH"
+    },
+    {
+      "id": "PAT-1",
+      "domain": "pattern",
+      "action": "trial 1",
+      "original": "N/A",
+      "candidate": "N/A",
+      "classification": "BLOCKED",
+      "notes": "locator.click: Timeout 2000ms exceeded.\nCall log:\n\u001b[2m  - wa"
+    },
+    {
+      "id": "PAT-pick2",
+      "domain": "pattern",
+      "action": "trial 2 pick",
+      "original": "afcbb257a2b7b654",
+      "candidate": "afcbb257a2b7b654",
+      "classification": "MATCH"
+    },
+    {
+      "id": "PAT-post2",
+      "domain": "pattern",
+      "action": "trial 2 post",
+      "original": "afcbb257a2b7b654",
+      "candidate": "afcbb257a2b7b654",
+      "classification": "MATCH"
+    },
+    {
+      "id": "RULES-01",
+      "domain": "rules",
+      "action": "initial DOM",
+      "original": "b5ea01c78c5328e9",
+      "candidate": "b5ea01c78c5328e9",
+      "classification": "MATCH"
+    },
+    {
+      "id": "RULES-tab-View_full_Ev",
+      "domain": "rules",
+      "action": "tab: View full Evidence &",
+      "original": "N/A",
+      "candidate": "N/A",
+      "classification": "BLOCKED",
+      "notes": "locator.click: Timeout 2000ms exceeded.\nCall log:\n\u001b[2m  - wa"
+    },
+    {
+      "id": "RULES-tab-Learn_the_Ru",
+      "domain": "rules",
+      "action": "tab: Learn the Rules",
+      "original": "b5ea01c78c5328e9",
+      "candidate": "b5ea01c78c5328e9",
+      "classification": "MATCH"
+    },
+    {
+      "id": "RULES-tab-Inspect_a_QC",
+      "domain": "rules",
+      "action": "tab: Inspect a QC Sequenc",
+      "original": "99f10da292945330",
+      "candidate": "99f10da292945330",
+      "classification": "MATCH"
+    },
+    {
+      "id": "RULES-tab-Rule_Detecti",
+      "domain": "rules",
+      "action": "tab: Rule Detective",
+      "original": "dd6d9c1f3a8c255e",
+      "candidate": "dd6d9c1f3a8c255e",
+      "classification": "MATCH"
+    },
+    {
+      "id": "RULES-tab-1_s",
+      "domain": "rules",
+      "action": "tab: 1\u2082s",
+      "original": "164586397f29f37d",
+      "candidate": "164586397f29f37d",
+      "classification": "MATCH"
+    },
+    {
+      "id": "RULES-tab-1_s",
+      "domain": "rules",
+      "action": "tab: 1\u2083s",
+      "original": "6c320cb7b106653a",
+      "candidate": "6c320cb7b106653a",
+      "classification": "MATCH"
+    },
+    {
+      "id": "RULES-DET0",
+      "domain": "rules",
+      "action": "detective 0",
+      "original": "6c320cb7b106653a",
+      "candidate": "6c320cb7b106653a",
+      "classification": "MATCH"
+    },
+    {
+      "id": "RULES-DET1",
+      "domain": "rules",
+      "action": "detective 1",
+      "original": "6c320cb7b106653a",
+      "candidate": "6c320cb7b106653a",
+      "classification": "MATCH"
+    },
+    {
+      "id": "RULES-DET2",
+      "domain": "rules",
+      "action": "detective 2",
+      "original": "6c320cb7b106653a",
+      "candidate": "6c320cb7b106653a",
+      "classification": "MATCH"
+    },
+    {
+      "id": "RULES-DET3",
+      "domain": "rules",
+      "action": "detective 3",
+      "original": "6c320cb7b106653a",
+      "candidate": "6c320cb7b106653a",
+      "classification": "MATCH"
+    },
+    {
+      "id": "RULES-INSPECT",
+      "domain": "rules",
+      "action": "Inspect Sequence DOM",
+      "original": "99f10da292945330",
+      "candidate": "99f10da292945330",
+      "classification": "MATCH"
+    },
+    {
+      "id": "STRAT-01",
+      "domain": "strategy",
+      "action": "initial DOM",
+      "original": "88d4fe2496443c6e",
+      "candidate": "88d4fe2496443c6e",
+      "classification": "MATCH"
+    },
+    {
+      "id": "STRAT-APS-clinical",
+      "domain": "strategy",
+      "action": "APS: clinical",
+      "original": "7f83c18650db9edb",
+      "candidate": "7f83c18650db9edb",
+      "classification": "MATCH"
+    },
+    {
+      "id": "STRAT-APS-biological",
+      "domain": "strategy",
+      "action": "APS: biological",
+      "original": "N/A",
+      "candidate": "N/A",
+      "classification": "BLOCKED",
+      "notes": "locator.click: Timeout 2000ms exceeded.\nCall log:\n\u001b[2m  - wa"
+    },
+    {
+      "id": "STRAT-APS-state-of-t",
+      "domain": "strategy",
+      "action": "APS: state-of-the-art",
+      "original": "N/A",
+      "candidate": "N/A",
+      "classification": "BLOCKED",
+      "notes": "locator.click: Timeout 2000ms exceeded.\nCall log:\n\u001b[2m  - wa"
+    },
+    {
+      "id": "STRAT-APS-regulatory",
+      "domain": "strategy",
+      "action": "APS: regulatory",
+      "original": "N/A",
+      "candidate": "N/A",
+      "classification": "BLOCKED",
+      "notes": "locator.click: Timeout 2000ms exceeded.\nCall log:\n\u001b[2m  - wa"
+    },
+    {
+      "id": "STRAT-APS-eqa",
+      "domain": "strategy",
+      "action": "APS: eqa",
+      "original": "N/A",
+      "candidate": "N/A",
+      "classification": "BLOCKED",
+      "notes": "locator.click: Timeout 2000ms exceeded.\nCall log:\n\u001b[2m  - wa"
+    },
+    {
+      "id": "STRAT-APS-manufactur",
+      "domain": "strategy",
+      "action": "APS: manufacturer",
+      "original": "N/A",
+      "candidate": "N/A",
+      "classification": "BLOCKED",
+      "notes": "locator.click: Timeout 2000ms exceeded.\nCall log:\n\u001b[2m  - wa"
+    },
+    {
+      "id": "STRAT-APS-local",
+      "domain": "strategy",
+      "action": "APS: local",
+      "original": "N/A",
+      "candidate": "N/A",
+      "classification": "BLOCKED",
+      "notes": "locator.click: Timeout 2000ms exceeded.\nCall log:\n\u001b[2m  - wa"
+    },
+    {
+      "id": "STRAT-APS-insufficie",
+      "domain": "strategy",
+      "action": "APS: insufficient",
+      "original": "N/A",
+      "candidate": "N/A",
+      "classification": "BLOCKED",
+      "notes": "locator.click: Timeout 2000ms exceeded.\nCall log:\n\u001b[2m  - wa"
+    },
+    {
+      "id": "STRAT-DES-01",
+      "domain": "strategy",
+      "action": "Designer initial",
+      "original": "1da74a9e53a778e9",
+      "candidate": "1da74a9e53a778e9",
+      "classification": "MATCH"
+    },
+    {
+      "id": "STRAT-DES-02",
+      "domain": "strategy",
+      "action": "Designer TEa=10",
+      "original": "1da74a9e53a778e9",
+      "candidate": "1da74a9e53a778e9",
+      "classification": "MATCH"
+    },
+    {
+      "id": "STRAT-DES-03",
+      "domain": "strategy",
+      "action": "Designer TEa=3 (low sigma)",
+      "original": "de29f8f4368dd6d5",
+      "candidate": "de29f8f4368dd6d5",
+      "classification": "MATCH"
+    },
+    {
+      "id": "STRAT-CHAL-0",
+      "domain": "strategy",
+      "action": "challenge 0",
+      "original": "88d4fe2496443c6e",
+      "candidate": "88d4fe2496443c6e",
+      "classification": "MATCH"
+    },
+    {
+      "id": "STRAT-CHAL-1",
+      "domain": "strategy",
+      "action": "challenge 1",
+      "original": "88d4fe2496443c6e",
+      "candidate": "88d4fe2496443c6e",
+      "classification": "MATCH"
+    },
+    {
+      "id": "STRAT-CHAL-2",
+      "domain": "strategy",
+      "action": "challenge 2",
+      "original": "88d4fe2496443c6e",
+      "candidate": "88d4fe2496443c6e",
+      "classification": "MATCH"
+    },
+    {
+      "id": "RISK-01",
+      "domain": "risk",
+      "action": "initial DOM",
+      "original": "a6b86e298dff482e",
+      "candidate": "a6b86e298dff482e",
+      "classification": "MATCH"
+    },
+    {
+      "id": "RISK-SIM-01",
+      "domain": "risk",
+      "action": "Simulator initial",
+      "original": "af76d93e794e630e",
+      "candidate": "af76d93e794e630e",
+      "classification": "MATCH"
+    },
+    {
+      "id": "RISK-M25",
+      "domain": "risk",
+      "action": "M input",
+      "original": "N/A",
+      "candidate": "N/A",
+      "classification": "BLOCKED",
+      "notes": "no M input found"
+    },
+    {
+      "id": "RISK-M500",
+      "domain": "risk",
+      "action": "M=500",
+      "original": "N/A",
+      "candidate": "N/A",
+      "classification": "BLOCKED",
+      "notes": "no M input found"
+    },
+    {
+      "id": "RISK-CHAL-0",
+      "domain": "risk",
+      "action": "freq challenge 0",
+      "original": "a6b86e298dff482e",
+      "candidate": "a6b86e298dff482e",
+      "classification": "MATCH"
+    },
+    {
+      "id": "RISK-CHAL-1",
+      "domain": "risk",
+      "action": "freq challenge 1",
+      "original": "a6b86e298dff482e",
+      "candidate": "a6b86e298dff482e",
+      "classification": "MATCH"
+    },
+    {
+      "id": "RISK-CHAL-2",
+      "domain": "risk",
+      "action": "freq challenge 2",
+      "original": "a6b86e298dff482e",
+      "candidate": "a6b86e298dff482e",
+      "classification": "MATCH"
+    },
+    {
+      "id": "STRAT-APS-Clinical_out",
+      "domain": "strategy",
+      "action": "APS: Clinical-outcome based",
+      "original": "7f83c18650db9edb",
+      "candidate": "7f83c18650db9edb",
+      "classification": "MATCH"
+    },
+    {
+      "id": "STRAT-APS-Biological_v",
+      "domain": "strategy",
+      "action": "APS: Biological-variation based",
+      "original": "N/A",
+      "candidate": "N/A",
+      "classification": "BLOCKED",
+      "notes": "locator.click: Timeout 2000ms exceeded.\nCall log:\n\u001b[2m  - wa"
+    },
+    {
+      "id": "STRAT-APS-State_of_the",
+      "domain": "strategy",
+      "action": "APS: State-of-the-art",
+      "original": "N/A",
+      "candidate": "N/A",
+      "classification": "BLOCKED",
+      "notes": "locator.click: Timeout 2000ms exceeded.\nCall log:\n\u001b[2m  - wa"
+    },
+    {
+      "id": "STRAT-APS-Regulatory",
+      "domain": "strategy",
+      "action": "APS: Regulatory",
+      "original": "N/A",
+      "candidate": "N/A",
+      "classification": "BLOCKED",
+      "notes": "locator.click: Timeout 2000ms exceeded.\nCall log:\n\u001b[2m  - wa"
+    },
+    {
+      "id": "STRAT-APS-EQA_PT_deriv",
+      "domain": "strategy",
+      "action": "APS: EQA/PT-derived",
+      "original": "N/A",
+      "candidate": "N/A",
+      "classification": "BLOCKED",
+      "notes": "locator.click: Timeout 2000ms exceeded.\nCall log:\n\u001b[2m  - wa"
+    },
+    {
+      "id": "STRAT-APS-Manufacturer",
+      "domain": "strategy",
+      "action": "APS: Manufacturer claim",
+      "original": "N/A",
+      "candidate": "N/A",
+      "classification": "BLOCKED",
+      "notes": "locator.click: Timeout 2000ms exceeded.\nCall log:\n\u001b[2m  - wa"
+    },
+    {
+      "id": "STRAT-APS-Local_qualit",
+      "domain": "strategy",
+      "action": "APS: Local quality goal",
+      "original": "N/A",
+      "candidate": "N/A",
+      "classification": "BLOCKED",
+      "notes": "locator.click: Timeout 2000ms exceeded.\nCall log:\n\u001b[2m  - wa"
+    },
+    {
+      "id": "STRAT-APS-Insufficient",
+      "domain": "strategy",
+      "action": "APS: Insufficient information",
+      "original": "N/A",
+      "candidate": "N/A",
+      "classification": "BLOCKED",
+      "notes": "locator.click: Timeout 2000ms exceeded.\nCall log:\n\u001b[2m  - wa"
+    },
+    {
+      "id": "RISK-SIM-init",
+      "domain": "risk",
+      "action": "Simulator initial DOM",
+      "original": "af76d93e794e630e",
+      "candidate": "af76d93e794e630e",
+      "classification": "MATCH"
+    },
+    {
+      "id": "RISK-M25",
+      "domain": "risk",
+      "action": "Simulator M=25",
+      "original": "43a202be763bb5ed",
+      "candidate": "43a202be763bb5ed",
+      "classification": "MATCH"
+    },
+    {
+      "id": "RISK-M500",
+      "domain": "risk",
+      "action": "Simulator M=500",
+      "original": "4f39d3de88fff09d",
+      "candidate": "4f39d3de88fff09d",
+      "classification": "MATCH"
+    },
+    {
+      "id": "RISK-DD",
+      "domain": "risk",
+      "action": "Detection Delay DOM",
+      "original": "eaa99f08bb999891",
+      "candidate": "eaa99f08bb999891",
+      "classification": "MATCH"
+    },
+    {
+      "id": "RISK-PR",
+      "domain": "risk",
+      "action": "Patient-Risk Explorer DOM",
+      "original": "17384d6ce5cb0773",
+      "candidate": "17384d6ce5cb0773",
+      "classification": "MATCH"
+    },
+    {
+      "id": "INV-RC-01",
+      "domain": "investigation",
+      "action": "Recovery Challenge initial",
+      "original": "91025cf0cdf32e87",
+      "candidate": "91025cf0cdf32e87",
+      "classification": "MATCH"
+    },
+    {
+      "id": "INV-RC-step0",
+      "domain": "investigation",
+      "action": "Recovery step 0",
+      "original": "f69af3a825f1daa7",
+      "candidate": "f69af3a825f1daa7",
+      "classification": "MATCH"
+    },
+    {
+      "id": "INV-PATIENT-table",
+      "domain": "investigation",
+      "action": "Patient impact table",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH"
+    },
+    {
+      "id": "INV-PATIENT-dom",
+      "domain": "investigation",
+      "action": "Patient impact DOM",
+      "original": "637d92ebbe9d24ea",
+      "candidate": "637d92ebbe9d24ea",
+      "classification": "MATCH"
+    },
+    {
+      "id": "INV-RC-step1",
+      "domain": "investigation",
+      "action": "Recovery step 1",
+      "original": "22952ff2a919cd0f",
+      "candidate": "22952ff2a919cd0f",
+      "classification": "MATCH"
+    },
+    {
+      "id": "INV-PATIENT-table",
+      "domain": "investigation",
+      "action": "Patient impact table",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH"
+    },
+    {
+      "id": "INV-PATIENT-dom",
+      "domain": "investigation",
+      "action": "Patient impact DOM",
+      "original": "637d92ebbe9d24ea",
+      "candidate": "637d92ebbe9d24ea",
+      "classification": "MATCH"
+    },
+    {
+      "id": "INV-RC-step2",
+      "domain": "investigation",
+      "action": "Recovery step 2",
+      "original": "f69af3a825f1daa7",
+      "candidate": "f69af3a825f1daa7",
+      "classification": "MATCH"
+    },
+    {
+      "id": "INV-PATIENT-table",
+      "domain": "investigation",
+      "action": "Patient impact table",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH"
+    },
+    {
+      "id": "INV-PATIENT-dom",
+      "domain": "investigation",
+      "action": "Patient impact DOM",
+      "original": "637d92ebbe9d24ea",
+      "candidate": "637d92ebbe9d24ea",
+      "classification": "MATCH"
+    },
+    {
+      "id": "INV-RC-step3",
+      "domain": "investigation",
+      "action": "Recovery step 3",
+      "original": "22952ff2a919cd0f",
+      "candidate": "22952ff2a919cd0f",
+      "classification": "MATCH"
+    },
+    {
+      "id": "INV-PATIENT-table",
+      "domain": "investigation",
+      "action": "Patient impact table",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH"
+    },
+    {
+      "id": "INV-PATIENT-dom",
+      "domain": "investigation",
+      "action": "Patient impact DOM",
+      "original": "637d92ebbe9d24ea",
+      "candidate": "637d92ebbe9d24ea",
+      "classification": "MATCH"
+    },
+    {
+      "id": "INV-RC-step4",
+      "domain": "investigation",
+      "action": "Recovery step 4",
+      "original": "f69af3a825f1daa7",
+      "candidate": "f69af3a825f1daa7",
+      "classification": "MATCH"
+    },
+    {
+      "id": "INV-PATIENT-table",
+      "domain": "investigation",
+      "action": "Patient impact table",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH"
+    },
+    {
+      "id": "INV-PATIENT-dom",
+      "domain": "investigation",
+      "action": "Patient impact DOM",
+      "original": "637d92ebbe9d24ea",
+      "candidate": "637d92ebbe9d24ea",
+      "classification": "MATCH"
+    },
+    {
+      "id": "INV-RC-step5",
+      "domain": "investigation",
+      "action": "Recovery step 5",
+      "original": "22952ff2a919cd0f",
+      "candidate": "22952ff2a919cd0f",
+      "classification": "MATCH"
+    },
+    {
+      "id": "INV-PATIENT-table",
+      "domain": "investigation",
+      "action": "Patient impact table",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH"
+    },
+    {
+      "id": "INV-PATIENT-dom",
+      "domain": "investigation",
+      "action": "Patient impact DOM",
+      "original": "637d92ebbe9d24ea",
+      "candidate": "637d92ebbe9d24ea",
+      "classification": "MATCH"
+    },
+    {
+      "id": "INV-RC-step6",
+      "domain": "investigation",
+      "action": "Recovery step 6",
+      "original": "f69af3a825f1daa7",
+      "candidate": "f69af3a825f1daa7",
+      "classification": "MATCH"
+    },
+    {
+      "id": "INV-PATIENT-table",
+      "domain": "investigation",
+      "action": "Patient impact table",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH"
+    },
+    {
+      "id": "INV-PATIENT-dom",
+      "domain": "investigation",
+      "action": "Patient impact DOM",
+      "original": "637d92ebbe9d24ea",
+      "candidate": "637d92ebbe9d24ea",
+      "classification": "MATCH"
+    },
+    {
+      "id": "INV-RC-step7",
+      "domain": "investigation",
+      "action": "Recovery step 7",
+      "original": "22952ff2a919cd0f",
+      "candidate": "22952ff2a919cd0f",
+      "classification": "MATCH"
+    },
+    {
+      "id": "INV-PATIENT-table",
+      "domain": "investigation",
+      "action": "Patient impact table",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH"
+    },
+    {
+      "id": "INV-PATIENT-dom",
+      "domain": "investigation",
+      "action": "Patient impact DOM",
+      "original": "637d92ebbe9d24ea",
+      "candidate": "637d92ebbe9d24ea",
+      "classification": "MATCH"
+    },
+    {
+      "id": "INV-RC-step8",
+      "domain": "investigation",
+      "action": "Recovery step 8",
+      "original": "f69af3a825f1daa7",
+      "candidate": "f69af3a825f1daa7",
+      "classification": "MATCH"
+    },
+    {
+      "id": "INV-PATIENT-table",
+      "domain": "investigation",
+      "action": "Patient impact table",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH"
+    },
+    {
+      "id": "INV-PATIENT-dom",
+      "domain": "investigation",
+      "action": "Patient impact DOM",
+      "original": "637d92ebbe9d24ea",
+      "candidate": "637d92ebbe9d24ea",
+      "classification": "MATCH"
+    },
+    {
+      "id": "INV-RC-step9",
+      "domain": "investigation",
+      "action": "Recovery step 9",
+      "original": "22952ff2a919cd0f",
+      "candidate": "22952ff2a919cd0f",
+      "classification": "MATCH"
+    },
+    {
+      "id": "INV-PATIENT-table",
+      "domain": "investigation",
+      "action": "Patient impact table",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH"
+    },
+    {
+      "id": "INV-PATIENT-dom",
+      "domain": "investigation",
+      "action": "Patient impact DOM",
+      "original": "637d92ebbe9d24ea",
+      "candidate": "637d92ebbe9d24ea",
+      "classification": "MATCH"
+    },
+    {
+      "id": "EQA-01",
+      "domain": "eqa",
+      "action": "initial DOM",
+      "original": "bc7e804f8a0135fb",
+      "candidate": "bc7e804f8a0135fb",
+      "classification": "MATCH"
+    },
+    {
+      "id": "EQA-mode-IQC_vs_EQA",
+      "domain": "eqa",
+      "action": "EQA mode: IQC vs EQA",
+      "original": "bc7e804f8a0135fb",
+      "candidate": "bc7e804f8a0135fb",
+      "classification": "MATCH"
+    },
+    {
+      "id": "EQA-mode-Target___r",
+      "domain": "eqa",
+      "action": "EQA mode: Target & reference",
+      "original": "c3999a4ba4387e57",
+      "candidate": "c3999a4ba4387e57",
+      "classification": "MATCH"
+    },
+    {
+      "id": "EQA-mode-Report___i",
+      "domain": "eqa",
+      "action": "EQA mode: Report & interpret",
+      "original": "1fcc163077aa300e",
+      "candidate": "1fcc163077aa300e",
+      "classification": "MATCH"
+    },
+    {
+      "id": "EQA-mode-Comparabil",
+      "domain": "eqa",
+      "action": "EQA mode: Comparability",
+      "original": "4904a941ff079418",
+      "candidate": "4904a941ff079418",
+      "classification": "MATCH"
+    },
+    {
+      "id": "EQA-mode-Longitudin",
+      "domain": "eqa",
+      "action": "EQA mode: Longitudinal",
+      "original": "2e72cda984a22b9a",
+      "candidate": "2e72cda984a22b9a",
+      "classification": "MATCH"
+    },
+    {
+      "id": "EQA-COMP-wording",
+      "domain": "eqa",
+      "action": "\"designated comparator\" wording",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH"
+    },
+    {
+      "id": "EQA-LONG-step0",
+      "domain": "eqa",
+      "action": "EQA longitudinal step 0",
+      "original": "bc7e804f8a0135fb",
+      "candidate": "bc7e804f8a0135fb",
+      "classification": "MATCH"
+    },
+    {
+      "id": "EQA-LONG-step1",
+      "domain": "eqa",
+      "action": "EQA longitudinal step 1",
+      "original": "bc7e804f8a0135fb",
+      "candidate": "bc7e804f8a0135fb",
+      "classification": "MATCH"
+    },
+    {
+      "id": "EQA-LONG-step2",
+      "domain": "eqa",
+      "action": "EQA longitudinal step 2",
+      "original": "bc7e804f8a0135fb",
+      "candidate": "bc7e804f8a0135fb",
+      "classification": "MATCH"
+    },
+    {
+      "id": "EQA-LONG-step3",
+      "domain": "eqa",
+      "action": "EQA longitudinal step 3",
+      "original": "bc7e804f8a0135fb",
+      "candidate": "bc7e804f8a0135fb",
+      "classification": "MATCH"
+    },
+    {
+      "id": "EQA-LONG-step4",
+      "domain": "eqa",
+      "action": "EQA longitudinal step 4",
+      "original": "bc7e804f8a0135fb",
+      "candidate": "bc7e804f8a0135fb",
+      "classification": "MATCH"
+    },
+    {
+      "id": "EQA-LONG-step5",
+      "domain": "eqa",
+      "action": "EQA longitudinal step 5",
+      "original": "bc7e804f8a0135fb",
+      "candidate": "bc7e804f8a0135fb",
+      "classification": "MATCH"
+    },
+    {
+      "id": "EQA-LONG-step6",
+      "domain": "eqa",
+      "action": "EQA longitudinal step 6",
+      "original": "bc7e804f8a0135fb",
+      "candidate": "bc7e804f8a0135fb",
+      "classification": "MATCH"
+    },
+    {
+      "id": "BV-01",
+      "domain": "bv",
+      "action": "initial DOM",
+      "original": "75d484137ace0805",
+      "candidate": "75d484137ace0805",
+      "classification": "MATCH"
+    },
+    {
+      "id": "BV-modes-list",
+      "domain": "bv",
+      "action": "modes list count",
+      "original": "7",
+      "candidate": "7",
+      "classification": "MATCH",
+      "notes": "modes: Variation Foundations|BV Explorer|APS from BV|RCV Laboratory|Serial Result Challenge|Reveal answer|View full Evidence & Scientific Basis page"
+    },
+    {
+      "id": "BV-mode-Variation_Fo",
+      "domain": "bv",
+      "action": "mode: Variation Foundations",
+      "original": "75d484137ace0805",
+      "candidate": "75d484137ace0805",
+      "classification": "MATCH"
+    },
+    {
+      "id": "BV-input-Variation_Fo",
+      "domain": "bv",
+      "action": "Variation Found after input",
+      "original": "7dac4d4a51a990e0",
+      "candidate": "7dac4d4a51a990e0",
+      "classification": "MATCH"
+    },
+    {
+      "id": "BV-mode-BV_Explorer",
+      "domain": "bv",
+      "action": "mode: BV Explorer",
+      "original": "cc13d3ae851e6e27",
+      "candidate": "cc13d3ae851e6e27",
+      "classification": "MATCH"
+    },
+    {
+      "id": "BV-mode-APS_from_BV",
+      "domain": "bv",
+      "action": "mode: APS from BV",
+      "original": "aa67155eb615028d",
+      "candidate": "aa67155eb615028d",
+      "classification": "MATCH"
+    },
+    {
+      "id": "BV-input-APS_from_BV",
+      "domain": "bv",
+      "action": "APS from BV after input",
+      "original": "53e6a71b419f2400",
+      "candidate": "53e6a71b419f2400",
+      "classification": "MATCH"
+    },
+    {
+      "id": "BV-mode-RCV_Laborato",
+      "domain": "bv",
+      "action": "mode: RCV Laboratory",
+      "original": "8de5cfcbd9078b2b",
+      "candidate": "8de5cfcbd9078b2b",
+      "classification": "MATCH"
+    },
+    {
+      "id": "BV-input-RCV_Laborato",
+      "domain": "bv",
+      "action": "RCV Laboratory after input",
+      "original": "7cdf2627481928d5",
+      "candidate": "7cdf2627481928d5",
+      "classification": "MATCH"
+    },
+    {
+      "id": "BV-mode-Serial_Resul",
+      "domain": "bv",
+      "action": "mode: Serial Result Challenge",
+      "original": "fede0fad3f5eedcc",
+      "candidate": "fede0fad3f5eedcc",
+      "classification": "MATCH"
+    },
+    {
+      "id": "BV-mode-Reveal_answe",
+      "domain": "bv",
+      "action": "mode: Reveal answer",
+      "original": "N/A",
+      "candidate": "N/A",
+      "classification": "BLOCKED",
+      "notes": "locator.click: Timeout 2000ms exceeded.\nCall log:\n\u001b[2m  - wa"
+    },
+    {
+      "id": "BV-SERIAL-0",
+      "domain": "bv",
+      "action": "serial challenge 0",
+      "original": "75d484137ace0805",
+      "candidate": "75d484137ace0805",
+      "classification": "MATCH"
+    },
+    {
+      "id": "BV-SERIAL-1",
+      "domain": "bv",
+      "action": "serial challenge 1",
+      "original": "75d484137ace0805",
+      "candidate": "75d484137ace0805",
+      "classification": "MATCH"
+    },
+    {
+      "id": "PBRTQC-01",
+      "domain": "pbrtqc",
+      "action": "initial DOM",
+      "original": "81bc51868c73ce23",
+      "candidate": "81bc51868c73ce23",
+      "classification": "MATCH"
+    },
+    {
+      "id": "PBRTQC-mode-foundations",
+      "domain": "pbrtqc",
+      "action": "mode: Foundations",
+      "original": "81bc51868c73ce23",
+      "candidate": "81bc51868c73ce23",
+      "classification": "MATCH"
+    },
+    {
+      "id": "PBRTQC-mode-distribution",
+      "domain": "pbrtqc",
+      "action": "mode: Distribution",
+      "original": "311928d5316520bf",
+      "candidate": "311928d5316520bf",
+      "classification": "MATCH"
+    },
+    {
+      "id": "PBRTQC-mode-algorithm",
+      "domain": "pbrtqc",
+      "action": "mode: Algorithm",
+      "original": "2c96063113c150c0",
+      "candidate": "2c96063113c150c0",
+      "classification": "MATCH"
+    },
+    {
+      "id": "PBRTQC-mode-simulator",
+      "domain": "pbrtqc",
+      "action": "mode: Simulator",
+      "original": "62bd7bb52bf62f80",
+      "candidate": "62bd7bb52bf62f80",
+      "classification": "MATCH"
+    },
+    {
+      "id": "PBRTQC-mode-challenge",
+      "domain": "pbrtqc",
+      "action": "mode: Challenge",
+      "original": "18a26113ae4f81e5",
+      "candidate": "18a26113ae4f81e5",
+      "classification": "MATCH"
+    },
+    {
+      "id": "PBRTQC-alg-mean",
+      "domain": "pbrtqc",
+      "action": "algorithm: mean",
+      "original": "2c96063113c150c0",
+      "candidate": "2c96063113c150c0",
+      "classification": "MATCH"
+    },
+    {
+      "id": "PBRTQC-alg-median",
+      "domain": "pbrtqc",
+      "action": "algorithm: median",
+      "original": "2fdfac7e97899dfc",
+      "candidate": "2fdfac7e97899dfc",
+      "classification": "MATCH"
+    },
+    {
+      "id": "PBRTQC-alg-EWMA",
+      "domain": "pbrtqc",
+      "action": "algorithm: EWMA",
+      "original": "e3d000ffcbc2f91d",
+      "candidate": "e3d000ffcbc2f91d",
+      "classification": "MATCH"
+    },
+    {
+      "id": "PBRTQC-SIM-init",
+      "domain": "pbrtqc",
+      "action": "Simulator initial",
+      "original": "62bd7bb52bf62f80",
+      "candidate": "62bd7bb52bf62f80",
+      "classification": "MATCH"
+    },
+    {
+      "id": "PBRTQC-SIM-W20",
+      "domain": "pbrtqc",
+      "action": "Simulator W=20",
+      "original": "62bd7bb52bf62f80",
+      "candidate": "62bd7bb52bf62f80",
+      "classification": "MATCH"
+    },
+    {
+      "id": "PBRTQC-CHAL-0",
+      "domain": "pbrtqc",
+      "action": "challenge 0",
+      "original": "81bc51868c73ce23",
+      "candidate": "81bc51868c73ce23",
+      "classification": "MATCH"
+    },
+    {
+      "id": "PBRTQC-CHAL-1",
+      "domain": "pbrtqc",
+      "action": "challenge 1",
+      "original": "81bc51868c73ce23",
+      "candidate": "81bc51868c73ce23",
+      "classification": "MATCH"
+    },
+    {
+      "id": "PBRTQC-CHAL-2",
+      "domain": "pbrtqc",
+      "action": "challenge 2",
+      "original": "81bc51868c73ce23",
+      "candidate": "81bc51868c73ce23",
+      "classification": "MATCH"
+    },
+    {
+      "id": "KB-EXT-01",
+      "domain": "keyboard",
+      "action": "Tab 1: skip link",
+      "original": "Skip to main content",
+      "candidate": "Skip to main content",
+      "classification": "MATCH"
+    },
+    {
+      "id": "KB-EXT-02",
+      "domain": "keyboard",
+      "action": "Enter skip: focus target",
+      "original": "BODY",
+      "candidate": "BODY",
+      "classification": "MATCH"
+    },
+    {
+      "id": "KB-EXT-03",
+      "domain": "keyboard",
+      "action": "Tab seq through nav",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH"
+    },
+    {
+      "id": "KB-EXT-04",
+      "domain": "keyboard",
+      "action": "Level select ArrowDown",
+      "original": "intermediate",
+      "candidate": "intermediate",
+      "classification": "MATCH"
+    },
+    {
+      "id": "KB-EXT-05",
+      "domain": "keyboard",
+      "action": "Modal initial focus",
+      "original": "DIV:Glossary\u2715MeanThe ari",
+      "candidate": "DIV:Glossary\u2715MeanThe ari",
+      "classification": "MATCH"
+    },
+    {
+      "id": "KB-EXT-06",
+      "domain": "keyboard",
+      "action": "Escape closes modal",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH"
+    },
+    {
+      "id": "KB-EXT-07",
+      "domain": "keyboard",
+      "action": "aria-current active nav",
+      "original": "Rule Laboratory",
+      "candidate": "Rule Laboratory",
+      "classification": "MATCH"
+    },
+    {
+      "id": "STRAT-APS-case1",
+      "domain": "strategy",
+      "action": "APS case 1",
+      "original": "88d4fe2496443c6e",
+      "candidate": "88d4fe2496443c6e",
+      "classification": "MATCH"
+    },
+    {
+      "id": "STRAT-APS-ans1",
+      "domain": "strategy",
+      "action": "APS case 1 answer",
+      "original": "7f83c18650db9edb",
+      "candidate": "7f83c18650db9edb",
+      "classification": "MATCH"
+    },
+    {
+      "id": "STRAT-APS-case2",
+      "domain": "strategy",
+      "action": "APS case 2",
+      "original": "f0e66350bf7f2488",
+      "candidate": "f0e66350bf7f2488",
+      "classification": "MATCH"
+    },
+    {
+      "id": "STRAT-APS-ans2",
+      "domain": "strategy",
+      "action": "APS case 2 answer",
+      "original": "3579394377d4d73e",
+      "candidate": "3579394377d4d73e",
+      "classification": "MATCH"
+    },
+    {
+      "id": "STRAT-APS-case3",
+      "domain": "strategy",
+      "action": "APS case 3",
+      "original": "edd2a131fd1c0973",
+      "candidate": "edd2a131fd1c0973",
+      "classification": "MATCH"
+    },
+    {
+      "id": "STRAT-APS-ans3",
+      "domain": "strategy",
+      "action": "APS case 3 answer",
+      "original": "54535f8123c8af26",
+      "candidate": "54535f8123c8af26",
+      "classification": "MATCH"
+    },
+    {
+      "id": "STRAT-APS-case4",
+      "domain": "strategy",
+      "action": "APS case 4",
+      "original": "5ab80c182704b5cc",
+      "candidate": "5ab80c182704b5cc",
+      "classification": "MATCH"
+    },
+    {
+      "id": "STRAT-APS-ans4",
+      "domain": "strategy",
+      "action": "APS case 4 answer",
+      "original": "50747c7f6479a246",
+      "candidate": "50747c7f6479a246",
+      "classification": "MATCH"
+    },
+    {
+      "id": "STRAT-APS-case5",
+      "domain": "strategy",
+      "action": "APS case 5",
+      "original": "ef9acc462bc59ed5",
+      "candidate": "ef9acc462bc59ed5",
+      "classification": "MATCH"
+    },
+    {
+      "id": "STRAT-APS-ans5",
+      "domain": "strategy",
+      "action": "APS case 5 answer",
+      "original": "ed0b90f0ac949429",
+      "candidate": "ed0b90f0ac949429",
+      "classification": "MATCH"
+    },
+    {
+      "id": "STRAT-APS-case6",
+      "domain": "strategy",
+      "action": "APS case 6",
+      "original": "39bd3706407abba3",
+      "candidate": "39bd3706407abba3",
+      "classification": "MATCH"
+    },
+    {
+      "id": "STRAT-APS-ans6",
+      "domain": "strategy",
+      "action": "APS case 6 answer",
+      "original": "09ecbab239bc1c96",
+      "candidate": "09ecbab239bc1c96",
+      "classification": "MATCH"
+    },
+    {
+      "id": "STRAT-APS-case7",
+      "domain": "strategy",
+      "action": "APS case 7",
+      "original": "4a53d501bba53c59",
+      "candidate": "4a53d501bba53c59",
+      "classification": "MATCH"
+    },
+    {
+      "id": "STRAT-APS-ans7",
+      "domain": "strategy",
+      "action": "APS case 7 answer",
+      "original": "34ab9843af392916",
+      "candidate": "34ab9843af392916",
+      "classification": "MATCH"
+    },
+    {
+      "id": "STRAT-APS-case8",
+      "domain": "strategy",
+      "action": "APS case 8",
+      "original": "36a65b3624033719",
+      "candidate": "36a65b3624033719",
+      "classification": "MATCH"
+    },
+    {
+      "id": "STRAT-APS-ans8",
+      "domain": "strategy",
+      "action": "APS case 8 answer",
+      "original": "75790937302647b2",
+      "candidate": "75790937302647b2",
+      "classification": "MATCH"
+    }
+  ]
+}

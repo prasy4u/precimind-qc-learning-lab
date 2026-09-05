@@ -28,31 +28,31 @@
 |------|-------|-------|
 | `recovery/original-v0.8.html` | **A** | Directly recovered from surviving HTML file |
 | `RECOVERY_MANIFEST.md` | **D** | New recovery infrastructure |
-| `src/core/statistics.js` | **A** | Directly extracted from HTML (Stage 1) |
-| `src/rules/engine.js` | **A** | Directly extracted from HTML (Stage 2, lines ~2817–3196); RULE_LABELS Unicode glyphs restored in Stage 2 closure check |
-| `src/opchar/functions.js` | **A** | Directly extracted from HTML (Stage 3A, lines ~4155–4282) |
+| `src/core/statistics.js` | **A+D composite** | Directly extracted from HTML (Stage 1) |
+| `src/rules/engine.js` | **A+D composite** | Directly extracted from HTML (Stage 2, lines ~2817–3196); RULE_LABELS Unicode glyphs restored in Stage 2 closure check |
+| `src/opchar/functions.js` | **A+D composite** | Directly extracted from HTML (Stage 3A, lines ~4155–4282) |
 | `tests/stage1-statistics.test.js` | **D** | New recovery tests — NOT historical test suite |
 | `tests/stage2-rules.test.js` | **D** | New recovery tests — NOT historical rule suite |
 | `tests/stage3a-opchar.test.js` | **D** | New recovery tests — NOT historical opchar suite |
-| `src/strategy/core.js` | **A** | Directly extracted from HTML (Stage 3B, lines ~4052–4090, ~4284–4676) |
+| `src/strategy/core.js` | **A+D composite** | Directly extracted from HTML (Stage 3B, lines ~4052–4090, ~4284–4676) |
 | `tests/stage3b-strategy.test.js` | **D** | New recovery tests — NOT historical strategy suite |
-| `src/risk/detection-delay.js` | **A** | Directly extracted from HTML (Stage 4A, lines ~5340–5495) |
+| `src/risk/detection-delay.js` | **A+D composite** | Directly extracted from HTML (Stage 4A, lines ~5340–5495) |
 | `tests/stage4a-detection-delay.test.js` | **D** | New recovery tests — NOT historical suite |
-| `src/risk/data.js` | **A** | Directly extracted from HTML (Stage 4B, lines ~5499–5870) |
+| `src/risk/data.js` | **A+D composite** | Directly extracted from HTML (Stage 4B, lines ~5499–5870) |
 | `tests/stage4b-risk-data.test.js` | **D** | New recovery tests — NOT historical suite |
-| `src/investigation/calc.js` | **A** | Directly extracted from HTML (Stage 5A, lines ~6536–6683) |
+| `src/investigation/calc.js` | **A+D composite** | Directly extracted from HTML (Stage 5A, lines ~6536–6683) |
 | `tests/stage5a-investigation-calc.test.js` | **D** | New recovery tests — NOT historical suite |
 | `src/investigation/data.js` | **A** | Directly extracted from HTML (Stage 5B, lines 6684–7447) |
 | `tests/stage5b-investigation-data.test.js` | **D** | New recovery tests — NOT historical suite |
-| `src/eqa/calc.js` | **A** | Directly extracted from HTML (Stage 6A, lines 8368–8670) |
+| `src/eqa/calc.js` | **A+D composite** | Directly extracted from HTML (Stage 6A, lines 8368–8670) |
 | `tests/stage6a-eqa-calc.test.js` | **D** | New recovery tests — NOT historical suite |
 | `src/eqa/data.js` | **A** | Directly extracted from HTML (Stage 6B, lines 8671–9545) |
 | `tests/stage6b-eqa-data.test.js` | **D** | New recovery tests — NOT historical suite |
-| `src/bv/calc.js` | **A** | Directly extracted from HTML (Stage 7A, lines 10405–10731) |
+| `src/bv/calc.js` | **A+D composite** | Directly extracted from HTML (Stage 7A, lines 10405–10731) |
 | `tests/stage7a-bv-calc.test.js` | **D** | New recovery tests — NOT historical suite |
 | `src/bv/data.js` | **A** | Directly extracted from HTML (Stage 7B, lines 10734–11301) |
 | `tests/stage7b-bv-data.test.js` | **D** | New recovery tests — NOT historical suite |
-| `src/pbrtqc/calc.js` | **A** | Directly extracted from HTML (Stage 8A, lines 12023–12474) |
+| `src/pbrtqc/calc.js` | **A+D composite** | Directly extracted from HTML (Stage 8A, lines 12023–12474) |
 | `tests/stage8a-pbrtqc-calc.test.js` | **D** | New recovery tests — NOT historical suite |
 | `src/pbrtqc/data.js` | **A** | Directly extracted from HTML (Stage 8B, lines 12476–13231) |
 | `tests/stage8b-pbrtqc-data.test.js` | **D** | New recovery tests — NOT historical suite |
@@ -90,6 +90,10 @@
 | `src/ui/runtime-bootstrap.js` | **A** | Stage 9J, HTML 14028–14034, 7 lines, 270 bytes, SHA f2bffcb0... |
 | `tests/stage9j-app-shell.test.js` | **D** | Stage 9J recovery tests |
 | `SCIENTIFIC_INVARIANTS.md` | **D** | New recovery documentation (Stages 1–9J) |
+| `tests/stage10c-interaction-equivalence.js` | **D** | Stage 10C, Playwright interaction harness (run separately) |
+| `tests/stage10c-validation.test.js` | **D** | Stage 10C, Node validation of interaction result, 70 assertions |
+| `recovery/stage10c-interaction-equivalence.json` | **D** | Stage 10C, machine-readable result: 164 checkpoints, 145 MATCH, 0 DIFF |
+| `recovery/STAGE10C_INTERACTION_EQUIVALENCE.md` | **D** | Stage 10C, human-readable interaction equivalence report |
 | `tests/stage10b-browser-equivalence.js` | **D** | Stage 10B, differential Playwright harness, 115 browser checkpoints |
 | `tests/stage10b-validation.test.js` | **D** | Stage 10B, Node validation of browser result, 67 assertions |
 | `tests/helpers/browser-server.js` | **D** | Stage 10B, HTTP server helper |

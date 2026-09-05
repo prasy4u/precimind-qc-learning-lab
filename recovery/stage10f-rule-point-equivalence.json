@@ -1,0 +1,220 @@
+{
+  "stage": "10F",
+  "artifact_class": "D",
+  "browser": "Chromium 141.0.7390.37",
+  "font_policy": "Google Fonts aborted identically for both artifacts",
+  "original_sha": "e5317bf135f350b258428b985c1034a081e244a295f2e580c93cb6a6a091c8e4",
+  "candidate_sha": "a9fe9a3acbb8c35347cc735292ad63883778e5c12845f4da529129119b72c886",
+  "case_selected": 3,
+  "rule_selected": "1\u2083s",
+  "trigger_point": "Level 1, run 4, value 93.60, -3.20 SD",
+  "observed": {
+    "hintBeforeRule": "ABSENT",
+    "hintAfterRule": "Selected: none yet",
+    "focusedPoint": {
+      "tag": "g",
+      "cls": "mlj-point-g",
+      "role": "button",
+      "tabIdx": "0",
+      "label": "Level 1, run 4, value 93.60, -3.20 SD"
+    },
+    "enterActivated": false,
+    "spaceActivated": false,
+    "hintAfterClick": "Selected: 4:L1",
+    "ringCountAfterClick": 2,
+    "hintAfterDeselect": "Selected: none yet",
+    "ringCountAfterDeselect": 1,
+    "keyboard_note": "Enter and Space key events do not change point-selection state. The 1 ring visible before keyboard interaction is an initial chart artifact, not a selection. The .mlj-point-g[role='button'] element has onClick but no authored onKeyDown \u2014 it is keyboard-focusable but not keyboard-activatable via Enter/Space in v0.8. Both original and candidate behave identically (MATCH)."
+  },
+  "summary": {
+    "total": 21,
+    "match": 21,
+    "difference": 0,
+    "blocked": 0,
+    "not_tested": 0
+  },
+  "checkpoints": [
+    {
+      "id": "rule-case3-selected",
+      "domain": "rules",
+      "action": "Case 3 selected: initial DOM",
+      "original": "19e75b0d65c12d8c",
+      "candidate": "19e75b0d65c12d8c",
+      "classification": "MATCH"
+    },
+    {
+      "id": "hint-absent-before-rule",
+      "domain": "rules",
+      "action": "Hint absent before any rule selected",
+      "original": "ABSENT",
+      "candidate": "ABSENT",
+      "classification": "MATCH",
+      "notes": "before rule: orig=\"ABSENT\" cand=\"ABSENT\""
+    },
+    {
+      "id": "hint-none-after-rule",
+      "domain": "rules",
+      "action": "Hint = \"Selected: none yet\" after 1\u2083s selected",
+      "original": "Selected: none yet",
+      "candidate": "Selected: none yet",
+      "classification": "MATCH",
+      "notes": "after rule: orig=\"Selected: none yet\""
+    },
+    {
+      "id": "hint-exists-after-rule",
+      "domain": "rules",
+      "action": "Hint exists and contains \"none yet\"",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH",
+      "notes": "expected \"Selected: none yet\", got \"Selected: none yet\""
+    },
+    {
+      "id": "point-focus-tag",
+      "domain": "rules",
+      "action": "Focused element tag = G",
+      "original": "G",
+      "candidate": "G",
+      "classification": "MATCH"
+    },
+    {
+      "id": "point-focus-class",
+      "domain": "rules",
+      "action": "Focused element class contains mlj-point-g",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH",
+      "notes": "orig class: mlj-point-g"
+    },
+    {
+      "id": "point-focus-role",
+      "domain": "rules",
+      "action": "Focused element role = button",
+      "original": "button",
+      "candidate": "button",
+      "classification": "MATCH"
+    },
+    {
+      "id": "point-focus-tabindex",
+      "domain": "rules",
+      "action": "Focused element tabIndex = 0",
+      "original": "0",
+      "candidate": "0",
+      "classification": "MATCH"
+    },
+    {
+      "id": "point-focus-aria",
+      "domain": "rules",
+      "action": "Focused element aria-label (Level 1, run 4, -3.20 SD)",
+      "original": "Level 1, run 4, value 93.60, -3.20 SD",
+      "candidate": "Level 1, run 4, value 93.60, -3.20 SD",
+      "classification": "MATCH",
+      "notes": "orig label: \"Level 1, run 4, value 93.60, -3.20 SD\""
+    },
+    {
+      "id": "point-aria-level1-run4",
+      "domain": "rules",
+      "action": "Aria-label identifies Level 1 / run 4 / -3.20 SD",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH",
+      "notes": "label: \"Level 1, run 4, value 93.60, -3.20 SD\""
+    },
+    {
+      "id": "keyboard-enter-result",
+      "domain": "rules",
+      "action": "Enter key: ring count and hint",
+      "original": "rings=1,hint=\"Selected: none yet\"",
+      "candidate": "rings=1,hint=\"Selected: none yet\"",
+      "classification": "MATCH",
+      "notes": "Enter did NOT change selection state \u2014 rings=1 is pre-existing chart artifact, not a selection. Keyboard not activatable (no onKeyDown in v0.8 source)."
+    },
+    {
+      "id": "keyboard-space-result",
+      "domain": "rules",
+      "action": "Space key: ring count and hint",
+      "original": "rings=1,hint=\"Selected: none yet\"",
+      "candidate": "rings=1,hint=\"Selected: none yet\"",
+      "classification": "MATCH",
+      "notes": "Space did NOT change selection state \u2014 same as Enter. Both original and candidate: keyboard-focusable but not keyboard-activatable."
+    },
+    {
+      "id": "hint-after-click",
+      "domain": "rules",
+      "action": "Hint after click = \"Selected: 4:L1\"",
+      "original": "Selected: 4:L1",
+      "candidate": "Selected: 4:L1",
+      "classification": "MATCH",
+      "notes": "orig: \"Selected: 4:L1\""
+    },
+    {
+      "id": "selected-key-4-L1",
+      "domain": "rules",
+      "action": "Hint text contains \"4:L1\" (run 4, Level 1)",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH",
+      "notes": "expected \"4:L1\" in hint, got \"Selected: 4:L1\""
+    },
+    {
+      "id": "selected-ring-count-1",
+      "domain": "rules",
+      "action": "Ring elements >= 1 after click (orig = cand)",
+      "original": "2",
+      "candidate": "2",
+      "classification": "MATCH",
+      "notes": "rings per selection: orig=2 cand=2 (authored: 2 elements per point)"
+    },
+    {
+      "id": "dom-after-selection",
+      "domain": "rules",
+      "action": "Root DOM identical after selection",
+      "original": "ed01b87f2b367e93",
+      "candidate": "ed01b87f2b367e93",
+      "classification": "MATCH"
+    },
+    {
+      "id": "hint-after-deselect",
+      "domain": "rules",
+      "action": "Hint returns to \"Selected: none yet\" after deselect",
+      "original": "Selected: none yet",
+      "candidate": "Selected: none yet",
+      "classification": "MATCH",
+      "notes": "orig: \"Selected: none yet\""
+    },
+    {
+      "id": "hint-deselect-none-yet",
+      "domain": "rules",
+      "action": "Hint contains \"none yet\" after deselect",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH"
+    },
+    {
+      "id": "selected-ring-count-0",
+      "domain": "rules",
+      "action": "Ring count < pre-deselect and orig = cand",
+      "original": "1",
+      "candidate": "1",
+      "classification": "MATCH",
+      "notes": "after deselect: orig=1 cand=1 (was 2)"
+    },
+    {
+      "id": "submit-enabled",
+      "domain": "rules",
+      "action": "Submission button enabled after complete selection",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH"
+    },
+    {
+      "id": "console-pageerror",
+      "domain": "rules",
+      "action": "Page errors during traversal",
+      "original": "0",
+      "candidate": "0",
+      "classification": "MATCH",
+      "notes": "none"
+    }
+  ]
+}

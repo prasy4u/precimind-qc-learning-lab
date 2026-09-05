@@ -53,6 +53,8 @@ assert('A-06', d10.summary.not_applicable === 2,
 console.log('\n=== SECTION B: Stage 10E pass criteria ===');
 
 assert('B-01', e10.stage === '10E', 'Stage 10E result stage = 10E', 'rc');
+assert('B-01b', e10.validation_status === 'INCOMPLETE',
+  'Stage 10E validation_status = INCOMPLETE (Rule Detective state-transition not validated)', 'sg');
 assert('B-02', e10.original_sha === 'e5317bf135f350b258428b985c1034a081e244a295f2e580c93cb6a6a091c8e4',
   'Original SHA matches authoritative', 'sg');
 assert('B-03', e10.candidate_sha === 'a9fe9a3acbb8c35347cc735292ad63883778e5c12845f4da529129119b72c886',
@@ -217,13 +219,21 @@ assert('G-04', rf.focused_tabIndex === '0',
   `Rule: tabIndex = 0 (found "${rf.focused_tabIndex}")`, 'sg');
 assert('G-05', rf.aria_label_example && /level|run|value|SD/i.test(rf.aria_label_example),
   `Rule: aria-label contains run/value/SD (found "${rf.aria_label_example}")`, 'sg');
-assert('G-06', rf.hint_changed_after_activation === true,
-  'Rule: .point-selection-hint changed after activation', 'sg');
+assert('G-06', rf.hint_changed_after_activation === false,
+  'Rule: hint_changed_after_activation = false (corrected — no rule was selected first)', 'sg');
 
 const ruleTagCp = e10.checkpoints.find(cp => cp.id === 'RULE-tag');
 assert('G-07', ruleTagCp?.classification === 'MATCH', 'RULE-tag checkpoint = MATCH', 'sg');
 const ruleHintCp = e10.checkpoints.find(cp => cp.id === 'RULE-hint-changed');
-assert('G-08', ruleHintCp?.classification === 'MATCH', 'RULE-hint-changed = MATCH', 'sg');
+// Historical: hint-changed = false for both (no rule selected before click)
+assert('G-08', ruleHintCp?.classification === 'MATCH' && ruleHintCp?.original === 'false',
+  'RULE-hint-changed = MATCH of false (historically: no rule was selected first)', 'sg');
+const ruleHintBefore = e10.checkpoints.find(cp => cp.id === 'RULE-hint-before');
+assert('G-09', ruleHintBefore?.original === 'none',
+  'RULE-hint-before = none (matched absence — no rule yet selected)', 'sg');
+const ruleHintAfter = e10.checkpoints.find(cp => cp.id === 'RULE-hint-after');
+assert('G-10', ruleHintAfter?.original === 'none',
+  'RULE-hint-after = none (matched — point click without rule did not activate)', 'sg');
 
 /* -----------------------------------------------------------------------
    SECTION H: Pattern — 3 actual submitted cases with scores
@@ -297,9 +307,9 @@ console.log(`  Stage 10D: INCOMPLETE (historical record)`);
 console.log(`  Stage 10E: ${e10.summary.total} browser checkpoints — ${e10.summary.match} MATCH / ${e10.summary.difference} DIFF / ${e10.summary.blocked} BLOCKED`);
 console.log(`  Candidate SHA: ${e10.candidate_sha.substring(0,16)}...`);
 if (failed > 0) {
-  console.error('STAGE 10E VALIDATION FAILED.');
+  console.error('STAGE 10E HISTORICAL RECORD VALIDATOR FAILED — internal inconsistency.');
   process.exit(1);
 } else {
-  console.log('STAGE 10E VALIDATION PASSED — source-aware final v0.8 browser equivalence confirmed.');
+  console.log('STAGE 10E HISTORICAL RECORD CONFIRMED — incomplete Rule Detective state-transition validation.');
   process.exit(0);
 }

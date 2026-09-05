@@ -1911,3 +1911,27 @@ BLOCKED checkpoints (19): all due to selector mismatch on first pass — corresp
 **`recovered-v0.8-validated` tag applied on Stage 10E commit. This is the definitive final validation closure for v0.8.**
 
 **Node regression at Stage 10E closure:** 3797 / 3797 (29 Node suites)
+
+---
+
+## Stage 10F — Rule Detective State-Transition Closure
+
+**Stage 10E corrected to INCOMPLETE.** Reason: Rule Detective point-selection hint was absent before and after the Stage 10E click because no non-none rule had been selected first. `togglePoint()` was a no-op. Checkpoints RULE-hint-before="none", RULE-hint-after="none", RULE-hint-changed="false" confirm this.
+
+**Stage 10F directly validated the authored state machine:**
+- Case 3 selected (authored: correctRules=["13s"], correctScope="single")
+- Rule `1₃s` selected → `.point-selection-hint` = "Selected: none yet"
+- Level 1, Run 4 (value 93.60, **−3.20 SD**) focused: tag=G, class=mlj-point-g, role=button, tabIndex=0
+- Click activation: hint → **"Selected: 4:L1"**, `.mlj-ring-selected` count = 2 (authored: 2 elements per selection)
+- Second click (deselect): hint → **"Selected: none yet"**, ring count reduced (bidirectional toggle confirmed)
+- Submission gate enabled after complete selection (point + scope + confidence)
+
+**Keyboard behavior (v0.8 characteristic):** `.mlj-point-g[role="button"][tabindex="0"]` is keyboard-focusable but NOT keyboard-activatable via Enter or Space — no `onKeyDown` authored in v0.8 source. Both original and candidate behave identically (MATCH).
+
+**Stage 10F result:** 21 checkpoints | 21 MATCH | 0 DIFFERENCE | 0 BLOCKED | 0 NOT_TESTED
+
+**Combined 10B + 10C + 10D + 10E + 10F:** 452 total browser checkpoints, **0 DIFFERENCE**.
+
+**`recovered-v0.8-validated` tag applied on Stage 10F commit (commit 46). This is the definitive final validation closure for v0.8.**
+
+**Node regression at Stage 10F closure:** 3849 / 3849 (30 Node suites)

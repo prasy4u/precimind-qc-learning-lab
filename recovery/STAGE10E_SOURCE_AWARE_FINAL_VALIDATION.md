@@ -117,8 +117,11 @@ The focused element is the actual authored `g.ljchart-point-g[role="button"][tab
 | role | button | button | ✅ |
 | tabIndex | 0 | 0 | ✅ |
 | aria-label | "Level 1, run 1, value 100.60, 0.30 SD" | identical | ✅ |
-| `.point-selection-hint` before activation | identical | — | ✅ |
-| `.point-selection-hint` after activation | changed | identical change | ✅ |
+| `.point-selection-hint` before activation | "none" | "none" | ✅ (matched absence) |
+| `.point-selection-hint` after click attempt | "none" (unchanged) | "none" | ✅ (matched) |
+| Hint state transition | NOT demonstrated | NOT demonstrated | Stage 10F required |
+
+**Stage 10E Rule Detective limitation:** A real `.mlj-point-g[role="button"][tabindex="0"]` point was successfully focused (tag/role/tabindex/aria-label all confirmed). However the `.point-selection-hint` was absent before and after the attempted click because no non-none rule had first been selected. The `togglePoint()` handler returned without changing point-selection state. Stage 10F completes the actual state-transition validation with Case 3 / 1₃s selected first.
 
 Point activated via `MouseEvent('click', {bubbles: true})` dispatched on focused element.
 

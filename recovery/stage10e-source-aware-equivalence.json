@@ -60,7 +60,7 @@
     "focused_role": "button",
     "focused_tabIndex": "0",
     "aria_label_example": "Level 1, run 1, value 100.60, 0.30 SD",
-    "hint_changed_after_activation": true
+    "hint_changed_after_activation": false
   },
   "pattern_facts": {
     "three_cases_submitted": true,
@@ -773,5 +773,7 @@
       "candidate": "true",
       "classification": "MATCH"
     }
-  ]
+  ],
+  "validation_status": "INCOMPLETE",
+  "validation_status_reason": "The Rule Detective point-selection checkpoint did not demonstrate an actual trigger-point state transition. Stored checkpoints show: RULE-hint-before: original='none', candidate='none'; RULE-hint-after: original='none', candidate='none'; RULE-hint-changed: original='false', candidate='false'. This conflicts with the rule_facts field that incorrectly claimed hint_changed_after_activation=true. Source-aware audit determined that no non-none rule had first been selected before the point click, so togglePoint() returned without changing point-selection state. Stage 10E successfully validated focus on the real .mlj-point-g SVG element (tag=G, role=button, tabIndex=0, aria-label confirmed) but did NOT validate the trigger-point state transition. Stage 10F was required."
 }

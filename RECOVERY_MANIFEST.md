@@ -90,6 +90,10 @@
 | `src/ui/runtime-bootstrap.js` | **A** | Stage 9J, HTML 14028–14034, 7 lines, 270 bytes, SHA f2bffcb0... |
 | `tests/stage9j-app-shell.test.js` | **D** | Stage 9J recovery tests |
 | `SCIENTIFIC_INVARIANTS.md` | **D** | New recovery documentation (Stages 1–9J) |
+| `tests/stage10f-rule-point-equivalence.js` | **D** | Stage 10F, retained Playwright Rule Detective harness |
+| `tests/stage10f-validation.test.js` | **D** | Stage 10F, Node validation, 49 assertions |
+| `recovery/stage10f-rule-point-equivalence.json` | **D** | Stage 10F, 21 checkpoints: 21 MATCH, 0 DIFF, 0 BLOCKED |
+| `recovery/STAGE10F_RULE_POINT_FINAL_VALIDATION.md` | **D** | Stage 10F, Rule Detective state-transition report |
 | `tests/stage10e-validation.test.js` | **D** | Stage 10E, Node source-aware validation, 81 assertions |
 | `recovery/stage10e-source-aware-equivalence.json` | **D** | Stage 10E, 83 checkpoints: 83 MATCH, 0 DIFF, 0 BLOCKED |
 | `recovery/STAGE10E_SOURCE_AWARE_FINAL_VALIDATION.md` | **D** | Stage 10E, source-aware final validation report |

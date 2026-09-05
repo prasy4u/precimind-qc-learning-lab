@@ -1,0 +1,777 @@
+{
+  "stage": "10E",
+  "artifact_class": "D",
+  "browser": "Chromium 141.0.7390.37",
+  "font_policy": "Google Fonts aborted identically for both artifacts",
+  "original_sha": "e5317bf135f350b258428b985c1034a081e244a295f2e580c93cb6a6a091c8e4",
+  "candidate_sha": "a9fe9a3acbb8c35347cc735292ad63883778e5c12845f4da529129119b72c886",
+  "stage10d_validation_status": "INCOMPLETE",
+  "required_coverage": {
+    "diagnostic-low-8q": true,
+    "diagnostic-high-8q": true,
+    "diagnostic-apply": true,
+    "pbrtqc-case-a": true,
+    "pbrtqc-case-b": true,
+    "pbrtqc-case-c": true,
+    "lj-real-chart-point-keyboard": true,
+    "rule-real-chart-point-keyboard": true,
+    "pattern-three-submitted-cases": true
+  },
+  "diagnostic_facts": {
+    "patternA": {
+      "answeredCount": 8,
+      "suggestedLevel": "beginner",
+      "appliedLevel": "beginner"
+    },
+    "patternB": {
+      "answeredCount": 8,
+      "suggestedLevel": "advanced",
+      "appliedLevel": "advanced"
+    }
+  },
+  "pbrtqc_facts": {
+    "caseA": {
+      "alert_index": "93",
+      "NPed": "12",
+      "excluded": "0"
+    },
+    "caseB": {
+      "alert_index": "106",
+      "NPed": "25",
+      "excluded": "0"
+    },
+    "caseC": {
+      "alert_index": "None",
+      "NPed": "not reported (no alert)",
+      "excluded": "51"
+    }
+  },
+  "lj_facts": {
+    "focused_tag": "G (SVG group element)",
+    "focused_class": ".ljchart-point-g",
+    "focused_role": "button",
+    "focused_tabIndex": "0",
+    "aria_label_example": "Run 1, value 99.20, -0.40 SD",
+    "tooltip_changed_after_focus": true
+  },
+  "rule_facts": {
+    "focused_tag": "G (SVG group element)",
+    "focused_class": ".mlj-point-g",
+    "focused_role": "button",
+    "focused_tabIndex": "0",
+    "aria_label_example": "Level 1, run 1, value 100.60, 0.30 SD",
+    "hint_changed_after_activation": true
+  },
+  "pattern_facts": {
+    "three_cases_submitted": true,
+    "final_attempted_count": "3 / 10",
+    "count_is_not_zero": true
+  },
+  "summary": {
+    "total": 83,
+    "match": 83,
+    "difference": 0,
+    "blocked": 0,
+    "not_applicable": 0,
+    "not_tested": 0
+  },
+  "checkpoints": [
+    {
+      "id": "DIAG-PatA-q1-text",
+      "domain": "diagnostic",
+      "action": "PatA: initial question 1 of 8",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH"
+    },
+    {
+      "id": "DIAG-PatA-count",
+      "domain": "diagnostic",
+      "action": "PatA: exactly 8 questions answered",
+      "original": "8",
+      "candidate": "8",
+      "classification": "MATCH",
+      "notes": "Answered: 8"
+    },
+    {
+      "id": "DIAG-PatA-completed",
+      "domain": "diagnostic",
+      "action": "PatA: \"completed the placement\" text",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH"
+    },
+    {
+      "id": "DIAG-PatA-suggestion",
+      "domain": "diagnostic",
+      "action": "PatA: suggested level",
+      "original": "beginner",
+      "candidate": "beginner",
+      "classification": "MATCH",
+      "notes": "Orig suggests: beginner"
+    },
+    {
+      "id": "DIAG-PatA-domain-Stati",
+      "domain": "diagnostic",
+      "action": "PatA: domain profile Statistics",
+      "original": "Statistics",
+      "candidate": "Statistics",
+      "classification": "MATCH"
+    },
+    {
+      "id": "DIAG-PatA-domain-Preci",
+      "domain": "diagnostic",
+      "action": "PatA: domain profile Precision",
+      "original": "Precision / Bias",
+      "candidate": "Precision / Bias",
+      "classification": "MATCH"
+    },
+    {
+      "id": "DIAG-PatA-domain-LJ In",
+      "domain": "diagnostic",
+      "action": "PatA: domain profile LJ Interpretation",
+      "original": "LJ Interpretation",
+      "candidate": "LJ Interpretation",
+      "classification": "MATCH"
+    },
+    {
+      "id": "DIAG-PatA-domain-APS",
+      "domain": "diagnostic",
+      "action": "PatA: domain profile APS",
+      "original": "APS / Sigma",
+      "candidate": "APS / Sigma",
+      "classification": "MATCH"
+    },
+    {
+      "id": "DIAG-PatA-dom",
+      "domain": "diagnostic",
+      "action": "PatA: complete result dialog DOM",
+      "original": "f641e934d82b02d3",
+      "candidate": "f641e934d82b02d3",
+      "classification": "MATCH",
+      "notes": "OK"
+    },
+    {
+      "id": "DIAG-PatA-4btns",
+      "domain": "diagnostic",
+      "action": "PatA: exactly 4 level buttons",
+      "original": "4",
+      "candidate": "4",
+      "classification": "MATCH",
+      "notes": "buttons: beginner \u2014 suggested,intermediate,advanced,expert"
+    },
+    {
+      "id": "DIAG-PatA-closed",
+      "domain": "diagnostic",
+      "action": "PatA: modal closed after Apply",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH"
+    },
+    {
+      "id": "DIAG-PatA-applied",
+      "domain": "diagnostic",
+      "action": "PatA: applied level in level-select",
+      "original": "beginner",
+      "candidate": "beginner",
+      "classification": "MATCH",
+      "notes": "Applied: orig=beginner cand=beginner"
+    },
+    {
+      "id": "DIAG-PatA-persist",
+      "domain": "diagnostic",
+      "action": "PatA: level persists after nav",
+      "original": "beginner",
+      "candidate": "beginner",
+      "classification": "MATCH"
+    },
+    {
+      "id": "DIAG-PatB-q1-text",
+      "domain": "diagnostic",
+      "action": "PatB: initial question 1 of 8",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH"
+    },
+    {
+      "id": "DIAG-PatB-count",
+      "domain": "diagnostic",
+      "action": "PatB: exactly 8 questions answered",
+      "original": "8",
+      "candidate": "8",
+      "classification": "MATCH",
+      "notes": "Answered: 8"
+    },
+    {
+      "id": "DIAG-PatB-completed",
+      "domain": "diagnostic",
+      "action": "PatB: \"completed the placement\" text",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH"
+    },
+    {
+      "id": "DIAG-PatB-suggestion",
+      "domain": "diagnostic",
+      "action": "PatB: suggested level",
+      "original": "advanced",
+      "candidate": "advanced",
+      "classification": "MATCH",
+      "notes": "Orig suggests: advanced"
+    },
+    {
+      "id": "DIAG-PatB-domain-Stati",
+      "domain": "diagnostic",
+      "action": "PatB: domain profile Statistics",
+      "original": "Statistics",
+      "candidate": "Statistics",
+      "classification": "MATCH"
+    },
+    {
+      "id": "DIAG-PatB-domain-Preci",
+      "domain": "diagnostic",
+      "action": "PatB: domain profile Precision",
+      "original": "Precision / Bias",
+      "candidate": "Precision / Bias",
+      "classification": "MATCH"
+    },
+    {
+      "id": "DIAG-PatB-domain-LJ In",
+      "domain": "diagnostic",
+      "action": "PatB: domain profile LJ Interpretation",
+      "original": "LJ Interpretation",
+      "candidate": "LJ Interpretation",
+      "classification": "MATCH"
+    },
+    {
+      "id": "DIAG-PatB-domain-APS",
+      "domain": "diagnostic",
+      "action": "PatB: domain profile APS",
+      "original": "APS / Sigma",
+      "candidate": "APS / Sigma",
+      "classification": "MATCH"
+    },
+    {
+      "id": "DIAG-PatB-dom",
+      "domain": "diagnostic",
+      "action": "PatB: complete result dialog DOM",
+      "original": "d5b7053e4f189d62",
+      "candidate": "d5b7053e4f189d62",
+      "classification": "MATCH",
+      "notes": "OK"
+    },
+    {
+      "id": "DIAG-PatB-4btns",
+      "domain": "diagnostic",
+      "action": "PatB: exactly 4 level buttons",
+      "original": "4",
+      "candidate": "4",
+      "classification": "MATCH",
+      "notes": "buttons: beginner,intermediate,advanced \u2014 suggested,expert"
+    },
+    {
+      "id": "DIAG-PatB-closed",
+      "domain": "diagnostic",
+      "action": "PatB: modal closed after Apply",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH"
+    },
+    {
+      "id": "DIAG-PatB-applied",
+      "domain": "diagnostic",
+      "action": "PatB: applied level in level-select",
+      "original": "advanced",
+      "candidate": "advanced",
+      "classification": "MATCH",
+      "notes": "Applied: orig=advanced cand=advanced"
+    },
+    {
+      "id": "DIAG-PatB-persist",
+      "domain": "diagnostic",
+      "action": "PatB: level persists after nav",
+      "original": "advanced",
+      "candidate": "advanced",
+      "classification": "MATCH"
+    },
+    {
+      "id": "CaseA-ctrl-W",
+      "domain": "pbrtqc",
+      "action": "Case A: W slider = 20",
+      "original": "20",
+      "candidate": "20",
+      "classification": "MATCH"
+    },
+    {
+      "id": "CaseA-ctrl-mag",
+      "domain": "pbrtqc",
+      "action": "Case A: magnitude slider = 6",
+      "original": "6",
+      "candidate": "6",
+      "classification": "MATCH"
+    },
+    {
+      "id": "CaseA-ctrl-onset",
+      "domain": "pbrtqc",
+      "action": "Case A: onset slider = 81",
+      "original": "81",
+      "candidate": "81",
+      "classification": "MATCH"
+    },
+    {
+      "id": "CaseA-dom",
+      "domain": "pbrtqc",
+      "action": "Case A: result DOM match",
+      "original": "a0628c899630ea94",
+      "candidate": "a0628c899630ea94",
+      "classification": "MATCH"
+    },
+    {
+      "id": "CaseA-alert-match",
+      "domain": "pbrtqc",
+      "action": "Case A: alert orig vs cand",
+      "original": "93",
+      "candidate": "93",
+      "classification": "MATCH"
+    },
+    {
+      "id": "CaseA-alert-93",
+      "domain": "pbrtqc",
+      "action": "Case A: alert=93 (frozen sig)",
+      "original": "93",
+      "candidate": "93",
+      "classification": "MATCH",
+      "notes": "rendered: 93"
+    },
+    {
+      "id": "CaseA-NPed-match",
+      "domain": "pbrtqc",
+      "action": "Case A: NPed orig vs cand",
+      "original": "12",
+      "candidate": "12",
+      "classification": "MATCH"
+    },
+    {
+      "id": "CaseA-NPed-12",
+      "domain": "pbrtqc",
+      "action": "Case A: NPed=12 (frozen sig)",
+      "original": "12",
+      "candidate": "12",
+      "classification": "MATCH",
+      "notes": "rendered: 12"
+    },
+    {
+      "id": "CaseA-excl",
+      "domain": "pbrtqc",
+      "action": "Case A: excluded (frozen: 0)",
+      "original": "0",
+      "candidate": "0",
+      "classification": "MATCH"
+    },
+    {
+      "id": "CaseB-dom",
+      "domain": "pbrtqc",
+      "action": "Case B: result DOM match",
+      "original": "e18cce9e4485b97e",
+      "candidate": "e18cce9e4485b97e",
+      "classification": "MATCH"
+    },
+    {
+      "id": "CaseB-alert-match",
+      "domain": "pbrtqc",
+      "action": "Case B: alert orig vs cand",
+      "original": "106",
+      "candidate": "106",
+      "classification": "MATCH"
+    },
+    {
+      "id": "CaseB-alert-106",
+      "domain": "pbrtqc",
+      "action": "Case B: alert=106 (frozen sig)",
+      "original": "106",
+      "candidate": "106",
+      "classification": "MATCH",
+      "notes": "rendered: 106"
+    },
+    {
+      "id": "CaseB-NPed-match",
+      "domain": "pbrtqc",
+      "action": "Case B: NPed orig vs cand",
+      "original": "25",
+      "candidate": "25",
+      "classification": "MATCH"
+    },
+    {
+      "id": "CaseB-NPed-25",
+      "domain": "pbrtqc",
+      "action": "Case B: NPed=25 (frozen sig)",
+      "original": "25",
+      "candidate": "25",
+      "classification": "MATCH",
+      "notes": "rendered: 25"
+    },
+    {
+      "id": "CaseB-excl-0",
+      "domain": "pbrtqc",
+      "action": "Case B: excluded=0 (frozen sig)",
+      "original": "0",
+      "candidate": "0",
+      "classification": "MATCH",
+      "notes": "rendered: 0"
+    },
+    {
+      "id": "CaseC-dom",
+      "domain": "pbrtqc",
+      "action": "Case C: result DOM match",
+      "original": "c8a395bad666dd85",
+      "candidate": "c8a395bad666dd85",
+      "classification": "MATCH"
+    },
+    {
+      "id": "CaseC-alert-match",
+      "domain": "pbrtqc",
+      "action": "Case C: alert orig vs cand",
+      "original": "None",
+      "candidate": "None",
+      "classification": "MATCH"
+    },
+    {
+      "id": "CaseC-no-alert",
+      "domain": "pbrtqc",
+      "action": "Case C: no alert (frozen: None)",
+      "original": "None",
+      "candidate": "None",
+      "classification": "MATCH",
+      "notes": "rendered: None"
+    },
+    {
+      "id": "CaseC-badge",
+      "domain": "pbrtqc",
+      "action": "Case C: Undetected badge",
+      "original": "Undetected",
+      "candidate": "Undetected",
+      "classification": "MATCH"
+    },
+    {
+      "id": "CaseC-excl-match",
+      "domain": "pbrtqc",
+      "action": "Case C: excluded orig vs cand",
+      "original": "51",
+      "candidate": "51",
+      "classification": "MATCH"
+    },
+    {
+      "id": "CaseC-excl-51",
+      "domain": "pbrtqc",
+      "action": "Case C: excluded=51 (frozen sig)",
+      "original": "51",
+      "candidate": "51",
+      "classification": "MATCH",
+      "notes": "rendered: 51"
+    },
+    {
+      "id": "CaseC-NPed-absent",
+      "domain": "pbrtqc",
+      "action": "Case C: NPed not reported",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH"
+    },
+    {
+      "id": "LJ-tag",
+      "domain": "lj",
+      "action": "LJ: focused element tag = G",
+      "original": "G",
+      "candidate": "G",
+      "classification": "MATCH",
+      "notes": "orig tag: g"
+    },
+    {
+      "id": "LJ-role",
+      "domain": "lj",
+      "action": "LJ: role = button",
+      "original": "button",
+      "candidate": "button",
+      "classification": "MATCH"
+    },
+    {
+      "id": "LJ-tabidx",
+      "domain": "lj",
+      "action": "LJ: tabIndex = 0",
+      "original": "0",
+      "candidate": "0",
+      "classification": "MATCH"
+    },
+    {
+      "id": "LJ-label-run",
+      "domain": "lj",
+      "action": "LJ: aria-label starts \"Run \"",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH",
+      "notes": "label: Run 1, value 99.20, -0.40 SD"
+    },
+    {
+      "id": "LJ-label-match",
+      "domain": "lj",
+      "action": "LJ: aria-label identical",
+      "original": "Run 1, value 99.20, -0.40 SD",
+      "candidate": "Run 1, value 99.20, -0.40 SD",
+      "classification": "MATCH"
+    },
+    {
+      "id": "LJ-tooltip-changed",
+      "domain": "lj",
+      "action": "LJ: tooltip changed",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH",
+      "notes": "tooltip: Run 1: raw value 99.20, -0.40 SD from mean"
+    },
+    {
+      "id": "LJ-tooltip-match",
+      "domain": "lj",
+      "action": "LJ: tooltip text identical",
+      "original": "22ee87820b76245a",
+      "candidate": "22ee87820b76245a",
+      "classification": "MATCH"
+    },
+    {
+      "id": "RULE-hint-before",
+      "domain": "rules",
+      "action": "Rule: hint before activation",
+      "original": "none",
+      "candidate": "none",
+      "classification": "MATCH"
+    },
+    {
+      "id": "RULE-tag",
+      "domain": "rules",
+      "action": "Rule: focused element tag = G",
+      "original": "G",
+      "candidate": "G",
+      "classification": "MATCH",
+      "notes": "orig tag: g"
+    },
+    {
+      "id": "RULE-role",
+      "domain": "rules",
+      "action": "Rule: role = button",
+      "original": "button",
+      "candidate": "button",
+      "classification": "MATCH"
+    },
+    {
+      "id": "RULE-tabidx",
+      "domain": "rules",
+      "action": "Rule: tabIndex = 0",
+      "original": "0",
+      "candidate": "0",
+      "classification": "MATCH"
+    },
+    {
+      "id": "RULE-label",
+      "domain": "rules",
+      "action": "Rule: label contains level/run/value/SD",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH",
+      "notes": "label: Level 1, run 1, value 100.60, 0.30 SD"
+    },
+    {
+      "id": "RULE-label-match",
+      "domain": "rules",
+      "action": "Rule: aria-label identical",
+      "original": "Level 1, run 1, value 100.60, 0.30 SD",
+      "candidate": "Level 1, run 1, value 100.60, 0.30 SD",
+      "classification": "MATCH"
+    },
+    {
+      "id": "RULE-hint-after",
+      "domain": "rules",
+      "action": "Rule: hint after activation",
+      "original": "none",
+      "candidate": "none",
+      "classification": "MATCH",
+      "notes": "after: none"
+    },
+    {
+      "id": "RULE-hint-changed",
+      "domain": "rules",
+      "action": "Rule: hint changed",
+      "original": "false",
+      "candidate": "false",
+      "classification": "MATCH"
+    },
+    {
+      "id": "PAT-commit-enabled0",
+      "domain": "pattern",
+      "action": "Trial 1: Commit interpretation enabled",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH"
+    },
+    {
+      "id": "PAT-feedback0",
+      "domain": "pattern",
+      "action": "Trial 1: feedback present",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH",
+      "notes": "feedback: FeedbackYour interpretation: Apparently stable / No convinci"
+    },
+    {
+      "id": "PAT-count0",
+      "domain": "pattern",
+      "action": "Trial 1: count 1 / 10",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH",
+      "notes": "score: Session score (1 / 10 attempted)Pattern recognition1 / 10Analytical reasoning1 /"
+    },
+    {
+      "id": "PAT-dom0",
+      "domain": "pattern",
+      "action": "Trial 1: root DOM",
+      "original": "9d4ae248ace54b95",
+      "candidate": "9d4ae248ace54b95",
+      "classification": "MATCH"
+    },
+    {
+      "id": "PAT-patrec0",
+      "domain": "pattern",
+      "action": "Trial 1: Pattern recognition score",
+      "original": "1",
+      "candidate": "1",
+      "classification": "MATCH",
+      "notes": "PatRec: orig=1"
+    },
+    {
+      "id": "PAT-anarec0",
+      "domain": "pattern",
+      "action": "Trial 1: Analytical reasoning score",
+      "original": "1",
+      "candidate": "1",
+      "classification": "MATCH"
+    },
+    {
+      "id": "PAT-commit-enabled1",
+      "domain": "pattern",
+      "action": "Trial 2: Commit interpretation enabled",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH"
+    },
+    {
+      "id": "PAT-feedback1",
+      "domain": "pattern",
+      "action": "Trial 2: feedback present",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH",
+      "notes": "feedback: FeedbackYour interpretation: Positive shift / Possible syste"
+    },
+    {
+      "id": "PAT-count1",
+      "domain": "pattern",
+      "action": "Trial 2: count 2 / 10",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH",
+      "notes": "score: Session score (2 / 10 attempted)Pattern recognition1 / 10Analytical reasoning1 /"
+    },
+    {
+      "id": "PAT-dom1",
+      "domain": "pattern",
+      "action": "Trial 2: root DOM",
+      "original": "f7b279a08840d63c",
+      "candidate": "f7b279a08840d63c",
+      "classification": "MATCH"
+    },
+    {
+      "id": "PAT-patrec1",
+      "domain": "pattern",
+      "action": "Trial 2: Pattern recognition score",
+      "original": "1",
+      "candidate": "1",
+      "classification": "MATCH",
+      "notes": "PatRec: orig=1"
+    },
+    {
+      "id": "PAT-anarec1",
+      "domain": "pattern",
+      "action": "Trial 2: Analytical reasoning score",
+      "original": "1",
+      "candidate": "1",
+      "classification": "MATCH"
+    },
+    {
+      "id": "PAT-commit-enabled2",
+      "domain": "pattern",
+      "action": "Trial 3: Commit interpretation enabled",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH"
+    },
+    {
+      "id": "PAT-feedback2",
+      "domain": "pattern",
+      "action": "Trial 3: feedback present",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH",
+      "notes": "feedback: FeedbackYour interpretation: Increased scatter / imprecision"
+    },
+    {
+      "id": "PAT-count2",
+      "domain": "pattern",
+      "action": "Trial 3: count 3 / 10",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH",
+      "notes": "score: Session score (3 / 10 attempted)Pattern recognition1 / 10Analytical reasoning1 /"
+    },
+    {
+      "id": "PAT-dom2",
+      "domain": "pattern",
+      "action": "Trial 3: root DOM",
+      "original": "ac6e1cfdf8b2b408",
+      "candidate": "ac6e1cfdf8b2b408",
+      "classification": "MATCH"
+    },
+    {
+      "id": "PAT-patrec2",
+      "domain": "pattern",
+      "action": "Trial 3: Pattern recognition score",
+      "original": "1",
+      "candidate": "1",
+      "classification": "MATCH",
+      "notes": "PatRec: orig=1"
+    },
+    {
+      "id": "PAT-anarec2",
+      "domain": "pattern",
+      "action": "Trial 3: Analytical reasoning score",
+      "original": "1",
+      "candidate": "1",
+      "classification": "MATCH"
+    },
+    {
+      "id": "PAT-final-count",
+      "domain": "pattern",
+      "action": "Final: 3/10 attempted",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH",
+      "notes": "final: Session score (3 / 10 attempted)Pattern recognition1 / 10Analytical reasoning1 /"
+    },
+    {
+      "id": "PAT-not-zero",
+      "domain": "pattern",
+      "action": "Pattern: attempted count not 0/10",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH"
+    }
+  ]
+}

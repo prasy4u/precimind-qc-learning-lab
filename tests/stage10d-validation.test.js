@@ -80,10 +80,12 @@ assert('B-06', d10.summary.blocked === computed.blocked,
 /* -----------------------------------------------------------------------
    SECTION C: Stage 10D pass criteria
    ----------------------------------------------------------------------- */
-console.log('\n=== SECTION C: Stage 10D pass criteria ===');
+console.log('\n=== SECTION C: Stage 10D historical counts (for record accuracy) ===');
 
+assert('C-00', d10.validation_status === 'INCOMPLETE',
+  'Stage 10D validation_status = INCOMPLETE (correctly marked by Stage 10E audit)', 'sg');
 assert('C-01', d10.summary.difference === 0,
-  `DIFFERENCE = 0 (found ${d10.summary.difference})`, 'sg');
+  `Stage 10D historical DIFFERENCE = 0 (found ${d10.summary.difference})`, 'sg');
 assert('C-02', d10.summary.blocked === 0,
   `BLOCKED = 0 (found ${d10.summary.blocked})`, 'sg');
 assert('C-03', d10.summary.not_tested === 0,
@@ -235,9 +237,9 @@ console.log(`  Stage 10D final:      ${d10.summary.total} checkpoints, ${d10.sum
 console.log(`  19/19 Stage 10C blocked IDs: resolved`);
 console.log(`  Candidate SHA: ${d10.candidate_sha.substring(0,16)}...`);
 if (failed > 0) {
-  console.error('STAGE 10D VALIDATION FAILED.');
+  console.error('STAGE 10D HISTORICAL RECORD VALIDATOR FAILED — internal inconsistency.');
   process.exit(1);
 } else {
-  console.log('STAGE 10D VALIDATION PASSED — final v0.8 browser equivalence confirmed.');
+  console.log('STAGE 10D HISTORICAL RECORD CONFIRMED — accurately recorded as INCOMPLETE (source-aware audit required Stage 10E).');
   process.exit(0);
 }

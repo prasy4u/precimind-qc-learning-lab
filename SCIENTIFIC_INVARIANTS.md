@@ -1887,3 +1887,27 @@ BLOCKED checkpoints (19): all due to selector mismatch on first pass — corresp
 **`recovered-v0.8-validated` tag applied on Stage 10D commit.** This is the authoritative validation closure for v0.8 recovery.
 
 **Node regression at Stage 10D closure:** 3713 / 3713 (28 Node suites)
+
+---
+
+## Stage 10E — Source-Aware Final Validation Closure
+
+**Stage 10D tag removed and status corrected to INCOMPLETE.** Reasons: Diagnostic stopped after 1 question (authored flow requires 8); PBRTQC shift/truncation controls incorrectly classified NOT_APPLICABLE when exposed by v0.8 UI; LJ/Rule keyboard checked wrong elements.
+
+**Stage 10E source-aware corrections applied:**
+- Diagnostic: full 8-question flow (both patterns); Pattern A → suggests beginner; Pattern B → suggests advanced
+- PBRTQC: all three frozen signatures confirmed via authored UI controls (`#sim-magnitude`, `#sim-onset`, truncation inputs):
+  - Case A: alert index = **93**, NPed = **12** ✅
+  - Case B: alert index = **106**, NPed = **25**, excluded = **0** ✅
+  - Case C: alert = **None**, excluded = **51**, NPed not reported ✅
+- LJ keyboard: `.ljchart-point-g[role="button"][tabindex="0"]` correctly focused; tag=G, tooltip changed ✅
+- Rule keyboard: `.mlj-point-g[role="button"][tabindex="0"]` correctly focused and activated; `.point-selection-hint` changed ✅
+- Pattern Challenge: 3 real submitted cases (pattern + broad + confidence + "Commit interpretation"); counts 1/10 → 2/10 → 3/10 ✅
+
+**Stage 10E result:** 83 browser checkpoints | 83 MATCH | 0 DIFFERENCE | 0 BLOCKED | 0 NOT_TESTED
+
+**Combined 10B + 10C + 10D + 10E:** 431 total browser checkpoints (115+164+69+83), **0 DIFFERENCE**.
+
+**`recovered-v0.8-validated` tag applied on Stage 10E commit. This is the definitive final validation closure for v0.8.**
+
+**Node regression at Stage 10E closure:** 3797 / 3797 (29 Node suites)

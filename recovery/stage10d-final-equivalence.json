@@ -650,5 +650,7 @@
       "classification": "MATCH",
       "notes": "stage8a-pbrtqc-calc.test.js: 166 assertions covering Population A/B/D signatures"
     }
-  ]
+  ],
+  "validation_status": "INCOMPLETE",
+  "validation_status_reason": "Independent source-aware audit demonstrated that the Diagnostic full-flow check stopped after 1 answer instead of the authored 8 questions; PBRTQC signature controls (shift magnitude, truncation sliders) were incorrectly classified NOT_APPLICABLE when they are in fact exposed by the v0.8 ErrorDetectionSimulatorPanel UI; LJ keyboard check accepted a non-chart-point element instead of the authored .ljchart-point-g[role='button']; and Rule Lab keyboard check matched absence rather than exercising the authored .mlj-point-g[role='button'] QC points. Stage 10D does NOT qualify as final validation evidence."
 }

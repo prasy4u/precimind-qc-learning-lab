@@ -1,0 +1,654 @@
+{
+  "stage": "10D",
+  "artifact_class": "D",
+  "browser": "Chromium 141.0.7390.37",
+  "font_policy": "Google Fonts aborted identically for both artifacts",
+  "original_sha": "e5317bf135f350b258428b985c1034a081e244a295f2e580c93cb6a6a091c8e4",
+  "candidate_sha": "a9fe9a3acbb8c35347cc735292ad63883778e5c12845f4da529129119b72c886",
+  "stage10c_historical": {
+    "total": 164,
+    "match": 145,
+    "difference": 0,
+    "blocked": 19,
+    "not_tested": 0,
+    "validation_status": "INCOMPLETE"
+  },
+  "stage10c_blocked_ids": [
+    "PAT-1",
+    "RULES-tab-View_full_Ev",
+    "STRAT-APS-biological",
+    "STRAT-APS-state-of-t",
+    "STRAT-APS-regulatory",
+    "STRAT-APS-eqa",
+    "STRAT-APS-manufactur",
+    "STRAT-APS-local",
+    "STRAT-APS-insufficie",
+    "RISK-M25",
+    "RISK-M500",
+    "STRAT-APS-Biological_v",
+    "STRAT-APS-State_of_the",
+    "STRAT-APS-Regulatory",
+    "STRAT-APS-EQA_PT_deriv",
+    "STRAT-APS-Manufacturer",
+    "STRAT-APS-Local_qualit",
+    "STRAT-APS-Insufficient",
+    "BV-mode-Reveal_answe"
+  ],
+  "stage10d_blocked_resolutions": [
+    "STRAT-APS-Insufficient",
+    "PAT-1",
+    "STRAT-APS-regulatory",
+    "STRAT-APS-Biological_v",
+    "STRAT-APS-eqa",
+    "STRAT-APS-Local_qualit",
+    "STRAT-APS-EQA_PT_deriv",
+    "STRAT-APS-local",
+    "RISK-M25",
+    "STRAT-APS-state-of-t",
+    "STRAT-APS-State_of_the",
+    "STRAT-APS-insufficie",
+    "STRAT-APS-Regulatory",
+    "RULES-tab-View_full_Ev",
+    "STRAT-APS-manufactur",
+    "BV-mode-Reveal_answe",
+    "RISK-M500",
+    "STRAT-APS-biological",
+    "STRAT-APS-Manufacturer"
+  ],
+  "missing_resolutions": [],
+  "summary": {
+    "total": 69,
+    "match": 67,
+    "difference": 0,
+    "blocked": 0,
+    "not_applicable": 2,
+    "not_tested": 0
+  },
+  "checkpoints": [
+    {
+      "id": "10D-PAT-1",
+      "domain": "pattern",
+      "action": "Pattern trial 1 (safe middle index)",
+      "original": "e41184748d2fe316",
+      "candidate": "e41184748d2fe316",
+      "classification": "MATCH",
+      "resolves_stage10c_id": "PAT-1"
+    },
+    {
+      "id": "10D-RULES-viewfull",
+      "domain": "rules",
+      "action": "Rule Lab \"View full Evidence\" visibility",
+      "original": "false",
+      "candidate": "false",
+      "classification": "MATCH",
+      "notes": "Navigation link absent from both \u2014 matched absence",
+      "resolves_stage10c_id": "RULES-tab-View_full_Ev"
+    },
+    {
+      "id": "10D-APS-case2",
+      "domain": "strategy",
+      "action": "APS case 2: BV-based (numbered button)",
+      "original": "6b9114bd4010b1d2",
+      "candidate": "6b9114bd4010b1d2",
+      "classification": "MATCH",
+      "notes": "resolves blocked IDs: STRAT-APS-biological, STRAT-APS-Biological_v",
+      "resolves_stage10c_id": "STRAT-APS-biological"
+    },
+    {
+      "id": "10D-APS-case2-b1",
+      "domain": "strategy",
+      "action": "APS case 2 supplemental",
+      "original": "6b9114bd4010b1d2",
+      "candidate": "6b9114bd4010b1d2",
+      "classification": "MATCH",
+      "resolves_stage10c_id": "STRAT-APS-Biological_v"
+    },
+    {
+      "id": "10D-APS-case3",
+      "domain": "strategy",
+      "action": "APS case 3: State-of-art (numbered button)",
+      "original": "53f6a640f749d34a",
+      "candidate": "53f6a640f749d34a",
+      "classification": "MATCH",
+      "notes": "resolves blocked IDs: STRAT-APS-state-of-t, STRAT-APS-State_of_the",
+      "resolves_stage10c_id": "STRAT-APS-state-of-t"
+    },
+    {
+      "id": "10D-APS-case3-b1",
+      "domain": "strategy",
+      "action": "APS case 3 supplemental",
+      "original": "53f6a640f749d34a",
+      "candidate": "53f6a640f749d34a",
+      "classification": "MATCH",
+      "resolves_stage10c_id": "STRAT-APS-State_of_the"
+    },
+    {
+      "id": "10D-APS-case4",
+      "domain": "strategy",
+      "action": "APS case 4: Regulatory (numbered button)",
+      "original": "baa3e7ebc7cfeb12",
+      "candidate": "baa3e7ebc7cfeb12",
+      "classification": "MATCH",
+      "notes": "resolves blocked IDs: STRAT-APS-regulatory, STRAT-APS-Regulatory",
+      "resolves_stage10c_id": "STRAT-APS-regulatory"
+    },
+    {
+      "id": "10D-APS-case4-b1",
+      "domain": "strategy",
+      "action": "APS case 4 supplemental",
+      "original": "baa3e7ebc7cfeb12",
+      "candidate": "baa3e7ebc7cfeb12",
+      "classification": "MATCH",
+      "resolves_stage10c_id": "STRAT-APS-Regulatory"
+    },
+    {
+      "id": "10D-APS-case5",
+      "domain": "strategy",
+      "action": "APS case 5: EQA/PT (numbered button)",
+      "original": "09a2f9b0ad8d5176",
+      "candidate": "09a2f9b0ad8d5176",
+      "classification": "MATCH",
+      "notes": "resolves blocked IDs: STRAT-APS-eqa, STRAT-APS-EQA_PT_deriv",
+      "resolves_stage10c_id": "STRAT-APS-eqa"
+    },
+    {
+      "id": "10D-APS-case5-b1",
+      "domain": "strategy",
+      "action": "APS case 5 supplemental",
+      "original": "09a2f9b0ad8d5176",
+      "candidate": "09a2f9b0ad8d5176",
+      "classification": "MATCH",
+      "resolves_stage10c_id": "STRAT-APS-EQA_PT_deriv"
+    },
+    {
+      "id": "10D-APS-case6",
+      "domain": "strategy",
+      "action": "APS case 6: Manufacturer (numbered button)",
+      "original": "d8154517bda99569",
+      "candidate": "d8154517bda99569",
+      "classification": "MATCH",
+      "notes": "resolves blocked IDs: STRAT-APS-manufactur, STRAT-APS-Manufacturer",
+      "resolves_stage10c_id": "STRAT-APS-manufactur"
+    },
+    {
+      "id": "10D-APS-case6-b1",
+      "domain": "strategy",
+      "action": "APS case 6 supplemental",
+      "original": "d8154517bda99569",
+      "candidate": "d8154517bda99569",
+      "classification": "MATCH",
+      "resolves_stage10c_id": "STRAT-APS-Manufacturer"
+    },
+    {
+      "id": "10D-APS-case7",
+      "domain": "strategy",
+      "action": "APS case 7: Local (numbered button)",
+      "original": "90d1e2c4781d0ae3",
+      "candidate": "90d1e2c4781d0ae3",
+      "classification": "MATCH",
+      "notes": "resolves blocked IDs: STRAT-APS-local, STRAT-APS-Local_qualit",
+      "resolves_stage10c_id": "STRAT-APS-local"
+    },
+    {
+      "id": "10D-APS-case7-b1",
+      "domain": "strategy",
+      "action": "APS case 7 supplemental",
+      "original": "90d1e2c4781d0ae3",
+      "candidate": "90d1e2c4781d0ae3",
+      "classification": "MATCH",
+      "resolves_stage10c_id": "STRAT-APS-Local_qualit"
+    },
+    {
+      "id": "10D-APS-case8",
+      "domain": "strategy",
+      "action": "APS case 8: Insufficient (numbered button)",
+      "original": "4bf9a92611206fcd",
+      "candidate": "4bf9a92611206fcd",
+      "classification": "MATCH",
+      "notes": "resolves blocked IDs: STRAT-APS-insufficie, STRAT-APS-Insufficient",
+      "resolves_stage10c_id": "STRAT-APS-insufficie"
+    },
+    {
+      "id": "10D-APS-case8-b1",
+      "domain": "strategy",
+      "action": "APS case 8 supplemental",
+      "original": "4bf9a92611206fcd",
+      "candidate": "4bf9a92611206fcd",
+      "classification": "MATCH",
+      "resolves_stage10c_id": "STRAT-APS-Insufficient"
+    },
+    {
+      "id": "10D-RISK-M25",
+      "domain": "risk",
+      "action": "Frequency Simulator M=25 via SELECT #fs-m",
+      "original": "43a202be763bb5ed",
+      "candidate": "43a202be763bb5ed",
+      "classification": "MATCH",
+      "resolves_stage10c_id": "RISK-M25"
+    },
+    {
+      "id": "10D-RISK-M500",
+      "domain": "risk",
+      "action": "Frequency Simulator M=500 via SELECT #fs-m",
+      "original": "4f39d3de88fff09d",
+      "candidate": "4f39d3de88fff09d",
+      "classification": "MATCH",
+      "resolves_stage10c_id": "RISK-M500"
+    },
+    {
+      "id": "10D-BV-reveal",
+      "domain": "bv",
+      "action": "BV \"Reveal answer\" button click",
+      "original": "ed16dd7fc0a8b08f",
+      "candidate": "ed16dd7fc0a8b08f",
+      "classification": "MATCH",
+      "resolves_stage10c_id": "BV-mode-Reveal_answe"
+    },
+    {
+      "id": "DIAG-open-low",
+      "domain": "diagnostic",
+      "action": "low-complexity (first options): modal opens",
+      "original": "5184244650ab765e",
+      "candidate": "5184244650ab765e",
+      "classification": "MATCH"
+    },
+    {
+      "id": "DIAG-answered-low",
+      "domain": "diagnostic",
+      "action": "low-complexity (first options): answered 1 questions",
+      "original": "1",
+      "candidate": "1",
+      "classification": "MATCH"
+    },
+    {
+      "id": "DIAG-result-low",
+      "domain": "diagnostic",
+      "action": "low-complexity (first options): result DOM",
+      "original": "e3b0c44298fc1c14",
+      "candidate": "e3b0c44298fc1c14",
+      "classification": "MATCH"
+    },
+    {
+      "id": "DIAG-reclevel-low",
+      "domain": "diagnostic",
+      "action": "low-complexity (first options): recommended level",
+      "original": "none",
+      "candidate": "none",
+      "classification": "MATCH"
+    },
+    {
+      "id": "DIAG-closed-low",
+      "domain": "diagnostic",
+      "action": "low-complexity (first options): modal closed",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH"
+    },
+    {
+      "id": "DIAG-open-hig",
+      "domain": "diagnostic",
+      "action": "high-complexity (last options): modal opens",
+      "original": "5184244650ab765e",
+      "candidate": "5184244650ab765e",
+      "classification": "MATCH"
+    },
+    {
+      "id": "DIAG-answered-hig",
+      "domain": "diagnostic",
+      "action": "high-complexity (last options): answered 9 questions",
+      "original": "9",
+      "candidate": "9",
+      "classification": "MATCH"
+    },
+    {
+      "id": "DIAG-result-hig",
+      "domain": "diagnostic",
+      "action": "high-complexity (last options): result DOM",
+      "original": "e3b0c44298fc1c14",
+      "candidate": "e3b0c44298fc1c14",
+      "classification": "MATCH"
+    },
+    {
+      "id": "DIAG-reclevel-hig",
+      "domain": "diagnostic",
+      "action": "high-complexity (last options): recommended level",
+      "original": "none",
+      "candidate": "none",
+      "classification": "MATCH"
+    },
+    {
+      "id": "DIAG-closed-hig",
+      "domain": "diagnostic",
+      "action": "high-complexity (last options): modal closed",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SIGMA-LV-beginner",
+      "domain": "sigma",
+      "action": "Level beginner: Sigma Sandbox DOM",
+      "original": "b3ac33d92c277d21",
+      "candidate": "b3ac33d92c277d21",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SIGMA-LV-beginner-text",
+      "domain": "sigma",
+      "action": "Level beginner: visible text hash",
+      "original": "e703bc2316569d6d",
+      "candidate": "e703bc2316569d6d",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SIGMA-LV-beginner-persist",
+      "domain": "sigma",
+      "action": "Level beginner: persists after nav",
+      "original": "beginner",
+      "candidate": "beginner",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SIGMA-LV-beginner-back",
+      "domain": "sigma",
+      "action": "Level beginner: Sigma DOM after nav back",
+      "original": "b3ac33d92c277d21",
+      "candidate": "b3ac33d92c277d21",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SIGMA-LV-intermediate",
+      "domain": "sigma",
+      "action": "Level intermediate: Sigma Sandbox DOM",
+      "original": "b3ac33d92c277d21",
+      "candidate": "b3ac33d92c277d21",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SIGMA-LV-intermediate-text",
+      "domain": "sigma",
+      "action": "Level intermediate: visible text hash",
+      "original": "e703bc2316569d6d",
+      "candidate": "e703bc2316569d6d",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SIGMA-LV-intermediate-persist",
+      "domain": "sigma",
+      "action": "Level intermediate: persists after nav",
+      "original": "intermediate",
+      "candidate": "intermediate",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SIGMA-LV-intermediate-back",
+      "domain": "sigma",
+      "action": "Level intermediate: Sigma DOM after nav back",
+      "original": "b3ac33d92c277d21",
+      "candidate": "b3ac33d92c277d21",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SIGMA-LV-advanced",
+      "domain": "sigma",
+      "action": "Level advanced: Sigma Sandbox DOM",
+      "original": "b3ac33d92c277d21",
+      "candidate": "b3ac33d92c277d21",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SIGMA-LV-advanced-text",
+      "domain": "sigma",
+      "action": "Level advanced: visible text hash",
+      "original": "e703bc2316569d6d",
+      "candidate": "e703bc2316569d6d",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SIGMA-LV-advanced-persist",
+      "domain": "sigma",
+      "action": "Level advanced: persists after nav",
+      "original": "advanced",
+      "candidate": "advanced",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SIGMA-LV-advanced-back",
+      "domain": "sigma",
+      "action": "Level advanced: Sigma DOM after nav back",
+      "original": "b3ac33d92c277d21",
+      "candidate": "b3ac33d92c277d21",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SIGMA-LV-expert",
+      "domain": "sigma",
+      "action": "Level expert: Sigma Sandbox DOM",
+      "original": "b3ac33d92c277d21",
+      "candidate": "b3ac33d92c277d21",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SIGMA-LV-expert-text",
+      "domain": "sigma",
+      "action": "Level expert: visible text hash",
+      "original": "e703bc2316569d6d",
+      "candidate": "e703bc2316569d6d",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SIGMA-LV-expert-persist",
+      "domain": "sigma",
+      "action": "Level expert: persists after nav",
+      "original": "expert",
+      "candidate": "expert",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SIGMA-LV-expert-back",
+      "domain": "sigma",
+      "action": "Level expert: Sigma DOM after nav back",
+      "original": "b3ac33d92c277d21",
+      "candidate": "b3ac33d92c277d21",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SIGMA-A",
+      "domain": "sigma",
+      "action": "Config A: default Sigma DOM",
+      "original": "b3ac33d92c277d21",
+      "candidate": "b3ac33d92c277d21",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SIGMA-inputs",
+      "domain": "sigma",
+      "action": "Sigma input count",
+      "original": "8",
+      "candidate": "8",
+      "classification": "MATCH",
+      "notes": "inputs: sg-tea,,sg-bias,,sg-cv,,sg-specA,sg-specB"
+    },
+    {
+      "id": "SIGMA-B",
+      "domain": "sigma",
+      "action": "Config B: TEa=12",
+      "original": "67631b42d6b76390",
+      "candidate": "67631b42d6b76390",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SIGMA-C",
+      "domain": "sigma",
+      "action": "Config C: bias=1.5",
+      "original": "27581eb68c0cfe2d",
+      "candidate": "27581eb68c0cfe2d",
+      "classification": "MATCH"
+    },
+    {
+      "id": "SIGMA-D",
+      "domain": "sigma",
+      "action": "Config D: CV=3",
+      "original": "840ec20c44201af3",
+      "candidate": "840ec20c44201af3",
+      "classification": "MATCH"
+    },
+    {
+      "id": "PROC-initial",
+      "domain": "strategy",
+      "action": "Procedure Comparator initial DOM",
+      "original": "f72eced4a136d5de",
+      "candidate": "f72eced4a136d5de",
+      "classification": "MATCH"
+    },
+    {
+      "id": "PROC-table",
+      "domain": "strategy",
+      "action": "Procedure Comparator table DOM",
+      "original": "b31021269ebbb2df",
+      "candidate": "b31021269ebbb2df",
+      "classification": "MATCH",
+      "notes": "Table includes all procedure rows"
+    },
+    {
+      "id": "PROC-unsupported",
+      "domain": "strategy",
+      "action": "Unsupported Ped/Pfr present",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH"
+    },
+    {
+      "id": "PROC-no-traffic",
+      "domain": "strategy",
+      "action": "No traffic-light in comparator",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH"
+    },
+    {
+      "id": "LJ-KB-chartpoint",
+      "domain": "lj",
+      "action": "LJ chart point keyboard focus",
+      "original": "{\"tag\":\"INPUT\",\"role\":null,\"label\":\"Assigned mean used for chart numeric entry\",\"text\":\"\"}",
+      "candidate": "{\"tag\":\"INPUT\",\"role\":null,\"label\":\"Assigned mean used for chart numeric entry\",\"text\":\"\"}",
+      "classification": "MATCH",
+      "notes": "Keyboard-focusable chart point found"
+    },
+    {
+      "id": "LJ-SVG-aria",
+      "domain": "lj",
+      "action": "LJ SVG accessibility attributes",
+      "original": "{\"role\":\"img\",\"label\":\"Levey-Jennings chart, raw units, 20 points\"}",
+      "candidate": "{\"role\":\"img\",\"label\":\"Levey-Jennings chart, raw units, 20 points\"}",
+      "classification": "MATCH"
+    },
+    {
+      "id": "RULE-KB-point",
+      "domain": "rules",
+      "action": "Rule Lab keyboard-interactive element",
+      "original": "{\"tag\":\"SUMMARY\",\"role\":null,\"label\":null,\"text\":\"Scientific basis\"}",
+      "candidate": "{\"tag\":\"SUMMARY\",\"role\":null,\"label\":null,\"text\":\"Scientific basis\"}",
+      "classification": "MATCH"
+    },
+    {
+      "id": "PAT-session-0",
+      "domain": "pattern",
+      "action": "Pattern case 0 session state",
+      "original": "d514c2ecde4366eb",
+      "candidate": "d514c2ecde4366eb",
+      "classification": "MATCH"
+    },
+    {
+      "id": "PAT-session-1",
+      "domain": "pattern",
+      "action": "Pattern case 1 session state",
+      "original": "d514c2ecde4366eb",
+      "candidate": "d514c2ecde4366eb",
+      "classification": "MATCH"
+    },
+    {
+      "id": "PAT-session-2",
+      "domain": "pattern",
+      "action": "Pattern case 2 session state",
+      "original": "d514c2ecde4366eb",
+      "candidate": "d514c2ecde4366eb",
+      "classification": "MATCH"
+    },
+    {
+      "id": "PAT-session-3",
+      "domain": "pattern",
+      "action": "Pattern case 3 session state",
+      "original": "d514c2ecde4366eb",
+      "candidate": "d514c2ecde4366eb",
+      "classification": "MATCH"
+    },
+    {
+      "id": "PAT-session-4",
+      "domain": "pattern",
+      "action": "Pattern case 4 session state",
+      "original": "d514c2ecde4366eb",
+      "candidate": "d514c2ecde4366eb",
+      "classification": "MATCH"
+    },
+    {
+      "id": "PAT-session-5",
+      "domain": "pattern",
+      "action": "Pattern case 5 session state",
+      "original": "d514c2ecde4366eb",
+      "candidate": "d514c2ecde4366eb",
+      "classification": "MATCH"
+    },
+    {
+      "id": "PAT-score",
+      "domain": "pattern",
+      "action": "Pattern session score display",
+      "original": "0 / 10",
+      "candidate": "0 / 10",
+      "classification": "MATCH"
+    },
+    {
+      "id": "PBRTQC-SIG-A",
+      "domain": "pbrtqc",
+      "action": "PBRTQC Case A (W\u224820, shift\u2248+6)",
+      "original": "62bd7bb52bf62f80",
+      "candidate": "62bd7bb52bf62f80",
+      "classification": "MATCH"
+    },
+    {
+      "id": "PBRTQC-SIG-A-text",
+      "domain": "pbrtqc",
+      "action": "PBRTQC Case A alert text",
+      "original": "Alert \u2192 Detection delay \u2192 False alerts \u2192 Validation \u2192 Complementa",
+      "candidate": "Alert \u2192 Detection delay \u2192 False alerts \u2192 Validation \u2192 Complementa",
+      "classification": "MATCH"
+    },
+    {
+      "id": "PBRTQC-SIG-B",
+      "domain": "pbrtqc",
+      "action": "PBRTQC Case B: shift control not exposed",
+      "original": "N/A",
+      "candidate": "N/A",
+      "classification": "NOT_APPLICABLE",
+      "notes": "Shift SELECT not in v0.8 UI; exact signature covered by Node scientific suite (stage8a)"
+    },
+    {
+      "id": "PBRTQC-SIG-C",
+      "domain": "pbrtqc",
+      "action": "PBRTQC Case C: truncation control not exposed in v0.8 UI",
+      "original": "N/A",
+      "candidate": "N/A",
+      "classification": "NOT_APPLICABLE",
+      "notes": "Truncation toggle absent from v0.8 UI in both artifacts; frozen signature covered by Node stage8a assertions"
+    },
+    {
+      "id": "PBRTQC-NODE-cov",
+      "domain": "pbrtqc",
+      "action": "PBRTQC frozen signatures covered by Node stage8a",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH",
+      "notes": "stage8a-pbrtqc-calc.test.js: 166 assertions covering Population A/B/D signatures"
+    }
+  ]
+}

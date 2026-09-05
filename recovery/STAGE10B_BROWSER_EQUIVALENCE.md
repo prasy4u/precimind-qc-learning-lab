@@ -72,7 +72,7 @@ Home, Rule Laboratory, Risk & Frequency Lab, Patient Surveillance Lab.
 | Page errors from mounts | 0 | 0 |
 | Root children after 19 mounts | 1 | 1 |
 
-**New finding (Stage 10B direct instrumentation):** After all 19 `ReactDOM.createRoot(rootEl).render(<App />)` calls execute, the `#root` element contains exactly **1 child** in both the original and the candidate. The internal React-root disposition of the 19 calls was not directly instrumented. The observable post-render DOM contains one root child in both artifacts. The internal disposition is now directly measured, not inferred.
+**New finding (Stage 10B direct instrumentation):** After all 19 `ReactDOM.createRoot(rootEl).render(<App />)` calls execute, the `#root` element contains exactly **1 child** in both the original and the candidate. The internal React-root disposition of the 19 calls was not directly instrumented. The observable post-render DOM contains one root child in both artifacts. The actual internal React-root disposition was not directly instrumented — only the observable outcomes were measured.
 
 ---
 

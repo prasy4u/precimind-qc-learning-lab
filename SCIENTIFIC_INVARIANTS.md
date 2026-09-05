@@ -1862,3 +1862,28 @@ BLOCKED checkpoints (19): all due to selector mismatch on first pass — corresp
 **`recovered-v0.8-validated` tag applied on Stage 10C commit.**
 
 **Node regression at Stage 10C closure:** 3643 / 3643 (26 Node suites + Stage 10C validation)
+
+---
+
+## Stage 10D — Final Validation Governance Closure
+
+**Stage 10C tag was premature and removed.** Reasons: 19 BLOCKED checkpoints in Stage 10C result; validator used `blocked < 30`; several required flows incomplete.
+
+**Stage 10D actions:**
+- Stage 10C `validation_status` set to `INCOMPLETE` in machine-readable record
+- Stage 10C Node validator converted to historical-record validator (confirms 145/0/19/0)
+- Stage 10B mount wording corrected (removed "directly measured, not inferred")
+- All 19 Stage 10C BLOCKED IDs formally resolved with canonical Stage 10D checkpoints
+- Full diagnostic (2 patterns), four-level Sigma Sandbox, Sigma configs, Procedure Comparator, LJ/Rule keyboard, Pattern session, PBRTQC signature checks completed
+
+**Stage 10D result:** 69 checkpoints | 67 MATCH | 0 DIFFERENCE | 0 BLOCKED | 2 NOT_APPLICABLE | 0 NOT_TESTED
+
+**NOT_APPLICABLE (2):** PBRTQC Cases B and C require shift magnitude and truncation limit controls not exposed by v0.8 UI in either artifact — authenticated absence, not recovery defect. Exact frozen scientific signatures covered by `tests/stage8a-pbrtqc-calc.test.js`.
+
+**Combined 10B + 10C + 10D:** 348 total browser checkpoints, 0 DIFFERENCE.
+
+**FINAL DECISION: PRESERVE RECOVERED 19-MOUNT SOURCE IN v0.8 BASELINE.** Reaffirmed across 348 checkpoints with zero mount-related errors.
+
+**`recovered-v0.8-validated` tag applied on Stage 10D commit.** This is the authoritative validation closure for v0.8 recovery.
+
+**Node regression at Stage 10D closure:** 3713 / 3713 (28 Node suites)

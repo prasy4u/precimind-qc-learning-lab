@@ -1376,5 +1376,7 @@
       "candidate": "75790937302647b2",
       "classification": "MATCH"
     }
-  ]
+  ],
+  "validation_status": "INCOMPLETE",
+  "validation_status_reason": "19 first-pass selector-blocked checkpoints remained in the final Stage 10C result. The agreed Stage 10C pass criterion required BLOCKED = 0. Additionally, several declared interaction-depth requirements (full diagnostic workflow, four-level scientific-lab DOM, Sigma interaction, Procedure Comparator, LJ/Rule keyboard, Pattern session state, PBRTQC frozen-signature verification) were only partially or not covered. Stage 10C does NOT qualify for final validation."
 }

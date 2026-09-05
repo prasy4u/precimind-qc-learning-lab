@@ -90,6 +90,10 @@
 | `src/ui/runtime-bootstrap.js` | **A** | Stage 9J, HTML 14028–14034, 7 lines, 270 bytes, SHA f2bffcb0... |
 | `tests/stage9j-app-shell.test.js` | **D** | Stage 9J recovery tests |
 | `SCIENTIFIC_INVARIANTS.md` | **D** | New recovery documentation (Stages 1–9J) |
+| `tests/stage10d-final-equivalence.js` | **D** | Stage 10D, Playwright blocker-resolution + interaction harness (run separately) |
+| `tests/stage10d-validation.test.js` | **D** | Stage 10D, Node final validation, 71 assertions |
+| `recovery/stage10d-final-equivalence.json` | **D** | Stage 10D, machine-readable: 69 checkpoints, 67 MATCH, 0 DIFF, 0 BLOCKED |
+| `recovery/STAGE10D_FINAL_VALIDATION.md` | **D** | Stage 10D, human-readable final validation report |
 | `tests/stage10c-interaction-equivalence.js` | **D** | Stage 10C, Playwright interaction harness (run separately) |
 | `tests/stage10c-validation.test.js` | **D** | Stage 10C, Node validation of interaction result, 70 assertions |
 | `recovery/stage10c-interaction-equivalence.json` | **D** | Stage 10C, machine-readable result: 164 checkpoints, 145 MATCH, 0 DIFF |

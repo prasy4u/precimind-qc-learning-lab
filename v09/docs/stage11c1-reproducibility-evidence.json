@@ -1,0 +1,16 @@
+{
+  "stage": "11C1",
+  "artifact_class": "V09_TEST",
+  "description": "Recorded evidence of the three-way build-tree hash reproducibility test performed during Stage 11C1: (A) initial build, (B) remove-and-rebuild, (C) clean npm ci + rebuild. All three produced the identical deterministic build-tree hash.",
+  "reproduction_a_sha": "c0407262fae35c913ec802740f27c37289e31038de9ad4cd542bb803e61d2e65",
+  "reproduction_b_sha": "c0407262fae35c913ec802740f27c37289e31038de9ad4cd542bb803e61d2e65",
+  "npm_ci_sha": "c0407262fae35c913ec802740f27c37289e31038de9ad4cd542bb803e61d2e65",
+  "npm_ci_status": "SUCCESS",
+  "all_identical": true,
+  "method": {
+    "reproduction_a": "npm run build:bridge (fresh dist-vite-bridge, no prior removal needed on first run) then npm run hash:build",
+    "reproduction_b": "rm -rf dist-vite-bridge dist-vite-bridge.tree-hash.json, then npm run build:bridge, then npm run hash:build",
+    "npm_ci_reproduction": "rm -rf node_modules dist-vite-bridge dist-vite-bridge.tree-hash.json, then npm ci, then npm run build:bridge, then npm run hash:build"
+  },
+  "hash_algorithm_reference": "v09/tools/hash-build-tree.cjs (documented canonical scheme: sorted relative paths, SHA-256 per file content, SHA-256 of the concatenated path+hash manifest)"
+}

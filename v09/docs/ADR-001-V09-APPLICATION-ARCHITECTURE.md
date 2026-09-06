@@ -1,8 +1,12 @@
 # ADR-001: v0.9 Application Architecture
 
 **Status:** ACCEPTED — TARGET VITE/REACT UNIFIED BUILD, MIGRATION DEFERRED TO STAGE 11C  
-**Stage:** 11A (proposed) → 11B (accepted, refined)  
+**Stage:** 11A (proposed) → 11B (accepted, refined) → 11C1 (bridge established)  
 **Decision made:** Stage 11B
+
+**Implementation status:**
+- **Stage 11C1: VITE BUILD BRIDGE ESTABLISHED.** A package-managed React/Vite toolchain now exists under `v09/` (React 19.2.8, ReactDOM 19.2.8, Vite 8.2.2, @vitejs/plugin-react 6.1.1). A generated bridge (`v09/app-bridge/bridge-entry.generated.jsx`) wraps the accepted Stage 11B application source — all 34 modules, unchanged, in accepted order, with all 19 historical mount calls preserved — so it executes under package React instead of the historical embedded vendor/runtime-Babel environment. Runtime Babel is eliminated from the new Vite build path (JSX is now compiled at build time). The bridge is NOT the final module architecture; it performs no ES-module conversion and no single-root consolidation.
+- **Stage 11C2: ES-MODULE MIGRATION PENDING.** The 34 modules remain in their Stage 11B concatenation-compatible form. A full evidence-based dependency graph (`v09/docs/v09-module-dependency-graph.json`, `v09/docs/V09_MODULE_DEPENDENCY_GRAPH.md`) has been produced from direct source inspection to plan this migration, including the implicit React-hook global pattern (12 dependent modules), zero circular dependencies, zero identifier collisions, and a recommended migration order.
 
 ---
 

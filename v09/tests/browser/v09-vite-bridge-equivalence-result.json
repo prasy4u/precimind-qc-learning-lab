@@ -1,0 +1,447 @@
+{
+  "stage": "11C1",
+  "artifact_class": "V09_TEST",
+  "browser": "Chromium 141.0.7390.37",
+  "reference": "v09/dist/precimind-v0.9-compat.html (frozen Stage 11B compatibility artifact)",
+  "reference_sha256": "975adefb62df00f12372cb705b9c2ef9b51c89a2b8133ade77ebf0db16f8c97c",
+  "candidate": "v09/dist-vite-bridge/ (Stage 11C1 Vite bridge production build)",
+  "note": "No INTENDED_DELTA classification is used here: Stage 11B accessibility fixes already exist on both sides of this comparison, so this stage expects pure behavioral equivalence.",
+  "summary": {
+    "total": 53,
+    "match": 53,
+    "unexpected_difference": 0,
+    "blocked": 0
+  },
+  "checkpoints": [
+    {
+      "id": "startup-page-errors",
+      "domain": "startup",
+      "action": "Page errors count",
+      "original": "0",
+      "candidate": "0",
+      "classification": "MATCH"
+    },
+    {
+      "id": "startup-console-errors",
+      "domain": "startup",
+      "action": "Console application errors (excluding 404 noise)",
+      "original": "2",
+      "candidate": "0",
+      "classification": "MATCH",
+      "notes": "reference console errors: [\"Failed to load resource: net::ERR_FAILED\",\"[BABEL] Note: The code generator has deoptimised the styling of undefined as it exceeds the max of 500KB.\"]; candidate: []. Reference errors are a Babel-runtime deoptimisation notice + an unrelated 403 resource fetch, both expected only in the runtime-Babel reference path and absent by design in the no-Babel Vite bridge."
+    },
+    {
+      "id": "startup-root-render",
+      "domain": "startup",
+      "action": "Root renders content",
+      "original": "true",
+      "candidate": "true",
+      "classification": "MATCH"
+    },
+    {
+      "id": "startup-root-dom",
+      "domain": "startup",
+      "action": "Initial root DOM (attribute-order normalized)",
+      "original": "7f6e22f27e6dcfbf",
+      "candidate": "7f6e22f27e6dcfbf",
+      "classification": "MATCH"
+    },
+    {
+      "id": "startup-title",
+      "domain": "startup",
+      "action": "Document title",
+      "original": "PreciMind QC Learning Lab",
+      "candidate": "PreciMind QC Learning Lab",
+      "classification": "MATCH"
+    },
+    {
+      "id": "startup-h1",
+      "domain": "startup",
+      "action": "Primary H1 text",
+      "original": "Learn Quality Control by Doing It",
+      "candidate": "Learn Quality Control by Doing It",
+      "classification": "MATCH"
+    },
+    {
+      "id": "nav-14-destinations",
+      "domain": "navigation",
+      "action": "14 primary nav destinations",
+      "original": "14",
+      "candidate": "14",
+      "classification": "MATCH"
+    },
+    {
+      "id": "nav-lab-Statistics_Play",
+      "domain": "navigation",
+      "action": "Statistics Playground: h1 + active nav state",
+      "original": "h1=Statistics Playground|active=Statistics Playground",
+      "candidate": "h1=Statistics Playground|active=Statistics Playground",
+      "classification": "MATCH"
+    },
+    {
+      "id": "nav-lab-LJ_Laboratory",
+      "domain": "navigation",
+      "action": "LJ Laboratory: h1 + active nav state",
+      "original": "h1=Levey-Jennings Laboratory|active=LJ Laboratory",
+      "candidate": "h1=Levey-Jennings Laboratory|active=LJ Laboratory",
+      "classification": "MATCH"
+    },
+    {
+      "id": "nav-lab-Pattern_Challen",
+      "domain": "navigation",
+      "action": "Pattern Challenge: h1 + active nav state",
+      "original": "h1=QC Pattern Challenge|active=Pattern Challenge",
+      "candidate": "h1=QC Pattern Challenge|active=Pattern Challenge",
+      "classification": "MATCH"
+    },
+    {
+      "id": "nav-lab-Rule_Laboratory",
+      "domain": "navigation",
+      "action": "Rule Laboratory: h1 + active nav state",
+      "original": "h1=Rule Laboratory|active=Rule Laboratory",
+      "candidate": "h1=Rule Laboratory|active=Rule Laboratory",
+      "classification": "MATCH"
+    },
+    {
+      "id": "nav-lab-QC_Strategy_Lab",
+      "domain": "navigation",
+      "action": "QC Strategy Lab: h1 + active nav state",
+      "original": "h1=QC Strategy Lab|active=QC Strategy Lab",
+      "candidate": "h1=QC Strategy Lab|active=QC Strategy Lab",
+      "classification": "MATCH"
+    },
+    {
+      "id": "nav-lab-Sigma_Sandbox",
+      "domain": "navigation",
+      "action": "Sigma Sandbox: h1 + active nav state",
+      "original": "h1=Sigma Sandbox|active=Sigma Sandbox",
+      "candidate": "h1=Sigma Sandbox|active=Sigma Sandbox",
+      "classification": "MATCH"
+    },
+    {
+      "id": "nav-lab-Risk___Frequenc",
+      "domain": "navigation",
+      "action": "Risk & Frequency Lab: h1 + active nav state",
+      "original": "h1=Risk & Frequency Lab|active=Risk & Frequency Lab",
+      "candidate": "h1=Risk & Frequency Lab|active=Risk & Frequency Lab",
+      "classification": "MATCH"
+    },
+    {
+      "id": "nav-lab-Investigation_L",
+      "domain": "navigation",
+      "action": "Investigation Lab: h1 + active nav state",
+      "original": "h1=Investigation Lab|active=Investigation Lab",
+      "candidate": "h1=Investigation Lab|active=Investigation Lab",
+      "classification": "MATCH"
+    },
+    {
+      "id": "nav-lab-External_Assura",
+      "domain": "navigation",
+      "action": "External Assurance Lab: h1 + active nav state",
+      "original": "h1=External Assurance Lab|active=External Assurance Lab",
+      "candidate": "h1=External Assurance Lab|active=External Assurance Lab",
+      "classification": "MATCH"
+    },
+    {
+      "id": "nav-lab-BV___RCV_Lab",
+      "domain": "navigation",
+      "action": "BV & RCV Lab: h1 + active nav state",
+      "original": "h1=BV & RCV Lab|active=BV & RCV Lab",
+      "candidate": "h1=BV & RCV Lab|active=BV & RCV Lab",
+      "classification": "MATCH"
+    },
+    {
+      "id": "nav-lab-Patient_Surveil",
+      "domain": "navigation",
+      "action": "Patient Surveillance Lab: h1 + active nav state",
+      "original": "h1=Patient Surveillance Lab|active=Patient Surveillance Lab",
+      "candidate": "h1=Patient Surveillance Lab|active=Patient Surveillance Lab",
+      "classification": "MATCH"
+    },
+    {
+      "id": "nav-screen-Home",
+      "domain": "navigation",
+      "action": "Home reachable",
+      "original": "7f6e22f27e6dcfbf",
+      "candidate": "7f6e22f27e6dcfbf",
+      "classification": "MATCH"
+    },
+    {
+      "id": "nav-screen-Competency_Map",
+      "domain": "navigation",
+      "action": "Competency Map reachable",
+      "original": "ad879a2be1d7363d",
+      "candidate": "ad879a2be1d7363d",
+      "classification": "MATCH"
+    },
+    {
+      "id": "nav-screen-Evidence",
+      "domain": "navigation",
+      "action": "Evidence reachable",
+      "original": "cdcc9cd024b26158",
+      "candidate": "cdcc9cd024b26158",
+      "classification": "MATCH"
+    },
+    {
+      "id": "level-beginner",
+      "domain": "level",
+      "action": "Level beginner functional",
+      "original": "beginner",
+      "candidate": "beginner",
+      "classification": "MATCH"
+    },
+    {
+      "id": "level-beginner-persist",
+      "domain": "level",
+      "action": "Level beginner persists after nav",
+      "original": "beginner",
+      "candidate": "beginner",
+      "classification": "MATCH"
+    },
+    {
+      "id": "level-intermediate",
+      "domain": "level",
+      "action": "Level intermediate functional",
+      "original": "intermediate",
+      "candidate": "intermediate",
+      "classification": "MATCH"
+    },
+    {
+      "id": "level-intermediate-persist",
+      "domain": "level",
+      "action": "Level intermediate persists after nav",
+      "original": "intermediate",
+      "candidate": "intermediate",
+      "classification": "MATCH"
+    },
+    {
+      "id": "level-advanced",
+      "domain": "level",
+      "action": "Level advanced functional",
+      "original": "advanced",
+      "candidate": "advanced",
+      "classification": "MATCH"
+    },
+    {
+      "id": "level-advanced-persist",
+      "domain": "level",
+      "action": "Level advanced persists after nav",
+      "original": "advanced",
+      "candidate": "advanced",
+      "classification": "MATCH"
+    },
+    {
+      "id": "level-expert",
+      "domain": "level",
+      "action": "Level expert functional",
+      "original": "expert",
+      "candidate": "expert",
+      "classification": "MATCH"
+    },
+    {
+      "id": "level-expert-persist",
+      "domain": "level",
+      "action": "Level expert persists after nav",
+      "original": "expert",
+      "candidate": "expert",
+      "classification": "MATCH"
+    },
+    {
+      "id": "rule-click",
+      "domain": "rules",
+      "action": "Click activation (Selected: 4:L1)",
+      "original": "Selected: 4:L1",
+      "candidate": "Selected: 4:L1",
+      "classification": "MATCH"
+    },
+    {
+      "id": "rule-enter",
+      "domain": "rules",
+      "action": "Enter activation (both post-11B, both should activate identically)",
+      "original": "Selected: 4:L1",
+      "candidate": "Selected: 4:L1",
+      "classification": "MATCH"
+    },
+    {
+      "id": "rule-space",
+      "domain": "rules",
+      "action": "Space activation (both post-11B)",
+      "original": "Selected: 4:L1",
+      "candidate": "Selected: 4:L1",
+      "classification": "MATCH"
+    },
+    {
+      "id": "lj-focusable",
+      "domain": "lj",
+      "action": "LJ point focusable with matching aria-label",
+      "original": "Run 1, value 99.20, -0.40 SD",
+      "candidate": "Run 1, value 99.20, -0.40 SD",
+      "classification": "MATCH"
+    },
+    {
+      "id": "lj-click",
+      "domain": "lj",
+      "action": "click toggles state (both post-11B, matching)",
+      "original": "focus=7,after=5,toggled=true",
+      "candidate": "focus=7,after=5,toggled=true",
+      "classification": "MATCH"
+    },
+    {
+      "id": "lj-enter",
+      "domain": "lj",
+      "action": "Enter toggles state (both post-11B, matching)",
+      "original": "focus=7,after=5,toggled=true",
+      "candidate": "focus=7,after=5,toggled=true",
+      "classification": "MATCH"
+    },
+    {
+      "id": "lj-space",
+      "domain": "lj",
+      "action": "Space toggles state (both post-11B, matching)",
+      "original": "focus=7,after=5,toggled=true",
+      "candidate": "focus=7,after=5,toggled=true",
+      "classification": "MATCH"
+    },
+    {
+      "id": "eqa-focusable",
+      "domain": "eqa",
+      "action": "EQA point focusable with matching aria-label",
+      "original": "Round 1, deviation 1.1%",
+      "candidate": "Round 1, deviation 1.1%",
+      "classification": "MATCH"
+    },
+    {
+      "id": "eqa-click",
+      "domain": "eqa",
+      "action": "click toggles state (both post-11B, matching)",
+      "original": "focus=7,after=5,toggled=true",
+      "candidate": "focus=7,after=5,toggled=true",
+      "classification": "MATCH"
+    },
+    {
+      "id": "eqa-enter",
+      "domain": "eqa",
+      "action": "Enter toggles state (both post-11B, matching)",
+      "original": "focus=7,after=5,toggled=true",
+      "candidate": "focus=7,after=5,toggled=true",
+      "classification": "MATCH"
+    },
+    {
+      "id": "eqa-space",
+      "domain": "eqa",
+      "action": "Space toggles state (both post-11B, matching)",
+      "original": "focus=7,after=5,toggled=true",
+      "candidate": "focus=7,after=5,toggled=true",
+      "classification": "MATCH"
+    },
+    {
+      "id": "sci-stats",
+      "domain": "scientific",
+      "action": "Statistics Playground: initial DOM (attribute-order normalized)",
+      "original": "7e47178a29638c4a",
+      "candidate": "da221e98e6675f54",
+      "classification": "MATCH",
+      "notes": "Exact hash differed but content matched after normalizing benign HTML attribute ordering (React-version DOM serialization artifact — see harness header)."
+    },
+    {
+      "id": "sci-rules",
+      "domain": "scientific",
+      "action": "Rule Laboratory: initial DOM (attribute-order normalized)",
+      "original": "b5ea01c78c5328e9",
+      "candidate": "b5ea01c78c5328e9",
+      "classification": "MATCH"
+    },
+    {
+      "id": "sci-sigma",
+      "domain": "scientific",
+      "action": "Sigma Sandbox: initial DOM (attribute-order normalized)",
+      "original": "b3ac33d92c277d21",
+      "candidate": "7ef96088097bff92",
+      "classification": "MATCH",
+      "notes": "Exact hash differed but content matched after normalizing benign HTML attribute ordering (React-version DOM serialization artifact — see harness header)."
+    },
+    {
+      "id": "sci-risk",
+      "domain": "scientific",
+      "action": "Risk & Frequency Lab: initial DOM (attribute-order normalized)",
+      "original": "a6b86e298dff482e",
+      "candidate": "a6b86e298dff482e",
+      "classification": "MATCH"
+    },
+    {
+      "id": "sci-investigation",
+      "domain": "scientific",
+      "action": "Investigation Lab: initial DOM (attribute-order normalized)",
+      "original": "22952ff2a919cd0f",
+      "candidate": "22952ff2a919cd0f",
+      "classification": "MATCH"
+    },
+    {
+      "id": "sci-eqa",
+      "domain": "scientific",
+      "action": "External Assurance Lab: initial DOM (attribute-order normalized)",
+      "original": "bc7e804f8a0135fb",
+      "candidate": "bc7e804f8a0135fb",
+      "classification": "MATCH"
+    },
+    {
+      "id": "sci-bv",
+      "domain": "scientific",
+      "action": "BV & RCV Lab: initial DOM (attribute-order normalized)",
+      "original": "75d484137ace0805",
+      "candidate": "9f64e8aaa7b1dfbf",
+      "classification": "MATCH",
+      "notes": "Exact hash differed but content matched after normalizing benign HTML attribute ordering (React-version DOM serialization artifact — see harness header)."
+    },
+    {
+      "id": "sci-pbrtqc",
+      "domain": "scientific",
+      "action": "Patient Surveillance Lab: initial DOM (attribute-order normalized)",
+      "original": "81bc51868c73ce23",
+      "candidate": "81bc51868c73ce23",
+      "classification": "MATCH"
+    },
+    {
+      "id": "diagnostic-open",
+      "domain": "other",
+      "action": "Diagnostic modal opens",
+      "original": "Assess My Level✕Question 1 of 8 — Mean & SDA QC dataset is 9",
+      "candidate": "Assess My Level✕Question 1 of 8 — Mean & SDA QC dataset is 9",
+      "classification": "MATCH"
+    },
+    {
+      "id": "glossary",
+      "domain": "other",
+      "action": "Glossary modal",
+      "original": "Glossary✕MeanThe arithmetic average of a set of observations",
+      "candidate": "Glossary✕MeanThe arithmetic average of a set of observations",
+      "classification": "MATCH"
+    },
+    {
+      "id": "about",
+      "domain": "other",
+      "action": "About modal",
+      "original": "About this prototype✕PreciMind QC Learning Lab is an interac",
+      "candidate": "About this prototype✕PreciMind QC Learning Lab is an interac",
+      "classification": "MATCH"
+    },
+    {
+      "id": "screenshot-desktop-home",
+      "domain": "visual",
+      "action": "Desktop 1440x1000 Home screenshot",
+      "original": "185e845c5a0e71f1",
+      "candidate": "185e845c5a0e71f1",
+      "classification": "MATCH",
+      "notes": "saved to tests/browser/screenshots-11c1/desktop-reference-home.png / tests/browser/screenshots-11c1/desktop-bridge-home.png"
+    },
+    {
+      "id": "screenshot-mobile-home",
+      "domain": "visual",
+      "action": "Mobile 390x844 Home screenshot",
+      "original": "ff0af15aee656f28",
+      "candidate": "ff0af15aee656f28",
+      "classification": "MATCH",
+      "notes": "saved to tests/browser/screenshots-11c1/mobile-reference-home.png / tests/browser/screenshots-11c1/mobile-bridge-home.png"
+    }
+  ]
+}

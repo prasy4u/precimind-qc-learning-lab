@@ -16,21 +16,25 @@ Recorded during Stage 11A. No fixes are applied yet.
 
 ## TD-002: Runtime Babel Standalone Transformation
 
+**Status: PARTIALLY_RESOLVED_STAGE_11C1**
+
 **Source:** `src/ui/runtime-bootstrap.js` — transforms JSX at runtime in-browser via `Babel.transform(..., {presets: [["react", {runtime: "classic"}]]})`.
 
-**Status:** Validated, functional, but performance-costly (Babel deoptimisation warning observed for >500KB source in Stages 10A/10B).
+**Stage 11C1 resolution:** The new Vite bridge (`v09/app-bridge/`, built via `npm run build:bridge`) uses build-time JSX transformation through `@vitejs/plugin-react` — **no runtime Babel** exists in this new path, and the Babel deoptimisation console warning does not occur in the Vite bridge (verified: 0 occurrences of `Babel.transform` in the built output).
 
-**Potential v0.9 improvement:** Move to build-time JSX transformation (see ADR-001). Would eliminate the runtime Babel dependency, reduce load time, and remove the Babel deoptimisation warning.
+**What remains unresolved:** The frozen Stage 11B compatibility artifact (`v09/dist/precimind-v0.9-compat.html`), assembled by the still-frozen `v09/tools/assemble-v09-compat.js`, still uses runtime Babel — this is intentional. It remains available as a **historical/migration reference artifact** for browser-equivalence comparisons (as used throughout Stage 11C1's own equivalence testing) and must not be modified. Full resolution — i.e. no runtime-Babel path existing anywhere in active development — occurs only once Stage 11C2 completes the ES-module migration and the Vite build becomes the sole active development path.
 
 ---
 
 ## TD-003: CommonJS Recovery Wrappers in Composite Scientific Modules
 
-**Source:** The 10 composite modules (`statistics.js`, `engine.js`, `functions.js`, `core.js`, `detection-delay.js`, `risk/data.js`, `investigation/calc.js`, `eqa/calc.js`, `bv/calc.js`, `pbrtqc/calc.js`) contain guarded `if (typeof module !== "undefined" && module.exports) {...}` blocks added during recovery, not originally part of the browser-executed source.
+**Status: OPEN — Stage 11C2**
 
-**Status:** Harmless in browser context (guard evaluates false); used by the Node test suites to import the scientific functions for unit testing.
+**Source:** 14 modules (identified precisely via Stage 11C1 source inspection — see `v09/docs/V09_MODULE_DEPENDENCY_GRAPH.md` Section 6) contain guarded `if (typeof module !== "undefined" && module.exports) {...}` blocks added during recovery, not originally part of the browser-executed source.
 
-**Potential v0.9 improvement:** Adopt clean ES module `export`/`import` syntax throughout `v09/src`, compatible with a build step (see ADR-001), removing the dual CommonJS/browser-global pattern.
+**Status:** Harmless in browser context (guard evaluates false, confirmed safe in both the Stage 11B runtime-Babel path and the new Stage 11C1 Vite bridge); used by the Node test suites to import the scientific functions for unit testing.
+
+**Not resolved in Stage 11C1** (explicitly out of scope — Stage 11C1 performs no CommonJS-to-ES-module conversion). Stage 11C2 should replace each guard with a plain `export { ... }` per the recommended migration order in the dependency graph document (pure-calculation modules first, since all 14 guarded modules are calculation/data modules with zero or minimal cross-module dependencies).
 
 ---
 
@@ -61,10 +65,10 @@ The v0.8 recovery produced 30 Node test suites (3849 assertions) plus multiple a
 
 ---
 
-## Priority (Updated Post-Stage-11B)
+## Priority (Updated Post-Stage-11C1)
 
 1. ~~TD-004 / AD-001 / AD-002 / AD-003 (accessibility)~~ — **DONE, Stage 11B**
 2. ~~TD-005 (testing architecture)~~ — **DONE, Stage 11B**
-3. **TD-002 / ADR-001 migration (Stage 11C)** — now the next priority: unified Vite/React build, retiring the runtime-Babel path for v0.9 going forward
-4. TD-003 (module export cleanup) — folded into the Stage 11C migration (ES modules replace CommonJS guards as part of the same change)
-5. TD-001 (19-mount cleanup) — remains lowest priority; **not addressed in Stage 11B**, and not required by the Stage 11C migration decision either (may be revisited afterward if still relevant under the new build)
+3. ~~TD-002 (runtime Babel)~~ — **PARTIALLY DONE, Stage 11C1** (new Vite bridge path has zero runtime Babel; frozen Stage 11B artifact intentionally retains it as historical reference)
+4. **TD-003 (CommonJS wrapper → ES module conversion) — Stage 11C2, next priority.** Now precisely scoped: 14 modules, zero cross-module dependencies among 9 of them, recommended migration order documented in `V09_MODULE_DEPENDENCY_GRAPH.md`.
+5. TD-001 (19-mount cleanup) — remains lowest priority; **not addressed in Stage 11C1** either (frozen source unchanged, bridge preserves all 19 calls exactly). Stage 11C2's single-root conversion (Section 13 of the dependency graph document) is the natural point to resolve this, since it already requires touching `app-shell.jsx`'s mount logic.

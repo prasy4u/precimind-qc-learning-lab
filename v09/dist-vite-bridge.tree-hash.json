@@ -1,0 +1,22 @@
+{
+  "target": "dist-vite-bridge",
+  "file_count": 3,
+  "files": [
+    {
+      "path": "assets/index-B0AVUssU.css",
+      "sha256": "e7b107eef2f28e131c34c60f294392841a7304b6614804c6c2a885ada0335955",
+      "bytes": 31834
+    },
+    {
+      "path": "assets/index-C5K31De6.js",
+      "sha256": "edf0348efb25457999b181678b42bcf9898a3868761a7fd0ddb4e5abc9b3e4f6",
+      "bytes": 872172
+    },
+    {
+      "path": "index.html",
+      "sha256": "31a3a2323c1545845148d714b497d04b9ae4578e50d7ec73370a942441663741",
+      "bytes": 382
+    }
+  ],
+  "tree_hash_sha256": "c0407262fae35c913ec802740f27c37289e31038de9ad4cd542bb803e61d2e65"
+}

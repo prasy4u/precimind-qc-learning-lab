@@ -81,3 +81,43 @@ Independent audit identified two validation/integrity defects in the initial Sta
 **Test totals updated:** Stage 11B governance test grew from 39 to 67 assertions (added two-SHA manifest checks, fail-closed assembler checks, browser-evidence-quality checks, pre-fix record checks). New unit test `v09-assembler-drift-fail.test.js` adds 16 assertions.
 
 **No architecture change.** ADR-001 status unchanged. No Vite/build tooling installed. No Morning QC Room work performed.
+
+### Stage 11C1 — Unified Vite Build Bridge + Migration Graph
+
+**Package-managed toolchain established** (no prior Vite migration existed):
+- `v09/package.json`, `v09/package-lock.json` — React 19.2.8, ReactDOM 19.2.8 (dependencies); Vite 8.2.2, @vitejs/plugin-react 6.1.1 (devDependencies)
+- `v09/vite.config.mjs`, `v09/index.html` — ordinary Vite application shell, no embedded historical vendor/runtime payload
+- Scripts: `npm run bridge:generate`, `npm run build:bridge`, `npm run hash:build`, `npm run test:stage11c1`, `npm run test:browser-bridge`
+
+**Vite bridge generated** (`v09/app-bridge/bridge-entry.generated.jsx`, via `v09/tools/generate-vite-bridge.cjs`):
+- Fail-closed SHA verification against the frozen `v09/tools/v09-source-order.json` manifest before generation (same governance principle as the Stage 11B assembler)
+- Concatenates the accepted 34 application modules in accepted order, unchanged
+- Exposes package `React` and `react-dom/client`'s `createRoot` under the identifiers the legacy source expects
+- Preserves all **19 historical `ReactDOM.createRoot` mount calls** exactly
+- No ES-module conversion, no CommonJS-wrapper removal, no scientific/UI changes
+
+**Build output** (`v09/dist-vite-bridge/`, separate from the frozen `v09/dist/precimind-v0.9-compat.html`):
+- Zero `Babel.transform` occurrences (runtime Babel eliminated from this path)
+- No historical vendor payload / `text/plain` app-source block / runtime-bootstrap IIFE embedded in HTML
+
+**Deterministic build-tree hashing** (`v09/tools/hash-build-tree.cjs`): sorted-path, content-SHA-256 canonical manifest scheme. Confirmed identical tree hash (`c0407262...`) across (A) initial build, (B) remove-and-rebuild, and (C) clean `npm ci` + rebuild.
+
+**Dependency graph** (`v09/docs/v09-module-dependency-graph.json`, `V09_MODULE_DEPENDENCY_GRAPH.md`) — derived from direct source inspection of all 34 modules, not filename/domain inference:
+- **Zero circular dependencies** (an initial automated pass found 6 false positives from documentation-text mentions of function names; manual inspection ruled all 6 out)
+- **Zero identifier collisions** across all 34 modules
+- **12 modules** rely on an implicit React-hook global (`useState`/`useMemo`/`useRef`/`useEffect` destructured once in `shared-components.jsx`, shared via concatenation scope) — the highest-priority Stage 11C2 finding
+- **14 modules** carry CommonJS recovery-wrapper guards
+- Migration risk classified for all 34 modules: 23 LOW, 10 MODERATE, 1 HIGH (`app-shell.jsx` only, due to structural centrality and startup criticality, not scientific importance)
+- Recommended Stage 11C2 migration order documented
+
+**Browser equivalence** (`v09/tests/browser/v09-vite-bridge-equivalence.e2e.js`, maintained): 53 checkpoints comparing the frozen Stage 11B reference against the Vite bridge build — **53 MATCH, 0 UNEXPECTED_DIFFERENCE, 0 BLOCKED**. Covers startup, all 14 nav destinations, all 4 learner levels + persistence, Rule/LJ/EQA accessibility (click/Enter/Space), representative scientific interactions across 8 domains, Diagnostic/Glossary/About, and desktop/mobile screenshots. Two benign differences were investigated and resolved during harness development: (1) HTML attribute-serialization ordering differs between React versions with no semantic difference — addressed via attribute-order-normalized DOM comparison; (2) the reference's Babel-deoptimisation console notice is absent in the bridge by design (no runtime Babel) — documented as an expected consequence, not a regression.
+
+**Governance test** (`v09/tests/stage11c1-vite-bridge.test.js`): 45/45 assertions, including fail-closed drift verification, frozen-file integrity (5 Stage 11B assets confirmed unchanged via `git diff`), exact mount-count preservation, and dependency-graph completeness.
+
+**Frozen Stage 11B assets confirmed unchanged:** `v09/src/**`, `v09/tools/assemble-v09-compat.js`, `v09/tools/v09-source-order.json`, `v09/dist/precimind-v0.9-compat.html` (SHA `975adef...` unchanged), `v09/tests/browser/v09-accessibility-result.json`.
+
+**v0.9 test totals:** pre-11C1 baseline 189/189 unchanged; Stage 11C1 adds 45 new governance assertions → v0.9 development total 234/234 (reported separately from the immutable v0.8 baseline, which remains 3849/3849).
+
+**ADR-001:** implementation status updated — Stage 11C1: VITE BUILD BRIDGE ESTABLISHED; Stage 11C2: ES-MODULE MIGRATION PENDING. Architectural decision itself unchanged (still ACCEPTED — target unified Vite/React build).
+
+**Not done in Stage 11C1** (explicitly deferred to Stage 11C2): ES-module conversion of the 34 modules, CommonJS-wrapper removal, single-root mount consolidation, any scientific change, Morning QC Room work.

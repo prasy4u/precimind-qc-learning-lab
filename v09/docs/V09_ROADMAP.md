@@ -17,11 +17,23 @@ Establish `v0.9-development` branch, `v09/` tree, baseline copy map, product cha
 - Refined ADR-001: rejected the split-runtime approach, accepted a unified Vite/React target architecture for both inherited labs and Morning QC Room
 - No Morning QC Room implementation yet
 
-## Stage 11C — Unified v0.9 Build Migration
-- Implement the accepted ADR-001 decision: establish a Vite/React unified development/build environment
-- Convert/adapt v09 derivative module boundaries to standard ES modules (retiring the CommonJS guard-wrapper pattern, TD-003)
+## Stage 11C — Unified v0.9 Build Migration (split into 11C1 + 11C2)
+
+### Stage 11C1 — Vite Build Bridge + Migration Graph *(complete)*
+- Established package-managed React/Vite toolchain (React 19.2.8, ReactDOM 19.2.8, Vite 8.2.2, @vitejs/plugin-react 6.1.1)
+- Generated a temporary bridge (`v09/app-bridge/`) wrapping the accepted Stage 11B source (34 modules, accepted order, 19 mount calls) — no ES-module conversion, no single-root conversion, no scientific changes
+- Eliminated runtime Babel from the new build path (JSX compiled at build time)
+- Produced a fully source-inspected, evidence-based dependency graph (`v09/docs/v09-module-dependency-graph.json` + `V09_MODULE_DEPENDENCY_GRAPH.md`): zero cycles, zero collisions, 12 modules relying on an implicit React-hook global, 14 CommonJS-guarded modules, recommended migration order
+- Established deterministic build-tree hashing with confirmed reproducibility (including clean `npm ci`)
+- Browser-equivalence confirmed against the frozen Stage 11B reference: 53/53 MATCH, 0 unexpected differences, 0 blocked
+
+### Stage 11C2 — ES Modules + Single React Root + Final Architecture Equivalence *(next)*
+- Convert the 34 modules to standard ES modules per the Stage 11C1 dependency graph's recommended order, starting with the 9 pure-calculation modules
+- Replace the 14 CommonJS guard-wrapper blocks with plain `export` statements (TD-003)
+- Add explicit `react` hook imports to the 12 modules currently relying on the implicit `shared-components.jsx` global destructuring
+- Collapse the 19 historical `ReactDOM.createRoot` mount calls in `app-shell.jsx` to a single authored entry-point mount (TD-001), validated with the same before/after browser-equivalence rigor used throughout this project
 - Preserve inherited scientific semantics exactly (no calculation changes)
-- Establish browser equivalence for all 11 inherited labs against the v0.8 baseline, using the same Playwright differential methodology validated in Stages 10A–10F
+- Establish browser equivalence for all 11 inherited labs against the v0.8/Stage-11B baseline, using the same Playwright differential methodology validated in Stages 10A–10F and Stage 11C1
 - Retain optional offline/static release packaging capability (as a release-output step, not a second development runtime)
 - No Morning QC Room feature implementation yet — this stage is architecture migration only
 

@@ -1,0 +1,371 @@
+{
+  "stage": "11A",
+  "purpose": "Baseline copy map from validated v0.8 root src/ to v09/src/ development tree",
+  "v08_validated_tag": "recovered-v0.8-validated",
+  "v08_validated_commit": "1352dba",
+  "copy_date_context": "Stage 11A",
+  "total_files_copied": 36,
+  "all_initial_shas_match": true,
+  "files": [
+    {
+      "source_path": "src/eqa/ui-components.jsx",
+      "destination_path": "v09/src/eqa/ui-components.jsx",
+      "v08_sha256": "f7c973db56992f3da241e4537ff2d06e7f3b8925cfcb0495cdb1d06d006811b2",
+      "v09_initial_sha256": "f7c973db56992f3da241e4537ff2d06e7f3b8925cfcb0495cdb1d06d006811b2",
+      "initial_status": "UNCHANGED_FROM_V08",
+      "future_change_status": "NONE_YET",
+      "rationale": "Copied as v0.9 development starting point; identical to validated v0.8 recovered source at copy time.",
+      "shas_match": true
+    },
+    {
+      "source_path": "src/eqa/screens.jsx",
+      "destination_path": "v09/src/eqa/screens.jsx",
+      "v08_sha256": "3b10aa20060305e9067b6349d45697015bfee1b4db7aa251f3967792755cdd86",
+      "v09_initial_sha256": "3b10aa20060305e9067b6349d45697015bfee1b4db7aa251f3967792755cdd86",
+      "initial_status": "UNCHANGED_FROM_V08",
+      "future_change_status": "NONE_YET",
+      "rationale": "Copied as v0.9 development starting point; identical to validated v0.8 recovered source at copy time.",
+      "shas_match": true
+    },
+    {
+      "source_path": "src/eqa/calc.js",
+      "destination_path": "v09/src/eqa/calc.js",
+      "v08_sha256": "5eca4130aff6a3eaee7972ceb45234bb0ccce073b293dc7c4ee3ac3a9853021f",
+      "v09_initial_sha256": "5eca4130aff6a3eaee7972ceb45234bb0ccce073b293dc7c4ee3ac3a9853021f",
+      "initial_status": "UNCHANGED_FROM_V08",
+      "future_change_status": "NONE_YET",
+      "rationale": "Copied as v0.9 development starting point; identical to validated v0.8 recovered source at copy time.",
+      "shas_match": true
+    },
+    {
+      "source_path": "src/eqa/data.js",
+      "destination_path": "v09/src/eqa/data.js",
+      "v08_sha256": "465ba7674103b9f5a5f5a13dd1cdddefe23ce68abac54ded3c114a0671f99333",
+      "v09_initial_sha256": "465ba7674103b9f5a5f5a13dd1cdddefe23ce68abac54ded3c114a0671f99333",
+      "initial_status": "UNCHANGED_FROM_V08",
+      "future_change_status": "NONE_YET",
+      "rationale": "Copied as v0.9 development starting point; identical to validated v0.8 recovered source at copy time.",
+      "shas_match": true
+    },
+    {
+      "source_path": "src/investigation/ui-components.jsx",
+      "destination_path": "v09/src/investigation/ui-components.jsx",
+      "v08_sha256": "26a0ae70b65e4ae422c970748eef4d196f6436e4a9f60a906501b9f51db57cd2",
+      "v09_initial_sha256": "26a0ae70b65e4ae422c970748eef4d196f6436e4a9f60a906501b9f51db57cd2",
+      "initial_status": "UNCHANGED_FROM_V08",
+      "future_change_status": "NONE_YET",
+      "rationale": "Copied as v0.9 development starting point; identical to validated v0.8 recovered source at copy time.",
+      "shas_match": true
+    },
+    {
+      "source_path": "src/investigation/screens.jsx",
+      "destination_path": "v09/src/investigation/screens.jsx",
+      "v08_sha256": "d2794c94352e2ba98aae6a06fcc1c0fa92501d876ee814205d33a014848f05cd",
+      "v09_initial_sha256": "d2794c94352e2ba98aae6a06fcc1c0fa92501d876ee814205d33a014848f05cd",
+      "initial_status": "UNCHANGED_FROM_V08",
+      "future_change_status": "NONE_YET",
+      "rationale": "Copied as v0.9 development starting point; identical to validated v0.8 recovered source at copy time.",
+      "shas_match": true
+    },
+    {
+      "source_path": "src/investigation/calc.js",
+      "destination_path": "v09/src/investigation/calc.js",
+      "v08_sha256": "a0fbf5c2457f3987dd4afd33ede6634f15080bc1be36f36ac003c9881c8e8353",
+      "v09_initial_sha256": "a0fbf5c2457f3987dd4afd33ede6634f15080bc1be36f36ac003c9881c8e8353",
+      "initial_status": "UNCHANGED_FROM_V08",
+      "future_change_status": "NONE_YET",
+      "rationale": "Copied as v0.9 development starting point; identical to validated v0.8 recovered source at copy time.",
+      "shas_match": true
+    },
+    {
+      "source_path": "src/investigation/data.js",
+      "destination_path": "v09/src/investigation/data.js",
+      "v08_sha256": "5a0898859692b19e446b0f5e404fa99bd4d03712e1926b533ec0b2404d5ca76e",
+      "v09_initial_sha256": "5a0898859692b19e446b0f5e404fa99bd4d03712e1926b533ec0b2404d5ca76e",
+      "initial_status": "UNCHANGED_FROM_V08",
+      "future_change_status": "NONE_YET",
+      "rationale": "Copied as v0.9 development starting point; identical to validated v0.8 recovered source at copy time.",
+      "shas_match": true
+    },
+    {
+      "source_path": "src/ui/shared-components.jsx",
+      "destination_path": "v09/src/ui/shared-components.jsx",
+      "v08_sha256": "bd848d01c124c2941fa11b623adda3ba4e47e89f5e29137c901a276bfd7bad51",
+      "v09_initial_sha256": "bd848d01c124c2941fa11b623adda3ba4e47e89f5e29137c901a276bfd7bad51",
+      "initial_status": "UNCHANGED_FROM_V08",
+      "future_change_status": "NONE_YET",
+      "rationale": "Copied as v0.9 development starting point; identical to validated v0.8 recovered source at copy time.",
+      "shas_match": true
+    },
+    {
+      "source_path": "src/ui/app-shell.jsx",
+      "destination_path": "v09/src/ui/app-shell.jsx",
+      "v08_sha256": "56e3d5fac4fcaffa3184e81f8e8be1fa292558a35d0a77974f0639759d101da4",
+      "v09_initial_sha256": "56e3d5fac4fcaffa3184e81f8e8be1fa292558a35d0a77974f0639759d101da4",
+      "initial_status": "UNCHANGED_FROM_V08",
+      "future_change_status": "NONE_YET",
+      "rationale": "Copied as v0.9 development starting point; identical to validated v0.8 recovered source at copy time.",
+      "shas_match": true
+    },
+    {
+      "source_path": "src/ui/runtime-bootstrap.js",
+      "destination_path": "v09/src/ui/runtime-bootstrap.js",
+      "v08_sha256": "f2bffcb0ab1b0653b866f7247842f4f878d7b6593eb56a5751c404732210e85a",
+      "v09_initial_sha256": "f2bffcb0ab1b0653b866f7247842f4f878d7b6593eb56a5751c404732210e85a",
+      "initial_status": "UNCHANGED_FROM_V08",
+      "future_change_status": "NONE_YET",
+      "rationale": "Copied as v0.9 development starting point; identical to validated v0.8 recovered source at copy time.",
+      "shas_match": true
+    },
+    {
+      "source_path": "src/ui/core-screens.jsx",
+      "destination_path": "v09/src/ui/core-screens.jsx",
+      "v08_sha256": "90c2e85828d7aad9e6cb7899489a823290e6555d9216042f58aae6d99b30557d",
+      "v09_initial_sha256": "90c2e85828d7aad9e6cb7899489a823290e6555d9216042f58aae6d99b30557d",
+      "initial_status": "UNCHANGED_FROM_V08",
+      "future_change_status": "NONE_YET",
+      "rationale": "Copied as v0.9 development starting point; identical to validated v0.8 recovered source at copy time.",
+      "shas_match": true
+    },
+    {
+      "source_path": "src/ui/original-v0.8.css",
+      "destination_path": "v09/src/ui/original-v0.8.css",
+      "v08_sha256": "fda2285cb24966f3225bdfe5f2bd43f0e7065cef7616d882c24085c3d48b0212",
+      "v09_initial_sha256": "fda2285cb24966f3225bdfe5f2bd43f0e7065cef7616d882c24085c3d48b0212",
+      "initial_status": "UNCHANGED_FROM_V08",
+      "future_change_status": "NONE_YET",
+      "rationale": "Copied as v0.9 development starting point; identical to validated v0.8 recovered source at copy time.",
+      "shas_match": true
+    },
+    {
+      "source_path": "src/ui/app-data.js",
+      "destination_path": "v09/src/ui/app-data.js",
+      "v08_sha256": "81cef641a844bd1edb44ab60a81f5115f10eead0d5d6e668a8f6012e832119c1",
+      "v09_initial_sha256": "81cef641a844bd1edb44ab60a81f5115f10eead0d5d6e668a8f6012e832119c1",
+      "initial_status": "UNCHANGED_FROM_V08",
+      "future_change_status": "NONE_YET",
+      "rationale": "Copied as v0.9 development starting point; identical to validated v0.8 recovered source at copy time.",
+      "shas_match": true
+    },
+    {
+      "source_path": "src/opchar/functions.js",
+      "destination_path": "v09/src/opchar/functions.js",
+      "v08_sha256": "1f17659d7fd10fdc8493401d47801e93d8d6ffcccbc09b2ba1ccdb0fe8dfd4d1",
+      "v09_initial_sha256": "1f17659d7fd10fdc8493401d47801e93d8d6ffcccbc09b2ba1ccdb0fe8dfd4d1",
+      "initial_status": "UNCHANGED_FROM_V08",
+      "future_change_status": "NONE_YET",
+      "rationale": "Copied as v0.9 development starting point; identical to validated v0.8 recovered source at copy time.",
+      "shas_match": true
+    },
+    {
+      "source_path": "src/risk/ui-components.jsx",
+      "destination_path": "v09/src/risk/ui-components.jsx",
+      "v08_sha256": "a71112bcad1ee82aed32041c65053f6b4e1f427b030a063cd5bdc6f90392e530",
+      "v09_initial_sha256": "a71112bcad1ee82aed32041c65053f6b4e1f427b030a063cd5bdc6f90392e530",
+      "initial_status": "UNCHANGED_FROM_V08",
+      "future_change_status": "NONE_YET",
+      "rationale": "Copied as v0.9 development starting point; identical to validated v0.8 recovered source at copy time.",
+      "shas_match": true
+    },
+    {
+      "source_path": "src/risk/screens.jsx",
+      "destination_path": "v09/src/risk/screens.jsx",
+      "v08_sha256": "7f0897e8d15704a66c64467a0f977ca7b6c8f2149ee931daeca2bcc63e0bc5e5",
+      "v09_initial_sha256": "7f0897e8d15704a66c64467a0f977ca7b6c8f2149ee931daeca2bcc63e0bc5e5",
+      "initial_status": "UNCHANGED_FROM_V08",
+      "future_change_status": "NONE_YET",
+      "rationale": "Copied as v0.9 development starting point; identical to validated v0.8 recovered source at copy time.",
+      "shas_match": true
+    },
+    {
+      "source_path": "src/risk/detection-delay.js",
+      "destination_path": "v09/src/risk/detection-delay.js",
+      "v08_sha256": "2ba697e4a090d4fcee4b5d1dc70f5870726faf8f2197b8eb307fcd78b8175e7b",
+      "v09_initial_sha256": "2ba697e4a090d4fcee4b5d1dc70f5870726faf8f2197b8eb307fcd78b8175e7b",
+      "initial_status": "UNCHANGED_FROM_V08",
+      "future_change_status": "NONE_YET",
+      "rationale": "Copied as v0.9 development starting point; identical to validated v0.8 recovered source at copy time.",
+      "shas_match": true
+    },
+    {
+      "source_path": "src/risk/data.js",
+      "destination_path": "v09/src/risk/data.js",
+      "v08_sha256": "2910e94235767ed3cce297bfa002f1c98b255fc16a7923c448eab585010f5bb2",
+      "v09_initial_sha256": "2910e94235767ed3cce297bfa002f1c98b255fc16a7923c448eab585010f5bb2",
+      "initial_status": "UNCHANGED_FROM_V08",
+      "future_change_status": "NONE_YET",
+      "rationale": "Copied as v0.9 development starting point; identical to validated v0.8 recovered source at copy time.",
+      "shas_match": true
+    },
+    {
+      "source_path": "src/rules/ui-components.jsx",
+      "destination_path": "v09/src/rules/ui-components.jsx",
+      "v08_sha256": "4eb7a11042f48962cbdcad41cdf8edf22d42b9b43593960b075ffad8e91473c5",
+      "v09_initial_sha256": "4eb7a11042f48962cbdcad41cdf8edf22d42b9b43593960b075ffad8e91473c5",
+      "initial_status": "UNCHANGED_FROM_V08",
+      "future_change_status": "NONE_YET",
+      "rationale": "Copied as v0.9 development starting point; identical to validated v0.8 recovered source at copy time.",
+      "shas_match": true
+    },
+    {
+      "source_path": "src/rules/screens.jsx",
+      "destination_path": "v09/src/rules/screens.jsx",
+      "v08_sha256": "8a374e0a900a591d2b810fa53e3d866f09d9e9ecbedbbd0fed629c268a4e3988",
+      "v09_initial_sha256": "8a374e0a900a591d2b810fa53e3d866f09d9e9ecbedbbd0fed629c268a4e3988",
+      "initial_status": "UNCHANGED_FROM_V08",
+      "future_change_status": "NONE_YET",
+      "rationale": "Copied as v0.9 development starting point; identical to validated v0.8 recovered source at copy time.",
+      "shas_match": true
+    },
+    {
+      "source_path": "src/rules/engine.js",
+      "destination_path": "v09/src/rules/engine.js",
+      "v08_sha256": "a2ea2b71e72c312151c3e223b10815fac46d59b697f27912c6df4fc246ddf66b",
+      "v09_initial_sha256": "a2ea2b71e72c312151c3e223b10815fac46d59b697f27912c6df4fc246ddf66b",
+      "initial_status": "UNCHANGED_FROM_V08",
+      "future_change_status": "NONE_YET",
+      "rationale": "Copied as v0.9 development starting point; identical to validated v0.8 recovered source at copy time.",
+      "shas_match": true
+    },
+    {
+      "source_path": "src/rules/data.js",
+      "destination_path": "v09/src/rules/data.js",
+      "v08_sha256": "41453ef63973f4d463adbbcb0a5cac99f23469da3b3a575814dd0a0f5a2e2022",
+      "v09_initial_sha256": "41453ef63973f4d463adbbcb0a5cac99f23469da3b3a575814dd0a0f5a2e2022",
+      "initial_status": "UNCHANGED_FROM_V08",
+      "future_change_status": "NONE_YET",
+      "rationale": "Copied as v0.9 development starting point; identical to validated v0.8 recovered source at copy time.",
+      "shas_match": true
+    },
+    {
+      "source_path": "src/bv/ui-components.jsx",
+      "destination_path": "v09/src/bv/ui-components.jsx",
+      "v08_sha256": "91c0b5a18722a5e48e07dee91099fea70efa9bda4356a093fb88d694ea9186aa",
+      "v09_initial_sha256": "91c0b5a18722a5e48e07dee91099fea70efa9bda4356a093fb88d694ea9186aa",
+      "initial_status": "UNCHANGED_FROM_V08",
+      "future_change_status": "NONE_YET",
+      "rationale": "Copied as v0.9 development starting point; identical to validated v0.8 recovered source at copy time.",
+      "shas_match": true
+    },
+    {
+      "source_path": "src/bv/screens.jsx",
+      "destination_path": "v09/src/bv/screens.jsx",
+      "v08_sha256": "4698826081c3d6b08a7b03813b0f8901da7ded0bb65e4a272ff7e8620c8fbd2a",
+      "v09_initial_sha256": "4698826081c3d6b08a7b03813b0f8901da7ded0bb65e4a272ff7e8620c8fbd2a",
+      "initial_status": "UNCHANGED_FROM_V08",
+      "future_change_status": "NONE_YET",
+      "rationale": "Copied as v0.9 development starting point; identical to validated v0.8 recovered source at copy time.",
+      "shas_match": true
+    },
+    {
+      "source_path": "src/bv/calc.js",
+      "destination_path": "v09/src/bv/calc.js",
+      "v08_sha256": "203838b74143c1838185351428fbe92844152d8b58ac610cffd7b6fc57e3707c",
+      "v09_initial_sha256": "203838b74143c1838185351428fbe92844152d8b58ac610cffd7b6fc57e3707c",
+      "initial_status": "UNCHANGED_FROM_V08",
+      "future_change_status": "NONE_YET",
+      "rationale": "Copied as v0.9 development starting point; identical to validated v0.8 recovered source at copy time.",
+      "shas_match": true
+    },
+    {
+      "source_path": "src/bv/data.js",
+      "destination_path": "v09/src/bv/data.js",
+      "v08_sha256": "ade1e82cc35b45c3df3283e4983e632ec3ac1c640e9f606971e47d51a5b803ef",
+      "v09_initial_sha256": "ade1e82cc35b45c3df3283e4983e632ec3ac1c640e9f606971e47d51a5b803ef",
+      "initial_status": "UNCHANGED_FROM_V08",
+      "future_change_status": "NONE_YET",
+      "rationale": "Copied as v0.9 development starting point; identical to validated v0.8 recovered source at copy time.",
+      "shas_match": true
+    },
+    {
+      "source_path": "src/pbrtqc/ui-components.jsx",
+      "destination_path": "v09/src/pbrtqc/ui-components.jsx",
+      "v08_sha256": "b14efc6651f8b632bdbfcc74525f1d72a1096675cd9e0b3e4739907dd3a6ab81",
+      "v09_initial_sha256": "b14efc6651f8b632bdbfcc74525f1d72a1096675cd9e0b3e4739907dd3a6ab81",
+      "initial_status": "UNCHANGED_FROM_V08",
+      "future_change_status": "NONE_YET",
+      "rationale": "Copied as v0.9 development starting point; identical to validated v0.8 recovered source at copy time.",
+      "shas_match": true
+    },
+    {
+      "source_path": "src/pbrtqc/screens.jsx",
+      "destination_path": "v09/src/pbrtqc/screens.jsx",
+      "v08_sha256": "2e1cb56d0fa107d5680ebb59e73502fa3d03d8f308ea075cf2a1fc72559e28b7",
+      "v09_initial_sha256": "2e1cb56d0fa107d5680ebb59e73502fa3d03d8f308ea075cf2a1fc72559e28b7",
+      "initial_status": "UNCHANGED_FROM_V08",
+      "future_change_status": "NONE_YET",
+      "rationale": "Copied as v0.9 development starting point; identical to validated v0.8 recovered source at copy time.",
+      "shas_match": true
+    },
+    {
+      "source_path": "src/pbrtqc/calc.js",
+      "destination_path": "v09/src/pbrtqc/calc.js",
+      "v08_sha256": "5d5247c6d712a4a31ce9a5028ac5e048d3b4f02c17842751f1d8067843bf908a",
+      "v09_initial_sha256": "5d5247c6d712a4a31ce9a5028ac5e048d3b4f02c17842751f1d8067843bf908a",
+      "initial_status": "UNCHANGED_FROM_V08",
+      "future_change_status": "NONE_YET",
+      "rationale": "Copied as v0.9 development starting point; identical to validated v0.8 recovered source at copy time.",
+      "shas_match": true
+    },
+    {
+      "source_path": "src/pbrtqc/data.js",
+      "destination_path": "v09/src/pbrtqc/data.js",
+      "v08_sha256": "4f2dbb7c28ed1071b0069788b55ba9c35603d9095e80fb9a4c6b135c08cfb98f",
+      "v09_initial_sha256": "4f2dbb7c28ed1071b0069788b55ba9c35603d9095e80fb9a4c6b135c08cfb98f",
+      "initial_status": "UNCHANGED_FROM_V08",
+      "future_change_status": "NONE_YET",
+      "rationale": "Copied as v0.9 development starting point; identical to validated v0.8 recovered source at copy time.",
+      "shas_match": true
+    },
+    {
+      "source_path": "src/strategy/ui-components.jsx",
+      "destination_path": "v09/src/strategy/ui-components.jsx",
+      "v08_sha256": "46ba76ac6c508e34dc2e726e829b0d1e475de29090969e94b1d8e53d4f80e784",
+      "v09_initial_sha256": "46ba76ac6c508e34dc2e726e829b0d1e475de29090969e94b1d8e53d4f80e784",
+      "initial_status": "UNCHANGED_FROM_V08",
+      "future_change_status": "NONE_YET",
+      "rationale": "Copied as v0.9 development starting point; identical to validated v0.8 recovered source at copy time.",
+      "shas_match": true
+    },
+    {
+      "source_path": "src/strategy/aps-ui-data.js",
+      "destination_path": "v09/src/strategy/aps-ui-data.js",
+      "v08_sha256": "f45494a47a32498eea8272c4be696b584527bb823923f5fd3205a5231abbf827",
+      "v09_initial_sha256": "f45494a47a32498eea8272c4be696b584527bb823923f5fd3205a5231abbf827",
+      "initial_status": "UNCHANGED_FROM_V08",
+      "future_change_status": "NONE_YET",
+      "rationale": "Copied as v0.9 development starting point; identical to validated v0.8 recovered source at copy time.",
+      "shas_match": true
+    },
+    {
+      "source_path": "src/strategy/core.js",
+      "destination_path": "v09/src/strategy/core.js",
+      "v08_sha256": "01a7431491c3e15c5c39777445a057b62a9e7b9876887fe1dc7b4ed97ad16f5e",
+      "v09_initial_sha256": "01a7431491c3e15c5c39777445a057b62a9e7b9876887fe1dc7b4ed97ad16f5e",
+      "initial_status": "UNCHANGED_FROM_V08",
+      "future_change_status": "NONE_YET",
+      "rationale": "Copied as v0.9 development starting point; identical to validated v0.8 recovered source at copy time.",
+      "shas_match": true
+    },
+    {
+      "source_path": "src/strategy/screens.jsx",
+      "destination_path": "v09/src/strategy/screens.jsx",
+      "v08_sha256": "5283fcccc1a43c3687ccfd2d2c877dcabb186f486e0c5290c6da3589a05ea88a",
+      "v09_initial_sha256": "5283fcccc1a43c3687ccfd2d2c877dcabb186f486e0c5290c6da3589a05ea88a",
+      "initial_status": "UNCHANGED_FROM_V08",
+      "future_change_status": "NONE_YET",
+      "rationale": "Copied as v0.9 development starting point; identical to validated v0.8 recovered source at copy time.",
+      "shas_match": true
+    },
+    {
+      "source_path": "src/core/statistics.js",
+      "destination_path": "v09/src/core/statistics.js",
+      "v08_sha256": "74e6d07ccd0bfae7e5cd9821078881b692e762cea3c9b4ad6eaf88799fc8f8d5",
+      "v09_initial_sha256": "74e6d07ccd0bfae7e5cd9821078881b692e762cea3c9b4ad6eaf88799fc8f8d5",
+      "initial_status": "UNCHANGED_FROM_V08",
+      "future_change_status": "NONE_YET",
+      "rationale": "Copied as v0.9 development starting point; identical to validated v0.8 recovered source at copy time.",
+      "shas_match": true
+    }
+  ]
+}

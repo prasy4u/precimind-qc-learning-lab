@@ -1,0 +1,17 @@
+{
+  "stage": "11C2",
+  "artifact_class": "V09_TEST",
+  "description": "Recorded evidence of the three-way build-tree hash reproducibility test for the Stage 11C2 modular build (dist-vite/), distinct from the frozen Stage 11C1 bridge tree hash (dist-vite-bridge/, c0407262...).",
+  "modular_tree_sha256": "4614aca944cedfa650b0533280b2923e6f13c2b9f25e7c208501a3fcc477c2a5",
+  "reproduction_a_sha": "4614aca944cedfa650b0533280b2923e6f13c2b9f25e7c208501a3fcc477c2a5",
+  "reproduction_b_sha": "4614aca944cedfa650b0533280b2923e6f13c2b9f25e7c208501a3fcc477c2a5",
+  "npm_ci_sha": "4614aca944cedfa650b0533280b2923e6f13c2b9f25e7c208501a3fcc477c2a5",
+  "npm_ci_status": "SUCCESS",
+  "all_identical": true,
+  "frozen_stage11c1_bridge_tree_sha256_reconfirmed_unchanged": "c0407262fae35c913ec802740f27c37289e31038de9ad4cd542bb803e61d2e65",
+  "method": {
+    "reproduction_a": "npm run build:modular then npm run hash:modular",
+    "reproduction_b": "rm -rf dist-vite dist-vite.tree-hash.json, then npm run build:modular, then npm run hash:modular",
+    "npm_ci_reproduction": "rm -rf node_modules dist-vite dist-vite.tree-hash.json dist-vite-bridge dist-vite-bridge.tree-hash.json, then npm ci, then npm run build:modular, then npm run hash:modular; separately rebuilt dist-vite-bridge and reconfirmed its hash unchanged"
+  }
+}

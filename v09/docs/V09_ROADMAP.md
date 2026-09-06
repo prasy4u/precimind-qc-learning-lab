@@ -27,15 +27,15 @@ Establish `v0.9-development` branch, `v09/` tree, baseline copy map, product cha
 - Established deterministic build-tree hashing with confirmed reproducibility (including clean `npm ci`)
 - Browser-equivalence confirmed against the frozen Stage 11B reference: 53/53 MATCH, 0 unexpected differences, 0 blocked
 
-### Stage 11C2 — ES Modules + Single React Root + Final Architecture Equivalence *(next)*
-- Convert the 34 modules to standard ES modules per the Stage 11C1 dependency graph's recommended order, starting with the 9 pure-calculation modules
-- Replace the 14 CommonJS guard-wrapper blocks with plain `export` statements (TD-003)
-- Add explicit `react` hook imports to the 12 modules currently relying on the implicit `shared-components.jsx` global destructuring
-- Collapse the 19 historical `ReactDOM.createRoot` mount calls in `app-shell.jsx` to a single authored entry-point mount (TD-001), validated with the same before/after browser-equivalence rigor used throughout this project
-- Preserve inherited scientific semantics exactly (no calculation changes)
-- Establish browser equivalence for all 11 inherited labs against the v0.8/Stage-11B baseline, using the same Playwright differential methodology validated in Stages 10A–10F and Stage 11C1
-- Retain optional offline/static release packaging capability (as a release-output step, not a second development runtime)
-- No Morning QC Room feature implementation yet — this stage is architecture migration only
+### Stage 11C2 — ES Modules + Single React Root + Final Architecture Equivalence *(complete)*
+- Converted all 34 modules to standard ES modules under `v09/app/**`, verified surgical (34/34 strict source-transform PASS — no scientific/pedagogic content altered)
+- Replaced all 14 CommonJS guard-wrapper blocks with plain `export` statements (TD-003 resolved for active runtime)
+- Added explicit `react` hook imports to all 12 modules previously relying on the implicit `shared-components.jsx` global destructuring; zero bare-hook-global reliance remains
+- Collapsed the 19 historical `ReactDOM.createRoot` mount calls to a single authored entry-point mount in `v09/app/main.jsx` (TD-001 resolved), validated experimentally via full browser equivalence against the frozen Stage 11C1 bridge — NOT assumed safe from prior documentation
+- Preserved inherited scientific semantics exactly — reconfirmed via a dedicated scientific-parity test importing the ACTIVE modules directly (25/25 passing)
+- Established browser equivalence against the Stage 11C1 bridge reference (not the older v0.8/Stage-11B standalone): 63/63 MATCH, 0 UNEXPECTED_DIFFERENCE, 0 BLOCKED, including all 8 genuine scientific interactions and pixel-identical (0 differing pixels) desktop/mobile screenshots
+- A genuine gap was found in the Stage 11C1 dependency graph during actual migration (missing imports for bare-identifier data references, not caught by the original regex-based extraction) — caught via real browser execution and a dedicated raw-source cross-reference check, not by trusting the plan; fully documented in `V09_STAGE11C2_MIGRATION_REPORT.md`
+- No Morning QC Room feature implementation — this stage was architecture migration only
 
 ## Stage 12A — Morning QC Room Specification + Case Schema
 *(Begins only after Stage 11C passes browser-equivalence validation for the migrated inherited labs.)*

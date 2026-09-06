@@ -1,0 +1,212 @@
+{
+  "stage": "11C2",
+  "artifact_class": "V09_TEST",
+  "total_modules": 34,
+  "all_pass": true,
+  "results": [
+    {
+      "legacyPath": "src/core/statistics.js",
+      "activePath": "app/core/statistics.js",
+      "permittedTransformsOnly": true,
+      "firstDiffContext": null
+    },
+    {
+      "legacyPath": "src/ui/app-data.js",
+      "activePath": "app/ui/app-data.js",
+      "permittedTransformsOnly": true,
+      "firstDiffContext": null
+    },
+    {
+      "legacyPath": "src/ui/shared-components.jsx",
+      "activePath": "app/ui/shared-components.jsx",
+      "permittedTransformsOnly": true,
+      "firstDiffContext": null
+    },
+    {
+      "legacyPath": "src/ui/core-screens.jsx",
+      "activePath": "app/ui/core-screens.jsx",
+      "permittedTransformsOnly": true,
+      "firstDiffContext": null
+    },
+    {
+      "legacyPath": "src/rules/engine.js",
+      "activePath": "app/rules/engine.js",
+      "permittedTransformsOnly": true,
+      "firstDiffContext": null
+    },
+    {
+      "legacyPath": "src/rules/data.js",
+      "activePath": "app/rules/data.js",
+      "permittedTransformsOnly": true,
+      "firstDiffContext": null
+    },
+    {
+      "legacyPath": "src/rules/ui-components.jsx",
+      "activePath": "app/rules/ui-components.jsx",
+      "permittedTransformsOnly": true,
+      "firstDiffContext": null
+    },
+    {
+      "legacyPath": "src/rules/screens.jsx",
+      "activePath": "app/rules/screens.jsx",
+      "permittedTransformsOnly": true,
+      "firstDiffContext": null
+    },
+    {
+      "legacyPath": "src/opchar/functions.js",
+      "activePath": "app/opchar/functions.js",
+      "permittedTransformsOnly": true,
+      "firstDiffContext": null
+    },
+    {
+      "legacyPath": "src/strategy/core.js",
+      "activePath": "app/strategy/core.js",
+      "permittedTransformsOnly": true,
+      "firstDiffContext": null
+    },
+    {
+      "legacyPath": "src/strategy/aps-ui-data.js",
+      "activePath": "app/strategy/aps-ui-data.js",
+      "permittedTransformsOnly": true,
+      "firstDiffContext": null
+    },
+    {
+      "legacyPath": "src/strategy/ui-components.jsx",
+      "activePath": "app/strategy/ui-components.jsx",
+      "permittedTransformsOnly": true,
+      "firstDiffContext": null
+    },
+    {
+      "legacyPath": "src/strategy/screens.jsx",
+      "activePath": "app/strategy/screens.jsx",
+      "permittedTransformsOnly": true,
+      "firstDiffContext": null
+    },
+    {
+      "legacyPath": "src/risk/detection-delay.js",
+      "activePath": "app/risk/detection-delay.js",
+      "permittedTransformsOnly": true,
+      "firstDiffContext": null
+    },
+    {
+      "legacyPath": "src/risk/data.js",
+      "activePath": "app/risk/data.js",
+      "permittedTransformsOnly": true,
+      "firstDiffContext": null
+    },
+    {
+      "legacyPath": "src/risk/ui-components.jsx",
+      "activePath": "app/risk/ui-components.jsx",
+      "permittedTransformsOnly": true,
+      "firstDiffContext": null
+    },
+    {
+      "legacyPath": "src/risk/screens.jsx",
+      "activePath": "app/risk/screens.jsx",
+      "permittedTransformsOnly": true,
+      "firstDiffContext": null
+    },
+    {
+      "legacyPath": "src/investigation/calc.js",
+      "activePath": "app/investigation/calc.js",
+      "permittedTransformsOnly": true,
+      "firstDiffContext": null
+    },
+    {
+      "legacyPath": "src/investigation/data.js",
+      "activePath": "app/investigation/data.js",
+      "permittedTransformsOnly": true,
+      "firstDiffContext": null
+    },
+    {
+      "legacyPath": "src/investigation/ui-components.jsx",
+      "activePath": "app/investigation/ui-components.jsx",
+      "permittedTransformsOnly": true,
+      "firstDiffContext": null
+    },
+    {
+      "legacyPath": "src/investigation/screens.jsx",
+      "activePath": "app/investigation/screens.jsx",
+      "permittedTransformsOnly": true,
+      "firstDiffContext": null
+    },
+    {
+      "legacyPath": "src/eqa/calc.js",
+      "activePath": "app/eqa/calc.js",
+      "permittedTransformsOnly": true,
+      "firstDiffContext": null
+    },
+    {
+      "legacyPath": "src/eqa/data.js",
+      "activePath": "app/eqa/data.js",
+      "permittedTransformsOnly": true,
+      "firstDiffContext": null
+    },
+    {
+      "legacyPath": "src/eqa/ui-components.jsx",
+      "activePath": "app/eqa/ui-components.jsx",
+      "permittedTransformsOnly": true,
+      "firstDiffContext": null
+    },
+    {
+      "legacyPath": "src/eqa/screens.jsx",
+      "activePath": "app/eqa/screens.jsx",
+      "permittedTransformsOnly": true,
+      "firstDiffContext": null
+    },
+    {
+      "legacyPath": "src/bv/calc.js",
+      "activePath": "app/bv/calc.js",
+      "permittedTransformsOnly": true,
+      "firstDiffContext": null
+    },
+    {
+      "legacyPath": "src/bv/data.js",
+      "activePath": "app/bv/data.js",
+      "permittedTransformsOnly": true,
+      "firstDiffContext": null
+    },
+    {
+      "legacyPath": "src/bv/ui-components.jsx",
+      "activePath": "app/bv/ui-components.jsx",
+      "permittedTransformsOnly": true,
+      "firstDiffContext": null
+    },
+    {
+      "legacyPath": "src/bv/screens.jsx",
+      "activePath": "app/bv/screens.jsx",
+      "permittedTransformsOnly": true,
+      "firstDiffContext": null
+    },
+    {
+      "legacyPath": "src/pbrtqc/calc.js",
+      "activePath": "app/pbrtqc/calc.js",
+      "permittedTransformsOnly": true,
+      "firstDiffContext": null
+    },
+    {
+      "legacyPath": "src/pbrtqc/data.js",
+      "activePath": "app/pbrtqc/data.js",
+      "permittedTransformsOnly": true,
+      "firstDiffContext": null
+    },
+    {
+      "legacyPath": "src/pbrtqc/ui-components.jsx",
+      "activePath": "app/pbrtqc/ui-components.jsx",
+      "permittedTransformsOnly": true,
+      "firstDiffContext": null
+    },
+    {
+      "legacyPath": "src/pbrtqc/screens.jsx",
+      "activePath": "app/pbrtqc/screens.jsx",
+      "permittedTransformsOnly": true,
+      "firstDiffContext": null
+    },
+    {
+      "legacyPath": "src/ui/app-shell.jsx",
+      "activePath": "app/ui/app-shell.jsx",
+      "permittedTransformsOnly": true,
+      "firstDiffContext": null
+    }
+  ]
+}

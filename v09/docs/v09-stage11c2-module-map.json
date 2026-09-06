@@ -1,0 +1,2644 @@
+{
+  "stage": "11C2",
+  "artifact_class": "V09_TEST",
+  "total_modules": 34,
+  "modules": [
+    {
+      "order": 1,
+      "legacy_path": "src/core/statistics.js",
+      "active_path": "app/core/statistics.js",
+      "legacy_sha256": "74e6d07ccd0bfae7e5cd9821078881b692e762cea3c9b4ad6eaf88799fc8f8d5",
+      "active_sha256": "234778c4e6e983f25d7f709634f44b3dbbc9793be51b63136c1f75eb3658bf57",
+      "imports": [],
+      "exports": [
+        "calcMean",
+        "calcSampleSD",
+        "calcCVPercent",
+        "calcBiasPercent",
+        "calcSigma",
+        "roundTo",
+        "fmt",
+        "fmtSigned",
+        "runFixtureChecks",
+        "FIXTURE_RESULTS"
+      ],
+      "commonjs_wrapper_removed": true,
+      "commonjs_wrapper_present_in_active": false,
+      "react_dependency_status": "no react import needed",
+      "source_transform_verification": "PASS",
+      "migration_risk_inherited_from_stage11c1": "LOW",
+      "mount_call_count_in_active": 0,
+      "migration_notes": "CommonJS recovery-export guard removed; declarations converted to named ES exports."
+    },
+    {
+      "order": 2,
+      "legacy_path": "src/ui/app-data.js",
+      "active_path": "app/ui/app-data.js",
+      "legacy_sha256": "81cef641a844bd1edb44ab60a81f5115f10eead0d5d6e668a8f6012e832119c1",
+      "active_sha256": "45706855e01f1380e406be332286066a430e8bd18682e2563e2912616caea15e",
+      "imports": [
+        {
+          "from": "../core/statistics.js",
+          "names": [
+            "roundTo"
+          ],
+          "default": null
+        }
+      ],
+      "exports": [
+        "LEVELS",
+        "LEVEL_LABELS",
+        "LEVEL_HOME_DESC",
+        "COMPETENCY_MODULES",
+        "PROGRESSION_STAGES",
+        "RECOMMENDED_PATH",
+        "GLOSSARY",
+        "Z_STABLE_A",
+        "Z_STABLE_B",
+        "Z_ISOLATED",
+        "Z_POS_SHIFT",
+        "Z_NEG_SHIFT",
+        "Z_TREND_UP",
+        "Z_TREND_DOWN",
+        "Z_SCATTER",
+        "Z_OUTLIER_2SD",
+        "Z_STEP_EVENT",
+        "NEXT_STEP_OPTIONS",
+        "PATTERN_OPTIONS",
+        "CONFIDENCE_OPTIONS",
+        "BROAD_OPTIONS",
+        "SCENARIOS",
+        "DIAGNOSTIC_QUESTIONS",
+        "suggestLevelFromScore",
+        "DIAGNOSTIC_DOMAINS",
+        "buildDomainProfile",
+        "STATS_PLAYGROUND_EXPLANATION",
+        "LJ_LAB_EXPLANATION",
+        "SIGMA_CAUTION_POINTS",
+        "PATTERN_LEVEL_FEEDBACK",
+        "getPatternFeedback",
+        "getConfidenceNote",
+        "BROAD_EXPLANATION",
+        "NEXT_STEP_TEXT_BY_LEVEL",
+        "EDU_DISCLAIMER",
+        "ABOUT_TEXT",
+        "EVIDENCE_SOURCES",
+        "EVIDENCE_TIERS",
+        "EVIDENCE_HIERARCHY_AUTHORITY_NOTE",
+        "ONGOING_DISCUSSION_AREAS"
+      ],
+      "commonjs_wrapper_removed": false,
+      "commonjs_wrapper_present_in_active": false,
+      "react_dependency_status": "no react import needed",
+      "source_transform_verification": "PASS",
+      "migration_risk_inherited_from_stage11c1": "LOW",
+      "mount_call_count_in_active": 0,
+      "migration_notes": "No CommonJS guard existed (already-plain declarative/component module); declarations converted to named ES exports."
+    },
+    {
+      "order": 3,
+      "legacy_path": "src/ui/shared-components.jsx",
+      "active_path": "app/ui/shared-components.jsx",
+      "legacy_sha256": "fc8125520d89becb35320cb51d4e54a3165652e756caa74bb1151893e3f93c0b",
+      "active_sha256": "c1aba93626d4b6e67a9929e7de64312b0842547d1ff3c78b681f3b01c8967710",
+      "imports": [
+        {
+          "from": "../core/statistics.js",
+          "names": [
+            "fmtSigned"
+          ],
+          "default": null
+        },
+        {
+          "from": "react",
+          "names": [
+            "useState",
+            "useMemo",
+            "useRef",
+            "useEffect"
+          ],
+          "default": null
+        }
+      ],
+      "exports": [
+        "Badge",
+        "ScientificBasisNote",
+        "SliderField",
+        "MetricCard",
+        "Modal",
+        "LJ_KEY_RUNS",
+        "LJChart",
+        "DistributionView"
+      ],
+      "commonjs_wrapper_removed": false,
+      "commonjs_wrapper_present_in_active": false,
+      "react_dependency_status": "ORIGIN — now imports hooks from react directly (no longer destructures from global React)",
+      "source_transform_verification": "PASS",
+      "migration_risk_inherited_from_stage11c1": "MODERATE",
+      "mount_call_count_in_active": 0,
+      "migration_notes": "React-hook destructuring (const { useState, ... } = React;) replaced with explicit import { useState, useMemo, useRef, useEffect } from \"react\". Application exports unchanged (Badge, LJChart, MetricCard, Modal, SliderField, etc.) — hooks are NOT exported."
+    },
+    {
+      "order": 4,
+      "legacy_path": "src/ui/core-screens.jsx",
+      "active_path": "app/ui/core-screens.jsx",
+      "legacy_sha256": "90c2e85828d7aad9e6cb7899489a823290e6555d9216042f58aae6d99b30557d",
+      "active_sha256": "f6a375d7f87f74e494ba9111fcce1aabc0887e6c56002134288b963be0605ff8",
+      "imports": [
+        {
+          "from": "../core/statistics.js",
+          "names": [
+            "calcBiasPercent",
+            "calcCVPercent",
+            "calcMean",
+            "calcSampleSD",
+            "calcSigma",
+            "fmt",
+            "fmtSigned"
+          ],
+          "default": null
+        },
+        {
+          "from": "./app-data.js",
+          "names": [
+            "ABOUT_TEXT",
+            "BROAD_OPTIONS",
+            "COMPETENCY_MODULES",
+            "CONFIDENCE_OPTIONS",
+            "DIAGNOSTIC_QUESTIONS",
+            "EDU_DISCLAIMER",
+            "EVIDENCE_HIERARCHY_AUTHORITY_NOTE",
+            "EVIDENCE_SOURCES",
+            "EVIDENCE_TIERS",
+            "GLOSSARY",
+            "LEVELS",
+            "LEVEL_HOME_DESC",
+            "LEVEL_LABELS",
+            "LJ_LAB_EXPLANATION",
+            "NEXT_STEP_OPTIONS",
+            "NEXT_STEP_TEXT_BY_LEVEL",
+            "ONGOING_DISCUSSION_AREAS",
+            "PATTERN_OPTIONS",
+            "PROGRESSION_STAGES",
+            "RECOMMENDED_PATH",
+            "SCENARIOS",
+            "SIGMA_CAUTION_POINTS",
+            "STATS_PLAYGROUND_EXPLANATION",
+            "Z_POS_SHIFT",
+            "Z_SCATTER",
+            "Z_STABLE_A",
+            "Z_TREND_UP",
+            "buildDomainProfile",
+            "getConfidenceNote",
+            "getPatternFeedback",
+            "suggestLevelFromScore"
+          ],
+          "default": null
+        },
+        {
+          "from": "./shared-components.jsx",
+          "names": [
+            "LJChart",
+            "MetricCard",
+            "ScientificBasisNote",
+            "SliderField"
+          ],
+          "default": null
+        },
+        {
+          "from": "react",
+          "names": [
+            "useState",
+            "useMemo",
+            "useRef",
+            "useEffect"
+          ],
+          "default": "React"
+        },
+        {
+          "from": "./shared-components.jsx",
+          "names": [
+            "Badge",
+            "DistributionView",
+            "Modal"
+          ],
+          "default": null
+        }
+      ],
+      "exports": [
+        "Disclaimer",
+        "PATHWAY_PHASES",
+        "LEARNING_PATHWAY",
+        "HomeScreen",
+        "DiagnosticModal",
+        "STATUS_LABEL",
+        "STATUS_TONE",
+        "CompetencyMapScreen",
+        "PLAYGROUND_Z_BEGINNER",
+        "PLAYGROUND_Z_STANDARD",
+        "PG_DEFAULTS",
+        "StatsPlaygroundScreen",
+        "LJ_DATASETS",
+        "LJ_TRUE_MEAN",
+        "LJ_DEFAULTS",
+        "LJLabScreen",
+        "PatternChallengeScreen",
+        "SG_DEFAULTS",
+        "SigmaSandboxScreen",
+        "EvidenceScreen",
+        "GlossaryModal",
+        "AboutModal"
+      ],
+      "commonjs_wrapper_removed": false,
+      "commonjs_wrapper_present_in_active": false,
+      "react_dependency_status": "imports required hooks/React directly from react",
+      "source_transform_verification": "PASS",
+      "migration_risk_inherited_from_stage11c1": "MODERATE",
+      "mount_call_count_in_active": 0,
+      "migration_notes": "No CommonJS guard existed (already-plain declarative/component module); declarations converted to named ES exports."
+    },
+    {
+      "order": 5,
+      "legacy_path": "src/rules/engine.js",
+      "active_path": "app/rules/engine.js",
+      "legacy_sha256": "a2ea2b71e72c312151c3e223b10815fac46d59b697f27912c6df4fc246ddf66b",
+      "active_sha256": "fbc8e62cd202787b9178511f2d221a4693c0058bd8aed8bb7c84a0484f3853fb",
+      "imports": [],
+      "exports": [
+        "RULE_LABELS",
+        "exceedsPositive",
+        "exceedsNegative",
+        "exceedsAbs",
+        "sideOf",
+        "flattenPoints",
+        "pointsByLevel",
+        "levelIdsIn",
+        "makeEvent",
+        "detect12s",
+        "detect13s",
+        "detect22s",
+        "detectR4s",
+        "detect41s",
+        "detect10x",
+        "detect8x",
+        "RULE_DETECTORS",
+        "RULE_ORDER",
+        "evaluateRuleSet"
+      ],
+      "commonjs_wrapper_removed": true,
+      "commonjs_wrapper_present_in_active": false,
+      "react_dependency_status": "no react import needed",
+      "source_transform_verification": "PASS",
+      "migration_risk_inherited_from_stage11c1": "LOW",
+      "mount_call_count_in_active": 0,
+      "migration_notes": "CommonJS recovery-export guard removed; declarations converted to named ES exports."
+    },
+    {
+      "order": 6,
+      "legacy_path": "src/rules/data.js",
+      "active_path": "app/rules/data.js",
+      "legacy_sha256": "41453ef63973f4d463adbbcb0a5cac99f23469da3b3a575814dd0a0f5a2e2022",
+      "active_sha256": "da0ad770fe921f106e5869703f706992ed06030ed1534fb1d87bb445af41d45d",
+      "imports": [
+        {
+          "from": "../core/statistics.js",
+          "names": [
+            "roundTo"
+          ],
+          "default": null
+        }
+      ],
+      "exports": [
+        "RULE_IDS",
+        "rcr",
+        "rrun",
+        "RULE_DEFINITIONS",
+        "INSPECTOR_DEFAULT_RUNS",
+        "RULE_OPTIONS_FOR_CHALLENGE",
+        "SCOPE_OPTIONS_FOR_CHALLENGE",
+        "DETECTIVE_CASES",
+        "RUN_CONCEPT_NOTE",
+        "CLASSIC_MODE_NOTE",
+        "DIRECT_MODE_NOTE",
+        "FALSE_REJECTION_NOTE",
+        "DECISION_GUARDRAIL_NOTE",
+        "RULE_LAB_INTRO"
+      ],
+      "commonjs_wrapper_removed": false,
+      "commonjs_wrapper_present_in_active": false,
+      "react_dependency_status": "no react import needed",
+      "source_transform_verification": "PASS",
+      "migration_risk_inherited_from_stage11c1": "LOW",
+      "mount_call_count_in_active": 0,
+      "migration_notes": "No CommonJS guard existed (already-plain declarative/component module); declarations converted to named ES exports."
+    },
+    {
+      "order": 7,
+      "legacy_path": "src/rules/ui-components.jsx",
+      "active_path": "app/rules/ui-components.jsx",
+      "legacy_sha256": "5ce873a0c97573a5176b80dcc4fa420bb1ddc0e767bb06e072bcdce3855ddced",
+      "active_sha256": "1eac096731edb3eeac579116373c11c3131c3465288561fa47fb3f0b87d02cbb",
+      "imports": [
+        {
+          "from": "../ui/shared-components.jsx",
+          "names": [
+            "Badge"
+          ],
+          "default": null
+        },
+        {
+          "from": "react",
+          "names": [
+            "useState",
+            "useMemo",
+            "useRef",
+            "useEffect"
+          ],
+          "default": null
+        }
+      ],
+      "exports": [
+        "keyFor",
+        "MultiLevelLJChart",
+        "SCOPE_LABELS",
+        "EventCard"
+      ],
+      "commonjs_wrapper_removed": false,
+      "commonjs_wrapper_present_in_active": false,
+      "react_dependency_status": "imports required hooks/React directly from react",
+      "source_transform_verification": "PASS",
+      "migration_risk_inherited_from_stage11c1": "LOW",
+      "mount_call_count_in_active": 0,
+      "migration_notes": "No CommonJS guard existed (already-plain declarative/component module); declarations converted to named ES exports."
+    },
+    {
+      "order": 8,
+      "legacy_path": "src/rules/screens.jsx",
+      "active_path": "app/rules/screens.jsx",
+      "legacy_sha256": "8a374e0a900a591d2b810fa53e3d866f09d9e9ecbedbbd0fed629c268a4e3988",
+      "active_sha256": "90e18d135a21db6ee8babe9f43bb61ff19fccefea9dba6d173ccade2f664cdf8",
+      "imports": [
+        {
+          "from": "./data.js",
+          "names": [
+            "CLASSIC_MODE_NOTE",
+            "DECISION_GUARDRAIL_NOTE",
+            "DETECTIVE_CASES",
+            "DIRECT_MODE_NOTE",
+            "FALSE_REJECTION_NOTE",
+            "INSPECTOR_DEFAULT_RUNS",
+            "RULE_DEFINITIONS",
+            "RULE_LAB_INTRO",
+            "RULE_OPTIONS_FOR_CHALLENGE",
+            "RUN_CONCEPT_NOTE",
+            "SCOPE_OPTIONS_FOR_CHALLENGE"
+          ],
+          "default": null
+        },
+        {
+          "from": "./engine.js",
+          "names": [
+            "RULE_LABELS",
+            "RULE_ORDER",
+            "evaluateRuleSet"
+          ],
+          "default": null
+        },
+        {
+          "from": "./ui-components.jsx",
+          "names": [
+            "EventCard",
+            "MultiLevelLJChart",
+            "keyFor"
+          ],
+          "default": null
+        },
+        {
+          "from": "../ui/app-data.js",
+          "names": [
+            "CONFIDENCE_OPTIONS",
+            "getConfidenceNote"
+          ],
+          "default": null
+        },
+        {
+          "from": "../ui/shared-components.jsx",
+          "names": [
+            "Badge",
+            "MetricCard",
+            "ScientificBasisNote"
+          ],
+          "default": null
+        },
+        {
+          "from": "react",
+          "names": [
+            "useState",
+            "useMemo",
+            "useRef",
+            "useEffect"
+          ],
+          "default": null
+        }
+      ],
+      "exports": [
+        "RULE_LAB_MODES",
+        "setsEqual",
+        "LearnRulesPanel",
+        "InspectSequencePanel",
+        "DEFAULT_DETECTIVE_ANSWER",
+        "RuleDetectivePanel",
+        "RuleLaboratoryScreen"
+      ],
+      "commonjs_wrapper_removed": false,
+      "commonjs_wrapper_present_in_active": false,
+      "react_dependency_status": "imports required hooks/React directly from react",
+      "source_transform_verification": "PASS",
+      "migration_risk_inherited_from_stage11c1": "MODERATE",
+      "mount_call_count_in_active": 0,
+      "migration_notes": "No CommonJS guard existed (already-plain declarative/component module); declarations converted to named ES exports."
+    },
+    {
+      "order": 9,
+      "legacy_path": "src/opchar/functions.js",
+      "active_path": "app/opchar/functions.js",
+      "legacy_sha256": "1f17659d7fd10fdc8493401d47801e93d8d6ffcccbc09b2ba1ccdb0fe8dfd4d1",
+      "active_sha256": "e3259319ce89d4ab0ec4807437852d038db692e73d357de393403ba128813b2c",
+      "imports": [],
+      "exports": [
+        "erf",
+        "normalCDF",
+        "pfr1_3sSingle",
+        "pfr1_3s",
+        "pedSingle1_3s",
+        "ped1_3s",
+        "UNSUPPORTED_OPCHAR_NOTE",
+        "UNSUPPORTED_OPCHAR_REASON",
+        "operatingCharacteristic13s",
+        "unsupportedOperatingCharacteristic",
+        "operatingCharacteristic"
+      ],
+      "commonjs_wrapper_removed": true,
+      "commonjs_wrapper_present_in_active": false,
+      "react_dependency_status": "no react import needed",
+      "source_transform_verification": "PASS",
+      "migration_risk_inherited_from_stage11c1": "LOW",
+      "mount_call_count_in_active": 0,
+      "migration_notes": "CommonJS recovery-export guard removed; declarations converted to named ES exports."
+    },
+    {
+      "order": 10,
+      "legacy_path": "src/strategy/core.js",
+      "active_path": "app/strategy/core.js",
+      "legacy_sha256": "01a7431491c3e15c5c39777445a057b62a9e7b9876887fe1dc7b4ed97ad16f5e",
+      "active_sha256": "4731f1af0c059a4547c2511ff64607651620ac69090c5d40c5a739be12d453ea",
+      "imports": [
+        {
+          "from": "../core/statistics.js",
+          "names": [
+            "calcSigma"
+          ],
+          "default": null
+        }
+      ],
+      "exports": [
+        "MILAN_MODELS",
+        "MILAN_HIERARCHY_CAUTION",
+        "OTHER_SPEC_SOURCES",
+        "makeProcedure",
+        "sequentialObservationCapacity",
+        "PROCEDURE_LIBRARY",
+        "getProcedure",
+        "SIGMA_MAPPING_FRAMEWORKS",
+        "getFramework",
+        "mapSigmaToProcedure",
+        "frameworkWhyText",
+        "NO_UNIVERSAL_RULE_NOTE",
+        "NO_TRAFFIC_LIGHT_SIGMA_NOTE",
+        "PED_DEFINITION",
+        "PFR_DEFINITION",
+        "PED_PFR_TRADEOFF_NOTE",
+        "OPCHAR_SCOPE_NOTE",
+        "SOURCE_DEPENDENCE_EXERCISE",
+        "CV_IMPROVEMENT_EXERCISE",
+        "BIAS_IMPROVEMENT_EXERCISE",
+        "APS_CHANGE_EXERCISE",
+        "WHY_NOT_ALL_RULES_EXERCISE",
+        "WHY_NOT_ONLY_13S_EXERCISE",
+        "VERY_LOW_SIGMA_THRESHOLD",
+        "VERY_LOW_SIGMA_WARNING",
+        "RUN_FREQUENCY_NOTE",
+        "PATIENT_RISK_PREVIEW_NOTE",
+        "STRATEGY_CHALLENGE_CASES",
+        "STRATEGY_LIMITATION_OPTIONS",
+        "EDUCATIONAL_STRATEGY_DISCLAIMER",
+        "N_AND_R_TEACHING_NOTE"
+      ],
+      "commonjs_wrapper_removed": true,
+      "commonjs_wrapper_present_in_active": false,
+      "react_dependency_status": "no react import needed",
+      "source_transform_verification": "PASS",
+      "migration_risk_inherited_from_stage11c1": "LOW",
+      "mount_call_count_in_active": 0,
+      "migration_notes": "CommonJS recovery-export guard removed; declarations converted to named ES exports."
+    },
+    {
+      "order": 11,
+      "legacy_path": "src/strategy/aps-ui-data.js",
+      "active_path": "app/strategy/aps-ui-data.js",
+      "legacy_sha256": "f45494a47a32498eea8272c4be696b584527bb823923f5fd3205a5231abbf827",
+      "active_sha256": "9400bcdd4d36fadc631bbb899bc6c929012c5196468bb9a57acfd82ca0e7d849",
+      "imports": [],
+      "exports": [
+        "SPEC_SOURCE_CAUTION",
+        "APS_SOURCE_OPTIONS",
+        "APS_CLASSIFICATION_CASES"
+      ],
+      "commonjs_wrapper_removed": false,
+      "commonjs_wrapper_present_in_active": false,
+      "react_dependency_status": "no react import needed",
+      "source_transform_verification": "PASS",
+      "migration_risk_inherited_from_stage11c1": "LOW",
+      "mount_call_count_in_active": 0,
+      "migration_notes": "No CommonJS guard existed (already-plain declarative/component module); declarations converted to named ES exports."
+    },
+    {
+      "order": 12,
+      "legacy_path": "src/strategy/ui-components.jsx",
+      "active_path": "app/strategy/ui-components.jsx",
+      "legacy_sha256": "46ba76ac6c508e34dc2e726e829b0d1e475de29090969e94b1d8e53d4f80e784",
+      "active_sha256": "0e98540b5bc45138bd5ae76bd8c0a01270df23d0e9d304c07c103c5ae96d2a5c",
+      "imports": [
+        {
+          "from": "../opchar/functions.js",
+          "names": [
+            "operatingCharacteristic"
+          ],
+          "default": null
+        },
+        {
+          "from": "../rules/engine.js",
+          "names": [
+            "RULE_LABELS"
+          ],
+          "default": null
+        },
+        {
+          "from": "./core.js",
+          "names": [
+            "frameworkWhyText",
+            "sequentialObservationCapacity"
+          ],
+          "default": null
+        },
+        {
+          "from": "../ui/shared-components.jsx",
+          "names": [
+            "Badge"
+          ],
+          "default": null
+        },
+        {
+          "from": "./core.js",
+          "names": [
+            "OPCHAR_SCOPE_NOTE"
+          ],
+          "default": null
+        }
+      ],
+      "exports": [
+        "ruleLabelList",
+        "qualitativeComplexity",
+        "qualitativeDetection",
+        "qualitativeFalseRejectionBurden",
+        "FrameworkProvenanceNote",
+        "ProcedureCard",
+        "ComparatorTable"
+      ],
+      "commonjs_wrapper_removed": false,
+      "commonjs_wrapper_present_in_active": false,
+      "react_dependency_status": "no react import needed",
+      "source_transform_verification": "PASS",
+      "migration_risk_inherited_from_stage11c1": "MODERATE",
+      "mount_call_count_in_active": 0,
+      "migration_notes": "No CommonJS guard existed (already-plain declarative/component module); declarations converted to named ES exports."
+    },
+    {
+      "order": 13,
+      "legacy_path": "src/strategy/screens.jsx",
+      "active_path": "app/strategy/screens.jsx",
+      "legacy_sha256": "5283fcccc1a43c3687ccfd2d2c877dcabb186f486e0c5290c6da3589a05ea88a",
+      "active_sha256": "a89c77a3267f03cd4b52e95ca241bbd601dd27c282e5a63936eab79b3e21a779",
+      "imports": [
+        {
+          "from": "../core/statistics.js",
+          "names": [
+            "calcSigma",
+            "fmtSigned"
+          ],
+          "default": null
+        },
+        {
+          "from": "../opchar/functions.js",
+          "names": [
+            "operatingCharacteristic"
+          ],
+          "default": null
+        },
+        {
+          "from": "./aps-ui-data.js",
+          "names": [
+            "APS_CLASSIFICATION_CASES",
+            "APS_SOURCE_OPTIONS",
+            "SPEC_SOURCE_CAUTION"
+          ],
+          "default": null
+        },
+        {
+          "from": "./core.js",
+          "names": [
+            "APS_CHANGE_EXERCISE",
+            "BIAS_IMPROVEMENT_EXERCISE",
+            "CV_IMPROVEMENT_EXERCISE",
+            "EDUCATIONAL_STRATEGY_DISCLAIMER",
+            "MILAN_HIERARCHY_CAUTION",
+            "MILAN_MODELS",
+            "NO_TRAFFIC_LIGHT_SIGMA_NOTE",
+            "NO_UNIVERSAL_RULE_NOTE",
+            "N_AND_R_TEACHING_NOTE",
+            "OPCHAR_SCOPE_NOTE",
+            "OTHER_SPEC_SOURCES",
+            "PATIENT_RISK_PREVIEW_NOTE",
+            "PED_DEFINITION",
+            "PED_PFR_TRADEOFF_NOTE",
+            "PFR_DEFINITION",
+            "PROCEDURE_LIBRARY",
+            "RUN_FREQUENCY_NOTE",
+            "SIGMA_MAPPING_FRAMEWORKS",
+            "SOURCE_DEPENDENCE_EXERCISE",
+            "STRATEGY_CHALLENGE_CASES",
+            "STRATEGY_LIMITATION_OPTIONS",
+            "VERY_LOW_SIGMA_THRESHOLD",
+            "VERY_LOW_SIGMA_WARNING",
+            "WHY_NOT_ALL_RULES_EXERCISE",
+            "WHY_NOT_ONLY_13S_EXERCISE",
+            "frameworkWhyText",
+            "getProcedure",
+            "mapSigmaToProcedure",
+            "sequentialObservationCapacity"
+          ],
+          "default": null
+        },
+        {
+          "from": "./ui-components.jsx",
+          "names": [
+            "ComparatorTable",
+            "FrameworkProvenanceNote",
+            "ruleLabelList"
+          ],
+          "default": null
+        },
+        {
+          "from": "../ui/app-data.js",
+          "names": [
+            "CONFIDENCE_OPTIONS",
+            "getConfidenceNote"
+          ],
+          "default": null
+        },
+        {
+          "from": "../ui/shared-components.jsx",
+          "names": [
+            "Badge",
+            "MetricCard",
+            "SliderField"
+          ],
+          "default": null
+        },
+        {
+          "from": "react",
+          "names": [
+            "useState",
+            "useMemo",
+            "useRef",
+            "useEffect"
+          ],
+          "default": null
+        }
+      ],
+      "exports": [
+        "STRATEGY_LAB_MODES",
+        "ExerciseRevealCard",
+        "APSExplorerPanel",
+        "SigmaLaboratoryPanel",
+        "QCProcedureComparatorPanel",
+        "SD_DEFAULTS",
+        "WhyNotAllRulesCard",
+        "WhyNotOnly13sCard",
+        "StrategyDesignerPanel",
+        "DEFAULT_STRATEGY_ANSWER",
+        "StrategyChallengePanel",
+        "QCStrategyLabScreen"
+      ],
+      "commonjs_wrapper_removed": false,
+      "commonjs_wrapper_present_in_active": false,
+      "react_dependency_status": "imports required hooks/React directly from react",
+      "source_transform_verification": "PASS",
+      "migration_risk_inherited_from_stage11c1": "MODERATE",
+      "mount_call_count_in_active": 0,
+      "migration_notes": "No CommonJS guard existed (already-plain declarative/component module); declarations converted to named ES exports."
+    },
+    {
+      "order": 14,
+      "legacy_path": "src/risk/detection-delay.js",
+      "active_path": "app/risk/detection-delay.js",
+      "legacy_sha256": "2ba697e4a090d4fcee4b5d1dc70f5870726faf8f2197b8eb307fcd78b8175e7b",
+      "active_sha256": "f01d518e651e26a793932eeed26bb7acc5cb53b3970378515eeccd0d87a48c87",
+      "imports": [
+        {
+          "from": "../opchar/functions.js",
+          "names": [
+            "operatingCharacteristic13s"
+          ],
+          "default": null
+        }
+      ],
+      "exports": [
+        "UNSUPPORTED_DETECTION_DELAY_NOTE",
+        "isDetectionDelaySupportedRuleSet",
+        "detectionDelaySupportForRuleIds",
+        "GEOMETRIC_MODEL_ID",
+        "GEOMETRIC_MODEL_NAME",
+        "GEOMETRIC_ASSUMPTIONS",
+        "GEOMETRIC_PROVENANCE",
+        "GEOMETRIC_LIMITATIONS",
+        "expectedQcEventsToDetectionGeometric",
+        "IMMEDIATE_ONSET_MODEL_ID",
+        "IMMEDIATE_ONSET_MODEL_NAME",
+        "IMMEDIATE_ONSET_ASSUMPTIONS",
+        "IMMEDIATE_ONSET_LIMITATIONS",
+        "expectedPatientExposureImmediateOnset",
+        "UNIFORM_ONSET_MODEL_ID",
+        "UNIFORM_ONSET_MODEL_NAME",
+        "UNIFORM_ONSET_ASSUMPTIONS",
+        "UNIFORM_ONSET_LIMITATIONS",
+        "expectedPatientExposureUniformOnset"
+      ],
+      "commonjs_wrapper_removed": true,
+      "commonjs_wrapper_present_in_active": false,
+      "react_dependency_status": "no react import needed",
+      "source_transform_verification": "PASS",
+      "migration_risk_inherited_from_stage11c1": "LOW",
+      "mount_call_count_in_active": 0,
+      "migration_notes": "CommonJS recovery-export guard removed; declarations converted to named ES exports."
+    },
+    {
+      "order": 15,
+      "legacy_path": "src/risk/data.js",
+      "active_path": "app/risk/data.js",
+      "legacy_sha256": "2910e94235767ed3cce297bfa002f1c98b255fc16a7923c448eab585010f5bb2",
+      "active_sha256": "9362b7bf4ce32aa3fd1b59e7a4086c58ddff89061735cb32a2dc3c5ae27229ff",
+      "imports": [
+        {
+          "from": "../opchar/functions.js",
+          "names": [
+            "ped1_3s",
+            "pfr1_3s"
+          ],
+          "default": null
+        }
+      ],
+      "exports": [
+        "QC_PROCEDURE_DEFINITION",
+        "QC_EVENT_DEFINITION",
+        "QC_FREQUENCY_DEFINITION",
+        "ANALYTICAL_RUN_V4_DEFINITION",
+        "CORE_DISTINCTION_CAUTIONS",
+        "N_LABEL",
+        "R_LABEL",
+        "M_LABEL",
+        "N_R_M_DISTINCTION_NOTE",
+        "M_OPTIONS",
+        "SHIFT_OPTIONS_SD",
+        "SYNTHETIC_SHIFT_INTRODUCED_TEXT",
+        "SHIFT_CAUSE_CAUTION",
+        "FAILURE_ONSET_MODES",
+        "PATIENT_SAMPLES_EXPOSED_DEFINITION",
+        "UNACCEPTABLE_RESULTS_DEFINITION",
+        "ANPED_NOTE",
+        "FREQUENCY_EXPOSURE_LAB",
+        "WHICH_COMPONENT_CHANGED_EXPERIMENT",
+        "CHANGE_PED_HOLD_M_EXPERIMENT",
+        "QUADRANT_MATRIX",
+        "QUADRANT_MATRIX_NOTE",
+        "PARVIN_SECTION_INTRO",
+        "MAXE_NUF_DEFINITION",
+        "MAXE_NUF_BOUNDARY_NOTE",
+        "MAXE_NUF_NOT_ONLY_FRAMEWORK_NOTE",
+        "NOMOGRAM_CONCEPT_NOTE",
+        "WORKED_NOMOGRAM_EXAMPLE",
+        "MAXE_GOAL_NOTE",
+        "PATIENT_RISK_SIGMA_CAUTION",
+        "STARTUP_VS_MONITORING_NOTE",
+        "BRACKETED_QC_NOTE",
+        "OUT_OF_CONTROL_EVENT_PREVIEW",
+        "MORE_QC_NOT_ALWAYS_BETTER_NOTE",
+        "HIGH_SIGMA_FREQUENCY_MISCONCEPTION_NOTE",
+        "PROCESS_STABILITY_NOTE",
+        "CLINICAL_CONSEQUENCE_NOTE",
+        "FREQUENCY_DESIGNER_DEFAULTS",
+        "RISK_MODEL_LIMITATION_NOTE",
+        "WHAT_CHANGED_OPTIONS",
+        "LIKELY_EFFECT_OPTIONS",
+        "FREQUENCY_CHALLENGE_CASES"
+      ],
+      "commonjs_wrapper_removed": true,
+      "commonjs_wrapper_present_in_active": false,
+      "react_dependency_status": "no react import needed",
+      "source_transform_verification": "PASS",
+      "migration_risk_inherited_from_stage11c1": "LOW",
+      "mount_call_count_in_active": 0,
+      "migration_notes": "CommonJS recovery-export guard removed; declarations converted to named ES exports."
+    },
+    {
+      "order": 16,
+      "legacy_path": "src/risk/ui-components.jsx",
+      "active_path": "app/risk/ui-components.jsx",
+      "legacy_sha256": "a71112bcad1ee82aed32041c65053f6b4e1f427b030a063cd5bdc6f90392e530",
+      "active_sha256": "8083f8db5c55af254cd2f224b8a382b16b769b44ec6186ac9dadab3a6b6f8b48",
+      "imports": [
+        {
+          "from": "../core/statistics.js",
+          "names": [
+            "fmt"
+          ],
+          "default": null
+        },
+        {
+          "from": "../opchar/functions.js",
+          "names": [
+            "operatingCharacteristic13s"
+          ],
+          "default": null
+        },
+        {
+          "from": "./data.js",
+          "names": [
+            "M_LABEL",
+            "N_LABEL",
+            "N_R_M_DISTINCTION_NOTE",
+            "QUADRANT_MATRIX",
+            "QUADRANT_MATRIX_NOTE",
+            "R_LABEL",
+            "SHIFT_CAUSE_CAUTION",
+            "SYNTHETIC_SHIFT_INTRODUCED_TEXT"
+          ],
+          "default": null
+        },
+        {
+          "from": "./detection-delay.js",
+          "names": [
+            "UNSUPPORTED_DETECTION_DELAY_NOTE",
+            "expectedQcEventsToDetectionGeometric",
+            "isDetectionDelaySupportedRuleSet"
+          ],
+          "default": null
+        },
+        {
+          "from": "../ui/shared-components.jsx",
+          "names": [
+            "Badge"
+          ],
+          "default": null
+        },
+        {
+          "from": "react",
+          "names": [],
+          "default": "React"
+        }
+      ],
+      "exports": [
+        "DetectionDelayResultCard",
+        "NRMPanel",
+        "QuadrantMatrix",
+        "TIMELINE_INTERVALS",
+        "intervalWidthPx",
+        "iconCountFor",
+        "QCTimeline"
+      ],
+      "commonjs_wrapper_removed": false,
+      "commonjs_wrapper_present_in_active": false,
+      "react_dependency_status": "imports required hooks/React directly from react",
+      "source_transform_verification": "PASS",
+      "migration_risk_inherited_from_stage11c1": "MODERATE",
+      "mount_call_count_in_active": 0,
+      "migration_notes": "No CommonJS guard existed (already-plain declarative/component module); declarations converted to named ES exports."
+    },
+    {
+      "order": 17,
+      "legacy_path": "src/risk/screens.jsx",
+      "active_path": "app/risk/screens.jsx",
+      "legacy_sha256": "7f0897e8d15704a66c64467a0f977ca7b6c8f2149ee931daeca2bcc63e0bc5e5",
+      "active_sha256": "c4294c45fb7c92fc13caf12eb1c2a1511fb6a9dc26b5fae8685c9cfbda5a1206",
+      "imports": [
+        {
+          "from": "../opchar/functions.js",
+          "names": [
+            "operatingCharacteristic13s"
+          ],
+          "default": null
+        },
+        {
+          "from": "./data.js",
+          "names": [
+            "ANALYTICAL_RUN_V4_DEFINITION",
+            "ANPED_NOTE",
+            "BRACKETED_QC_NOTE",
+            "CHANGE_PED_HOLD_M_EXPERIMENT",
+            "CLINICAL_CONSEQUENCE_NOTE",
+            "CORE_DISTINCTION_CAUTIONS",
+            "FAILURE_ONSET_MODES",
+            "FREQUENCY_CHALLENGE_CASES",
+            "FREQUENCY_DESIGNER_DEFAULTS",
+            "FREQUENCY_EXPOSURE_LAB",
+            "HIGH_SIGMA_FREQUENCY_MISCONCEPTION_NOTE",
+            "LIKELY_EFFECT_OPTIONS",
+            "MAXE_GOAL_NOTE",
+            "MAXE_NUF_BOUNDARY_NOTE",
+            "MAXE_NUF_DEFINITION",
+            "MAXE_NUF_NOT_ONLY_FRAMEWORK_NOTE",
+            "MORE_QC_NOT_ALWAYS_BETTER_NOTE",
+            "M_OPTIONS",
+            "NOMOGRAM_CONCEPT_NOTE",
+            "N_R_M_DISTINCTION_NOTE",
+            "OUT_OF_CONTROL_EVENT_PREVIEW",
+            "PARVIN_SECTION_INTRO",
+            "PATIENT_RISK_SIGMA_CAUTION",
+            "PATIENT_SAMPLES_EXPOSED_DEFINITION",
+            "PROCESS_STABILITY_NOTE",
+            "QC_EVENT_DEFINITION",
+            "QC_FREQUENCY_DEFINITION",
+            "QC_PROCEDURE_DEFINITION",
+            "RISK_MODEL_LIMITATION_NOTE",
+            "SHIFT_OPTIONS_SD",
+            "STARTUP_VS_MONITORING_NOTE",
+            "UNACCEPTABLE_RESULTS_DEFINITION",
+            "WHAT_CHANGED_OPTIONS",
+            "WHICH_COMPONENT_CHANGED_EXPERIMENT",
+            "WORKED_NOMOGRAM_EXAMPLE"
+          ],
+          "default": null
+        },
+        {
+          "from": "./detection-delay.js",
+          "names": [
+            "detectionDelaySupportForRuleIds",
+            "expectedPatientExposureImmediateOnset",
+            "expectedPatientExposureUniformOnset",
+            "expectedQcEventsToDetectionGeometric"
+          ],
+          "default": null
+        },
+        {
+          "from": "./ui-components.jsx",
+          "names": [
+            "DetectionDelayResultCard",
+            "NRMPanel",
+            "QCTimeline",
+            "QuadrantMatrix"
+          ],
+          "default": null
+        },
+        {
+          "from": "../strategy/screens.jsx",
+          "names": [
+            "ExerciseRevealCard"
+          ],
+          "default": null
+        },
+        {
+          "from": "../ui/app-data.js",
+          "names": [
+            "CONFIDENCE_OPTIONS"
+          ],
+          "default": null
+        },
+        {
+          "from": "../ui/shared-components.jsx",
+          "names": [
+            "MetricCard",
+            "ScientificBasisNote",
+            "SliderField"
+          ],
+          "default": null
+        },
+        {
+          "from": "react",
+          "names": [
+            "useState",
+            "useMemo",
+            "useRef",
+            "useEffect"
+          ],
+          "default": null
+        }
+      ],
+      "exports": [
+        "RISK_LAB_MODES",
+        "MISCONCEPTION_NOTES",
+        "ConceptsPanel",
+        "FrequencySimulatorPanel",
+        "DetectionDelayPanel",
+        "FrequencyDesignerPanel",
+        "SameFrequencyDifferentProcedurePanel",
+        "PatientRiskExplorerPanel",
+        "DEFAULT_RISK_ANSWER",
+        "FrequencyChallengePanel",
+        "RiskFrequencyLabScreen"
+      ],
+      "commonjs_wrapper_removed": false,
+      "commonjs_wrapper_present_in_active": false,
+      "react_dependency_status": "imports required hooks/React directly from react",
+      "source_transform_verification": "PASS",
+      "migration_risk_inherited_from_stage11c1": "MODERATE",
+      "mount_call_count_in_active": 0,
+      "migration_notes": "No CommonJS guard existed (already-plain declarative/component module); declarations converted to named ES exports."
+    },
+    {
+      "order": 18,
+      "legacy_path": "src/investigation/calc.js",
+      "active_path": "app/investigation/calc.js",
+      "legacy_sha256": "a0fbf5c2457f3987dd4afd33ede6634f15080bc1be36f36ac003c9881c8e8353",
+      "active_sha256": "2b4a5425c6f1b0e2701cb9d9c234544650e58afdee3a2467b66464b78914ffa0",
+      "imports": [],
+      "exports": [
+        "QC_SIGNAL_STATUSES",
+        "PROCESS_STATUSES",
+        "CAUSE_STATUSES",
+        "PATIENT_IMPACT_STATUSES",
+        "PATIENT_RESULT_CATEGORIES",
+        "RESULT_DISPOSITION_STATUSES",
+        "COMMUNICATION_CONSIDERATION_STATUSES",
+        "initialResultDispositionStatus",
+        "REASONING_STAGES",
+        "stageIndex",
+        "isVisibleAtStage",
+        "deriveQcSignalStatus",
+        "absoluteDifference",
+        "relativeDifferencePercent",
+        "autoCorrectPatientResult",
+        "isWithinCandidateWindow"
+      ],
+      "commonjs_wrapper_removed": true,
+      "commonjs_wrapper_present_in_active": false,
+      "react_dependency_status": "no react import needed",
+      "source_transform_verification": "PASS",
+      "migration_risk_inherited_from_stage11c1": "LOW",
+      "mount_call_count_in_active": 0,
+      "migration_notes": "CommonJS recovery-export guard removed; declarations converted to named ES exports."
+    },
+    {
+      "order": 19,
+      "legacy_path": "src/investigation/data.js",
+      "active_path": "app/investigation/data.js",
+      "legacy_sha256": "5a0898859692b19e446b0f5e404fa99bd4d03712e1926b533ec0b2404d5ca76e",
+      "active_sha256": "3235dadaf035a17f243b11de92e2b0cbcaa5fb6aef4ad27c9e171ff58e9b7850",
+      "imports": [
+        {
+          "from": "./calc.js",
+          "names": [
+            "COMMUNICATION_CONSIDERATION_STATUSES",
+            "initialResultDispositionStatus"
+          ],
+          "default": null
+        }
+      ],
+      "exports": [
+        "CORE_BANNER_TITLE",
+        "CORE_BANNER_SEPARATIONS",
+        "STATISTICAL_SIGNAL_DEFINITION",
+        "OUT_OF_CONTROL_DEFINITION",
+        "SIGNAL_VS_CONDITION_CAUTION",
+        "REASONING_PATHWAY_STEPS",
+        "REASONING_PATHWAY_CAUTION",
+        "INVESTIGATION_SEQUENCE_STEPS",
+        "INVESTIGATION_SEQUENCE_CAUTION",
+        "FOUR_PRINCIPLES",
+        "SIX_CORE_QUESTIONS",
+        "COLLAPSE_CAUTION",
+        "IMMEDIATE_ACTION_OPTIONS",
+        "NO_STOP_EVERYTHING_NOTE",
+        "NO_KEEP_RUNNING_NOTE",
+        "REPEAT_QC_PRINCIPLE_NOTE",
+        "REPEAT_QC_EXERCISE",
+        "TARGETED_REPEAT_VS_REPEAT_UNTIL_PASS",
+        "RECALIBRATION_GUARDRAIL_NOTE",
+        "CHANGE_EVERYTHING_GUARDRAIL_NOTE",
+        "EVIDENCE_CATEGORIES",
+        "NO_PBRTQC_NOTE",
+        "HYPOTHESIS_CATEGORIES",
+        "hypothesisLabel",
+        "CAUSE_STATUS_HYPOTHESIS_LABEL",
+        "EVIDENCE_STRENGTH_LABELS",
+        "SUPPORT_RELATION_LABELS",
+        "NO_QUANTITATIVE_CERTAINTY_NOTE",
+        "TEMPORAL_ASSOCIATION_EXAMPLE",
+        "CONCORDANT_EVIDENCE_EXAMPLE",
+        "CONTRADICTORY_EVIDENCE_EXAMPLE",
+        "INFORMATION_SEEKING_OPTIONS",
+        "INFORMATION_SEEKING_NOTE",
+        "RECONSTRUCTION_WORKED_EXAMPLE",
+        "LAST_QC_BOUNDARY_NOTE",
+        "DETECTION_VS_ONSET_NOTE",
+        "CANDIDATE_WINDOW_NARROWING_EXAMPLE",
+        "NO_CAUSAL_INTERVAL_ENGINE_NOTE",
+        "THREE_LAYER_MODEL",
+        "THREE_LAYER_CAUTION",
+        "CORE_DISTINCTION_RECOVERY_VS_DISPOSITION",
+        "LAYER_FOUR_DISPOSITION",
+        "DISPOSITION_NOT_SYNONYMOUS_WITH_EXPOSURE_NOTE",
+        "NOT_AUTOMATICALLY_INVALID_NOTE",
+        "SYNTHETIC_PATIENT_DATA_NOTE",
+        "ILLUSTRATIVE_THRESHOLD_LABEL",
+        "ILLUSTRATIVE_THRESHOLD_CAUTION",
+        "NO_AUTO_CORRECTION_NOTE",
+        "PATIENT_IMPACT_ACTIONS",
+        "CLINICAL_SIGNIFICANCE_GUARDRAIL",
+        "ALTERNATE_ANALYSER_NOTE",
+        "PATIENT_DISTRIBUTION_EVIDENCE_NOTE",
+        "EQA_LIMITATION_NOTE",
+        "RECOVERY_PATHWAY_STEPS",
+        "RECOVERY_NOT_ONE_PASS_NOTE",
+        "RECOVERY_EVIDENCE_COMPONENTS",
+        "DOCUMENTATION_CHECKLIST",
+        "DOCUMENTATION_NOTE",
+        "RESUME_DECISION_OPTIONS",
+        "RESULT_DISPOSITION_DECISION_OPTIONS",
+        "TWO_QUESTION_RECOVERY_NOTE",
+        "PROCESS_RECOVERY_VS_RESULT_RELEASE_GUARDRAIL_NOTE",
+        "QC_SIGNAL_NOT_UNIVERSAL_HOLD_NOTE",
+        "AMENDMENT_CONSIDERATION_NOTE",
+        "NO_AUTO_AMENDMENT_NOTE",
+        "COMMUNICATION_CONSIDERATION_OPTIONS",
+        "NO_AUTO_NOTIFICATION_NOTE",
+        "CURRENT_PROCESS_TIMELINE_STEPS",
+        "HISTORICAL_RESULT_TIMELINE_STEPS",
+        "TWO_TIMELINE_EXPLANATION_NOTE",
+        "HYPOTHESIS_REVISION_NOTE",
+        "CONFIDENCE_CALIBRATION_NOTE_EARLY",
+        "CONFIDENCE_CALIBRATION_NOTE_CONVERGED",
+        "NO_GAMIFIED_SCORE_NOTE",
+        "INVESTIGATION_SCENARIOS"
+      ],
+      "commonjs_wrapper_removed": true,
+      "commonjs_wrapper_present_in_active": false,
+      "react_dependency_status": "no react import needed",
+      "source_transform_verification": "PASS",
+      "migration_risk_inherited_from_stage11c1": "LOW",
+      "mount_call_count_in_active": 0,
+      "migration_notes": "CommonJS recovery-export guard removed; declarations converted to named ES exports."
+    },
+    {
+      "order": 20,
+      "legacy_path": "src/investigation/ui-components.jsx",
+      "active_path": "app/investigation/ui-components.jsx",
+      "legacy_sha256": "26a0ae70b65e4ae422c970748eef4d196f6436e4a9f60a906501b9f51db57cd2",
+      "active_sha256": "5eb236b9b3ccc36771fa9d0ebe7419d38bd81f5b3dc680843b4a333319b8cbb1",
+      "imports": [
+        {
+          "from": "./calc.js",
+          "names": [
+            "isWithinCandidateWindow"
+          ],
+          "default": null
+        },
+        {
+          "from": "./data.js",
+          "names": [
+            "CAUSE_STATUS_HYPOTHESIS_LABEL",
+            "EVIDENCE_CATEGORIES",
+            "EVIDENCE_STRENGTH_LABELS",
+            "NO_QUANTITATIVE_CERTAINTY_NOTE",
+            "SUPPORT_RELATION_LABELS",
+            "hypothesisLabel"
+          ],
+          "default": null
+        },
+        {
+          "from": "react",
+          "names": [
+            "useState",
+            "useMemo",
+            "useRef",
+            "useEffect"
+          ],
+          "default": "React"
+        },
+        {
+          "from": "../core/statistics.js",
+          "names": [
+            "fmtSigned"
+          ],
+          "default": null
+        },
+        {
+          "from": "./calc.js",
+          "names": [
+            "absoluteDifference",
+            "relativeDifferencePercent"
+          ],
+          "default": null
+        },
+        {
+          "from": "./data.js",
+          "names": [
+            "CURRENT_PROCESS_TIMELINE_STEPS",
+            "DETECTION_VS_ONSET_NOTE",
+            "HISTORICAL_RESULT_TIMELINE_STEPS",
+            "NOT_AUTOMATICALLY_INVALID_NOTE",
+            "SYNTHETIC_PATIENT_DATA_NOTE",
+            "TWO_TIMELINE_EXPLANATION_NOTE"
+          ],
+          "default": null
+        }
+      ],
+      "exports": [
+        "humanizeStatus",
+        "QC_SIGNAL_ICONS",
+        "PROCESS_STATUS_ICONS",
+        "CAUSE_STATUS_ICONS",
+        "PATIENT_IMPACT_STATUS_ICONS",
+        "RESULT_DISPOSITION_ICONS",
+        "StatusBadge",
+        "StatusRow",
+        "EvidenceCard",
+        "EvidenceCardGrid",
+        "HypothesisBoard",
+        "TIMELINE_KIND_ICON",
+        "TIMELINE_KIND_LABEL",
+        "EventTimeline",
+        "PatientImpactTable",
+        "RecoveryFlowDiagram",
+        "TwoTimelineDiagram"
+      ],
+      "commonjs_wrapper_removed": false,
+      "commonjs_wrapper_present_in_active": false,
+      "react_dependency_status": "imports required hooks/React directly from react",
+      "source_transform_verification": "PASS",
+      "migration_risk_inherited_from_stage11c1": "LOW",
+      "mount_call_count_in_active": 0,
+      "migration_notes": "No CommonJS guard existed (already-plain declarative/component module); declarations converted to named ES exports."
+    },
+    {
+      "order": 21,
+      "legacy_path": "src/investigation/screens.jsx",
+      "active_path": "app/investigation/screens.jsx",
+      "legacy_sha256": "d2794c94352e2ba98aae6a06fcc1c0fa92501d876ee814205d33a014848f05cd",
+      "active_sha256": "8c493e6e65f7856f7ac030e0b1a1e661c2e3914635849aeeb74375e23f1277b4",
+      "imports": [
+        {
+          "from": "../core/statistics.js",
+          "names": [
+            "fmtSigned"
+          ],
+          "default": null
+        },
+        {
+          "from": "./data.js",
+          "names": [
+            "AMENDMENT_CONSIDERATION_NOTE",
+            "CHANGE_EVERYTHING_GUARDRAIL_NOTE",
+            "COLLAPSE_CAUTION",
+            "CORE_BANNER_SEPARATIONS",
+            "CORE_BANNER_TITLE",
+            "EVIDENCE_CATEGORIES",
+            "FOUR_PRINCIPLES",
+            "HYPOTHESIS_REVISION_NOTE",
+            "IMMEDIATE_ACTION_OPTIONS",
+            "INFORMATION_SEEKING_NOTE",
+            "INFORMATION_SEEKING_OPTIONS",
+            "INVESTIGATION_SCENARIOS",
+            "INVESTIGATION_SEQUENCE_CAUTION",
+            "INVESTIGATION_SEQUENCE_STEPS",
+            "NO_GAMIFIED_SCORE_NOTE",
+            "NO_KEEP_RUNNING_NOTE",
+            "NO_PBRTQC_NOTE",
+            "NO_STOP_EVERYTHING_NOTE",
+            "OUT_OF_CONTROL_DEFINITION",
+            "PATIENT_IMPACT_ACTIONS",
+            "PROCESS_RECOVERY_VS_RESULT_RELEASE_GUARDRAIL_NOTE",
+            "REASONING_PATHWAY_CAUTION",
+            "REASONING_PATHWAY_STEPS",
+            "RECALIBRATION_GUARDRAIL_NOTE",
+            "RECOVERY_NOT_ONE_PASS_NOTE",
+            "REPEAT_QC_EXERCISE",
+            "REPEAT_QC_PRINCIPLE_NOTE",
+            "RESULT_DISPOSITION_DECISION_OPTIONS",
+            "RESUME_DECISION_OPTIONS",
+            "SIGNAL_VS_CONDITION_CAUTION",
+            "SIX_CORE_QUESTIONS",
+            "STATISTICAL_SIGNAL_DEFINITION",
+            "TARGETED_REPEAT_VS_REPEAT_UNTIL_PASS",
+            "TWO_QUESTION_RECOVERY_NOTE"
+          ],
+          "default": null
+        },
+        {
+          "from": "./ui-components.jsx",
+          "names": [
+            "EventTimeline",
+            "EvidenceCardGrid",
+            "HypothesisBoard",
+            "PatientImpactTable",
+            "RecoveryFlowDiagram",
+            "StatusRow"
+          ],
+          "default": null
+        },
+        {
+          "from": "../strategy/screens.jsx",
+          "names": [
+            "ExerciseRevealCard"
+          ],
+          "default": null
+        },
+        {
+          "from": "../ui/app-data.js",
+          "names": [
+            "CONFIDENCE_OPTIONS"
+          ],
+          "default": null
+        },
+        {
+          "from": "../ui/shared-components.jsx",
+          "names": [
+            "MetricCard",
+            "ScientificBasisNote"
+          ],
+          "default": null
+        },
+        {
+          "from": "react",
+          "names": [
+            "useState",
+            "useMemo",
+            "useRef",
+            "useEffect"
+          ],
+          "default": null
+        },
+        {
+          "from": "./calc.js",
+          "names": [
+            "REASONING_STAGES",
+            "autoCorrectPatientResult",
+            "deriveQcSignalStatus",
+            "isVisibleAtStage",
+            "relativeDifferencePercent",
+            "stageIndex"
+          ],
+          "default": null
+        },
+        {
+          "from": "./data.js",
+          "names": [
+            "ALTERNATE_ANALYSER_NOTE",
+            "CANDIDATE_WINDOW_NARROWING_EXAMPLE",
+            "CLINICAL_SIGNIFICANCE_GUARDRAIL",
+            "COMMUNICATION_CONSIDERATION_OPTIONS",
+            "CONCORDANT_EVIDENCE_EXAMPLE",
+            "CONFIDENCE_CALIBRATION_NOTE_CONVERGED",
+            "CONFIDENCE_CALIBRATION_NOTE_EARLY",
+            "CONTRADICTORY_EVIDENCE_EXAMPLE",
+            "CORE_DISTINCTION_RECOVERY_VS_DISPOSITION",
+            "DETECTION_VS_ONSET_NOTE",
+            "DISPOSITION_NOT_SYNONYMOUS_WITH_EXPOSURE_NOTE",
+            "EQA_LIMITATION_NOTE",
+            "HYPOTHESIS_CATEGORIES",
+            "ILLUSTRATIVE_THRESHOLD_CAUTION",
+            "ILLUSTRATIVE_THRESHOLD_LABEL",
+            "LAST_QC_BOUNDARY_NOTE",
+            "LAYER_FOUR_DISPOSITION",
+            "NOT_AUTOMATICALLY_INVALID_NOTE",
+            "NO_AUTO_AMENDMENT_NOTE",
+            "NO_AUTO_CORRECTION_NOTE",
+            "NO_AUTO_NOTIFICATION_NOTE",
+            "NO_CAUSAL_INTERVAL_ENGINE_NOTE",
+            "NO_QUANTITATIVE_CERTAINTY_NOTE",
+            "PATIENT_DISTRIBUTION_EVIDENCE_NOTE",
+            "QC_SIGNAL_NOT_UNIVERSAL_HOLD_NOTE",
+            "RECONSTRUCTION_WORKED_EXAMPLE",
+            "TEMPORAL_ASSOCIATION_EXAMPLE",
+            "THREE_LAYER_CAUTION",
+            "THREE_LAYER_MODEL"
+          ],
+          "default": null
+        },
+        {
+          "from": "./ui-components.jsx",
+          "names": [
+            "TwoTimelineDiagram"
+          ],
+          "default": null
+        },
+        {
+          "from": "../ui/shared-components.jsx",
+          "names": [
+            "SliderField"
+          ],
+          "default": null
+        }
+      ],
+      "exports": [
+        "INVESTIGATION_LAB_MODES",
+        "REASONING_STAGE_LABELS",
+        "WhenQcSignalsPanel",
+        "TroubleshootingLabPanel",
+        "EvidenceReconstructionPanel",
+        "PatientResultImpactPanel",
+        "CATEGORY_TO_INFO_OPTION",
+        "SIGNAL_INTERPRETATION_OPTIONS",
+        "DEFAULT_CASE_ANSWER",
+        "statusAtStage",
+        "hypothesisQualityCorrect",
+        "patientImpactCorrect",
+        "canAdvanceStage",
+        "RecoveryChallengePanel",
+        "InvestigationLabScreen"
+      ],
+      "commonjs_wrapper_removed": false,
+      "commonjs_wrapper_present_in_active": false,
+      "react_dependency_status": "imports required hooks/React directly from react",
+      "source_transform_verification": "PASS",
+      "migration_risk_inherited_from_stage11c1": "MODERATE",
+      "mount_call_count_in_active": 0,
+      "migration_notes": "No CommonJS guard existed (already-plain declarative/component module); declarations converted to named ES exports."
+    },
+    {
+      "order": 22,
+      "legacy_path": "src/eqa/calc.js",
+      "active_path": "app/eqa/calc.js",
+      "legacy_sha256": "5eca4130aff6a3eaee7972ceb45234bb0ccce073b293dc7c4ee3ac3a9853021f",
+      "active_sha256": "e062eb11bbee1fa794914f2fe9fac84baa57de1d72c08dfb548934993624185a",
+      "imports": [
+        {
+          "from": "../strategy/core.js",
+          "names": [
+            "MILAN_MODELS",
+            "OTHER_SPEC_SOURCES"
+          ],
+          "default": null
+        }
+      ],
+      "exports": [
+        "TARGET_VALUE_TYPES",
+        "TARGET_VALUE_TYPE_LABELS",
+        "COMMUTABILITY_STATUSES",
+        "CURRENT_EQA_STATUSES",
+        "LONGITUDINAL_EQA_STATUSES",
+        "COMPARABILITY_STATUSES",
+        "EQA_INVESTIGATION_STATUSES",
+        "PERFORMANCE_CRITERION_TYPES",
+        "PERFORMANCE_CRITERION_TYPE_LABELS",
+        "calculateEqaAbsoluteDeviation",
+        "calculateEqaRelativeDeviation",
+        "calculateEqaZScore",
+        "ILLUSTRATIVE_ZSCORE_BANDS",
+        "ILLUSTRATIVE_ZSCORE_BANDS_CAUTION",
+        "calculatePairedDifference",
+        "calculatePairedRelativeDifference",
+        "describeSchemeCapability"
+      ],
+      "commonjs_wrapper_removed": true,
+      "commonjs_wrapper_present_in_active": false,
+      "react_dependency_status": "no react import needed",
+      "source_transform_verification": "PASS",
+      "migration_risk_inherited_from_stage11c1": "LOW",
+      "mount_call_count_in_active": 0,
+      "migration_notes": "CommonJS recovery-export guard removed; declarations converted to named ES exports."
+    },
+    {
+      "order": 23,
+      "legacy_path": "src/eqa/data.js",
+      "active_path": "app/eqa/data.js",
+      "legacy_sha256": "465ba7674103b9f5a5f5a13dd1cdddefe23ce68abac54ded3c114a0671f99333",
+      "active_sha256": "48d688a1859b8c4746e4ac1312cbb17f0738134f7c46d3ae520a7b527de32399",
+      "imports": [
+        {
+          "from": "./calc.js",
+          "names": [
+            "TARGET_VALUE_TYPES",
+            "describeSchemeCapability"
+          ],
+          "default": null
+        }
+      ],
+      "exports": [
+        "EXTERNAL_ASSURANCE_PATHWAY_STEPS",
+        "EXTERNAL_ASSURANCE_PATHWAY_CAUTION",
+        "GOOD_IQC_DOES_NOT_PROVE_TRUENESS_NOTE",
+        "POOR_EQA_DOES_NOT_AUTOMATICALLY_PROVE_BIAS_NOTE",
+        "EQA_TERMINOLOGY",
+        "EQA_PT_TERMINOLOGY_CAUTION",
+        "CORE_THREE_WAY_DISTINCTION",
+        "NOT_SIMPLY_PRECISION_VS_ACCURACY_NOTE",
+        "SIGNATURE_MISCONCEPTION_CASE",
+        "EQA_NOT_REALTIME_IQC_NOTE",
+        "EQA_CAN_REVEAL",
+        "EQA_REVEAL_DEPENDENCY_NOTE",
+        "EQA_RESULT_FIELDS",
+        "MISSING_FIELDS_STAY_MISSING_NOTE",
+        "TARGET_VALUE_TYPE_DESCRIPTIONS",
+        "NEVER_ALL_CALLED_TRUE_VALUE_NOTE",
+        "TARGET_HIERARCHY_GUARDRAIL_NOTE",
+        "TARGET_TYPE_CLASSIFICATION_ITEMS",
+        "PEER_GROUP_NOT_TRUTH_PRINCIPLE",
+        "COMMUTABILITY_CONCEPT_NOTE",
+        "COMMUTABILITY_NOT_JUST_HUMAN_SERUM_NOTE",
+        "COMMUTABILITY_STATUS_DESCRIPTIONS",
+        "UNKNOWN_NOT_EQUAL_FAILED_NOTE",
+        "COMMUTABILITY_CONSEQUENCE_NOTE",
+        "COMMUTABILITY_CHALLENGE_EXAMPLE",
+        "SCHEME_CAPABILITY_INPUTS",
+        "CAPABILITY_MILLER_ATTRIBUTION_NOTE",
+        "CAPABILITY_PARTICIPANT_PERFORMANCE_NOTE",
+        "CAPABILITY_METHOD_PERFORMANCE_NOTE",
+        "CAPABILITY_HARMONISATION_NOTE",
+        "PERFORMANCE_CRITERION_APS_LINK_NOTE",
+        "REPORT_INTERPRETATION_QUESTIONS",
+        "PEER_GROUP_HIDES_METHOD_BIAS_REPORT",
+        "LABORATORY_SPECIFIC_DEVIATION_REPORT",
+        "TARGET_CHANGES_CONCLUSION_REPORT",
+        "SINGLE_EVENT_VS_TREND_NOTE",
+        "LONGITUDINAL_EQA_TIMELINE",
+        "LONGITUDINAL_TIMELINE_TEACHING_NOTE",
+        "LONGITUDINAL_PATTERN_LABELS",
+        "LONGITUDINAL_STATUSES_ARE_DESCRIPTIONS_NOTE",
+        "NO_AUTOMATIC_TREND_ROOT_CAUSE_NOTE",
+        "IQC_EQA_COMBINED_MATRIX",
+        "STABLE_IQC_POOR_EQA_CAUTION",
+        "UNSTABLE_IQC_ACCEPTABLE_EQA_CAUTION",
+        "SAMPLE_HANDLING_INTEGRITY_NOTE",
+        "SAMPLE_HANDLING_DISCOURAGED",
+        "PT_INTEGRITY_CHALLENGE",
+        "EQA_PROCESS_ERROR_TYPES",
+        "INVESTIGATE_WHOLE_EQA_PROCESS_NOTE",
+        "COMPARABILITY_LAB_SCOPE_NOTE",
+        "DESIGNATED_COMPARATOR_NOTE",
+        "EXCLUDED_METHOD_COMPARISON_STATISTICS",
+        "EXCLUDED_STATISTICS_NOTE",
+        "COMPARABILITY_PAIRED_SPECIMENS",
+        "COMPARABILITY_LIMIT_LABEL",
+        "COMPARABILITY_LIMIT_CAUTION",
+        "COMPARABILITY_LAB_ILLUSTRATIVE_CRITERION",
+        "CONTROL_MATERIAL_TRAP_CASE",
+        "PATIENT_COMPARISON_TRAP_CASE",
+        "LONGITUDINAL_COMPARABILITY_SUMMARY",
+        "NOT_EVERY_DIFFERENCE_CLINICALLY_IMPORTANT_NOTE",
+        "EQA_INVESTIGATION_PATH_STEPS",
+        "EQA_INVESTIGATION_PATH_CAUTION",
+        "EXPLORE_INVESTIGATION_LINK_LABEL",
+        "NO_AUTO_TRANSFER_BETWEEN_MODULES_NOTE",
+        "NO_EQA_PASS_EQUALS_METHOD_VALID_NOTE",
+        "NO_EQA_FAIL_EQUALS_PATIENT_RESULTS_WRONG_NOTE",
+        "NO_PEER_MEAN_EQUALS_REFERENCE_VALUE_NOTE",
+        "NO_COMMUTABLE_EQUALS_PERFECT_NOTE",
+        "NO_AUTO_PATIENT_IMPACT_FROM_EQA_NOTE",
+        "PATTERN_JUDGEMENT_OPTIONS",
+        "CAPABILITY_CONCLUSION_OPTIONS",
+        "LONGITUDINAL_RELEVANCE_OPTIONS",
+        "NEXT_ACTION_OPTIONS",
+        "EXTERNAL_ASSURANCE_STAGES",
+        "EXTERNAL_ASSURANCE_CASES"
+      ],
+      "commonjs_wrapper_removed": true,
+      "commonjs_wrapper_present_in_active": false,
+      "react_dependency_status": "no react import needed",
+      "source_transform_verification": "PASS",
+      "migration_risk_inherited_from_stage11c1": "LOW",
+      "mount_call_count_in_active": 0,
+      "migration_notes": "CommonJS recovery-export guard removed; declarations converted to named ES exports."
+    },
+    {
+      "order": 24,
+      "legacy_path": "src/eqa/ui-components.jsx",
+      "active_path": "app/eqa/ui-components.jsx",
+      "legacy_sha256": "287308302293d9d433414c877997155845c162569b57ee2e1947508ce5a96403",
+      "active_sha256": "88c93ea1a80b8ff94c578df0d35cced4f0e54173e99e61ec6ecb12bfaf75ce88",
+      "imports": [
+        {
+          "from": "../core/statistics.js",
+          "names": [
+            "fmtSigned"
+          ],
+          "default": null
+        },
+        {
+          "from": "./calc.js",
+          "names": [
+            "PERFORMANCE_CRITERION_TYPE_LABELS",
+            "TARGET_VALUE_TYPE_LABELS",
+            "calculatePairedDifference",
+            "calculatePairedRelativeDifference",
+            "describeSchemeCapability"
+          ],
+          "default": null
+        },
+        {
+          "from": "./data.js",
+          "names": [
+            "CAPABILITY_MILLER_ATTRIBUTION_NOTE",
+            "COMPARABILITY_LIMIT_LABEL",
+            "DESIGNATED_COMPARATOR_NOTE",
+            "LONGITUDINAL_PATTERN_LABELS",
+            "MISSING_FIELDS_STAY_MISSING_NOTE",
+            "SCHEME_CAPABILITY_INPUTS"
+          ],
+          "default": null
+        },
+        {
+          "from": "../strategy/screens.jsx",
+          "names": [
+            "ExerciseRevealCard"
+          ],
+          "default": null
+        },
+        {
+          "from": "react",
+          "names": [
+            "useState",
+            "useMemo",
+            "useRef",
+            "useEffect"
+          ],
+          "default": null
+        },
+        {
+          "from": "../investigation/ui-components.jsx",
+          "names": [
+            "StatusBadge"
+          ],
+          "default": null
+        },
+        {
+          "from": "../ui/shared-components.jsx",
+          "names": [
+            "LJChart"
+          ],
+          "default": null
+        }
+      ],
+      "exports": [
+        "humanizeEqaStatus",
+        "EQA_COMMUTABILITY_ICONS",
+        "EQA_CURRENT_STATUS_ICONS",
+        "EQA_LONGITUDINAL_ICONS",
+        "EQA_COMPARABILITY_ICONS",
+        "EQA_INVESTIGATION_ICONS",
+        "EqaStatusBadge",
+        "EqaStatusRow",
+        "EqaReportCard",
+        "CommutabilityChallengeComponent",
+        "SchemeCapabilityProfileDisplay",
+        "SchemeCapabilityProfileBuilder",
+        "LongitudinalEqaChart",
+        "PairedComparisonTable",
+        "LongitudinalComparabilityTable"
+      ],
+      "commonjs_wrapper_removed": false,
+      "commonjs_wrapper_present_in_active": false,
+      "react_dependency_status": "imports required hooks/React directly from react",
+      "source_transform_verification": "PASS",
+      "migration_risk_inherited_from_stage11c1": "MODERATE",
+      "mount_call_count_in_active": 0,
+      "migration_notes": "No CommonJS guard existed (already-plain declarative/component module); declarations converted to named ES exports."
+    },
+    {
+      "order": 25,
+      "legacy_path": "src/eqa/screens.jsx",
+      "active_path": "app/eqa/screens.jsx",
+      "legacy_sha256": "3b10aa20060305e9067b6349d45697015bfee1b4db7aa251f3967792755cdd86",
+      "active_sha256": "1f108763ebb150e10e6f8d40115145b55ef26d5f7fa9043b6479568b1fcd7b3a",
+      "imports": [
+        {
+          "from": "./calc.js",
+          "names": [
+            "TARGET_VALUE_TYPE_LABELS"
+          ],
+          "default": null
+        },
+        {
+          "from": "./data.js",
+          "names": [
+            "CAPABILITY_CONCLUSION_OPTIONS",
+            "COMMUTABILITY_CHALLENGE_EXAMPLE",
+            "COMMUTABILITY_CONCEPT_NOTE",
+            "COMMUTABILITY_CONSEQUENCE_NOTE",
+            "COMMUTABILITY_NOT_JUST_HUMAN_SERUM_NOTE",
+            "COMMUTABILITY_STATUS_DESCRIPTIONS",
+            "CORE_THREE_WAY_DISTINCTION",
+            "EQA_CAN_REVEAL",
+            "EQA_NOT_REALTIME_IQC_NOTE",
+            "EQA_PT_TERMINOLOGY_CAUTION",
+            "EQA_REVEAL_DEPENDENCY_NOTE",
+            "EQA_TERMINOLOGY",
+            "EXPLORE_INVESTIGATION_LINK_LABEL",
+            "EXTERNAL_ASSURANCE_CASES",
+            "EXTERNAL_ASSURANCE_PATHWAY_CAUTION",
+            "EXTERNAL_ASSURANCE_PATHWAY_STEPS",
+            "GOOD_IQC_DOES_NOT_PROVE_TRUENESS_NOTE",
+            "IQC_EQA_COMBINED_MATRIX",
+            "LONGITUDINAL_RELEVANCE_OPTIONS",
+            "NEVER_ALL_CALLED_TRUE_VALUE_NOTE",
+            "NEXT_ACTION_OPTIONS",
+            "NOT_SIMPLY_PRECISION_VS_ACCURACY_NOTE",
+            "NO_AUTO_TRANSFER_BETWEEN_MODULES_NOTE",
+            "PATTERN_JUDGEMENT_OPTIONS",
+            "PEER_GROUP_NOT_TRUTH_PRINCIPLE",
+            "POOR_EQA_DOES_NOT_AUTOMATICALLY_PROVE_BIAS_NOTE",
+            "SIGNATURE_MISCONCEPTION_CASE",
+            "STABLE_IQC_POOR_EQA_CAUTION",
+            "TARGET_HIERARCHY_GUARDRAIL_NOTE",
+            "TARGET_TYPE_CLASSIFICATION_ITEMS",
+            "TARGET_VALUE_TYPE_DESCRIPTIONS",
+            "UNKNOWN_NOT_EQUAL_FAILED_NOTE",
+            "UNSTABLE_IQC_ACCEPTABLE_EQA_CAUTION"
+          ],
+          "default": null
+        },
+        {
+          "from": "./ui-components.jsx",
+          "names": [
+            "CommutabilityChallengeComponent",
+            "EqaStatusBadge",
+            "EqaStatusRow",
+            "LongitudinalEqaChart"
+          ],
+          "default": null
+        },
+        {
+          "from": "../investigation/ui-components.jsx",
+          "names": [
+            "RecoveryFlowDiagram"
+          ],
+          "default": null
+        },
+        {
+          "from": "../strategy/screens.jsx",
+          "names": [
+            "ExerciseRevealCard"
+          ],
+          "default": null
+        },
+        {
+          "from": "../ui/app-data.js",
+          "names": [
+            "CONFIDENCE_OPTIONS"
+          ],
+          "default": null
+        },
+        {
+          "from": "../ui/shared-components.jsx",
+          "names": [
+            "MetricCard",
+            "ScientificBasisNote"
+          ],
+          "default": null
+        },
+        {
+          "from": "react",
+          "names": [
+            "useState",
+            "useMemo",
+            "useRef",
+            "useEffect"
+          ],
+          "default": null
+        },
+        {
+          "from": "./data.js",
+          "names": [
+            "CAPABILITY_HARMONISATION_NOTE",
+            "CAPABILITY_METHOD_PERFORMANCE_NOTE",
+            "CAPABILITY_PARTICIPANT_PERFORMANCE_NOTE",
+            "COMPARABILITY_LAB_ILLUSTRATIVE_CRITERION",
+            "COMPARABILITY_LAB_SCOPE_NOTE",
+            "COMPARABILITY_PAIRED_SPECIMENS",
+            "CONTROL_MATERIAL_TRAP_CASE",
+            "DESIGNATED_COMPARATOR_NOTE",
+            "EQA_INVESTIGATION_PATH_CAUTION",
+            "EQA_INVESTIGATION_PATH_STEPS",
+            "EQA_PROCESS_ERROR_TYPES",
+            "EQA_RESULT_FIELDS",
+            "EXCLUDED_METHOD_COMPARISON_STATISTICS",
+            "EXCLUDED_STATISTICS_NOTE",
+            "EXTERNAL_ASSURANCE_STAGES",
+            "INVESTIGATE_WHOLE_EQA_PROCESS_NOTE",
+            "LABORATORY_SPECIFIC_DEVIATION_REPORT",
+            "LONGITUDINAL_COMPARABILITY_SUMMARY",
+            "LONGITUDINAL_EQA_TIMELINE",
+            "LONGITUDINAL_TIMELINE_TEACHING_NOTE",
+            "MISSING_FIELDS_STAY_MISSING_NOTE",
+            "NOT_EVERY_DIFFERENCE_CLINICALLY_IMPORTANT_NOTE",
+            "NO_AUTOMATIC_TREND_ROOT_CAUSE_NOTE",
+            "NO_AUTO_PATIENT_IMPACT_FROM_EQA_NOTE",
+            "NO_COMMUTABLE_EQUALS_PERFECT_NOTE",
+            "NO_EQA_FAIL_EQUALS_PATIENT_RESULTS_WRONG_NOTE",
+            "NO_EQA_PASS_EQUALS_METHOD_VALID_NOTE",
+            "NO_PEER_MEAN_EQUALS_REFERENCE_VALUE_NOTE",
+            "PATIENT_COMPARISON_TRAP_CASE",
+            "PEER_GROUP_HIDES_METHOD_BIAS_REPORT",
+            "PERFORMANCE_CRITERION_APS_LINK_NOTE",
+            "PT_INTEGRITY_CHALLENGE",
+            "REPORT_INTERPRETATION_QUESTIONS",
+            "SAMPLE_HANDLING_DISCOURAGED",
+            "SAMPLE_HANDLING_INTEGRITY_NOTE",
+            "SINGLE_EVENT_VS_TREND_NOTE",
+            "TARGET_CHANGES_CONCLUSION_REPORT"
+          ],
+          "default": null
+        },
+        {
+          "from": "./ui-components.jsx",
+          "names": [
+            "EqaReportCard",
+            "LongitudinalComparabilityTable",
+            "PairedComparisonTable",
+            "SchemeCapabilityProfileBuilder",
+            "SchemeCapabilityProfileDisplay",
+            "humanizeEqaStatus"
+          ],
+          "default": null
+        }
+      ],
+      "exports": [
+        "EXTERNAL_ASSURANCE_MODES",
+        "EQA_STAGE_LABELS",
+        "IqcVsEqaPanel",
+        "EqaTargetLabPanel",
+        "EqaReportExample",
+        "EqaReportInterpreterPanel",
+        "ComparabilityLabPanel",
+        "DEFAULT_EQA_CASE_ANSWER",
+        "canAdvanceEqaStage",
+        "LongitudinalChallengePanel",
+        "ExternalAssuranceLabScreen"
+      ],
+      "commonjs_wrapper_removed": false,
+      "commonjs_wrapper_present_in_active": false,
+      "react_dependency_status": "imports required hooks/React directly from react",
+      "source_transform_verification": "PASS",
+      "migration_risk_inherited_from_stage11c1": "MODERATE",
+      "mount_call_count_in_active": 0,
+      "migration_notes": "No CommonJS guard existed (already-plain declarative/component module); declarations converted to named ES exports."
+    },
+    {
+      "order": 26,
+      "legacy_path": "src/bv/calc.js",
+      "active_path": "app/bv/calc.js",
+      "legacy_sha256": "203838b74143c1838185351428fbe92844152d8b58ac610cffd7b6fc57e3707c",
+      "active_sha256": "e934457768598d65a1839068dbdb9a2c23bee7d17a49e604ea558bf4dbf5b184",
+      "imports": [],
+      "exports": [
+        "Z_CONVENTIONS",
+        "Z_CONVENTION_IDS",
+        "isFiniteNonNegativeNumber",
+        "calculateIndexOfIndividuality",
+        "BV_APS_LEVELS",
+        "calculateBvAps",
+        "calculateClassicalRcv",
+        "calculateLognormalRcv",
+        "calculateSerialAbsoluteChange",
+        "calculateSerialRelativeChange",
+        "EXCEEDANCE_EPSILON",
+        "directionOf",
+        "evaluateClassicalRcvExceedance",
+        "evaluateLognormalRcvExceedance"
+      ],
+      "commonjs_wrapper_removed": true,
+      "commonjs_wrapper_present_in_active": false,
+      "react_dependency_status": "no react import needed",
+      "source_transform_verification": "PASS",
+      "migration_risk_inherited_from_stage11c1": "LOW",
+      "mount_call_count_in_active": 0,
+      "migration_notes": "CommonJS recovery-export guard removed; declarations converted to named ES exports."
+    },
+    {
+      "order": 27,
+      "legacy_path": "src/bv/data.js",
+      "active_path": "app/bv/data.js",
+      "legacy_sha256": "ade1e82cc35b45c3df3283e4983e632ec3ac1c640e9f606971e47d51a5b803ef",
+      "active_sha256": "e8806272cbca8d1d0b1c118ff70c99f0bb4032462adba15903cf0959e5c359a0",
+      "imports": [
+        {
+          "from": "../eqa/data.js",
+          "names": [
+            "EQA_RESULT_FIELDS"
+          ],
+          "default": null
+        }
+      ],
+      "exports": [
+        "BV_PATHWAY_STEPS",
+        "BV_PATHWAY_CAUTION",
+        "MANDATORY_LESSONS",
+        "BV_SYMBOL_GLOSSARY",
+        "BV_SYMBOL_DISCIPLINE_NOTE",
+        "COMPONENT_QUESTION_PANEL",
+        "CVG_NOT_IN_RCV_STATEMENT",
+        "CVG_SIGNATURE_EXPERIMENT",
+        "BV_ESTIMATE_FIELDS",
+        "BV_MISSING_FIELDS_STAY_MISSING_NOTE",
+        "BV_ESTIMATES_NOT_CONSTANTS_NOTE",
+        "EFLM_BV_DATABASE_REFERENCE",
+        "BIVAC_QUALITY_ITEMS",
+        "BIVAC_TEACHING_NOTE",
+        "BIVAC_MISCONCEPTION_EXERCISE",
+        "TRANSPORTABILITY_HEALTHY_POPULATION_GUARDRAIL",
+        "TRANSPORTABILITY_TIME_SCALE_GUARDRAIL",
+        "BIOLOGICAL_RHYTHMS_NOTE",
+        "II_HEURISTIC_CAUTION",
+        "RI_VS_RCV_SIGNATURE_CASES",
+        "APS_VS_RCV_DISTINCTION_PANEL",
+        "CVA_SUBSTITUTION_TRAP_CASE",
+        "RCV_NOT_DIAGNOSTIC_CUTOFF_STATEMENT",
+        "PREANALYTICAL_TRAP_SCENARIO",
+        "DISEASE_POPULATION_TRANSPORTABILITY_SCENARIO",
+        "SAMPLING_INTERVAL_TRANSPORTABILITY_SCENARIO",
+        "BV_DATASET",
+        "PROVENANCE_CARD_FIELDS",
+        "BV_LEVEL_EXPLANATION",
+        "SERIAL_RESULT_CHALLENGE_CASES",
+        "BV_WORKFLOW_QUESTIONS",
+        "BV_REASONING_DIMENSIONS",
+        "BV_CONFIDENCE_NEVER_ALTERS_SCORE_NOTE"
+      ],
+      "commonjs_wrapper_removed": true,
+      "commonjs_wrapper_present_in_active": false,
+      "react_dependency_status": "no react import needed",
+      "source_transform_verification": "PASS",
+      "migration_risk_inherited_from_stage11c1": "LOW",
+      "mount_call_count_in_active": 0,
+      "migration_notes": "CommonJS recovery-export guard removed; declarations converted to named ES exports."
+    },
+    {
+      "order": 28,
+      "legacy_path": "src/bv/ui-components.jsx",
+      "active_path": "app/bv/ui-components.jsx",
+      "legacy_sha256": "91c0b5a18722a5e48e07dee91099fea70efa9bda4356a093fb88d694ea9186aa",
+      "active_sha256": "0b015eb11b5be64842e5339647d802b011c69fc0c9fffd95fdd77de844342c07",
+      "imports": [
+        {
+          "from": "./calc.js",
+          "names": [
+            "calculateBvAps",
+            "calculateClassicalRcv",
+            "calculateIndexOfIndividuality",
+            "calculateLognormalRcv",
+            "calculateSerialRelativeChange",
+            "evaluateClassicalRcvExceedance"
+          ],
+          "default": null
+        },
+        {
+          "from": "./data.js",
+          "names": [
+            "BV_MISSING_FIELDS_STAY_MISSING_NOTE"
+          ],
+          "default": null
+        },
+        {
+          "from": "../ui/shared-components.jsx",
+          "names": [
+            "Badge"
+          ],
+          "default": null
+        }
+      ],
+      "exports": [
+        "humanizeBvLabel",
+        "BV_II_BAND_ICONS",
+        "BV_RCV_EXCEEDANCE_ICONS",
+        "BV_RI_STATUS_ICONS",
+        "BV_TRANSPORTABILITY_ICONS",
+        "BvStatusBadge",
+        "ProvenanceCard",
+        "HowCalculatedDisclosure",
+        "IndexOfIndividualityDisplay",
+        "BvApsTable",
+        "ClassicalRcvDisplay",
+        "LognormalRcvDisplay",
+        "RiVsRcvComparisonPanel",
+        "VARIATION_VISUAL_SET_POINTS",
+        "VARIATION_VISUAL_REPLICATE_OFFSETS",
+        "VariationFoundationsVisual"
+      ],
+      "commonjs_wrapper_removed": false,
+      "commonjs_wrapper_present_in_active": false,
+      "react_dependency_status": "no react import needed",
+      "source_transform_verification": "PASS",
+      "migration_risk_inherited_from_stage11c1": "MODERATE",
+      "mount_call_count_in_active": 0,
+      "migration_notes": "No CommonJS guard existed (already-plain declarative/component module); declarations converted to named ES exports."
+    },
+    {
+      "order": 29,
+      "legacy_path": "src/bv/screens.jsx",
+      "active_path": "app/bv/screens.jsx",
+      "legacy_sha256": "4698826081c3d6b08a7b03813b0f8901da7ded0bb65e4a272ff7e8620c8fbd2a",
+      "active_sha256": "33ae389d3839fdea7b620bdadc547a0467110e7a3ce4782a7f844282b784d970",
+      "imports": [
+        {
+          "from": "./calc.js",
+          "names": [
+            "calculateClassicalRcv",
+            "calculateIndexOfIndividuality",
+            "calculateSerialRelativeChange"
+          ],
+          "default": null
+        },
+        {
+          "from": "./data.js",
+          "names": [
+            "BIOLOGICAL_RHYTHMS_NOTE",
+            "BIVAC_MISCONCEPTION_EXERCISE",
+            "BIVAC_QUALITY_ITEMS",
+            "BIVAC_TEACHING_NOTE",
+            "BV_CONFIDENCE_NEVER_ALTERS_SCORE_NOTE",
+            "BV_DATASET",
+            "BV_ESTIMATES_NOT_CONSTANTS_NOTE",
+            "BV_ESTIMATE_FIELDS",
+            "BV_LEVEL_EXPLANATION",
+            "BV_MISSING_FIELDS_STAY_MISSING_NOTE",
+            "BV_PATHWAY_CAUTION",
+            "BV_PATHWAY_STEPS",
+            "BV_REASONING_DIMENSIONS",
+            "BV_SYMBOL_DISCIPLINE_NOTE",
+            "COMPONENT_QUESTION_PANEL",
+            "CVG_NOT_IN_RCV_STATEMENT",
+            "CVG_SIGNATURE_EXPERIMENT",
+            "DISEASE_POPULATION_TRANSPORTABILITY_SCENARIO",
+            "EFLM_BV_DATABASE_REFERENCE",
+            "MANDATORY_LESSONS",
+            "PREANALYTICAL_TRAP_SCENARIO",
+            "RI_VS_RCV_SIGNATURE_CASES",
+            "SAMPLING_INTERVAL_TRANSPORTABILITY_SCENARIO",
+            "SERIAL_RESULT_CHALLENGE_CASES",
+            "TRANSPORTABILITY_HEALTHY_POPULATION_GUARDRAIL",
+            "TRANSPORTABILITY_TIME_SCALE_GUARDRAIL"
+          ],
+          "default": null
+        },
+        {
+          "from": "./ui-components.jsx",
+          "names": [
+            "ProvenanceCard",
+            "RiVsRcvComparisonPanel",
+            "VariationFoundationsVisual"
+          ],
+          "default": null
+        },
+        {
+          "from": "../investigation/ui-components.jsx",
+          "names": [
+            "RecoveryFlowDiagram"
+          ],
+          "default": null
+        },
+        {
+          "from": "../strategy/screens.jsx",
+          "names": [
+            "ExerciseRevealCard"
+          ],
+          "default": null
+        },
+        {
+          "from": "../ui/app-data.js",
+          "names": [
+            "CONFIDENCE_OPTIONS",
+            "getConfidenceNote"
+          ],
+          "default": null
+        },
+        {
+          "from": "../ui/shared-components.jsx",
+          "names": [
+            "MetricCard",
+            "ScientificBasisNote",
+            "SliderField"
+          ],
+          "default": null
+        },
+        {
+          "from": "react",
+          "names": [
+            "useState",
+            "useMemo",
+            "useRef",
+            "useEffect"
+          ],
+          "default": null
+        },
+        {
+          "from": "./calc.js",
+          "names": [
+            "Z_CONVENTIONS",
+            "Z_CONVENTION_IDS",
+            "evaluateClassicalRcvExceedance",
+            "evaluateLognormalRcvExceedance"
+          ],
+          "default": null
+        },
+        {
+          "from": "./data.js",
+          "names": [
+            "APS_VS_RCV_DISTINCTION_PANEL",
+            "CVA_SUBSTITUTION_TRAP_CASE",
+            "RCV_NOT_DIAGNOSTIC_CUTOFF_STATEMENT"
+          ],
+          "default": null
+        },
+        {
+          "from": "./ui-components.jsx",
+          "names": [
+            "BvApsTable",
+            "BvStatusBadge",
+            "ClassicalRcvDisplay",
+            "LognormalRcvDisplay"
+          ],
+          "default": null
+        }
+      ],
+      "exports": [
+        "BV_RCV_MODES",
+        "BV_ANSWER_KIND_OPTIONS",
+        "VariationFoundationsPanel",
+        "BvExplorerPanel",
+        "ApsFromBvPanel",
+        "RcvLaboratoryPanel",
+        "SerialResultChallengePanel",
+        "BvRcvLabScreen"
+      ],
+      "commonjs_wrapper_removed": false,
+      "commonjs_wrapper_present_in_active": false,
+      "react_dependency_status": "imports required hooks/React directly from react",
+      "source_transform_verification": "PASS",
+      "migration_risk_inherited_from_stage11c1": "MODERATE",
+      "mount_call_count_in_active": 0,
+      "migration_notes": "No CommonJS guard existed (already-plain declarative/component module); declarations converted to named ES exports."
+    },
+    {
+      "order": 30,
+      "legacy_path": "src/pbrtqc/calc.js",
+      "active_path": "app/pbrtqc/calc.js",
+      "legacy_sha256": "5d5247c6d712a4a31ce9a5028ac5e048d3b4f02c17842751f1d8067843bf908a",
+      "active_sha256": "23d24f585e84381a88ab95cfb7008f4d7e3abc161aa6b76e7607a831df33ad3b",
+      "imports": [],
+      "exports": [
+        "validateWindowSize",
+        "calculateSlidingMean",
+        "calculateSlidingMedian",
+        "calculateEWMA",
+        "applyMetadataFilter",
+        "SUPPORTED_ERROR_TYPES",
+        "injectAnalyticalError",
+        "applyHardTruncation",
+        "evaluateControlLimit",
+        "calculatePointwiseFalseFlagRate",
+        "calculateNPed",
+        "summarizeNpedTrials",
+        "runPbrtqcStream"
+      ],
+      "commonjs_wrapper_removed": true,
+      "commonjs_wrapper_present_in_active": false,
+      "react_dependency_status": "no react import needed",
+      "source_transform_verification": "PASS",
+      "migration_risk_inherited_from_stage11c1": "LOW",
+      "mount_call_count_in_active": 0,
+      "migration_notes": "CommonJS recovery-export guard removed; declarations converted to named ES exports."
+    },
+    {
+      "order": 31,
+      "legacy_path": "src/pbrtqc/data.js",
+      "active_path": "app/pbrtqc/data.js",
+      "legacy_sha256": "4f2dbb7c28ed1071b0069788b55ba9c35603d9095e80fb9a4c6b135c08cfb98f",
+      "active_sha256": "bef10734249b07796fc6d910a2dee239192f93fe4a9640b9cc6ce176871903c8",
+      "imports": [
+        {
+          "from": "./calc.js",
+          "names": [
+            "runPbrtqcStream"
+          ],
+          "default": null
+        }
+      ],
+      "exports": [
+        "PBRTQC_PATHWAY_STEPS",
+        "PBRTQC_PATHWAY_CAUTION",
+        "PBRTQC_CORE_PRINCIPLE",
+        "PBRTQC_COMPLEMENTARY_NOTE",
+        "PBRTQC_NOT_JUST_MOVING_AVERAGE_NOTE",
+        "NEVER_CALIBRATION_FAILURE_NOTE",
+        "PATIENT_POPULATION_SCENARIO_FIELDS",
+        "ANALYTICAL_ERROR_SCENARIO_FIELDS",
+        "PBRTQC_ALGORITHM_CONFIGURATION_FIELDS",
+        "N_R_M_W_DISTINCTION_EXAMPLE",
+        "N_R_M_W_DISTINCTION_STATEMENT",
+        "PBRTQC_VS_RCV_DISTINCTION",
+        "PBRTQC_VS_CVG_DISTINCTION",
+        "ALGORITHMS_IMPLEMENTED",
+        "ALGORITHMS_MENTIONED_NOT_IMPLEMENTED",
+        "ALGORITHMS_EXCLUDED_FROM_V08",
+        "ALGORITHM_SCOPE_NOTE",
+        "SLIDING_VS_BLOCKS_NOTE",
+        "PROCESSING_PIPELINE_STEPS",
+        "PROCESSING_ORDER_NOTE",
+        "METADATA_EXCLUSION_EXAMPLES",
+        "METADATA_FILTER_CAUTION",
+        "TRUNCATION_NOTE",
+        "NO_UNIVERSAL_TRUNCATION_NOTE",
+        "PARAMETER_PROVENANCE_OPTIONS",
+        "STARTING_CONFIGURATION_LANGUAGE_NOTE",
+        "CONTROL_LIMIT_PROVENANCE_NOTE",
+        "ALERT_BOUNDARY_NOTE",
+        "CONTROL_LIMIT_TRADEOFF_NOTE",
+        "ALERT_INTERPRETATION_STATEMENT",
+        "STABLE_PBRTQC_DOES_NOT_VALIDATE_STATEMENT",
+        "PBRTQC_NOT_DELTA_CHECK_STATEMENT",
+        "PBRTQC_NOT_EQA_STATEMENT",
+        "ALERT_ROUTES_TO_INVESTIGATION_NOTE",
+        "FALSE_FLAG_RATE_NOTE",
+        "TRAINING_VERIFICATION_SEPARATION_NOTE",
+        "VERIFICATION_LEAKAGE_NOTE",
+        "HISTORICAL_DATA_NOTE",
+        "NO_LIVE_DATA_NOTE",
+        "SYNTHETIC_DATA_CARD_LABEL",
+        "PRIVACY_BRIEF_NOTE",
+        "INFORMATICS_RELIABILITY_TOPICS",
+        "INFORMATICS_CHALLENGE_SCENARIO",
+        "VALIDATION_LIFECYCLE_STEPS",
+        "VALIDATION_LIFECYCLE_NOTE",
+        "MATERIAL_CHANGE_EXAMPLES",
+        "MATERIAL_CHANGE_LIST_CAUTION",
+        "NO_AUTO_OPTIMIZER_NOTE",
+        "NO_UNIVERSAL_TARGETS_NOTE",
+        "IQC_FREQUENCY_CONNECTION_EXPERIMENT",
+        "V04_ANPED_REMINDER_NOTE",
+        "NPED_VS_MAXENUF_NOTE",
+        "REPORT_FROM_BACK_NOTE",
+        "THROUGHPUT_NOTE",
+        "THROUGHPUT_EXAMPLE",
+        "THROUGHPUT_ASSUMPTION_LABEL",
+        "MULTIPLE_ANALYZER_NOTE",
+        "MULTIPLE_ANALYZER_EXPERIMENT",
+        "CASE_MIX_EXCLUSION_DANGER_NOTE",
+        "PBRTQC_LEVEL_EXPLANATION",
+        "ERROR_DETECTION_RECOMMENDED_FLOW",
+        "PBRTQC_WORKFLOW_QUESTIONS",
+        "PBRTQC_CONFIDENCE_NEVER_ALTERS_SCORE_NOTE",
+        "FORBIDDEN_BLANKET_STATEMENTS",
+        "METHODOLOGICAL_DEVELOPMENT_NOTE",
+        "PBRTQC_EXCLUSION_LIST",
+        "POPULATION_A_VALUES",
+        "POPULATION_B_VALUES",
+        "POPULATION_C_VALUES",
+        "POPULATION_D_VALUES",
+        "POPULATION_D_SUBGROUPS",
+        "POPULATION_E_VALUES",
+        "PATIENT_POPULATIONS",
+        "DISTRIBUTION_SIGNATURE_EXPERIMENT",
+        "POPULATION_SHIFT_WITHOUT_ERROR_SCENARIO",
+        "AGGRESSIVE_TRUNCATION_EXPERIMENT",
+        "MEAN_VS_MEDIAN_ROBUSTNESS_NOTE",
+        "MEDIAN_NOT_UNIVERSALLY_BETTER_NOTE",
+        "PBRTQC_CHALLENGE_CASES",
+        "PBRTQC_ANSWER_KIND_OPTIONS"
+      ],
+      "commonjs_wrapper_removed": true,
+      "commonjs_wrapper_present_in_active": false,
+      "react_dependency_status": "no react import needed",
+      "source_transform_verification": "PASS",
+      "migration_risk_inherited_from_stage11c1": "LOW",
+      "mount_call_count_in_active": 0,
+      "migration_notes": "CommonJS recovery-export guard removed; declarations converted to named ES exports."
+    },
+    {
+      "order": 32,
+      "legacy_path": "src/pbrtqc/ui-components.jsx",
+      "active_path": "app/pbrtqc/ui-components.jsx",
+      "legacy_sha256": "b14efc6651f8b632bdbfcc74525f1d72a1096675cd9e0b3e4739907dd3a6ab81",
+      "active_sha256": "f6c6875683b98c6debb0e5108de432085cdb34c8a250aa0833dbf0c6f21e8942",
+      "imports": [
+        {
+          "from": "./data.js",
+          "names": [
+            "PARAMETER_PROVENANCE_OPTIONS",
+            "VERIFICATION_LEAKAGE_NOTE"
+          ],
+          "default": null
+        },
+        {
+          "from": "../ui/shared-components.jsx",
+          "names": [
+            "MetricCard"
+          ],
+          "default": null
+        }
+      ],
+      "exports": [
+        "humanizePbrtqcLabel",
+        "PBRTQC_ALERT_ICONS",
+        "PBRTQC_INCLUSION_ICONS",
+        "PBRTQC_DETECTION_ICONS",
+        "PbrtqcStatusBadge",
+        "MAX_RENDERED_POINTS",
+        "samplePoints",
+        "PatientStreamChart",
+        "MovingStatisticSummary",
+        "EwmaSummary",
+        "NPedSummaryCard",
+        "MultiTrialNpedSummary",
+        "TrainingVerificationDisclosure",
+        "ParameterProvenanceNote",
+        "ChangedVsConstantPanel"
+      ],
+      "commonjs_wrapper_removed": false,
+      "commonjs_wrapper_present_in_active": false,
+      "react_dependency_status": "no react import needed",
+      "source_transform_verification": "PASS",
+      "migration_risk_inherited_from_stage11c1": "LOW",
+      "mount_call_count_in_active": 0,
+      "migration_notes": "No CommonJS guard existed (already-plain declarative/component module); declarations converted to named ES exports."
+    },
+    {
+      "order": 33,
+      "legacy_path": "src/pbrtqc/screens.jsx",
+      "active_path": "app/pbrtqc/screens.jsx",
+      "legacy_sha256": "2e1cb56d0fa107d5680ebb59e73502fa3d03d8f308ea075cf2a1fc72559e28b7",
+      "active_sha256": "275aa2ee3b6250ca31dd5763a5c70c8ca20bb69300abbc06c616895e0a3256bb",
+      "imports": [
+        {
+          "from": "../investigation/ui-components.jsx",
+          "names": [
+            "RecoveryFlowDiagram"
+          ],
+          "default": null
+        },
+        {
+          "from": "./calc.js",
+          "names": [
+            "runPbrtqcStream"
+          ],
+          "default": null
+        },
+        {
+          "from": "./data.js",
+          "names": [
+            "ALERT_INTERPRETATION_STATEMENT",
+            "ALERT_ROUTES_TO_INVESTIGATION_NOTE",
+            "ALGORITHMS_EXCLUDED_FROM_V08",
+            "ALGORITHMS_IMPLEMENTED",
+            "ALGORITHMS_MENTIONED_NOT_IMPLEMENTED",
+            "ALGORITHM_SCOPE_NOTE",
+            "CASE_MIX_EXCLUSION_DANGER_NOTE",
+            "DISTRIBUTION_SIGNATURE_EXPERIMENT",
+            "METHODOLOGICAL_DEVELOPMENT_NOTE",
+            "NEVER_CALIBRATION_FAILURE_NOTE",
+            "NO_LIVE_DATA_NOTE",
+            "N_R_M_W_DISTINCTION_EXAMPLE",
+            "N_R_M_W_DISTINCTION_STATEMENT",
+            "PATIENT_POPULATIONS",
+            "PBRTQC_CHALLENGE_CASES",
+            "PBRTQC_COMPLEMENTARY_NOTE",
+            "PBRTQC_CONFIDENCE_NEVER_ALTERS_SCORE_NOTE",
+            "PBRTQC_CORE_PRINCIPLE",
+            "PBRTQC_EXCLUSION_LIST",
+            "PBRTQC_LEVEL_EXPLANATION",
+            "PBRTQC_NOT_DELTA_CHECK_STATEMENT",
+            "PBRTQC_NOT_EQA_STATEMENT",
+            "PBRTQC_NOT_JUST_MOVING_AVERAGE_NOTE",
+            "PBRTQC_PATHWAY_CAUTION",
+            "PBRTQC_PATHWAY_STEPS",
+            "PBRTQC_VS_CVG_DISTINCTION",
+            "PBRTQC_VS_RCV_DISTINCTION",
+            "POPULATION_SHIFT_WITHOUT_ERROR_SCENARIO",
+            "PROCESSING_ORDER_NOTE",
+            "PROCESSING_PIPELINE_STEPS",
+            "SLIDING_VS_BLOCKS_NOTE",
+            "STABLE_PBRTQC_DOES_NOT_VALIDATE_STATEMENT"
+          ],
+          "default": null
+        },
+        {
+          "from": "./ui-components.jsx",
+          "names": [
+            "ChangedVsConstantPanel",
+            "PatientStreamChart",
+            "humanizePbrtqcLabel"
+          ],
+          "default": null
+        },
+        {
+          "from": "../strategy/screens.jsx",
+          "names": [
+            "ExerciseRevealCard"
+          ],
+          "default": null
+        },
+        {
+          "from": "../ui/app-data.js",
+          "names": [
+            "CONFIDENCE_OPTIONS",
+            "getConfidenceNote"
+          ],
+          "default": null
+        },
+        {
+          "from": "../ui/shared-components.jsx",
+          "names": [
+            "MetricCard",
+            "ScientificBasisNote"
+          ],
+          "default": null
+        },
+        {
+          "from": "react",
+          "names": [
+            "useState",
+            "useMemo",
+            "useRef",
+            "useEffect"
+          ],
+          "default": null
+        },
+        {
+          "from": "./calc.js",
+          "names": [
+            "SUPPORTED_ERROR_TYPES",
+            "calculateEWMA",
+            "calculateNPed",
+            "calculatePointwiseFalseFlagRate",
+            "calculateSlidingMean",
+            "calculateSlidingMedian"
+          ],
+          "default": null
+        },
+        {
+          "from": "./data.js",
+          "names": [
+            "AGGRESSIVE_TRUNCATION_EXPERIMENT",
+            "ALERT_BOUNDARY_NOTE",
+            "CONTROL_LIMIT_PROVENANCE_NOTE",
+            "ERROR_DETECTION_RECOMMENDED_FLOW",
+            "MEAN_VS_MEDIAN_ROBUSTNESS_NOTE",
+            "MEDIAN_NOT_UNIVERSALLY_BETTER_NOTE",
+            "MULTIPLE_ANALYZER_EXPERIMENT",
+            "PBRTQC_ANSWER_KIND_OPTIONS",
+            "STARTING_CONFIGURATION_LANGUAGE_NOTE",
+            "THROUGHPUT_ASSUMPTION_LABEL",
+            "THROUGHPUT_EXAMPLE",
+            "THROUGHPUT_NOTE",
+            "TRUNCATION_NOTE"
+          ],
+          "default": null
+        },
+        {
+          "from": "./ui-components.jsx",
+          "names": [
+            "EwmaSummary",
+            "MovingStatisticSummary",
+            "NPedSummaryCard",
+            "TrainingVerificationDisclosure"
+          ],
+          "default": null
+        },
+        {
+          "from": "../ui/shared-components.jsx",
+          "names": [
+            "SliderField"
+          ],
+          "default": null
+        }
+      ],
+      "exports": [
+        "PBRTQC_MODES",
+        "PbrtqcFoundationsPanel",
+        "PatientDistributionLabPanel",
+        "AlgorithmLabPanel",
+        "ErrorDetectionSimulatorPanel",
+        "PbrtqcChallengePanel",
+        "PatientSurveillanceLabScreen"
+      ],
+      "commonjs_wrapper_removed": false,
+      "commonjs_wrapper_present_in_active": false,
+      "react_dependency_status": "imports required hooks/React directly from react",
+      "source_transform_verification": "PASS",
+      "migration_risk_inherited_from_stage11c1": "MODERATE",
+      "mount_call_count_in_active": 0,
+      "migration_notes": "No CommonJS guard existed (already-plain declarative/component module); declarations converted to named ES exports."
+    },
+    {
+      "order": 34,
+      "legacy_path": "src/ui/app-shell.jsx",
+      "active_path": "app/ui/app-shell.jsx",
+      "legacy_sha256": "56e3d5fac4fcaffa3184e81f8e8be1fa292558a35d0a77974f0639759d101da4",
+      "active_sha256": "b65412dcac86434767d5a127ac776a184ab67c4ed1132a577a1f3168b2ae9862",
+      "imports": [
+        {
+          "from": "../bv/screens.jsx",
+          "names": [
+            "BvRcvLabScreen"
+          ],
+          "default": null
+        },
+        {
+          "from": "../eqa/screens.jsx",
+          "names": [
+            "ExternalAssuranceLabScreen"
+          ],
+          "default": null
+        },
+        {
+          "from": "../investigation/screens.jsx",
+          "names": [
+            "InvestigationLabScreen"
+          ],
+          "default": null
+        },
+        {
+          "from": "../pbrtqc/screens.jsx",
+          "names": [
+            "PatientSurveillanceLabScreen"
+          ],
+          "default": null
+        },
+        {
+          "from": "../risk/screens.jsx",
+          "names": [
+            "RiskFrequencyLabScreen"
+          ],
+          "default": null
+        },
+        {
+          "from": "../rules/screens.jsx",
+          "names": [
+            "RuleLaboratoryScreen"
+          ],
+          "default": null
+        },
+        {
+          "from": "../strategy/screens.jsx",
+          "names": [
+            "QCStrategyLabScreen"
+          ],
+          "default": null
+        },
+        {
+          "from": "./app-data.js",
+          "names": [
+            "LEVELS",
+            "LEVEL_LABELS"
+          ],
+          "default": null
+        },
+        {
+          "from": "./core-screens.jsx",
+          "names": [
+            "AboutModal",
+            "CompetencyMapScreen",
+            "DiagnosticModal",
+            "EvidenceScreen",
+            "GlossaryModal",
+            "HomeScreen",
+            "LJLabScreen",
+            "PatternChallengeScreen",
+            "SigmaSandboxScreen",
+            "StatsPlaygroundScreen"
+          ],
+          "default": null
+        },
+        {
+          "from": "react",
+          "names": [
+            "useState",
+            "useMemo",
+            "useRef",
+            "useEffect"
+          ],
+          "default": null
+        }
+      ],
+      "exports": [
+        "NAV_ITEMS",
+        "App"
+      ],
+      "commonjs_wrapper_removed": false,
+      "commonjs_wrapper_present_in_active": false,
+      "react_dependency_status": "imports required hooks/React directly from react",
+      "source_transform_verification": "PASS",
+      "migration_risk_inherited_from_stage11c1": "HIGH",
+      "mount_call_count_in_active": 0,
+      "migration_notes": "All 19 historical mount statements and the mount-only rootEl declaration removed. App and NAV_ITEMS exported. Single createRoot call now lives in app/main.jsx."
+    }
+  ]
+}

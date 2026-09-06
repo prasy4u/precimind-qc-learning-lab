@@ -16,27 +16,23 @@ Recorded during Stage 11A. No fixes are applied yet.
 
 ## TD-002: Runtime Babel Standalone Transformation
 
-**Status: PARTIALLY_RESOLVED_STAGE_11C1**
+**Status: RESOLVED_FOR_ACTIVE_V0.9_RUNTIME**
 
 **Source:** `src/ui/runtime-bootstrap.js` — transforms JSX at runtime in-browser via `Babel.transform(..., {presets: [["react", {runtime: "classic"}]]})`.
 
-**Stage 11C1 resolution:** The new Vite bridge (`v09/app-bridge/`, built via `npm run build:bridge`) uses build-time JSX transformation through `@vitejs/plugin-react` — **no runtime Babel** exists in this new path, and the Babel deoptimisation console warning does not occur in the Vite bridge (verified: 0 occurrences of `Babel.transform` in the built output).
+**Stage 11C1 partial resolution:** The Vite bridge path (`v09/dist-vite-bridge/`) eliminated runtime Babel for that intermediate migration step.
 
-**What remains unresolved:** The frozen Stage 11B compatibility artifact (`v09/dist/precimind-v0.9-compat.html`), assembled by the still-frozen `v09/tools/assemble-v09-compat.js`, still uses runtime Babel — this is intentional. It remains available as a **historical/migration reference artifact** for browser-equivalence comparisons (as used throughout Stage 11C1's own equivalence testing) and must not be modified. Full resolution — i.e. no runtime-Babel path existing anywhere in active development — occurs only once Stage 11C2 completes the ES-module migration and the Vite build becomes the sole active development path.
+**Stage 11C2 full resolution for the active runtime:** The final active modular build (`v09/dist-vite/`) uses build-time JSX transformation exclusively (`@vitejs/plugin-react`). Verified: zero `Babel.transform` occurrences in the active build output.
 
----
+**What remains, by design:** The frozen Stage 11B compatibility artifact (`v09/dist/precimind-v0.9-compat.html`) still uses runtime Babel — this is intentional and must not be changed. It remains a historical/migration-reference artifact, not part of the active development/build/runtime path.
 
 ## TD-003: CommonJS Recovery Wrappers in Composite Scientific Modules
 
-**Status: OPEN — Stage 11C2**
+**Status: RESOLVED_FOR_ACTIVE_V0.9_RUNTIME_STAGE_11C2**
 
-**Source:** 14 modules (identified precisely via Stage 11C1 source inspection — see `v09/docs/V09_MODULE_DEPENDENCY_GRAPH.md` Section 6) contain guarded `if (typeof module !== "undefined" && module.exports) {...}` blocks added during recovery, not originally part of the browser-executed source.
+**Source:** 14 modules (identified precisely via Stage 11C1 source inspection) previously contained guarded `if (typeof module !== "undefined" && module.exports) {...}` blocks added during recovery, not originally part of the browser-executed source.
 
-**Status:** Harmless in browser context (guard evaluates false, confirmed safe in both the Stage 11B runtime-Babel path and the new Stage 11C1 Vite bridge); used by the Node test suites to import the scientific functions for unit testing.
-
-**Not resolved in Stage 11C1** (explicitly out of scope — Stage 11C1 performs no CommonJS-to-ES-module conversion). Stage 11C2 should replace each guard with a plain `export { ... }` per the recommended migration order in the dependency graph document (pure-calculation modules first, since all 14 guarded modules are calculation/data modules with zero or minimal cross-module dependencies).
-
----
+**Stage 11C2 resolution:** All 14 guards removed from the active `v09/app/**` tree; declarations converted to genuine named ES `export` statements. Verified: zero CommonJS wrapper files remain in `v09/app/**` (import-graph governance check). The wrappers remain only in the frozen `v09/src/**` reference tree, where they must stay unchanged as historical evidence.
 
 ## TD-004: SVG `role="button"` Keyboard Activation Inconsistency
 
@@ -71,4 +67,4 @@ The v0.8 recovery produced 30 Node test suites (3849 assertions) plus multiple a
 2. ~~TD-005 (testing architecture)~~ — **DONE, Stage 11B**
 3. ~~TD-002 (runtime Babel)~~ — **PARTIALLY DONE, Stage 11C1** (new Vite bridge path has zero runtime Babel; frozen Stage 11B artifact intentionally retains it as historical reference)
 4. **TD-003 (CommonJS wrapper → ES module conversion) — Stage 11C2, next priority.** Now precisely scoped: 14 modules, zero cross-module dependencies among 9 of them, recommended migration order documented in `V09_MODULE_DEPENDENCY_GRAPH.md`.
-5. TD-001 (19-mount cleanup) — remains lowest priority; **not addressed in Stage 11C1** either (frozen source unchanged, bridge preserves all 19 calls exactly). Stage 11C2's single-root conversion (Section 13 of the dependency graph document) is the natural point to resolve this, since it already requires touching `app-shell.jsx`'s mount logic.
+5. ~~TD-001 (19-mount cleanup)~~ — **RESOLVED_STAGE_11C2.** The active modular `v09/app/ui/app-shell.jsx` contains zero mount calls; a single authored `createRoot(...).render(<App />)` call now lives in `v09/app/main.jsx`. Verified experimentally via full browser equivalence against the frozen Stage 11C1 bridge (63/63 MATCH) — this was NOT assumed safe from prior documentation; Stage 11C2 established the equivalence itself. The historical 19 mounts remain unchanged in the frozen `v09/src/ui/app-shell.jsx` and the frozen Stage 11C1 bridge, as historical/reference evidence only.

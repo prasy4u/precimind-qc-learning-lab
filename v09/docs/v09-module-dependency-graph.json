@@ -5406,8 +5406,7 @@
       "mount_call_count": 19,
       "proposed_stage11c2_exports": [
         "App",
-        "NAV_ITEMS",
-        "rootEl"
+        "NAV_ITEMS"
       ],
       "proposed_stage11c2_imports": [
         {

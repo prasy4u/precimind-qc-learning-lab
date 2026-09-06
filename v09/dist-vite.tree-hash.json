@@ -1,0 +1,22 @@
+{
+  "target": "dist-vite",
+  "file_count": 3,
+  "files": [
+    {
+      "path": "assets/index-B0AVUssU.css",
+      "sha256": "e7b107eef2f28e131c34c60f294392841a7304b6614804c6c2a885ada0335955",
+      "bytes": 31834
+    },
+    {
+      "path": "assets/index-Crj6LqaH.js",
+      "sha256": "d52427d9aa706b4ba666473ddb7ae4aa09b5857b69100c41f2309d001df80934",
+      "bytes": 844749
+    },
+    {
+      "path": "index.html",
+      "sha256": "062e4b2fe80a8e1edf0f485065d02466e7737ce29cfb32b18af7df19c89f06d7",
+      "bytes": 382
+    }
+  ],
+  "tree_hash_sha256": "4614aca944cedfa650b0533280b2923e6f13c2b9f25e7c208501a3fcc477c2a5"
+}

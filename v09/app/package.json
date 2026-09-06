@@ -1,0 +1,6 @@
+{
+  "name": "precimind-v09-app",
+  "private": true,
+  "type": "module",
+  "description": "Stage 11C2 active v0.9 ES-module application source. This package.json exists solely to establish ES-module semantics for files under v09/app/** without affecting the parent v09/package.json (which must remain CommonJS-default to keep the retained Stage 11B/11C1 governance and reference tooling working)."
+}

@@ -1,0 +1,342 @@
+[
+  {
+    "legacy": "src/core/statistics.js",
+    "active": "app/core/statistics.js",
+    "hadGuard": true,
+    "mountsRemoved": 0,
+    "importsAdded": 0,
+    "exportsAdded": 10,
+    "originalLines": 140,
+    "newLines": 134
+  },
+  {
+    "legacy": "src/ui/app-data.js",
+    "active": "app/ui/app-data.js",
+    "hadGuard": false,
+    "mountsRemoved": 0,
+    "importsAdded": 1,
+    "exportsAdded": 40,
+    "originalLines": 856,
+    "newLines": 858
+  },
+  {
+    "legacy": "src/ui/shared-components.jsx",
+    "active": "app/ui/shared-components.jsx",
+    "hadGuard": false,
+    "mountsRemoved": 0,
+    "importsAdded": 2,
+    "exportsAdded": 8,
+    "originalLines": 286,
+    "newLines": 287
+  },
+  {
+    "legacy": "src/ui/core-screens.jsx",
+    "active": "app/ui/core-screens.jsx",
+    "hadGuard": false,
+    "mountsRemoved": 0,
+    "importsAdded": 5,
+    "exportsAdded": 22,
+    "originalLines": 717,
+    "newLines": 722
+  },
+  {
+    "legacy": "src/rules/engine.js",
+    "active": "app/rules/engine.js",
+    "hadGuard": true,
+    "mountsRemoved": 0,
+    "importsAdded": 0,
+    "exportsAdded": 19,
+    "originalLines": 318,
+    "newLines": 309
+  },
+  {
+    "legacy": "src/rules/data.js",
+    "active": "app/rules/data.js",
+    "hadGuard": false,
+    "mountsRemoved": 0,
+    "importsAdded": 1,
+    "exportsAdded": 14,
+    "originalLines": 220,
+    "newLines": 222
+  },
+  {
+    "legacy": "src/rules/ui-components.jsx",
+    "active": "app/rules/ui-components.jsx",
+    "hadGuard": false,
+    "mountsRemoved": 0,
+    "importsAdded": 2,
+    "exportsAdded": 4,
+    "originalLines": 232,
+    "newLines": 235
+  },
+  {
+    "legacy": "src/rules/screens.jsx",
+    "active": "app/rules/screens.jsx",
+    "hadGuard": false,
+    "mountsRemoved": 0,
+    "importsAdded": 6,
+    "exportsAdded": 7,
+    "originalLines": 409,
+    "newLines": 416
+  },
+  {
+    "legacy": "src/opchar/functions.js",
+    "active": "app/opchar/functions.js",
+    "hadGuard": true,
+    "mountsRemoved": 0,
+    "importsAdded": 0,
+    "exportsAdded": 11,
+    "originalLines": 134,
+    "newLines": 124
+  },
+  {
+    "legacy": "src/strategy/core.js",
+    "active": "app/strategy/core.js",
+    "hadGuard": true,
+    "mountsRemoved": 0,
+    "importsAdded": 0,
+    "exportsAdded": 31,
+    "originalLines": 420,
+    "newLines": 406
+  },
+  {
+    "legacy": "src/strategy/aps-ui-data.js",
+    "active": "app/strategy/aps-ui-data.js",
+    "hadGuard": false,
+    "mountsRemoved": 0,
+    "importsAdded": 0,
+    "exportsAdded": 3,
+    "originalLines": 67,
+    "newLines": 67
+  },
+  {
+    "legacy": "src/strategy/ui-components.jsx",
+    "active": "app/strategy/ui-components.jsx",
+    "hadGuard": false,
+    "mountsRemoved": 0,
+    "importsAdded": 4,
+    "exportsAdded": 7,
+    "originalLines": 123,
+    "newLines": 128
+  },
+  {
+    "legacy": "src/strategy/screens.jsx",
+    "active": "app/strategy/screens.jsx",
+    "hadGuard": false,
+    "mountsRemoved": 0,
+    "importsAdded": 8,
+    "exportsAdded": 12,
+    "originalLines": 541,
+    "newLines": 550
+  },
+  {
+    "legacy": "src/risk/detection-delay.js",
+    "active": "app/risk/detection-delay.js",
+    "hadGuard": true,
+    "mountsRemoved": 0,
+    "importsAdded": 0,
+    "exportsAdded": 19,
+    "originalLines": 163,
+    "newLines": 151
+  },
+  {
+    "legacy": "src/risk/data.js",
+    "active": "app/risk/data.js",
+    "hadGuard": true,
+    "mountsRemoved": 0,
+    "importsAdded": 0,
+    "exportsAdded": 42,
+    "originalLines": 388,
+    "newLines": 368
+  },
+  {
+    "legacy": "src/risk/ui-components.jsx",
+    "active": "app/risk/ui-components.jsx",
+    "hadGuard": false,
+    "mountsRemoved": 0,
+    "importsAdded": 6,
+    "exportsAdded": 7,
+    "originalLines": 170,
+    "newLines": 177
+  },
+  {
+    "legacy": "src/risk/screens.jsx",
+    "active": "app/risk/screens.jsx",
+    "hadGuard": false,
+    "mountsRemoved": 0,
+    "importsAdded": 8,
+    "exportsAdded": 11,
+    "originalLines": 486,
+    "newLines": 495
+  },
+  {
+    "legacy": "src/investigation/calc.js",
+    "active": "app/investigation/calc.js",
+    "hadGuard": true,
+    "mountsRemoved": 0,
+    "importsAdded": 0,
+    "exportsAdded": 16,
+    "originalLines": 154,
+    "newLines": 144
+  },
+  {
+    "legacy": "src/investigation/data.js",
+    "active": "app/investigation/data.js",
+    "hadGuard": true,
+    "mountsRemoved": 0,
+    "importsAdded": 0,
+    "exportsAdded": 75,
+    "originalLines": 775,
+    "newLines": 741
+  },
+  {
+    "legacy": "src/investigation/ui-components.jsx",
+    "active": "app/investigation/ui-components.jsx",
+    "hadGuard": false,
+    "mountsRemoved": 0,
+    "importsAdded": 4,
+    "exportsAdded": 17,
+    "originalLines": 254,
+    "newLines": 258
+  },
+  {
+    "legacy": "src/investigation/screens.jsx",
+    "active": "app/investigation/screens.jsx",
+    "hadGuard": false,
+    "mountsRemoved": 0,
+    "importsAdded": 7,
+    "exportsAdded": 15,
+    "originalLines": 663,
+    "newLines": 671
+  },
+  {
+    "legacy": "src/eqa/calc.js",
+    "active": "app/eqa/calc.js",
+    "hadGuard": true,
+    "mountsRemoved": 0,
+    "importsAdded": 0,
+    "exportsAdded": 17,
+    "originalLines": 314,
+    "newLines": 297
+  },
+  {
+    "legacy": "src/eqa/data.js",
+    "active": "app/eqa/data.js",
+    "hadGuard": true,
+    "mountsRemoved": 0,
+    "importsAdded": 0,
+    "exportsAdded": 76,
+    "originalLines": 886,
+    "newLines": 846
+  },
+  {
+    "legacy": "src/eqa/ui-components.jsx",
+    "active": "app/eqa/ui-components.jsx",
+    "hadGuard": false,
+    "mountsRemoved": 0,
+    "importsAdded": 5,
+    "exportsAdded": 15,
+    "originalLines": 361,
+    "newLines": 367
+  },
+  {
+    "legacy": "src/eqa/screens.jsx",
+    "active": "app/eqa/screens.jsx",
+    "hadGuard": false,
+    "mountsRemoved": 0,
+    "importsAdded": 8,
+    "exportsAdded": 11,
+    "originalLines": 510,
+    "newLines": 519
+  },
+  {
+    "legacy": "src/bv/calc.js",
+    "active": "app/bv/calc.js",
+    "hadGuard": true,
+    "mountsRemoved": 0,
+    "importsAdded": 0,
+    "exportsAdded": 14,
+    "originalLines": 338,
+    "newLines": 323
+  },
+  {
+    "legacy": "src/bv/data.js",
+    "active": "app/bv/data.js",
+    "hadGuard": true,
+    "mountsRemoved": 0,
+    "importsAdded": 0,
+    "exportsAdded": 33,
+    "originalLines": 579,
+    "newLines": 555
+  },
+  {
+    "legacy": "src/bv/ui-components.jsx",
+    "active": "app/bv/ui-components.jsx",
+    "hadGuard": false,
+    "mountsRemoved": 0,
+    "importsAdded": 3,
+    "exportsAdded": 16,
+    "originalLines": 332,
+    "newLines": 336
+  },
+  {
+    "legacy": "src/bv/screens.jsx",
+    "active": "app/bv/screens.jsx",
+    "hadGuard": false,
+    "mountsRemoved": 0,
+    "importsAdded": 8,
+    "exportsAdded": 8,
+    "originalLines": 385,
+    "newLines": 394
+  },
+  {
+    "legacy": "src/pbrtqc/calc.js",
+    "active": "app/pbrtqc/calc.js",
+    "hadGuard": true,
+    "mountsRemoved": 0,
+    "importsAdded": 0,
+    "exportsAdded": 13,
+    "originalLines": 463,
+    "newLines": 445
+  },
+  {
+    "legacy": "src/pbrtqc/data.js",
+    "active": "app/pbrtqc/data.js",
+    "hadGuard": true,
+    "mountsRemoved": 0,
+    "importsAdded": 0,
+    "exportsAdded": 80,
+    "originalLines": 767,
+    "newLines": 737
+  },
+  {
+    "legacy": "src/pbrtqc/ui-components.jsx",
+    "active": "app/pbrtqc/ui-components.jsx",
+    "hadGuard": false,
+    "mountsRemoved": 0,
+    "importsAdded": 2,
+    "exportsAdded": 15,
+    "originalLines": 237,
+    "newLines": 240
+  },
+  {
+    "legacy": "src/pbrtqc/screens.jsx",
+    "active": "app/pbrtqc/screens.jsx",
+    "hadGuard": false,
+    "mountsRemoved": 0,
+    "importsAdded": 8,
+    "exportsAdded": 7,
+    "originalLines": 415,
+    "newLines": 424
+  },
+  {
+    "legacy": "src/ui/app-shell.jsx",
+    "active": "app/ui/app-shell.jsx",
+    "hadGuard": false,
+    "mountsRemoved": 19,
+    "importsAdded": 10,
+    "exportsAdded": 2,
+    "originalLines": 138,
+    "newLines": 111
+  }
+]

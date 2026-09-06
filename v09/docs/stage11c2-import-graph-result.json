@@ -1,0 +1,13 @@
+{
+  "stage": "11C2",
+  "artifact_class": "V09_TEST",
+  "files_inspected": 34,
+  "missing_imports": [],
+  "unresolved_imports": [],
+  "cycles": [],
+  "commonjs_files": [],
+  "bare_hook_files": [],
+  "main_imports_app": true,
+  "main_create_root_count": 1,
+  "all_pass": true
+}

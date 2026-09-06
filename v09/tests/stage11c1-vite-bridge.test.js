@@ -45,22 +45,64 @@ assert('5', viteConfigExists, 'v09/vite.config.(js|mjs) exists');
 assert('6', fs.existsSync(path.join(V09, 'index.html')), 'v09/index.html exists');
 
 /* -----------------------------------------------------------------------
-   7-11. Exact installed dependency versions
+   7-11. Exact dependency versions (canonical source: package-lock.json)
    ----------------------------------------------------------------------- */
-console.log('\n=== SECTION 7-11: Installed dependency versions ===');
+console.log('\n=== SECTION 7-11: Canonical dependency versions (from package-lock.json) ===');
 const pkg = JSON.parse(fs.readFileSync(path.join(V09, 'package.json'), 'utf8'));
-let reactVer = null, reactDomVer = null, viteVer = null, pluginReactVer = null;
-try { reactVer = JSON.parse(fs.readFileSync(path.join(V09, 'node_modules/react/package.json'), 'utf8')).version; } catch (e) {}
-try { reactDomVer = JSON.parse(fs.readFileSync(path.join(V09, 'node_modules/react-dom/package.json'), 'utf8')).version; } catch (e) {}
-try { viteVer = JSON.parse(fs.readFileSync(path.join(V09, 'node_modules/vite/package.json'), 'utf8')).version; } catch (e) {}
-try { pluginReactVer = JSON.parse(fs.readFileSync(path.join(V09, 'node_modules/@vitejs/plugin-react/package.json'), 'utf8')).version; } catch (e) {}
+const lockfile = JSON.parse(fs.readFileSync(path.join(V09, 'package-lock.json'), 'utf8'));
+const lockPackages = lockfile.packages || {};
 
-assert('7', !!reactVer && !!reactDomVer && !!viteVer && !!pluginReactVer,
-  `Exact installed versions derivable: react=${reactVer} react-dom=${reactDomVer} vite=${viteVer} @vitejs/plugin-react=${pluginReactVer}`);
-assert('8', !!reactVer, `React dependency exists (${reactVer})`);
-assert('9', !!reactDomVer, `ReactDOM dependency exists (${reactDomVer})`);
-assert('10', !!viteVer, `Vite dependency exists (${viteVer})`);
-assert('11', !!pluginReactVer, `Official React Vite plugin exists (${pluginReactVer})`);
+const REQUIRED_LOCK_ENTRIES = {
+  'node_modules/react': '19.2.8',
+  'node_modules/react-dom': '19.2.8',
+  'node_modules/vite': '8.2.2',
+  'node_modules/@vitejs/plugin-react': '6.1.1',
+};
+
+// Canonical versions: always derived from the version-controlled package-lock.json,
+// which is present in the distributable ZIP (unlike node_modules, which is excluded).
+let reactVer = lockPackages['node_modules/react']?.version || null;
+let reactDomVer = lockPackages['node_modules/react-dom']?.version || null;
+let viteVer = lockPackages['node_modules/vite']?.version || null;
+let pluginReactVer = lockPackages['node_modules/@vitejs/plugin-react']?.version || null;
+
+assert('7', Object.keys(REQUIRED_LOCK_ENTRIES).every(k => !!lockPackages[k]),
+  `package-lock.json contains lockfile records for react, react-dom, vite, @vitejs/plugin-react`);
+for (const [entry, expectedVersion] of Object.entries(REQUIRED_LOCK_ENTRIES)) {
+  const actualVersion = lockPackages[entry]?.version;
+  assert(`7-${entry.replace(/[^a-z]/gi, '_')}`, actualVersion === expectedVersion,
+    `Locked version for ${entry} is ${expectedVersion} (found ${actualVersion})`);
+}
+
+assert('8', reactVer === '19.2.8', `React locked version is 19.2.8 (found ${reactVer})`);
+assert('9', reactDomVer === '19.2.8', `ReactDOM locked version is 19.2.8 (found ${reactDomVer})`);
+assert('10', viteVer === '8.2.2', `Vite locked version is 8.2.2 (found ${viteVer})`);
+assert('11', pluginReactVer === '6.1.1', `Official React Vite plugin locked version is 6.1.1 (found ${pluginReactVer})`);
+
+// package.json must declare the corresponding dependencies/devDependencies
+assert('11a', !!(pkg.dependencies && pkg.dependencies.react), 'package.json declares react as a dependency');
+assert('11b', !!(pkg.dependencies && pkg.dependencies['react-dom']), 'package.json declares react-dom as a dependency');
+assert('11c', !!(pkg.devDependencies && pkg.devDependencies.vite), 'package.json declares vite as a devDependency');
+assert('11d', !!(pkg.devDependencies && pkg.devDependencies['@vitejs/plugin-react']), 'package.json declares @vitejs/plugin-react as a devDependency');
+
+// If node_modules IS present, cross-check installed versions match the lockfile
+// (this does NOT gate on node_modules being present — the distributable ZIP
+// intentionally excludes it, and that must not fail this governance suite).
+const nodeModulesPresent = fs.existsSync(path.join(V09, 'node_modules'));
+console.log(`  node_modules present: ${nodeModulesPresent}`);
+if (nodeModulesPresent) {
+  let installedReactVer = null, installedReactDomVer = null, installedViteVer = null, installedPluginReactVer = null;
+  try { installedReactVer = JSON.parse(fs.readFileSync(path.join(V09, 'node_modules/react/package.json'), 'utf8')).version; } catch (e) {}
+  try { installedReactDomVer = JSON.parse(fs.readFileSync(path.join(V09, 'node_modules/react-dom/package.json'), 'utf8')).version; } catch (e) {}
+  try { installedViteVer = JSON.parse(fs.readFileSync(path.join(V09, 'node_modules/vite/package.json'), 'utf8')).version; } catch (e) {}
+  try { installedPluginReactVer = JSON.parse(fs.readFileSync(path.join(V09, 'node_modules/@vitejs/plugin-react/package.json'), 'utf8')).version; } catch (e) {}
+  assert('11e', installedReactVer === reactVer, `Installed react version matches lockfile (installed=${installedReactVer}, lockfile=${reactVer})`);
+  assert('11f', installedReactDomVer === reactDomVer, `Installed react-dom version matches lockfile (installed=${installedReactDomVer}, lockfile=${reactDomVer})`);
+  assert('11g', installedViteVer === viteVer, `Installed vite version matches lockfile (installed=${installedViteVer}, lockfile=${viteVer})`);
+  assert('11h', installedPluginReactVer === pluginReactVer, `Installed @vitejs/plugin-react version matches lockfile (installed=${installedPluginReactVer}, lockfile=${pluginReactVer})`);
+} else {
+  console.log('  (node_modules absent — skipping installed-version cross-check, as expected for a clean ZIP extraction; canonical version assertions above still ran against package-lock.json)');
+}
 
 /* -----------------------------------------------------------------------
    12-13. Bridge generator exists and fails closed on drift
@@ -266,6 +308,37 @@ assert('AUDIT-C-04', !!harnessNoiseCp && !/(?<!NOT )HTTP 403|is a?n? 403|= ?403\
   'Harness-noise checkpoint does not affirmatively claim HTTP 403 as fact (may correctly state "NOT HTTP 403")');
 assert('AUDIT-C-05', !!harnessNoiseCp && harnessNoiseCp.notes.includes('requestfailed'),
   'Harness-noise checkpoint cites the actual requestfailed event evidence used to classify the error');
+
+console.log('\n=== FINAL CLOSURE: real requestfailed evidence (Defect 2) ===');
+// Extract the actual embedded JSON evidence array from the notes field and
+// verify it is genuine (a real URL on a real font domain, a real errorText),
+// not a bare textual claim.
+const fontEvidenceMatch = harnessNoiseCp?.notes.match(/reference requestFailed events matching font domains: (\[.*?\]); candidate/);
+assert('DEFECT2-01', !!fontEvidenceMatch, 'Harness-noise checkpoint embeds a parseable requestFailed evidence array (not prose alone)');
+let parsedFontEvidence = [];
+if (fontEvidenceMatch) {
+  try { parsedFontEvidence = JSON.parse(fontEvidenceMatch[1]); } catch (e) { parsedFontEvidence = null; }
+}
+assert('DEFECT2-02', Array.isArray(parsedFontEvidence) && parsedFontEvidence.length >= 1,
+  `Parsed requestFailed evidence array is non-empty (found ${JSON.stringify(parsedFontEvidence)})`);
+const FONT_DOMAINS_CHECK = ['fonts.googleapis.com', 'fonts.gstatic.com'];
+assert('DEFECT2-03', Array.isArray(parsedFontEvidence) && parsedFontEvidence.every(e => e.url && FONT_DOMAINS_CHECK.some(d => e.url.includes(d))),
+  'Every retained requestFailed evidence entry has a URL on one of the deliberately-aborted font domains');
+assert('DEFECT2-04', Array.isArray(parsedFontEvidence) && parsedFontEvidence.every(e => typeof e.errorText === 'string' && e.errorText.length > 0),
+  'Every retained requestFailed evidence entry has a non-empty errorText field');
+assert('DEFECT2-05', Array.isArray(parsedFontEvidence) && parsedFontEvidence.some(e => e.url.includes('IBM+Plex')),
+  'Retained evidence URL is the actual IBM Plex font stylesheet URL (genuine, not a placeholder)');
+
+// Verify the harness source no longer uses bare string-matching as the sole
+// criterion for harness-noise classification (it must gate on retained
+// evidence / a consumption budget derived from that evidence).
+const harnessSrcForDefect2 = fs.readFileSync(path.join(V09, 'tests', 'browser', 'v09-vite-bridge-equivalence.e2e.js'), 'utf8');
+assert('DEFECT2-06', harnessSrcForDefect2.includes("p.on('requestfailed'"),
+  'Harness source registers a real Playwright requestfailed event listener');
+assert('DEFECT2-07', harnessSrcForDefect2.includes('isFontDomainFailure') && harnessSrcForDefect2.includes('fontFailureBudget'),
+  'Harness source gates harness-noise classification on a budget derived from real font-domain requestfailed evidence, not string-matching alone');
+assert('DEFECT2-08', harnessSrcForDefect2.includes('fontFailureEvidence.length'),
+  'Harness source limits how many generic failed-resource console entries can be classified as noise to the count of demonstrated font-domain failures');
 
 console.log('\n=== AUDIT CORRECTIVE CLOSURE: dependency-graph documentation accuracy ===');
 

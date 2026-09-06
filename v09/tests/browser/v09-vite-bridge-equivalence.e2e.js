@@ -52,13 +52,24 @@ async function freshPage(browser, url) {
   const p = await ctx.newPage();
   const errors = [];
   const consoleErrors = [];
+  const requestFailures = [];
   p.on('pageerror', e => errors.push(e.message));
   p.on('console', m => { if (m.type() === 'error' && !m.text().includes('404')) consoleErrors.push(m.text()); });
+  // Real, machine-retained request-failure evidence (Stage 11C1 final closure,
+  // Defect 2): records URL + failure text for every failed request, so
+  // harness-noise classification can be backed by genuine evidence rather
+  // than string-matching the console message alone.
+  p.on('requestfailed', request => {
+    requestFailures.push({
+      url: request.url(),
+      errorText: request.failure()?.errorText || '',
+    });
+  });
   await p.route('**fonts.googleapis.com**', r => r.abort());
   await p.route('**fonts.gstatic.com**', r => r.abort());
   await p.goto(url, { waitUntil: 'networkidle', timeout: 60000 });
   await p.waitForTimeout(2500);
-  return { p, ctx, errors, consoleErrors };
+  return { p, ctx, errors, consoleErrors, requestFailures };
 }
 async function nav(p, label) {
   await p.locator('nav button', { hasText: label }).first().click({ timeout: 5000 });
@@ -130,65 +141,73 @@ async function measureToggle(browser, refUrl, candUrl, navSteps, activationMetho
     record('startup-page-errors', 'startup', 'Page errors count', String(o.errors.length), String(c.errors.length),
       o.errors.length === c.errors.length ? 'MATCH' : 'UNEXPECTED_DIFFERENCE',
       c.errors.length > 0 ? `candidate errors: ${c.errors.join('; ')}` : undefined);
-    /* Console-error classification (Stage 11C1 audit corrective closure):
-       Individual console-error messages are classified BEFORE any
-       application-error comparison, rather than applying one broad rule.
-       Evidence for each classification is captured directly (not assumed):
-         - HARNESS_NOISE: this harness's own `page.route('**fonts...**', r => r.abort())`
-           interception causes a `net::ERR_FAILED` console entry for the
-           aborted Google-Fonts request. Confirmed via Playwright's
-           `requestfailed` event, which reports errorText `net::ERR_FAILED`
-           for the exact aborted font URL — NOT an HTTP 403, and not an
-           application error. This occurs identically on both reference
-           and candidate since both pages have the same route interception
-           applied by this harness.
+    /* Console-error classification (Stage 11C1 final closure, Defect 2 fix):
+       A failed-resource console message is classified HARNESS_NOISE ONLY
+       when machine-retained requestfailed evidence demonstrates it
+       corresponds to a request deliberately aborted by this harness's own
+       font-domain route interception (fonts.googleapis.com /
+       fonts.gstatic.com) — never by string-matching "net::ERR_FAILED" or
+       "Failed to load resource" alone. Generic failed-resource console
+       entries are matched/consumed up to the number of DEMONSTRATED
+       intentionally-aborted font-request failures; any excess or
+       unmatched failed-resource message remains visible to the
+       application-error comparison and can produce UNEXPECTED_DIFFERENCE.
          - REFERENCE_ONLY_TOOLING_NOISE: the frozen Stage 11B reference
            still uses runtime Babel standalone and prints a "[BABEL] Note:
            ...deoptimised..." console notice. The Vite bridge has NO
            runtime Babel (Stage 11C1 Section 12 requirement), so it never
            prints this notice. This is expected and reference-only.
-         - APPLICATION_ERROR: anything else. These MUST be compared
-           reference vs candidate, and candidate application errors MUST
-           be zero. */
-    function classifyConsoleErrors(errors) {
+         - APPLICATION_ERROR: anything not matched to real font-request
+           failure evidence and not Babel tooling noise. These MUST be
+           compared reference vs candidate, and candidate application
+           errors MUST be zero. */
+    const FONT_DOMAINS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
+    function isFontDomainFailure(reqFailure) {
+      return FONT_DOMAINS.some(d => reqFailure.url.includes(d));
+    }
+    function classifyConsoleErrors(consoleErrs, requestFailures) {
+      const fontFailureEvidence = requestFailures.filter(isFontDomainFailure);
+      let fontFailureBudget = fontFailureEvidence.length; // how many generic entries we may consume as harness noise
       const harnessNoise = [];
+      const harnessNoiseEvidence = [];
       const babelNoise = [];
       const appErrors = [];
-      for (const e of errors) {
-        if (e.includes('net::ERR_FAILED') || e.includes('Failed to load resource')) { harnessNoise.push(e); continue; }
+      const isGenericResourceFailure = (e) => e.includes('net::ERR_FAILED') || e.includes('Failed to load resource');
+      for (const e of consoleErrs) {
         if (e.includes('[BABEL]') || e.includes('deoptimised')) { babelNoise.push(e); continue; }
+        if (isGenericResourceFailure(e) && fontFailureBudget > 0) {
+          harnessNoise.push(e);
+          harnessNoiseEvidence.push(fontFailureEvidence[fontFailureEvidence.length - fontFailureBudget]);
+          fontFailureBudget--;
+          continue;
+        }
+        // Unmatched — either not a resource-failure message, or a resource
+        // failure with no corresponding demonstrated font-domain evidence.
         appErrors.push(e);
       }
-      return { harnessNoise, babelNoise, appErrors };
+      return { harnessNoise, harnessNoiseEvidence, babelNoise, appErrors, fontFailureEvidenceTotal: fontFailureEvidence.length };
     }
-    const oClassified = classifyConsoleErrors(o.consoleErrors);
-    const cClassified = classifyConsoleErrors(c.consoleErrors);
+    const oClassified = classifyConsoleErrors(o.consoleErrors, o.requestFailures);
+    const cClassified = classifyConsoleErrors(c.consoleErrors, c.requestFailures);
 
-    record('startup-console-harness-noise', 'startup', 'Harness-induced net::ERR_FAILED noise (own route interception)',
+    record('startup-console-harness-noise', 'startup', 'Harness-induced font-request failures (backed by real requestfailed evidence)',
       String(oClassified.harnessNoise.length), String(cClassified.harnessNoise.length),
       /* This asymmetry is genuine and understood, not swept under a broad rule:
          the frozen reference HTML (recovery/original-v0.8.html envelope) contains
          Google Fonts <link> tags, so the harness's own
-         page.route('**fonts...**', r => r.abort()) interception produces one
-         net::ERR_FAILED console entry for the reference. The current
-         v09/index.html (accepted Stage 11C1 bridge input, deliberately left
-         unchanged per audit instruction — see V09_MODULE_DEPENDENCY_GRAPH.md /
-         CHANGELOG.md corrective-closure notes) does not itself contain a Google
-         Fonts <link> tag, so the Vite bridge never attempts that request at all
-         and produces zero such entries. Both counts are explained by request
-         evidence (Playwright requestfailed event: errorText=net::ERR_FAILED for
-         the reference's aborted font URL; no such event fires for the candidate
-         because no request is ever issued) — this is NOT a hidden/unexplained
-         difference, and it is NOT an application error in either artifact. It is
-         recorded as a known, documented HTML-authoring gap in the current Vite
-         bridge index.html (candidate does not yet request the intended
-         IBM Plex Mono/Sans web fonts), left for a future stage to address
-         alongside the rest of the Vite bridge's HTML authoring, rather than
-         patched inside this audit closure (which is scoped to corrections
-         explicitly required by the audit, not to expanding the accepted
-         bridge implementation). */
+         page.route('**fonts...**', r => r.abort()) interception produces a real
+         requestfailed event (and a matching console entry) for the reference.
+         The current v09/index.html (accepted Stage 11C1 bridge input,
+         deliberately left unchanged per audit instruction — see
+         V09_MODULE_DEPENDENCY_GRAPH.md / CHANGELOG.md corrective-closure notes)
+         does not itself contain a Google Fonts <link> tag, so the Vite bridge
+         never issues that request at all and produces zero such events. */
       'MATCH',
-      `Explained, non-application asymmetry: reference triggers 1 harness-aborted font request (net::ERR_FAILED, confirmed via requestfailed event, NOT HTTP 403); candidate's current index.html contains no Google Fonts <link> tag so zero font requests are attempted. ref=${JSON.stringify(oClassified.harnessNoise)} cand=${JSON.stringify(cClassified.harnessNoise)}. Both are non-application, both are traced to concrete evidence, neither is treated as an application regression.`);
+      `Explained, non-application asymmetry, backed by real requestfailed evidence (not string-matching alone): ` +
+      `reference requestFailed events matching font domains: ${JSON.stringify(o.requestFailures.filter(isFontDomainFailure))}; ` +
+      `candidate requestFailed events matching font domains: ${JSON.stringify(c.requestFailures.filter(isFontDomainFailure))}. ` +
+      `Console entries consumed as harness noise (matched 1:1 against this evidence, up to its count): ref=${JSON.stringify(oClassified.harnessNoise)} cand=${JSON.stringify(cClassified.harnessNoise)}. ` +
+      `Any failed-resource console entry beyond this demonstrated font-failure count would remain unmatched and visible to the application-error comparison below.`);
 
     record('startup-console-babel-noise', 'startup', 'Reference-only Babel-runtime tooling noise',
       String(oClassified.babelNoise.length), String(cClassified.babelNoise.length),
@@ -196,10 +215,10 @@ async function measureToggle(browser, refUrl, candUrl, navSteps, activationMetho
       (oClassified.babelNoise.length >= 0 && cClassified.babelNoise.length === 0) ? 'MATCH' : 'UNEXPECTED_DIFFERENCE',
       `Reference retains runtime Babel (frozen Stage 11B compat path) and prints its deoptimisation notice; Vite bridge has zero runtime Babel by design (Stage 11C1 requirement), so zero such notices is expected and correct, not a defect. ref=${JSON.stringify(oClassified.babelNoise)} cand=${JSON.stringify(cClassified.babelNoise)}`);
 
-    record('startup-console-application-errors', 'startup', 'Genuine application console errors (excluding classified harness/Babel noise)',
+    record('startup-console-application-errors', 'startup', 'Genuine application console errors (unmatched to any harness-noise or Babel-noise evidence)',
       String(oClassified.appErrors.length), String(cClassified.appErrors.length),
       (cClassified.appErrors.length === 0 && oClassified.appErrors.length === cClassified.appErrors.length) ? 'MATCH' : 'UNEXPECTED_DIFFERENCE',
-      `Candidate application errors must be zero. ref=${JSON.stringify(oClassified.appErrors)} cand=${JSON.stringify(cClassified.appErrors)}`);
+      `Candidate application errors must be zero. Any failed-resource console message NOT backed by matching font-domain requestfailed evidence lands here, not in harness-noise. ref=${JSON.stringify(oClassified.appErrors)} cand=${JSON.stringify(cClassified.appErrors)}`);
 
     const oRoot = await root(o.p); const cRoot = await root(c.p);
     record('startup-root-render', 'startup', 'Root renders content', String(oRoot.length > 0), String(cRoot.length > 0),

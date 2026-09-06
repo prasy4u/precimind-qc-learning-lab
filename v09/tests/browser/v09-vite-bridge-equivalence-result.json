@@ -24,11 +24,11 @@
     {
       "id": "startup-console-harness-noise",
       "domain": "startup",
-      "action": "Harness-induced net::ERR_FAILED noise (own route interception)",
+      "action": "Harness-induced font-request failures (backed by real requestfailed evidence)",
       "original": "1",
       "candidate": "0",
       "classification": "MATCH",
-      "notes": "Explained, non-application asymmetry: reference triggers 1 harness-aborted font request (net::ERR_FAILED, confirmed via requestfailed event, NOT HTTP 403); candidate's current index.html contains no Google Fonts <link> tag so zero font requests are attempted. ref=[\"Failed to load resource: net::ERR_FAILED\"] cand=[]. Both are non-application, both are traced to concrete evidence, neither is treated as an application regression."
+      "notes": "Explained, non-application asymmetry, backed by real requestfailed evidence (not string-matching alone): reference requestFailed events matching font domains: [{\"url\":\"https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap\",\"errorText\":\"net::ERR_FAILED\"}]; candidate requestFailed events matching font domains: []. Console entries consumed as harness noise (matched 1:1 against this evidence, up to its count): ref=[\"Failed to load resource: net::ERR_FAILED\"] cand=[]. Any failed-resource console entry beyond this demonstrated font-failure count would remain unmatched and visible to the application-error comparison below."
     },
     {
       "id": "startup-console-babel-noise",
@@ -42,11 +42,11 @@
     {
       "id": "startup-console-application-errors",
       "domain": "startup",
-      "action": "Genuine application console errors (excluding classified harness/Babel noise)",
+      "action": "Genuine application console errors (unmatched to any harness-noise or Babel-noise evidence)",
       "original": "0",
       "candidate": "0",
       "classification": "MATCH",
-      "notes": "Candidate application errors must be zero. ref=[] cand=[]"
+      "notes": "Candidate application errors must be zero. Any failed-resource console message NOT backed by matching font-domain requestfailed evidence lands here, not in harness-noise. ref=[] cand=[]"
     },
     {
       "id": "startup-root-render",

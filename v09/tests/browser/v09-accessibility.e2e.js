@@ -5,16 +5,23 @@
  * MAINTAINED v0.9 browser test (Layer 3 — Browser/E2E).
  * Artifact Class: V09_TEST
  *
+ * Stage 11B corrective closure: EQA and LJ Space/Enter behavior is now
+ * ACTUALLY MEASURED via a deterministic DOM state indicator (the toggled
+ * point's circle `r` attribute, which flips between the "active" (r=7)
+ * and "inactive" (r=5) values on every successful toggle). Focus alone
+ * sets r=7 but does NOT constitute proof of activation — only a
+ * measured toggle (7→5 or 5→7) from a known starting state counts.
+ *
  * Tests the v0.9 compatibility artifact (v09/dist/precimind-v0.9-compat.html,
  * assembled from CURRENT v09/src via v09/tools/assemble-v09-compat.js)
  * against the validated v0.8 faithful reference
  * (dist/recovered-v0.8-faithful.html).
  *
  * Classifications used:
- *   MATCH                — identical behavior, no v0.9 change intended here
- *   INTENDED_DELTA        — documented, deliberate v0.9 accessibility fix
- *   UNEXPECTED_DIFFERENCE — any other difference (FAIL condition)
- *   BLOCKED               — test could not execute
+ *   MATCH                 — identical behavior, no v0.9 change intended here
+ *   INTENDED_DELTA         — documented, deliberate v0.9 accessibility fix
+ *   UNEXPECTED_DIFFERENCE  — any other difference (FAIL condition)
+ *   BLOCKED                — test could not execute
  *
  * Run: node v09/tests/browser/v09-accessibility.e2e.js
  */
@@ -29,8 +36,8 @@ const ROOT = path.join(__dirname, '..', '..', '..'); // /home/claude
 const V09  = path.join(ROOT, 'v09');
 const ORIG_PATH = path.join(ROOT, 'dist', 'recovered-v0.8-faithful.html');
 const CAND_PATH = path.join(V09, 'dist', 'precimind-v0.9-compat.html');
-const PORT_ORIG = 10401;
-const PORT_CAND = 10402;
+const PORT_ORIG = 10601;
+const PORT_CAND = 10602;
 
 const results = [];
 let match = 0, delta = 0, unexpected = 0, blocked = 0;
@@ -40,7 +47,7 @@ function record(id, domain, action, orig, cand, cls, notes) {
   if (notes) entry.notes = notes;
   results.push(entry);
   const sym = cls === 'MATCH' ? '✓' : cls === 'INTENDED_DELTA' ? '◆' : cls === 'BLOCKED' ? '~' : '✗';
-  console.log(`  ${sym} [${id}] ${cls}: ${action}`);
+  console.log(`  ${sym} [${id}] ${cls}: ${action} (orig=${entry.original} cand=${entry.candidate})`);
   if (cls === 'MATCH') match++;
   else if (cls === 'INTENDED_DELTA') delta++;
   else if (cls === 'UNEXPECTED_DIFFERENCE') unexpected++;
@@ -49,7 +56,7 @@ function record(id, domain, action, orig, cand, cls, notes) {
 
 function h(s) { return crypto.createHash('sha256').update(String(s || '')).digest('hex').substring(0, 16); }
 
-async function mkPage(browser, url) {
+async function freshPage(browser, url) {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'en-US', timezoneId: 'UTC' });
   const p = await ctx.newPage();
   const errors = [];
@@ -66,6 +73,42 @@ async function nav(p, label) {
 }
 async function root(p) { return p.evaluate(() => document.getElementById('root')?.innerHTML || ''); }
 
+/**
+ * Measures the toggle-point activation-state indicator (circle r attribute)
+ * for a fresh-page pair, using a specific activation method, from a common
+ * starting state (freshly focused point, r=7).
+ */
+async function measureToggle(browser, origUrl, candUrl, navSteps, activationMethod) {
+  const o = await freshPage(browser, origUrl);
+  const c = await freshPage(browser, candUrl);
+  for (const step of navSteps) { await step(o.p); await step(c.p); }
+
+  const oPoint = o.p.locator('.ljchart-point-g[role="button"][tabindex="0"]').first();
+  const cPoint = c.p.locator('.ljchart-point-g[role="button"][tabindex="0"]').first();
+
+  await oPoint.focus(); await cPoint.focus();
+  await o.p.waitForTimeout(300); await c.p.waitForTimeout(300);
+  const oRFocus = await oPoint.locator('circle').first().getAttribute('r');
+  const cRFocus = await cPoint.locator('circle').first().getAttribute('r');
+
+  if (activationMethod === 'click') {
+    await oPoint.click(); await cPoint.click();
+  } else if (activationMethod === 'Enter') {
+    await o.p.keyboard.press('Enter'); await c.p.keyboard.press('Enter');
+  } else if (activationMethod === 'Space') {
+    await o.p.keyboard.press('Space'); await c.p.keyboard.press('Space');
+  }
+  await o.p.waitForTimeout(300); await c.p.waitForTimeout(300);
+  const oRAfter = await oPoint.locator('circle').first().getAttribute('r');
+  const cRAfter = await cPoint.locator('circle').first().getAttribute('r');
+
+  const oPageErrors = o.errors.length;
+  const cPageErrors = c.errors.length;
+
+  await o.ctx.close(); await c.ctx.close();
+  return { oRFocus, cRFocus, oRAfter, cRAfter, oToggled: oRAfter !== oRFocus, cToggled: cRAfter !== cRFocus, oPageErrors, cPageErrors };
+}
+
 (async () => {
   const origServer = await createServer(ORIG_PATH, PORT_ORIG);
   const candServer = await createServer(CAND_PATH, PORT_CAND);
@@ -73,12 +116,14 @@ async function root(p) { return p.evaluate(() => document.getElementById('root')
     executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome',
     args: ['--no-sandbox', '--disable-dev-shm-usage'],
   });
+  const ORIG_URL = `http://127.0.0.1:${PORT_ORIG}/`;
+  const CAND_URL = `http://127.0.0.1:${PORT_CAND}/`;
 
   // ═══════════════ NON-REGRESSION CHECKS ═══════════════
   console.log('\n=== NON-REGRESSION: 14 destinations, 11 labs, levels ===');
   {
-    const o = await mkPage(browser, `http://127.0.0.1:${PORT_ORIG}/`);
-    const c = await mkPage(browser, `http://127.0.0.1:${PORT_CAND}/`);
+    const o = await freshPage(browser, ORIG_URL);
+    const c = await freshPage(browser, CAND_URL);
 
     const oNavCount = await o.p.evaluate(() => document.querySelectorAll('nav button').length);
     const cNavCount = await c.p.evaluate(() => document.querySelectorAll('nav button').length);
@@ -101,7 +146,6 @@ async function root(p) { return p.evaluate(() => document.getElementById('root')
       record(`screen-${scr.replace(/\W/g, '_')}`, 'nonregression', `${scr} reachable`,
         h(oR), h(cR), oR === cR ? 'MATCH' : 'UNEXPECTED_DIFFERENCE');
     }
-    // Level functionality
     for (const lv of ['beginner', 'intermediate', 'advanced', 'expert']) {
       await o.p.selectOption('#level-select', lv); await c.p.selectOption('#level-select', lv);
       await o.p.waitForTimeout(300); await c.p.waitForTimeout(300);
@@ -110,20 +154,16 @@ async function root(p) { return p.evaluate(() => document.getElementById('root')
       record(`level-${lv}`, 'nonregression', `Level ${lv} functional`,
         oLv, cLv, oLv === cLv ? 'MATCH' : 'UNEXPECTED_DIFFERENCE');
     }
-    await o.p.selectOption('#level-select', 'beginner'); await c.p.selectOption('#level-select', 'beginner');
-
-    // Page errors
     record('page-errors', 'nonregression', 'No candidate-only page errors',
       String(o.errors.length), String(c.errors.length), o.errors.length === c.errors.length ? 'MATCH' : 'UNEXPECTED_DIFFERENCE');
-
     await o.ctx.close(); await c.ctx.close();
   }
 
-  // ═══════════════ RULE DETECTIVE: CLICK UNCHANGED + ENTER/SPACE FIXED ═══════════════
+  // ═══════════════ RULE DETECTIVE: click / Enter / Space (preserved) ═══════════════
   console.log('\n=== RULE DETECTIVE: Case 3 / 1₃s / Level1-Run4 ===');
   {
-    const o = await mkPage(browser, `http://127.0.0.1:${PORT_ORIG}/`);
-    const c = await mkPage(browser, `http://127.0.0.1:${PORT_CAND}/`);
+    const o = await freshPage(browser, ORIG_URL);
+    const c = await freshPage(browser, CAND_URL);
     await nav(o.p, 'Rule Laboratory'); await nav(c.p, 'Rule Laboratory');
     await o.p.locator('#main button,[role="tab"]', { hasText: 'Rule Detective' }).first().click({ timeout: 3000 });
     await c.p.locator('#main button,[role="tab"]', { hasText: 'Rule Detective' }).first().click({ timeout: 3000 });
@@ -140,13 +180,13 @@ async function root(p) { return p.evaluate(() => document.getElementById('root')
     record('rule-hint-after-1_3s', 'rules', 'Hint = "Selected: none yet" after 1₃s',
       oHintAfterRule, cHintAfterRule, oHintAfterRule === cHintAfterRule ? 'MATCH' : 'UNEXPECTED_DIFFERENCE');
 
-    // MOUSE CLICK — must remain unchanged
+    // CLICK — must remain MATCH
     await o.p.evaluate(() => { const pt = document.querySelector('.mlj-point-g[role="button"][tabindex="0"][aria-label*="run 4"]'); if (pt) { pt.focus(); pt.dispatchEvent(new MouseEvent('click', { bubbles: true })); } });
     await c.p.evaluate(() => { const pt = document.querySelector('.mlj-point-g[role="button"][tabindex="0"][aria-label*="run 4"]'); if (pt) { pt.focus(); pt.dispatchEvent(new MouseEvent('click', { bubbles: true })); } });
     await o.p.waitForTimeout(400); await c.p.waitForTimeout(400);
     const oHintClick = await o.p.evaluate(() => document.querySelector('.point-selection-hint')?.textContent.trim() || 'ABSENT');
     const cHintClick = await c.p.evaluate(() => document.querySelector('.point-selection-hint')?.textContent.trim() || 'ABSENT');
-    record('rule-click-unchanged', 'rules', 'Click activation unchanged (Selected: 4:L1)',
+    record('rule-click', 'rules', 'Click activation (Selected: 4:L1)',
       oHintClick, cHintClick, oHintClick === cHintClick && oHintClick.includes('4:L1') ? 'MATCH' : 'UNEXPECTED_DIFFERENCE');
 
     // Deselect via click
@@ -154,118 +194,124 @@ async function root(p) { return p.evaluate(() => document.getElementById('root')
     await c.p.evaluate(() => { const pt = document.querySelector('.mlj-point-g[role="button"][tabindex="0"][aria-label*="run 4"]'); if (pt) pt.dispatchEvent(new MouseEvent('click', { bubbles: true })); });
     await o.p.waitForTimeout(400); await c.p.waitForTimeout(400);
 
-    // ENTER — v0.8 known limitation, v0.9 INTENDED FIX
+    // ENTER — v0.8 known limitation, v0.9 INTENDED FIX (preserved)
     await o.p.evaluate(() => { const pt = document.querySelector('.mlj-point-g[role="button"][tabindex="0"][aria-label*="run 4"]'); if (pt) { pt.focus(); pt.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })); } });
     await c.p.evaluate(() => { const pt = document.querySelector('.mlj-point-g[role="button"][tabindex="0"][aria-label*="run 4"]'); if (pt) { pt.focus(); pt.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })); } });
     await o.p.waitForTimeout(400); await c.p.waitForTimeout(400);
     const oHintEnter = await o.p.evaluate(() => document.querySelector('.point-selection-hint')?.textContent.trim() || 'ABSENT');
     const cHintEnter = await c.p.evaluate(() => document.querySelector('.point-selection-hint')?.textContent.trim() || 'ABSENT');
-    const v08Limitation = !oHintEnter.includes('4:L1'); // v0.8: Enter does not activate
-    const v09Fixed = cHintEnter.includes('4:L1'); // v0.9: Enter DOES activate
-    record('rule-enter-fix', 'rules', 'Enter: v0.8 no-activate → v0.9 activates (INTENDED_DELTA)',
-      oHintEnter, cHintEnter,
-      (v08Limitation && v09Fixed) ? 'INTENDED_DELTA' : 'UNEXPECTED_DIFFERENCE',
-      `v0.8=${oHintEnter} (known limitation) | v0.9=${cHintEnter} (fixed)`);
+    const v08NoActivate = !oHintEnter.includes('4:L1');
+    const v09Activates = cHintEnter.includes('4:L1');
+    record('rule-enter', 'rules', 'Enter: v0.8 no-activate → v0.9 activates',
+      oHintEnter, cHintEnter, (v08NoActivate && v09Activates) ? 'INTENDED_DELTA' : 'UNEXPECTED_DIFFERENCE');
 
-    // Deselect via Enter (only candidate, since original doesn't support it)
     await c.p.evaluate(() => { const pt = document.querySelector('.mlj-point-g[role="button"][tabindex="0"][aria-label*="run 4"]'); if (pt) { pt.focus(); pt.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })); } });
     await c.p.waitForTimeout(400);
 
-    // SPACE — v0.8 known limitation, v0.9 INTENDED FIX
+    // SPACE — v0.8 known limitation, v0.9 INTENDED FIX (preserved)
     await o.p.evaluate(() => { const pt = document.querySelector('.mlj-point-g[role="button"][tabindex="0"][aria-label*="run 4"]'); if (pt) { pt.focus(); pt.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true })); } });
     await c.p.evaluate(() => { const pt = document.querySelector('.mlj-point-g[role="button"][tabindex="0"][aria-label*="run 4"]'); if (pt) { pt.focus(); pt.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true })); } });
     await o.p.waitForTimeout(400); await c.p.waitForTimeout(400);
     const oHintSpace = await o.p.evaluate(() => document.querySelector('.point-selection-hint')?.textContent.trim() || 'ABSENT');
     const cHintSpace = await c.p.evaluate(() => document.querySelector('.point-selection-hint')?.textContent.trim() || 'ABSENT');
-    const v08SpaceLimitation = !oHintSpace.includes('4:L1');
-    const v09SpaceFixed = cHintSpace.includes('4:L1');
-    record('rule-space-fix', 'rules', 'Space: v0.8 no-activate → v0.9 activates (INTENDED_DELTA)',
-      oHintSpace, cHintSpace,
-      (v08SpaceLimitation && v09SpaceFixed) ? 'INTENDED_DELTA' : 'UNEXPECTED_DIFFERENCE',
-      `v0.8=${oHintSpace} | v0.9=${cHintSpace}`);
+    const v08SpaceNoActivate = !oHintSpace.includes('4:L1');
+    const v09SpaceActivates = cHintSpace.includes('4:L1');
+    record('rule-space', 'rules', 'Space: v0.8 no-activate → v0.9 activates',
+      oHintSpace, cHintSpace, (v08SpaceNoActivate && v09SpaceActivates) ? 'INTENDED_DELTA' : 'UNEXPECTED_DIFFERENCE');
 
     await o.ctx.close(); await c.ctx.close();
   }
 
-  // ═══════════════ LJ CHART: FOCUS/TOOLTIP + CLICK/ENTER/SPACE ═══════════════
-  console.log('\n=== LJ CHART: focus/click/Enter/Space ===');
+  // ═══════════════ LJ CHART: click / Enter / Space — MEASURED via toggle indicator ═══════════════
+  console.log('\n=== LJ CHART: measured toggle state (circle r attribute) ===');
   {
-    const o = await mkPage(browser, `http://127.0.0.1:${PORT_ORIG}/`);
-    const c = await mkPage(browser, `http://127.0.0.1:${PORT_CAND}/`);
-    await nav(o.p, 'LJ Laboratory'); await nav(c.p, 'LJ Laboratory');
-    await o.p.waitForTimeout(600); await c.p.waitForTimeout(600);
+    const navSteps = [async (p) => await nav(p, 'LJ Laboratory')];
 
-    // Focus — must remain unchanged (tooltip shows on focus)
-    const oFocusLabel = await o.p.evaluate(() => { const pt = document.querySelector('.ljchart-point-g[role="button"][tabindex="0"]'); if (pt) pt.focus(); return pt?.getAttribute('aria-label'); });
-    const cFocusLabel = await c.p.evaluate(() => { const pt = document.querySelector('.ljchart-point-g[role="button"][tabindex="0"]'); if (pt) pt.focus(); return pt?.getAttribute('aria-label'); });
-    await o.p.waitForTimeout(300); await c.p.waitForTimeout(300);
-    record('lj-focus-label', 'lj', 'Focus: accessible name unchanged',
-      oFocusLabel, cFocusLabel, oFocusLabel === cFocusLabel ? 'MATCH' : 'UNEXPECTED_DIFFERENCE');
-    const oTooltip = await o.p.evaluate(() => document.querySelector('.ljchart-tooltip')?.textContent.trim() || '');
-    const cTooltip = await c.p.evaluate(() => document.querySelector('.ljchart-tooltip')?.textContent.trim() || '');
-    record('lj-focus-tooltip', 'lj', 'Focus: tooltip shows point info (unchanged)',
-      h(oTooltip), h(cTooltip), oTooltip === cTooltip ? 'MATCH' : 'UNEXPECTED_DIFFERENCE');
+    const clickResult = await measureToggle(browser, ORIG_URL, CAND_URL, navSteps, 'click');
+    record('lj-click', 'lj', 'Click toggles active state (r: 7→5)',
+      `focus=${clickResult.oRFocus},after=${clickResult.oRAfter},toggled=${clickResult.oToggled}`,
+      `focus=${clickResult.cRFocus},after=${clickResult.cRAfter},toggled=${clickResult.cToggled}`,
+      (clickResult.oToggled === clickResult.cToggled && clickResult.oRAfter === clickResult.cRAfter) ? 'MATCH' : 'UNEXPECTED_DIFFERENCE',
+      `v0.8 click toggles r ${clickResult.oRFocus}→${clickResult.oRAfter}; v0.9 click toggles r ${clickResult.cRFocus}→${clickResult.cRAfter}`);
 
-    // Click — must remain unchanged (toggle)
-    await o.p.evaluate(() => { const pt = document.querySelector('.ljchart-point-g[role="button"][tabindex="0"]'); if (pt) pt.dispatchEvent(new MouseEvent('click', { bubbles: true })); });
-    await c.p.evaluate(() => { const pt = document.querySelector('.ljchart-point-g[role="button"][tabindex="0"]'); if (pt) pt.dispatchEvent(new MouseEvent('click', { bubbles: true })); });
-    await o.p.waitForTimeout(300); await c.p.waitForTimeout(300);
-    const oTooltipClick = await o.p.evaluate(() => document.querySelector('.ljchart-tooltip')?.textContent.trim() || '');
-    const cTooltipClick = await c.p.evaluate(() => document.querySelector('.ljchart-tooltip')?.textContent.trim() || '');
-    record('lj-click-unchanged', 'lj', 'Click toggle behavior unchanged',
-      h(oTooltipClick), h(cTooltipClick), oTooltipClick === cTooltipClick ? 'MATCH' : 'UNEXPECTED_DIFFERENCE');
+    const enterResult = await measureToggle(browser, ORIG_URL, CAND_URL, navSteps, 'Enter');
+    const v08EnterNoToggle = !enterResult.oToggled;
+    const v09EnterToggles = enterResult.cToggled;
+    const v09EnterMatchesClick = enterResult.cRAfter === clickResult.cRAfter; // same end-state as click produced
+    record('lj-enter', 'lj', 'Enter: v0.8 no-toggle (r stays 7) → v0.9 toggles (matches click result)',
+      `focus=${enterResult.oRFocus},after=${enterResult.oRAfter},toggled=${enterResult.oToggled}`,
+      `focus=${enterResult.cRFocus},after=${enterResult.cRAfter},toggled=${enterResult.cToggled}`,
+      (v08EnterNoToggle && v09EnterToggles && v09EnterMatchesClick) ? 'INTENDED_DELTA' : 'UNEXPECTED_DIFFERENCE',
+      `v0.8: focus=${enterResult.oRFocus}, after Enter=${enterResult.oRAfter} (unchanged, known limitation). v0.9: focus=${enterResult.cRFocus}, after Enter=${enterResult.cRAfter} (toggled, matches click's ${clickResult.cRAfter})`);
 
-    // Click again to re-toggle on (since click toggled off)
-    await o.p.evaluate(() => { const pt = document.querySelector('.ljchart-point-g[role="button"][tabindex="0"]'); if (pt) pt.dispatchEvent(new MouseEvent('click', { bubbles: true })); });
-    await c.p.evaluate(() => { const pt = document.querySelector('.ljchart-point-g[role="button"][tabindex="0"]'); if (pt) pt.dispatchEvent(new MouseEvent('click', { bubbles: true })); });
-    await o.p.waitForTimeout(300); await c.p.waitForTimeout(300);
+    const spaceResult = await measureToggle(browser, ORIG_URL, CAND_URL, navSteps, 'Space');
+    const v08SpaceNoToggle = !spaceResult.oToggled;
+    const v09SpaceToggles = spaceResult.cToggled;
+    const v09SpaceMatchesClick = spaceResult.cRAfter === clickResult.cRAfter;
+    record('lj-space', 'lj', 'Space: v0.8 no-toggle (r stays 7) → v0.9 toggles (matches click result)',
+      `focus=${spaceResult.oRFocus},after=${spaceResult.oRAfter},toggled=${spaceResult.oToggled}`,
+      `focus=${spaceResult.cRFocus},after=${spaceResult.cRAfter},toggled=${spaceResult.cToggled}`,
+      (v08SpaceNoToggle && v09SpaceToggles && v09SpaceMatchesClick) ? 'INTENDED_DELTA' : 'UNEXPECTED_DIFFERENCE',
+      `v0.8: focus=${spaceResult.oRFocus}, after Space=${spaceResult.oRAfter} (unchanged). v0.9: focus=${spaceResult.cRFocus}, after Space=${spaceResult.cRAfter} (toggled, matches click's ${clickResult.cRAfter})`);
 
-    // Enter — v0.8 doesn't toggle, v0.9 does
-    const oTooltipBeforeEnter = await o.p.evaluate(() => document.querySelector('.ljchart-tooltip')?.textContent.trim() || '');
-    await o.p.evaluate(() => { const pt = document.querySelector('.ljchart-point-g[role="button"][tabindex="0"]'); if (pt) { pt.focus(); pt.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })); } });
-    await c.p.evaluate(() => { const pt = document.querySelector('.ljchart-point-g[role="button"][tabindex="0"]'); if (pt) { pt.focus(); pt.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })); } });
-    await o.p.waitForTimeout(300); await c.p.waitForTimeout(300);
-    const oTooltipAfterEnter = await o.p.evaluate(() => document.querySelector('.ljchart-tooltip')?.textContent.trim() || '');
-    const cTooltipAfterEnter = await c.p.evaluate(() => document.querySelector('.ljchart-tooltip')?.textContent.trim() || '');
-    const oEnterNoChange = oTooltipAfterEnter === oTooltipBeforeEnter; // v0.8: unaffected by Enter beyond focus already having set it
-    record('lj-enter-fix', 'lj', 'Enter toggle behavior (documented INTENDED_DELTA if changed)',
-      h(oTooltipAfterEnter), h(cTooltipAfterEnter), 'INTENDED_DELTA',
-      `v0.8 Enter has no dedicated handler (focus already shows tooltip); v0.9 Enter now also toggles active state identically to click`);
-
-    await o.ctx.close(); await c.ctx.close();
+    record('lj-page-errors', 'lj', 'No page errors across LJ toggle tests',
+      String(clickResult.oPageErrors + enterResult.oPageErrors + spaceResult.oPageErrors),
+      String(clickResult.cPageErrors + enterResult.cPageErrors + spaceResult.cPageErrors),
+      (clickResult.oPageErrors + enterResult.oPageErrors + spaceResult.oPageErrors) === (clickResult.cPageErrors + enterResult.cPageErrors + spaceResult.cPageErrors) ? 'MATCH' : 'UNEXPECTED_DIFFERENCE');
   }
 
-  // ═══════════════ EQA CHART: FOCUS/CLICK/ENTER/SPACE ═══════════════
-  console.log('\n=== EQA LONGITUDINAL CHART: focus/click/Enter/Space ===');
+  // ═══════════════ EQA CHART: click / Enter / Space — MEASURED via toggle indicator ═══════════════
+  console.log('\n=== EQA LONGITUDINAL CHART: measured toggle state (circle r attribute) ===');
   {
-    const o = await mkPage(browser, `http://127.0.0.1:${PORT_ORIG}/`);
-    const c = await mkPage(browser, `http://127.0.0.1:${PORT_CAND}/`);
-    await nav(o.p, 'External Assurance Lab'); await nav(c.p, 'External Assurance Lab');
-    await o.p.locator('#main button,[role="tab"]', { hasText: /longitudinal/i }).first().click({ timeout: 3000 });
-    await c.p.locator('#main button,[role="tab"]', { hasText: /longitudinal/i }).first().click({ timeout: 3000 });
-    await o.p.waitForTimeout(600); await c.p.waitForTimeout(600);
+    const navSteps = [
+      async (p) => await nav(p, 'External Assurance Lab'),
+      async (p) => { await p.locator('#main button,[role="tab"]', { hasText: /longitudinal/i }).first().click({ timeout: 3000 }); await p.waitForTimeout(600); },
+    ];
 
-    const oHasPoint = await o.p.evaluate(() => !!document.querySelector('.ljchart-point-g[role="button"][tabindex="0"]'));
-    const cHasPoint = await c.p.evaluate(() => !!document.querySelector('.ljchart-point-g[role="button"][tabindex="0"]'));
-    if (!oHasPoint || !cHasPoint) {
-      record('eqa-point-exists', 'eqa', 'EQA longitudinal chart point exists', String(oHasPoint), String(cHasPoint), 'BLOCKED', 'No longitudinal data authored for default case');
-    } else {
-      // Click unchanged
-      await o.p.evaluate(() => { const pt = document.querySelector('.ljchart-point-g[role="button"][tabindex="0"]'); if (pt) pt.dispatchEvent(new MouseEvent('click', { bubbles: true })); });
-      await c.p.evaluate(() => { const pt = document.querySelector('.ljchart-point-g[role="button"][tabindex="0"]'); if (pt) pt.dispatchEvent(new MouseEvent('click', { bubbles: true })); });
-      await o.p.waitForTimeout(300); await c.p.waitForTimeout(300);
-      const oTip = await o.p.evaluate(() => document.querySelector('.ljchart-tooltip')?.textContent.trim() || '');
-      const cTip = await c.p.evaluate(() => document.querySelector('.ljchart-tooltip')?.textContent.trim() || '');
-      record('eqa-click-unchanged', 'eqa', 'EQA click toggle unchanged', h(oTip), h(cTip), oTip === cTip ? 'MATCH' : 'UNEXPECTED_DIFFERENCE');
+    // Verify points actually exist before proceeding
+    {
+      const check = await freshPage(browser, ORIG_URL);
+      for (const step of navSteps) await step(check.p);
+      const cnt = await check.p.evaluate(() => document.querySelectorAll('.ljchart-point-g[role="button"][tabindex="0"]').length);
+      await check.ctx.close();
+      if (cnt === 0) {
+        record('eqa-click', 'eqa', 'EQA longitudinal chart point exists', '0', '0', 'BLOCKED', 'No longitudinal data authored for default case — cannot measure');
+        record('eqa-enter', 'eqa', 'EQA longitudinal chart point exists', '0', '0', 'BLOCKED', 'No longitudinal data authored for default case — cannot measure');
+        record('eqa-space', 'eqa', 'EQA longitudinal chart point exists', '0', '0', 'BLOCKED', 'No longitudinal data authored for default case — cannot measure');
+      } else {
+        const eqaClickResult = await measureToggle(browser, ORIG_URL, CAND_URL, navSteps, 'click');
+        record('eqa-click', 'eqa', 'Click toggles active state (r: 7→5)',
+          `focus=${eqaClickResult.oRFocus},after=${eqaClickResult.oRAfter},toggled=${eqaClickResult.oToggled}`,
+          `focus=${eqaClickResult.cRFocus},after=${eqaClickResult.cRAfter},toggled=${eqaClickResult.cToggled}`,
+          (eqaClickResult.oToggled === eqaClickResult.cToggled && eqaClickResult.oRAfter === eqaClickResult.cRAfter) ? 'MATCH' : 'UNEXPECTED_DIFFERENCE',
+          `v0.8 click toggles r ${eqaClickResult.oRFocus}→${eqaClickResult.oRAfter}; v0.9 click toggles r ${eqaClickResult.cRFocus}→${eqaClickResult.cRAfter}`);
 
-      // Enter — v0.9 intended fix
-      await o.p.evaluate(() => { const pt = document.querySelector('.ljchart-point-g[role="button"][tabindex="0"]'); if (pt) { pt.focus(); pt.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })); } });
-      await c.p.evaluate(() => { const pt = document.querySelector('.ljchart-point-g[role="button"][tabindex="0"]'); if (pt) { pt.focus(); pt.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })); } });
-      await o.p.waitForTimeout(300); await c.p.waitForTimeout(300);
-      record('eqa-enter-fix', 'eqa', 'EQA Enter toggle (INTENDED_DELTA)', 'n/a', 'n/a', 'INTENDED_DELTA',
-        'Same pattern applied as LJ chart — Enter now toggles active state in v0.9');
+        const eqaEnterResult = await measureToggle(browser, ORIG_URL, CAND_URL, navSteps, 'Enter');
+        const eqaV08EnterNoToggle = !eqaEnterResult.oToggled;
+        const eqaV09EnterToggles = eqaEnterResult.cToggled;
+        const eqaV09EnterMatchesClick = eqaEnterResult.cRAfter === eqaClickResult.cRAfter;
+        record('eqa-enter', 'eqa', 'Enter: v0.8 no-toggle → v0.9 toggles (matches click)',
+          `focus=${eqaEnterResult.oRFocus},after=${eqaEnterResult.oRAfter},toggled=${eqaEnterResult.oToggled}`,
+          `focus=${eqaEnterResult.cRFocus},after=${eqaEnterResult.cRAfter},toggled=${eqaEnterResult.cToggled}`,
+          (eqaV08EnterNoToggle && eqaV09EnterToggles && eqaV09EnterMatchesClick) ? 'INTENDED_DELTA' : 'UNEXPECTED_DIFFERENCE',
+          `v0.8: focus=${eqaEnterResult.oRFocus}, after=${eqaEnterResult.oRAfter} (unchanged). v0.9: focus=${eqaEnterResult.cRFocus}, after=${eqaEnterResult.cRAfter} (toggled, matches click's ${eqaClickResult.cRAfter})`);
+
+        const eqaSpaceResult = await measureToggle(browser, ORIG_URL, CAND_URL, navSteps, 'Space');
+        const eqaV08SpaceNoToggle = !eqaSpaceResult.oToggled;
+        const eqaV09SpaceToggles = eqaSpaceResult.cToggled;
+        const eqaV09SpaceMatchesClick = eqaSpaceResult.cRAfter === eqaClickResult.cRAfter;
+        record('eqa-space', 'eqa', 'Space: v0.8 no-toggle → v0.9 toggles (matches click)',
+          `focus=${eqaSpaceResult.oRFocus},after=${eqaSpaceResult.oRAfter},toggled=${eqaSpaceResult.oToggled}`,
+          `focus=${eqaSpaceResult.cRFocus},after=${eqaSpaceResult.cRAfter},toggled=${eqaSpaceResult.cToggled}`,
+          (eqaV08SpaceNoToggle && eqaV09SpaceToggles && eqaV09SpaceMatchesClick) ? 'INTENDED_DELTA' : 'UNEXPECTED_DIFFERENCE',
+          `v0.8: focus=${eqaSpaceResult.oRFocus}, after=${eqaSpaceResult.oRAfter} (unchanged). v0.9: focus=${eqaSpaceResult.cRFocus}, after=${eqaSpaceResult.cRAfter} (toggled, matches click's ${eqaClickResult.cRAfter})`);
+
+        record('eqa-page-errors', 'eqa', 'No page errors across EQA toggle tests',
+          String(eqaClickResult.oPageErrors + eqaEnterResult.oPageErrors + eqaSpaceResult.oPageErrors),
+          String(eqaClickResult.cPageErrors + eqaEnterResult.cPageErrors + eqaSpaceResult.cPageErrors),
+          (eqaClickResult.oPageErrors + eqaEnterResult.oPageErrors + eqaSpaceResult.oPageErrors) === (eqaClickResult.cPageErrors + eqaEnterResult.cPageErrors + eqaSpaceResult.cPageErrors) ? 'MATCH' : 'UNEXPECTED_DIFFERENCE');
+      }
     }
-    await o.ctx.close(); await c.ctx.close();
   }
 
   await browser.close();
@@ -276,11 +322,12 @@ async function root(p) { return p.evaluate(() => document.getElementById('root')
   console.log(`Total: ${results.length} | MATCH: ${match} | INTENDED_DELTA: ${delta} | UNEXPECTED_DIFFERENCE: ${unexpected} | BLOCKED: ${blocked}`);
 
   const out = {
-    stage: '11B',
+    stage: '11B-corrective-closure',
     artifact_class: 'V09_TEST',
     browser: 'Chromium 141.0.7390.37',
     original_reference: 'dist/recovered-v0.8-faithful.html (validated v0.8 faithful candidate)',
     candidate: 'v09/dist/precimind-v0.9-compat.html (current v09/src, post accessibility fixes)',
+    measurement_method: 'Toggle-point activation state measured via circle r attribute (7=active/focused, 5=inactive) at a fresh page load per test, from a common focused starting state, rather than relying on tooltip text or focus alone as proof of activation.',
     summary: { total: results.length, match, intended_delta: delta, unexpected_difference: unexpected, blocked },
     checkpoints: results,
   };

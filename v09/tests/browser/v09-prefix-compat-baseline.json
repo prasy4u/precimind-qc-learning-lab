@@ -1,0 +1,26 @@
+{
+  "stage": "11B",
+  "artifact_class": "V09_TEST",
+  "record_type": "RETAINED_SUMMARY_RECORD",
+  "note": "This is the retained SUMMARY RECORD of the already-executed Stage 11B pre-accessibility-fix compatibility run. It is NOT a newly rerun historical browser trace, and individual per-checkpoint details from that run were not retained beyond this summary. Before any accessibility modification was made to v09/src, the v0.9 compatibility candidate was assembled and found to be byte-for-byte identical to the validated v0.8 faithful candidate, then differentially smoke-tested against it with 21 Playwright checkpoints.",
+  "reference_sha256": "a9fe9a3acbb8c35347cc735292ad63883778e5c12845f4da529129119b72c886",
+  "prefix_candidate_sha256": "a9fe9a3acbb8c35347cc735292ad63883778e5c12845f4da529129119b72c886",
+  "shas_identical": true,
+  "checkpoint_count": 21,
+  "match": 21,
+  "difference": 0,
+  "blocked": 0,
+  "status": "V09_COMPAT_BASELINE_MATCH",
+  "checkpoint_categories_covered": [
+    "page load",
+    "fatal page errors",
+    "initial #root DOM",
+    "14 nav destination count",
+    "initial learner level",
+    "11 progress-tracked labs reachable",
+    "Home / Competency Map / Evidence reachable",
+    "representative desktop screenshot (1440x1000)",
+    "representative mobile screenshot (390x844)"
+  ],
+  "superseded_by": "v09/tests/browser/v09-accessibility-result.json (post-fix run, includes measured Rule/LJ/EQA click-Enter-Space accessibility deltas)"
+}

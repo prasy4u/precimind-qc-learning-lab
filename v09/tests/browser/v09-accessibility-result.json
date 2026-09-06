@@ -1,13 +1,14 @@
 {
-  "stage": "11B",
+  "stage": "11B-corrective-closure",
   "artifact_class": "V09_TEST",
   "browser": "Chromium 141.0.7390.37",
   "original_reference": "dist/recovered-v0.8-faithful.html (validated v0.8 faithful candidate)",
   "candidate": "v09/dist/precimind-v0.9-compat.html (current v09/src, post accessibility fixes)",
+  "measurement_method": "Toggle-point activation state measured via circle r attribute (7=active/focused, 5=inactive) at a fresh page load per test, from a common focused starting state, rather than relying on tooltip text or focus alone as proof of activation.",
   "summary": {
-    "total": 30,
+    "total": 32,
     "match": 26,
-    "intended_delta": 4,
+    "intended_delta": 6,
     "unexpected_difference": 0,
     "blocked": 0
   },
@@ -181,80 +182,98 @@
       "classification": "MATCH"
     },
     {
-      "id": "rule-click-unchanged",
+      "id": "rule-click",
       "domain": "rules",
-      "action": "Click activation unchanged (Selected: 4:L1)",
+      "action": "Click activation (Selected: 4:L1)",
       "original": "Selected: 4:L1",
       "candidate": "Selected: 4:L1",
       "classification": "MATCH"
     },
     {
-      "id": "rule-enter-fix",
+      "id": "rule-enter",
       "domain": "rules",
-      "action": "Enter: v0.8 no-activate → v0.9 activates (INTENDED_DELTA)",
+      "action": "Enter: v0.8 no-activate → v0.9 activates",
       "original": "Selected: none yet",
       "candidate": "Selected: 4:L1",
-      "classification": "INTENDED_DELTA",
-      "notes": "v0.8=Selected: none yet (known limitation) | v0.9=Selected: 4:L1 (fixed)"
+      "classification": "INTENDED_DELTA"
     },
     {
-      "id": "rule-space-fix",
+      "id": "rule-space",
       "domain": "rules",
-      "action": "Space: v0.8 no-activate → v0.9 activates (INTENDED_DELTA)",
+      "action": "Space: v0.8 no-activate → v0.9 activates",
       "original": "Selected: none yet",
       "candidate": "Selected: 4:L1",
+      "classification": "INTENDED_DELTA"
+    },
+    {
+      "id": "lj-click",
+      "domain": "lj",
+      "action": "Click toggles active state (r: 7→5)",
+      "original": "focus=7,after=5,toggled=true",
+      "candidate": "focus=7,after=5,toggled=true",
+      "classification": "MATCH",
+      "notes": "v0.8 click toggles r 7→5; v0.9 click toggles r 7→5"
+    },
+    {
+      "id": "lj-enter",
+      "domain": "lj",
+      "action": "Enter: v0.8 no-toggle (r stays 7) → v0.9 toggles (matches click result)",
+      "original": "focus=7,after=7,toggled=false",
+      "candidate": "focus=7,after=5,toggled=true",
       "classification": "INTENDED_DELTA",
-      "notes": "v0.8=Selected: none yet | v0.9=Selected: 4:L1"
+      "notes": "v0.8: focus=7, after Enter=7 (unchanged, known limitation). v0.9: focus=7, after Enter=5 (toggled, matches click's 5)"
     },
     {
-      "id": "lj-focus-label",
+      "id": "lj-space",
       "domain": "lj",
-      "action": "Focus: accessible name unchanged",
-      "original": "Run 1, value 99.20, -0.40 SD",
-      "candidate": "Run 1, value 99.20, -0.40 SD",
-      "classification": "MATCH"
-    },
-    {
-      "id": "lj-focus-tooltip",
-      "domain": "lj",
-      "action": "Focus: tooltip shows point info (unchanged)",
-      "original": "22ee87820b76245a",
-      "candidate": "22ee87820b76245a",
-      "classification": "MATCH"
-    },
-    {
-      "id": "lj-click-unchanged",
-      "domain": "lj",
-      "action": "Click toggle behavior unchanged",
-      "original": "c6e76d75f3dfd493",
-      "candidate": "c6e76d75f3dfd493",
-      "classification": "MATCH"
-    },
-    {
-      "id": "lj-enter-fix",
-      "domain": "lj",
-      "action": "Enter toggle behavior (documented INTENDED_DELTA if changed)",
-      "original": "22ee87820b76245a",
-      "candidate": "c6e76d75f3dfd493",
+      "action": "Space: v0.8 no-toggle (r stays 7) → v0.9 toggles (matches click result)",
+      "original": "focus=7,after=7,toggled=false",
+      "candidate": "focus=7,after=5,toggled=true",
       "classification": "INTENDED_DELTA",
-      "notes": "v0.8 Enter has no dedicated handler (focus already shows tooltip); v0.9 Enter now also toggles active state identically to click"
+      "notes": "v0.8: focus=7, after Space=7 (unchanged). v0.9: focus=7, after Space=5 (toggled, matches click's 5)"
     },
     {
-      "id": "eqa-click-unchanged",
+      "id": "lj-page-errors",
+      "domain": "lj",
+      "action": "No page errors across LJ toggle tests",
+      "original": "0",
+      "candidate": "0",
+      "classification": "MATCH"
+    },
+    {
+      "id": "eqa-click",
       "domain": "eqa",
-      "action": "EQA click toggle unchanged",
-      "original": "0cc02a8bd4c17a97",
-      "candidate": "0cc02a8bd4c17a97",
-      "classification": "MATCH"
+      "action": "Click toggles active state (r: 7→5)",
+      "original": "focus=7,after=5,toggled=true",
+      "candidate": "focus=7,after=5,toggled=true",
+      "classification": "MATCH",
+      "notes": "v0.8 click toggles r 7→5; v0.9 click toggles r 7→5"
     },
     {
-      "id": "eqa-enter-fix",
+      "id": "eqa-enter",
       "domain": "eqa",
-      "action": "EQA Enter toggle (INTENDED_DELTA)",
-      "original": "n/a",
-      "candidate": "n/a",
+      "action": "Enter: v0.8 no-toggle → v0.9 toggles (matches click)",
+      "original": "focus=7,after=7,toggled=false",
+      "candidate": "focus=7,after=5,toggled=true",
       "classification": "INTENDED_DELTA",
-      "notes": "Same pattern applied as LJ chart — Enter now toggles active state in v0.9"
+      "notes": "v0.8: focus=7, after=7 (unchanged). v0.9: focus=7, after=5 (toggled, matches click's 5)"
+    },
+    {
+      "id": "eqa-space",
+      "domain": "eqa",
+      "action": "Space: v0.8 no-toggle → v0.9 toggles (matches click)",
+      "original": "focus=7,after=7,toggled=false",
+      "candidate": "focus=7,after=5,toggled=true",
+      "classification": "INTENDED_DELTA",
+      "notes": "v0.8: focus=7, after=7 (unchanged). v0.9: focus=7, after=5 (toggled, matches click's 5)"
+    },
+    {
+      "id": "eqa-page-errors",
+      "domain": "eqa",
+      "action": "No page errors across EQA toggle tests",
+      "original": "0",
+      "candidate": "0",
+      "classification": "MATCH"
     }
   ]
 }

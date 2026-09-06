@@ -72,3 +72,14 @@ Every future v0.9 stage report must state, separately:
 1. The v0.8 historical regression result (expected: unchanged at 3849/3849, 30 suites, forever)
 2. The v0.9 test totals (Stage 11A governance + Stage 11B governance + unit + integration, growing over time)
 3. Browser checkpoint counts by classification (MATCH / INTENDED_DELTA / UNEXPECTED_DIFFERENCE / BLOCKED) — never folded into the Node assertion totals unless they are literally implemented as Node assertions (e.g. a Node test that validates a stored browser-test JSON result, as done for the v0.8 Stage 10B–10F historical validators).
+
+---
+
+## Development-Baseline Integrity Rule (Stage 11B Corrective Closure)
+
+**Every accepted v0.9 runtime source artifact has an expected-current SHA in the v09 source manifest** (`v09/tools/v09-source-order.json`), recorded alongside its immutable v0.8 baseline SHA. This creates a two-value governance model per file:
+
+- `v08_baseline_sha256` — the original value from the validated v0.8 recovery, which never changes.
+- `expected_current_v09_sha256` — the accepted, admitted current state of the v0.9 derivative, which starts equal to the baseline and is updated only when a v0.9 modification is intentionally admitted.
+
+**Unexpected source drift causes compatibility assembly failure until the change is intentionally admitted and documented.** The assembler (`v09/tools/assemble-v09-compat.js`) computes the actual on-disk SHA-256 of every runtime file and requires it to equal `expected_current_v09_sha256`; any other value is treated as unexpected drift and causes the assembler to print a diagnostic (path, expected SHA, actual SHA) and exit non-zero **before writing any output** — it does not merely log a warning and continue. To make an intentional v0.9 modification: update the file, then update its `expected_current_v09_sha256` in the manifest and record the change with rationale in `v09/docs/v08-to-v09-baseline-map.json`, then re-run the assembler. This ordering (admit-then-assemble) makes every accepted change auditable and prevents accidental or unreviewed drift from silently propagating into the assembled artifact.

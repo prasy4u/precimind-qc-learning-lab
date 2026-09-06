@@ -61,3 +61,23 @@
 - Vite is NOT installed; no build tooling added
 - Morning QC Room schema/engine/case/UI — not started
 - TD-001 (19-mount cleanup) — not addressed
+
+### Stage 11B Corrective Closure
+
+Independent audit identified two validation/integrity defects in the initial Stage 11B work, corrected here without reopening the architectural decision (ADR-001 remains ACCEPTED — target unified Vite/React build, migration deferred to Stage 11C):
+
+**1. Assembler changed from drift-warning to fail-closed SHA enforcement.**
+- `v09/tools/v09-source-order.json` revised to a two-SHA model: every runtime source entry now records both `v08_baseline_sha256` (immutable) and `expected_current_v09_sha256` (the admitted current state).
+- `v09/tools/assemble-v09-compat.js` rewritten: any file whose on-disk SHA does not match its `expected_current_v09_sha256` causes the assembler to print `ASSEMBLY FAIL: Unexpected SHA drift` (with path, expected SHA, actual SHA) and **exit non-zero before writing output** — replacing the previous permissive `[MODIFIED since manifest]` log-and-continue behavior.
+- New `v09/tests/unit/v09-assembler-drift-fail.test.js`: proves fail-closed behavior using an isolated temporary workspace (never touches real `v09/src`) — confirms (A) clean source assembles successfully, (B) a simulated one-character drift causes non-zero exit with the correct diagnostic, (C) the previously-accepted candidate file is not corrupted or overwritten by the failed attempt.
+
+**2. EQA and LJ Space/Enter browser behavior genuinely measured (was previously declared, not measured).**
+- The maintained `v09/tests/browser/v09-accessibility.e2e.js` now uses a deterministic DOM state indicator (the toggled point's SVG circle `r` attribute, which flips between 7=active and 5=inactive on every successful toggle) to distinguish focus-only from actual activation — tooltip visibility alone is no longer treated as proof.
+- LJ chart: click/Enter/Space are now each independently measured from a fresh, common focused starting state. Click: MATCH. Enter: `INTENDED_DELTA` (v0.8 leaves state unchanged; v0.9 toggles, matching v0.9's own click result). Space: `INTENDED_DELTA` (same pattern).
+- EQA chart: the previous invalid checkpoint recording `original="n/a", candidate="n/a"` has been removed entirely. EQA click/Enter/Space are now measured identically to LJ, using the default longitudinal round data. Click: MATCH. Enter: `INTENDED_DELTA`. Space: `INTENDED_DELTA`.
+- Result: 32 checkpoints (was 30) — 26 MATCH, 6 INTENDED_DELTA (Rule Enter/Space + LJ Enter/Space + EQA Enter/Space), 0 UNEXPECTED_DIFFERENCE, 0 BLOCKED.
+- New `v09/tests/browser/v09-prefix-compat-baseline.json`: retained summary record of the already-executed pre-fix compatibility run (21/21 MATCH, `V09_COMPAT_BASELINE_MATCH`), explicitly labeled as a summary record rather than a freshly rerun trace.
+
+**Test totals updated:** Stage 11B governance test grew from 39 to 67 assertions (added two-SHA manifest checks, fail-closed assembler checks, browser-evidence-quality checks, pre-fix record checks). New unit test `v09-assembler-drift-fail.test.js` adds 16 assertions.
+
+**No architecture change.** ADR-001 status unchanged. No Vite/build tooling installed. No Morning QC Room work performed.

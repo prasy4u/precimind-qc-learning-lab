@@ -89,6 +89,50 @@ assert('C-04', Array.isArray(manifest.application_modules) && manifest.applicati
   `Manifest lists 34 application modules (found ${manifest.application_modules.length})`);
 
 /* -----------------------------------------------------------------------
+   SECTION C2: Two-SHA governance model + fail-closed drift behavior
+   ----------------------------------------------------------------------- */
+console.log('\n=== SECTION C2: Two-SHA manifest model + fail-closed assembler ===');
+
+// Every entry must have both baseline and expected-current SHA fields
+const allEntries = [manifest.css, manifest.runtime_bootstrap, ...manifest.application_modules];
+const allHaveBothFields = allEntries.every(e => e.v08_baseline_sha256 && e.expected_current_v09_sha256);
+assert('C2-01', allHaveBothFields,
+  'Every manifest entry has both v08_baseline_sha256 and expected_current_v09_sha256');
+
+// Exactly 3 runtime source files (application modules) have current != baseline
+const driftedModules = manifest.application_modules.filter(m => m.v08_baseline_sha256 !== m.expected_current_v09_sha256);
+assert('C2-02', driftedModules.length === 3,
+  `Exactly 3 application modules have expected-current SHA different from baseline (found ${driftedModules.length})`);
+
+const EXPECTED_MODIFIED_PATHS = new Set(['src/rules/ui-components.jsx', 'src/ui/shared-components.jsx', 'src/eqa/ui-components.jsx']);
+const driftedPaths = new Set(driftedModules.map(m => m.path));
+assert('C2-03', driftedPaths.size === 3 && [...EXPECTED_MODIFIED_PATHS].every(p => driftedPaths.has(p)),
+  `The 3 drifted modules are exactly the known accessibility-modified files (found: ${[...driftedPaths].join(', ')})`);
+
+// All expected-current SHAs match disk
+let allCurrentMatchDisk = true;
+for (const mod of manifest.application_modules) {
+  const full = path.join(V09, mod.path);
+  const actual = crypto.createHash('sha256').update(fs.readFileSync(full, 'utf8')).digest('hex');
+  if (actual !== mod.expected_current_v09_sha256) allCurrentMatchDisk = false;
+}
+const cssFull = path.join(V09, manifest.css.path);
+if (crypto.createHash('sha256').update(fs.readFileSync(cssFull, 'utf8')).digest('hex') !== manifest.css.expected_current_v09_sha256) allCurrentMatchDisk = false;
+const bootFull = path.join(V09, manifest.runtime_bootstrap.path);
+if (crypto.createHash('sha256').update(fs.readFileSync(bootFull, 'utf8')).digest('hex') !== manifest.runtime_bootstrap.expected_current_v09_sha256) allCurrentMatchDisk = false;
+assert('C2-04', allCurrentMatchDisk,
+  'All expected_current_v09_sha256 values match actual on-disk file content');
+
+// Assembler source contains fail-closed drift logic
+const assemblerSrc = fs.readFileSync(path.join(V09, 'tools', 'assemble-v09-compat.js'), 'utf8');
+assert('C2-05', assemblerSrc.includes('Unexpected SHA drift'),
+  'Assembler source contains "Unexpected SHA drift" fail message');
+assert('C2-06', /process\.exit\(1\)/.test(assemblerSrc) && assemblerSrc.includes('ASSEMBLY FAIL'),
+  'Assembler exits non-zero on drift (fail-closed, not merely logged)');
+assert('C2-07', !assemblerSrc.includes('[MODIFIED since manifest]'),
+  'Assembler no longer uses the old permissive "[MODIFIED since manifest]" log-and-continue pattern');
+
+/* -----------------------------------------------------------------------
    SECTION D: Baseline-map statuses match actual changed files
    ----------------------------------------------------------------------- */
 console.log('\n=== SECTION D: Baseline-map consistency ===');
@@ -186,6 +230,63 @@ console.log('\n=== SECTION H: Morning QC Room implementation absent ===');
   assert(`H-01-${f}`, !fs.existsSync(path.join(V09, 'src', 'morning-qc', f)),
     `${f} NOT implemented (Stage 11B is foundation only)`);
 });
+
+/* -----------------------------------------------------------------------
+   SECTION I0: Browser accessibility evidence — genuinely measured
+   ----------------------------------------------------------------------- */
+console.log('\n=== SECTION I0: Browser accessibility evidence ===');
+
+const browserResultPath = path.join(V09, 'tests', 'browser', 'v09-accessibility-result.json');
+assert('I0-01', fs.existsSync(browserResultPath), 'v09-accessibility-result.json exists');
+const browserResult = JSON.parse(fs.readFileSync(browserResultPath, 'utf8'));
+
+const REQUIRED_CHECKPOINT_IDS = [
+  'rule-click', 'rule-enter', 'rule-space',
+  'lj-click', 'lj-enter', 'lj-space',
+  'eqa-click', 'eqa-enter', 'eqa-space',
+];
+const checkpointIds = new Set(browserResult.checkpoints.map(cp => cp.id));
+for (const id of REQUIRED_CHECKPOINT_IDS) {
+  assert(`I0-02-${id}`, checkpointIds.has(id), `Browser result includes required checkpoint: ${id}`);
+}
+
+const naViolations = browserResult.checkpoints.filter(cp =>
+  REQUIRED_CHECKPOINT_IDS.includes(cp.id) && (cp.original === 'n/a' || cp.candidate === 'n/a')
+);
+assert('I0-03', naViolations.length === 0,
+  `No required accessibility checkpoint uses "n/a" as evidence (found ${naViolations.length} violations)`);
+
+const ljSpace = browserResult.checkpoints.find(cp => cp.id === 'lj-space');
+assert('I0-04', ljSpace && ljSpace.original.includes('focus=') && ljSpace.candidate.includes('focus='),
+  'lj-space has genuine measured focus/after state values');
+const eqaEnter = browserResult.checkpoints.find(cp => cp.id === 'eqa-enter');
+assert('I0-05', eqaEnter && eqaEnter.original.includes('focus=') && eqaEnter.candidate.includes('focus='),
+  'eqa-enter has genuine measured focus/after state values');
+const eqaSpace = browserResult.checkpoints.find(cp => cp.id === 'eqa-space');
+assert('I0-06', eqaSpace && eqaSpace.original.includes('focus=') && eqaSpace.candidate.includes('focus='),
+  'eqa-space has genuine measured focus/after state values');
+
+assert('I0-07', browserResult.summary.unexpected_difference === 0,
+  `Browser result: UNEXPECTED_DIFFERENCE = 0 (found ${browserResult.summary.unexpected_difference})`);
+assert('I0-08', browserResult.summary.blocked === 0,
+  `Browser result: BLOCKED = 0 (found ${browserResult.summary.blocked})`);
+
+/* -----------------------------------------------------------------------
+   SECTION I1: Pre-fix baseline summary record
+   ----------------------------------------------------------------------- */
+console.log('\n=== SECTION I1: Pre-fix compatibility baseline record ===');
+
+const prefixPath = path.join(V09, 'tests', 'browser', 'v09-prefix-compat-baseline.json');
+assert('I1-01', fs.existsSync(prefixPath), 'v09-prefix-compat-baseline.json exists');
+const prefix = JSON.parse(fs.readFileSync(prefixPath, 'utf8'));
+assert('I1-02', prefix.reference_sha256 === 'a9fe9a3acbb8c35347cc735292ad63883778e5c12845f4da529129119b72c886',
+  'Pre-fix record: reference SHA correct');
+assert('I1-03', prefix.checkpoint_count === 21 && prefix.match === 21 && prefix.difference === 0,
+  'Pre-fix record: 21 checkpoints, 21 match, 0 difference');
+assert('I1-04', prefix.status === 'V09_COMPAT_BASELINE_MATCH',
+  'Pre-fix record: status = V09_COMPAT_BASELINE_MATCH');
+assert('I1-05', prefix.record_type === 'RETAINED_SUMMARY_RECORD',
+  'Pre-fix record explicitly labeled as a retained summary, not a fresh historical trace');
 
 /* -----------------------------------------------------------------------
    SECTION I: No Vite / build dependency added

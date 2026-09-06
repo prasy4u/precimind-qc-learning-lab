@@ -1,7 +1,7 @@
 {
   "stage": "11C1",
   "artifact_class": "V09_TEST",
-  "description": "Recorded evidence of the three-way build-tree hash reproducibility test performed during Stage 11C1: (A) initial build, (B) remove-and-rebuild, (C) clean npm ci + rebuild. All three produced the identical deterministic build-tree hash.",
+  "description": "Recorded evidence of the three-way build-tree hash reproducibility test performed during Stage 11C1: (A) initial build, (B) remove-and-rebuild, (C) clean npm ci + rebuild. All three produced the identical deterministic build-tree hash. During the Stage 11C1 audit corrective closure, an index.html change (adding Google Fonts <link> tags) was tried, verified to change the hash as expected, then DELIBERATELY REVERTED per audit instruction to leave the accepted bridge build infrastructure unchanged unless a correction genuinely requires it -- console-error classification (the actual correction required) does not require modifying index.html, only correctly explaining the existing asymmetry. The retained accepted hash below is confirmed unchanged after that revert.",
   "reproduction_a_sha": "c0407262fae35c913ec802740f27c37289e31038de9ad4cd542bb803e61d2e65",
   "reproduction_b_sha": "c0407262fae35c913ec802740f27c37289e31038de9ad4cd542bb803e61d2e65",
   "npm_ci_sha": "c0407262fae35c913ec802740f27c37289e31038de9ad4cd542bb803e61d2e65",

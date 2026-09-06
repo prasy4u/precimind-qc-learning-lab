@@ -247,7 +247,7 @@
         "src/core/statistics.js"
       ],
       "react_dependencies": [
-        "defines: const { useState, useMemo, useRef, useEffect } = React;"
+        "Stage 11C2 plan: import { useState, useMemo, useRef, useEffect } from \"react\" directly in this file (replacing the current concatenation-scope destructuring const { useState, ... } = React;). This module is the SOLE ORIGIN of the current implicit hook global relied upon by 12 other modules (see Section 3A of V09_MODULE_DEPENDENCY_GRAPH.md) \u2014 after Stage 11C2, those 12 modules must each gain their own explicit react import instead."
       ],
       "scientific_dependencies": [
         "src/core/statistics.js"
@@ -265,11 +265,7 @@
         "MetricCard",
         "Modal",
         "ScientificBasisNote",
-        "SliderField",
-        "useEffect",
-        "useMemo",
-        "useRef",
-        "useState"
+        "SliderField"
       ],
       "proposed_stage11c2_imports": [
         {
@@ -288,8 +284,8 @@
           ]
         }
       ],
-      "migration_risk": "LOW",
-      "migration_notes": "Narrow, well-defined dependency on 1 other module(s). Conversion requires adding a small number of straightforward named imports."
+      "migration_risk": "MODERATE",
+      "migration_notes": "RECLASSIFIED from an initial LOW rating during the Stage 11C1 audit corrective closure. The initial classification considered only this module's own upstream dependency count (1 module: statistics.js), which is genuinely narrow. However, migration risk must also weigh downstream centrality and runtime coupling: shared-components.jsx has the WIDEST direct fan-out of any of the 34 modules (13 direct consumers of its exported symbols \u2014 Badge, LJChart, MetricCard, Modal, SliderField, etc.) and is additionally the SOLE origin of the implicit React-hook global (useState/useMemo/useRef/useEffect destructured here and relied upon bare by 12 other modules via concatenation scope). The union of these two groups is 16 of the 34 modules \u2014 nearly half the codebase has some dependency on this file, either directly or through the hook-global side effect. A migration error here has a correspondingly wide blast radius. It is not classified HIGH (unlike app-shell.jsx) because it has no historical mount-consolidation responsibility, no startup-order criticality of its own, and its own required import list remains small (just statistics.js + react) \u2014 the risk is entirely about downstream breakage if its exports/hook-import change is done incorrectly, not about the difficulty of converting this file itself."
     },
     {
       "path": "src/ui/core-screens.jsx",

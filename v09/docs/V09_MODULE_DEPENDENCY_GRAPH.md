@@ -105,9 +105,22 @@ Each requires only: replace the CommonJS guard with `export { ... }` (or inline 
 
 ---
 
-## 9. Shared Components (Broad Fan-Out)
+## 9. Shared Components (Broad Fan-Out) — Corrected Dependency Counts
 
-`src/ui/shared-components.jsx` (order 3) is consumed by **21 of the remaining 31 modules** (every domain `ui-components.jsx` and `screens.jsx` file, plus `core-screens.jsx` and `app-shell.jsx`), making it the single most widely-depended-upon module in the codebase. It is also the **sole source of the implicit React-hook global** (Section 3A) — the two concerns compound: Stage 11C2 must both (a) add explicit named imports from `shared-components.jsx` wherever `Badge`, `SliderField`, `MetricCard`, `LJChart`, etc. are used, and (b) add explicit `react` hook imports to the 12 modules currently relying on the implicit destructuring.
+**Corrected during the Stage 11C1 audit closure.** The previous version of this document stated an unsupported merged figure ("21 of the remaining 31 modules"). The verified counts, recomputed directly from the machine-readable graph, distinguish two genuinely different dependency mechanisms:
+
+| Group | Count | Modules |
+|---|---|---|
+| **DIRECT** consumers of `shared-components.jsx` exported symbols (Badge, LJChart, MetricCard, Modal, SliderField, etc.) | **13** | `core-screens.jsx`, `rules/ui-components.jsx`, `rules/screens.jsx`, `strategy/ui-components.jsx`, `strategy/screens.jsx`, `risk/ui-components.jsx`, `risk/screens.jsx`, `investigation/screens.jsx`, `eqa/screens.jsx`, `bv/ui-components.jsx`, `bv/screens.jsx`, `pbrtqc/ui-components.jsx`, `pbrtqc/screens.jsx` |
+| **IMPLICIT** React-hook-global consumers (bare `useState`/`useMemo`/`useRef`/`useEffect`, no local import — see Section 3A) | **12** | `core-screens.jsx`, `rules/ui-components.jsx`, `rules/screens.jsx`, `strategy/screens.jsx`, `risk/screens.jsx`, `investigation/ui-components.jsx`, `investigation/screens.jsx`, `eqa/ui-components.jsx`, `eqa/screens.jsx`, `bv/screens.jsx`, `pbrtqc/screens.jsx`, `app-shell.jsx` |
+| **In BOTH groups** (direct consumer AND implicit-hook reliant) | **9** | `core-screens.jsx`, `rules/ui-components.jsx`, `rules/screens.jsx`, `strategy/screens.jsx`, `risk/screens.jsx`, `investigation/screens.jsx`, `eqa/screens.jsx`, `bv/screens.jsx`, `pbrtqc/screens.jsx` |
+| **UNION** (either direct OR implicit) | **16** | (the 13 direct + the 3 implicit-only: `investigation/ui-components.jsx`, `eqa/ui-components.jsx`, `app-shell.jsx`) |
+
+These are two **separate mechanisms** and must not be merged into one unsupported number:
+- **Direct consumption** is an ordinary, source-visible dependency — each of the 13 modules already contains an explicit reference to the exact symbol it uses (`<Badge>`, `<SliderField>`, etc.), so Stage 11C2 conversion is a straightforward matter of adding the corresponding named `import { Badge, SliderField, ... } from "./shared-components.jsx"`.
+- **Implicit hook-global reliance** is a *hidden* dependency — none of the 12 modules contains any source-visible reference to `shared-components.jsx` for this purpose; the coupling exists only because of concatenation-scope execution order. This is qualitatively riskier because a migration script or reviewer scanning for "what does this file import" would not discover the need for a `react` import without already knowing about this pattern.
+
+`shared-components.jsx` is the sole origin of the implicit hook global (Section 3A). Stage 11C2 must (a) add explicit named imports from `shared-components.jsx` in the 13 direct-consumer modules, and (b) add explicit `react` hook imports in the 12 implicit-consumer modules — these are two independent migration tasks affecting overlapping but distinct sets of files (16 modules in total, per the union above).
 
 `src/ui/core-screens.jsx` (order 4) plays a similar but narrower shared role for the Home/Diagnostic/Competency-Map/Statistics/LJ/Pattern-Challenge/Evidence screens specifically (these are not organized under a per-domain subdirectory the way the 7 later labs are).
 
@@ -139,20 +152,21 @@ This is not a "scientifically important, therefore high risk" classification —
 
 ## 13. Runtime/Startup Dependencies — the 19 Mounts and the Path to Single-Root
 
-**Current state (frozen, unchanged in Stage 11C1):** `app-shell.jsx` contains exactly 19 syntactically identical occurrences of `ReactDOM.createRoot(rootEl).render(<App />);`. Stage 10A–10D (v0.8 recovery) established that this produces **zero observable functional difference** from a single mount call — the DOM ends up with exactly one root child regardless. The repeated calls are historical/recovered source, not an intentional design choice, and have no demonstrated behavioral purpose.
+**Corrected during the Stage 11C1 audit closure.** The previous version of this document overstated what the frozen v0.8 historical record actually established. The accurate historical record is:
 
-**Recommended Stage 11C2 approach:** once the 34 modules are converted to genuine ES modules with a single authored entry point, the natural single-root Vite/React pattern is:
+**Current state (frozen, unchanged in Stage 11C1):** `app-shell.jsx` contains exactly 19 syntactically identical occurrences of `ReactDOM.createRoot(rootEl).render(<App />);`. The frozen v0.8/Stage-11B historical evidence states:
+- All 19 calls were preserved unchanged throughout the v0.8 recovery.
+- Stage 10B directly measured that after execution, `#root` contained exactly **one DOM child** in both the original artifact and the faithful Class B candidate.
+- The **internal React-root disposition was NOT further instrumented** — Stage 10A/10B explicitly did not measure what happens internally when 19 `createRoot` calls execute against the same DOM node (e.g., whether earlier roots are silently replaced, whether React warns internally, etc.) — only the externally observable single-child outcome was measured.
+- Later browser validation stages (10C–10F) found no mount-related observable errors during their respective testing scopes.
+- The v0.8 decision, based on this evidence, was to **PRESERVE** the historical 19 calls rather than deduplicate them — not because a 19-vs-1 comparison was performed and found equivalent, but because no demonstrated defect justified modifying frozen recovered source.
 
-```js
-// entry point (e.g. src/main.jsx), NOT part of the 34 legacy modules
-import { createRoot } from "react-dom/client";
-import App from "./ui/app-shell.jsx"; // App exported, not the 19 mount lines
+**This document previously and incorrectly stated that "Stage 10A–10D proved that reducing 19→1 produces no behavioral difference."** No such experiment was performed at any point in the v0.8 recovery or Stage 11C1. A single-mount version of `app-shell.jsx` has never been built or tested against the frozen reference. This correction does not change the doctrine or the Stage 11C2 target architecture — it only corrects an unsupported evidentiary claim.
 
-const rootEl = document.getElementById("root");
-createRoot(rootEl).render(<App />);
-```
-
-The 19 repeated calls in `app-shell.jsx` should be **replaced by a single call**, with `App` exported as a named or default export instead of being mounted from within its own defining module. Because Stage 10A–10D already proved that reducing 19→1 produces no behavioral change (both produce the identical single-root outcome), this collapse is expected to be a **safe, low-risk** part of Stage 11C2's single-root conversion — but it should still be validated with the same before/after browser-equivalence rigor used throughout this project, not merely assumed safe from documentation alone.
+**Correct Stage 11C2 doctrine:**
+- **19 → 1 remains the TARGET architecture for Stage 11C2** (a single authored entry point outside the legacy 34 modules, calling `createRoot(rootEl).render(<App />)` once), because this is the ordinary, idiomatic pattern for any ES-module React application and is required to export `App` as a genuine module symbol rather than have `app-shell.jsx` self-mount 19 times.
+- **This target is NOT pre-proven behaviorally equivalent by any prior stage.** Reducing 19 calls to 1 is a real code change to startup behavior that has not yet been tested.
+- **Stage 11C2 must establish this equivalence experimentally**, using the same before/after browser-equivalence rigor applied throughout this project (Playwright differential testing against the frozen Stage 11C1 Vite bridge reference — not the older v0.8/Stage-11B reference, since Stage 11C2 builds on top of the Stage 11C1 bridge). The externally observable Stage 10B finding (root ends with one child either way) is a reasonable basis for expecting the collapse to be safe, but expectation is not proof, and Stage 11C2 must not skip the validation step on the assumption that this is already settled.
 
 ---
 
@@ -180,16 +194,23 @@ No temporary adapter layer is anticipated to be strictly *required* by the depen
 
 ## 16. Summary Statistics
 
+**Revised during the Stage 11C1 audit corrective closure** — see Sections 9 and 12 above for the corrected shared-component dependency counts and mount-provenance wording, and the migration-risk revision note immediately below.
+
 | Metric | Value |
 |---|---|
 | Total application modules inspected | **34** |
 | Modules with CommonJS recovery-wrapper guard | **14** |
-| Modules relying on the implicit React-hook global | **12** |
+| Modules with DIRECT `shared-components.jsx` symbol consumption | **13** |
+| Modules relying on the IMPLICIT React-hook global | **12** |
+| Modules in both groups | **9** |
+| Union (direct or implicit `shared-components.jsx` dependency) | **16** |
 | Identifier collisions found | **0** |
 | Circular dependencies found | **0** (6 false-positive candidates from documentation-text mentions, ruled out by direct inspection) |
-| Migration risk: LOW | **23** |
-| Migration risk: MODERATE | **10** |
+| Migration risk: LOW | **22** |
+| Migration risk: MODERATE | **11** |
 | Migration risk: HIGH | **1** (`src/ui/app-shell.jsx` only) |
-| Historical `ReactDOM.createRoot` mount calls (unchanged in Stage 11C1) | **19**, all in `app-shell.jsx` |
+| Historical `ReactDOM.createRoot` mount calls (unchanged in Stage 11C1) | **19**, all in `app-shell.jsx` — target 19→1 for Stage 11C2, NOT pre-proven equivalent by any prior stage (see Section 13) |
+
+**Migration-risk revision:** `src/ui/shared-components.jsx` was reclassified from LOW to **MODERATE** during this audit closure. The original LOW rating considered only this module's own upstream dependency count (1 module), which is genuinely narrow, but ignored its downstream centrality: it has the widest fan-out of any of the 34 modules (13 direct consumers) and is the sole origin of the implicit hook-global relied on by 12 modules (16 in union). A migration error here has a correspondingly wide blast radius, which the risk doctrine (Stage 11C1 Section 20 of the original spec) requires to be reflected in the classification. It remains below HIGH because it has no mount-consolidation responsibility, no startup-order criticality of its own, and its own upstream import list is trivial.
 
 Stage 11C2 is **not** performed in this stage. This document is architecture-planning input only.

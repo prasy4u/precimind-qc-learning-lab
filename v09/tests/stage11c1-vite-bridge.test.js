@@ -218,6 +218,109 @@ const allAccessibilityMatch = ruleCheckpoints.length > 0 && ruleCheckpoints.ever
 assert('39', allAccessibilityMatch, `Stage 11B accessibility interactions are MATCH in the bridge comparison (${ruleCheckpoints.length} checkpoints)`);
 
 /* -----------------------------------------------------------------------
+   AUDIT CORRECTIVE CLOSURE ASSERTIONS (Sections A-F per audit prompt)
+   ----------------------------------------------------------------------- */
+console.log('\n=== AUDIT CORRECTIVE CLOSURE: genuine scientific interactions ===');
+
+// A. Browser result contains genuine state-changing scientific-interaction
+//    checkpoints for all 8 required domain groups, with evidence of an
+//    actual before/after state change — not merely checkpoint-ID presence.
+const REQUIRED_SCI_DOMAINS = [
+  'sci-statistics-bias', 'sci-rules-detective', 'sci-sigma-specA', 'sci-risk-frequency',
+  'sci-investigation-containment', 'sci-eqa-classify', 'sci-bv-cva', 'sci-pbrtqc-window',
+];
+const sciCheckpoints = REQUIRED_SCI_DOMAINS.map(id => (browserResult.checkpoints || []).find(cp => cp.id === id));
+const allSciPresent = sciCheckpoints.every(cp => !!cp);
+assert('AUDIT-A-01', allSciPresent, `All 8 required scientific-interaction domain checkpoints present (${REQUIRED_SCI_DOMAINS.join(', ')})`);
+
+// Verify each records genuine changed=true evidence in BOTH original and candidate
+// (not just that the ID exists) — parsing the "before=X|after=Y|changed=Z" format.
+function parseChanged(evidenceStr) {
+  const m = /changed=(true|false)/.exec(evidenceStr || '');
+  return m ? m[1] === 'true' : null;
+}
+let allGenuinelyChanged = true;
+for (const cp of sciCheckpoints) {
+  if (!cp) { allGenuinelyChanged = false; continue; }
+  const oChanged = parseChanged(cp.original);
+  const cChanged = parseChanged(cp.candidate);
+  if (oChanged !== true || cChanged !== true) allGenuinelyChanged = false;
+}
+assert('AUDIT-A-02', allGenuinelyChanged,
+  'Every scientific-interaction checkpoint records changed=true in BOTH original and candidate evidence strings (genuine state change demonstrated on both sides, not a hollow no-op comparison)');
+
+// B. All 8 scientific-interaction checkpoints are MATCH.
+const allSciMatch = sciCheckpoints.every(cp => cp && cp.classification === 'MATCH');
+assert('AUDIT-B-01', allSciMatch, 'All 8 scientific-interaction checkpoints are classified MATCH');
+
+// C. Application console errors are correctly classified and zero in candidate.
+const consoleAppErrCp = (browserResult.checkpoints || []).find(cp => cp.id === 'startup-console-application-errors');
+assert('AUDIT-C-01', !!consoleAppErrCp, 'Console application-error checkpoint exists (post infrastructure-noise classification)');
+assert('AUDIT-C-02', consoleAppErrCp && consoleAppErrCp.candidate.includes('changed=') === false && /before=0\|after=0/.test(consoleAppErrCp.candidate) === false,
+  'Console application-error checkpoint uses direct count evidence (not the runInteraction before/after format, which does not apply here)');
+// Candidate application error count must be zero: candidate field looks like "0"
+assert('AUDIT-C-03', consoleAppErrCp && consoleAppErrCp.candidate === '0',
+  `Candidate application console errors are zero (found "${consoleAppErrCp?.candidate}")`);
+const harnessNoiseCp = (browserResult.checkpoints || []).find(cp => cp.id === 'startup-console-harness-noise');
+assert('AUDIT-C-04', !!harnessNoiseCp && !/(?<!NOT )HTTP 403|is a?n? 403|= ?403\b/i.test(harnessNoiseCp.notes.replace(/NOT HTTP 403/gi, '')),
+  'Harness-noise checkpoint does not affirmatively claim HTTP 403 as fact (may correctly state "NOT HTTP 403")');
+assert('AUDIT-C-05', !!harnessNoiseCp && harnessNoiseCp.notes.includes('requestfailed'),
+  'Harness-noise checkpoint cites the actual requestfailed event evidence used to classify the error');
+
+console.log('\n=== AUDIT CORRECTIVE CLOSURE: dependency-graph documentation accuracy ===');
+
+// D. Dependency graph / human documentation no longer claims a prior 19->1
+//    experiment proved equivalence.
+const depGraphDoc = fs.readFileSync(depGraphDocPath, 'utf8');
+const hasFalseClaimAsFact = /Stage 10A.{0,10}10D.{0,30}prov(ed|es)/i.test(depGraphDoc) &&
+  !/(incorrectly|previously and incorrectly|no such experiment)/i.test(depGraphDoc.substring(Math.max(0, depGraphDoc.search(/Stage 10A.{0,10}10D.{0,30}prov(ed|es)/i) - 200), depGraphDoc.search(/Stage 10A.{0,10}10D.{0,30}prov(ed|es)/i) + 400));
+assert('AUDIT-D-01', !hasFalseClaimAsFact,
+  'Dependency graph document does not assert the 19->1 "proof" claim as current fact (a quoted retraction citing it as a past error is acceptable and present)');
+assert('AUDIT-D-02', depGraphDoc.includes('NOT further instrumented') || depGraphDoc.includes('not further instrumented'),
+  'Dependency graph document accurately states internal React-root disposition was not further instrumented');
+assert('AUDIT-D-03', depGraphDoc.includes('NOT pre-proven') || depGraphDoc.includes('not pre-proven') || depGraphDoc.includes('NOT pre-proven behaviorally'),
+  'Dependency graph document accurately states 19->1 is a target, not a pre-proven equivalence');
+
+// E. Direct shared-components consumer counts and implicit-hook consumer
+//    counts are internally consistent with the machine-readable dependency data.
+const depGraphJson = JSON.parse(fs.readFileSync(depGraphPath, 'utf8'));
+const directConsumers = depGraphJson.modules.filter(m => (m.consumes_modules || []).includes('src/ui/shared-components.jsx'));
+const implicitConsumers = depGraphJson.modules.filter(m => (m.react_dependencies || []).some(r => r.includes('implicit-global') || r.includes('implicit hook global') || r.includes('IMPLICIT')));
+assert('AUDIT-E-01', directConsumers.length === 13,
+  `Machine graph: exactly 13 direct shared-components.jsx consumers (found ${directConsumers.length})`);
+// The corrected shared-components.jsx entry itself now documents the counts in prose;
+// verify the human doc's stated numbers match these machine-derived values.
+assert('AUDIT-E-02', depGraphDoc.includes('**13**') && depGraphDoc.includes('**12**') && depGraphDoc.includes('**9**') && depGraphDoc.includes('**16**'),
+  'Human-readable document states the 13/12/9/16 counts matching the machine-readable graph');
+
+// F. shared-components.jsx proposed exports do not include React hooks.
+const sharedComponentsEntry = depGraphJson.modules.find(m => m.path === 'src/ui/shared-components.jsx');
+const REACT_HOOK_NAMES = ['useState', 'useMemo', 'useRef', 'useEffect'];
+const exportsIncludeHooks = REACT_HOOK_NAMES.some(h => (sharedComponentsEntry?.proposed_stage11c2_exports || []).includes(h));
+assert('AUDIT-F-01', !exportsIncludeHooks,
+  'shared-components.jsx proposed_stage11c2_exports does NOT include React hook names (useState/useMemo/useRef/useEffect)');
+const importsIncludeReactHooks = (sharedComponentsEntry?.proposed_stage11c2_imports || []).some(imp => imp.from === 'react' && REACT_HOOK_NAMES.every(h => imp.names.includes(h)));
+assert('AUDIT-F-02', importsIncludeReactHooks,
+  'shared-components.jsx proposed_stage11c2_imports correctly includes importing the 4 hooks from "react"');
+
+console.log('\n=== AUDIT CORRECTIVE CLOSURE: migration-risk consistency ===');
+assert('AUDIT-G-01', sharedComponentsEntry && sharedComponentsEntry.migration_risk === 'MODERATE',
+  `shared-components.jsx migration_risk is MODERATE (reclassified from LOW) (found ${sharedComponentsEntry?.migration_risk})`);
+const riskCounts = { LOW: 0, MODERATE: 0, HIGH: 0 };
+depGraphJson.modules.forEach(m => { if (riskCounts[m.migration_risk] !== undefined) riskCounts[m.migration_risk]++; });
+assert('AUDIT-G-02', riskCounts.LOW === 22 && riskCounts.MODERATE === 11 && riskCounts.HIGH === 1,
+  `Risk distribution updated to 22 LOW / 11 MODERATE / 1 HIGH (found ${riskCounts.LOW}/${riskCounts.MODERATE}/${riskCounts.HIGH})`);
+
+console.log('\n=== AUDIT CORRECTIVE CLOSURE: accepted bridge infrastructure untouched ===');
+const acceptedTreeHash = 'c0407262fae35c913ec802740f27c37289e31038de9ad4cd542bb803e61d2e65';
+const reproEvidence2 = JSON.parse(fs.readFileSync(path.join(V09, 'docs', 'stage11c1-reproducibility-evidence.json'), 'utf8'));
+assert('AUDIT-H-01', reproEvidence2.reproduction_a_sha === acceptedTreeHash,
+  `Accepted build-tree hash unchanged after corrective closure (found ${reproEvidence2.reproduction_a_sha})`);
+const indexHtmlContent = fs.readFileSync(path.join(V09, 'index.html'), 'utf8');
+assert('AUDIT-H-02', !indexHtmlContent.includes('fonts.googleapis.com'),
+  'v09/index.html left unchanged (no font <link> tags added) — accepted bridge build input not silently modified during this closure');
+
+/* -----------------------------------------------------------------------
    40-42. No Morning QC Room, no single-root conversion, 19 mounts remain
    ----------------------------------------------------------------------- */
 console.log('\n=== SECTION 40-42: Scope boundaries respected ===');

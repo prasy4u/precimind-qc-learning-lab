@@ -538,8 +538,8 @@
           ]
         }
       ],
-      "migration_risk": "LOW",
-      "migration_notes": "Relies on the implicit React-hook global (useState etc. destructured in shared-components.jsx) but otherwise has narrow, well-defined module dependencies. Straightforward to fix by adding a local `import { useState, ... } from \"react\"` in Stage 11C2."
+      "migration_risk": "MODERATE",
+      "migration_notes": "RECLASSIFIED from an initial LOW rating during the Stage 11C1 final-closure audit. This module consumes from 3 other modules (statistics.js, app-data.js, shared-components.jsx) AND relies on the implicit React-hook global. The same fan-in threshold applied consistently elsewhere in this table (fan-in>=3 -> at least MODERATE, as applied to bv/ui-components.jsx at fan-in=3) was not applied to this module in the initial classification. Reclassified to MODERATE for consistency."
     },
     {
       "path": "src/rules/engine.js",
@@ -3606,8 +3606,8 @@
           ]
         }
       ],
-      "migration_risk": "LOW",
-      "migration_notes": "Relies on the implicit React-hook global (useState etc. destructured in shared-components.jsx) but otherwise has narrow, well-defined module dependencies. Straightforward to fix by adding a local `import { useState, ... } from \"react\"` in Stage 11C2."
+      "migration_risk": "MODERATE",
+      "migration_notes": "RECLASSIFIED from an initial LOW rating during the Stage 11C1 final-closure audit. This module consumes from 4 other modules (statistics.js, eqa/calc.js, eqa/data.js, strategy/screens.jsx) AND relies on the implicit React-hook global. The original classification logic incorrectly treated ANY hook-global-consuming module as LOW regardless of its fan-in, while non-hook-consuming modules at the same fan-in level (e.g. bv/ui-components.jsx, fan-in=3; strategy/ui-components.jsx, fan-in=4) were correctly classified MODERATE. A module with fan-in=4 AND the additional implicit-hook risk factor cannot consistently be rated lower risk than a fan-in=3/4 module without that extra factor. Reclassified to MODERATE for consistency with the rest of the table."
     },
     {
       "path": "src/eqa/screens.jsx",

@@ -194,7 +194,7 @@ No temporary adapter layer is anticipated to be strictly *required* by the depen
 
 ## 16. Summary Statistics
 
-**Revised during the Stage 11C1 audit corrective closure** — see Sections 9 and 12 above for the corrected shared-component dependency counts and mount-provenance wording, and the migration-risk revision note immediately below.
+**Revised twice during Stage 11C1 closure work:** first during the initial audit corrective closure (shared-components.jsx LOW→MODERATE reclassification, Sections 9/12 corrections), and again during the Stage 11C1 **final** closure, which applied an explicit, consistent classification rule across all 34 modules and caught two further inconsistent classifications.
 
 | Metric | Value |
 |---|---|
@@ -206,11 +206,24 @@ No temporary adapter layer is anticipated to be strictly *required* by the depen
 | Union (direct or implicit `shared-components.jsx` dependency) | **16** |
 | Identifier collisions found | **0** |
 | Circular dependencies found | **0** (6 false-positive candidates from documentation-text mentions, ruled out by direct inspection) |
-| Migration risk: LOW | **22** |
-| Migration risk: MODERATE | **11** |
+| Migration risk: LOW | **20** |
+| Migration risk: MODERATE | **13** |
 | Migration risk: HIGH | **1** (`src/ui/app-shell.jsx` only) |
 | Historical `ReactDOM.createRoot` mount calls (unchanged in Stage 11C1) | **19**, all in `app-shell.jsx` — target 19→1 for Stage 11C2, NOT pre-proven equivalent by any prior stage (see Section 13) |
 
-**Migration-risk revision:** `src/ui/shared-components.jsx` was reclassified from LOW to **MODERATE** during this audit closure. The original LOW rating considered only this module's own upstream dependency count (1 module), which is genuinely narrow, but ignored its downstream centrality: it has the widest fan-out of any of the 34 modules (13 direct consumers) and is the sole origin of the implicit hook-global relied on by 12 modules (16 in union). A migration error here has a correspondingly wide blast radius, which the risk doctrine (Stage 11C1 Section 20 of the original spec) requires to be reflected in the classification. It remains below HIGH because it has no mount-consolidation responsibility, no startup-order criticality of its own, and its own upstream import list is trivial.
+### Migration-Risk Classification Rule (made explicit during the Stage 11C1 final closure)
+
+To catch and prevent silent inconsistency, the classification now follows one explicit rule, checked against every module in a single pass:
+
+> **A module is HIGH if it is `app-shell.jsx`** (unique structural centrality + 19 mount calls + startup criticality). **Otherwise, a module is at least MODERATE if its fan-in (number of *other* application modules it consumes identifiers from) is 3 or more — regardless of whether it also relies on the implicit React-hook global.** A module with fan-in ≤ 2 is LOW, unless (like `shared-components.jsx`) its risk stems from downstream fan-**out** centrality rather than fan-in (see below). Reliance on the implicit hook global can only ever *add* risk, never justify a *lower* classification than a module's fan-in alone would warrant.
+
+**Two further inconsistencies were caught and corrected by applying this rule uniformly** (in addition to the `shared-components.jsx` reclassification already made in the initial audit closure):
+
+- **`src/eqa/ui-components.jsx`**: fan-in = 4 (statistics.js, eqa/calc.js, eqa/data.js, strategy/screens.jsx) **and** relies on the implicit hook global — previously classified LOW. The original classification logic incorrectly treated *any* hook-global-consuming module as LOW regardless of fan-in, while non-hook-consuming modules at the identical fan-in level (`strategy/ui-components.jsx`, fan-in=4) were correctly rated MODERATE. Reclassified to **MODERATE**.
+- **`src/ui/core-screens.jsx`**: fan-in = 3 (statistics.js, app-data.js, shared-components.jsx) **and** relies on the implicit hook global — previously classified LOW, inconsistent with `bv/ui-components.jsx` (fan-in=3, no hook reliance) being correctly rated MODERATE at the same fan-in level. Reclassified to **MODERATE**.
+
+**`src/ui/shared-components.jsx` remains a documented exception to the fan-in rule** (its own fan-in is only 1): its MODERATE rating is justified by fan-**out** centrality (13 direct consumers, widest of any of the 34 modules) and its unique status as the sole origin of the implicit hook-global relied on by 12 modules — a downstream risk factor the fan-in-based rule does not, by itself, capture. This exception is explicit and documented, not an unstated special case.
+
+Every one of the 34 modules was checked against this rule in one pass (see the per-module fan-in/fan-out/guard/hook table produced during this audit) to confirm no further inconsistencies remain.
 
 Stage 11C2 is **not** performed in this stage. This document is architecture-planning input only.

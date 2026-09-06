@@ -1,0 +1,30 @@
+{
+  "stage": "11C1",
+  "method": "PIL ImageChops.difference, full pixel enumeration",
+  "results": [
+    {
+      "reference": "desktop-reference-home.png",
+      "candidate": "desktop-bridge-home.png",
+      "diff_image": "diffs/desktop-diff.png",
+      "dimensions": "1440x1000",
+      "total_pixels": 1440000,
+      "differing_pixels": 0,
+      "differing_pixel_percent": 0.0,
+      "max_channel_diff": 0,
+      "bounding_box_of_differences": null,
+      "pixel_identical": true
+    },
+    {
+      "reference": "mobile-reference-home.png",
+      "candidate": "mobile-bridge-home.png",
+      "diff_image": "diffs/mobile-diff.png",
+      "dimensions": "390x844",
+      "total_pixels": 329160,
+      "differing_pixels": 0,
+      "differing_pixel_percent": 0.0,
+      "max_channel_diff": 0,
+      "bounding_box_of_differences": null,
+      "pixel_identical": true
+    }
+  ]
+}

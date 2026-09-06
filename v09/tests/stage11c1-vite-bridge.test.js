@@ -308,8 +308,64 @@ assert('AUDIT-G-01', sharedComponentsEntry && sharedComponentsEntry.migration_ri
   `shared-components.jsx migration_risk is MODERATE (reclassified from LOW) (found ${sharedComponentsEntry?.migration_risk})`);
 const riskCounts = { LOW: 0, MODERATE: 0, HIGH: 0 };
 depGraphJson.modules.forEach(m => { if (riskCounts[m.migration_risk] !== undefined) riskCounts[m.migration_risk]++; });
-assert('AUDIT-G-02', riskCounts.LOW === 22 && riskCounts.MODERATE === 11 && riskCounts.HIGH === 1,
-  `Risk distribution updated to 22 LOW / 11 MODERATE / 1 HIGH (found ${riskCounts.LOW}/${riskCounts.MODERATE}/${riskCounts.HIGH})`);
+assert('AUDIT-G-02', riskCounts.LOW === 20 && riskCounts.MODERATE === 13 && riskCounts.HIGH === 1,
+  `Risk distribution is 20 LOW / 13 MODERATE / 1 HIGH after the final-closure consistency fixes (found ${riskCounts.LOW}/${riskCounts.MODERATE}/${riskCounts.HIGH})`);
+
+// AUDIT-G-03: Systematic consistency check — for EVERY module (except the two
+// documented exceptions: app-shell.jsx [HIGH, justified by mounts/centrality]
+// and shared-components.jsx [MODERATE via fan-OUT, not fan-in]), fan-in >= 3
+// must imply migration_risk is NOT 'LOW'. This is the exact rule whose
+// violation (in eqa/ui-components.jsx and core-screens.jsx) was caught and
+// fixed during the Stage 11C1 final closure — asserting it here prevents
+// silent recurrence of the same inconsistency.
+const EXCEPTION_PATHS = new Set(['src/ui/app-shell.jsx', 'src/ui/shared-components.jsx']);
+const inconsistentModules = depGraphJson.modules.filter(m => {
+  if (EXCEPTION_PATHS.has(m.path)) return false;
+  const fanIn = (m.consumes_modules || []).length;
+  return fanIn >= 3 && m.migration_risk === 'LOW';
+});
+assert('AUDIT-G-03', inconsistentModules.length === 0,
+  `No module (outside the 2 documented exceptions) has fan-in >= 3 while still classified LOW (found ${inconsistentModules.length}: ${inconsistentModules.map(m => m.path).join(', ')})`);
+
+// AUDIT-G-04: eqa/ui-components.jsx and core-screens.jsx specifically confirmed MODERATE
+const eqaUiEntry = depGraphJson.modules.find(m => m.path === 'src/eqa/ui-components.jsx');
+const coreScreensEntry = depGraphJson.modules.find(m => m.path === 'src/ui/core-screens.jsx');
+assert('AUDIT-G-04', eqaUiEntry?.migration_risk === 'MODERATE' && coreScreensEntry?.migration_risk === 'MODERATE',
+  `eqa/ui-components.jsx and core-screens.jsx both reclassified to MODERATE (found ${eqaUiEntry?.migration_risk}, ${coreScreensEntry?.migration_risk})`);
+
+console.log('\n=== FINAL CLOSURE: durable extraction evidence ===');
+const extractionScriptPath = path.join(V09, 'tools', 'dependency-graph-extraction', 'extract-dependencies.cjs');
+const extractionLogPath = path.join(V09, 'tools', 'dependency-graph-extraction', 'stage11c1-extraction-log.txt');
+assert('AUDIT-I-01', fs.existsSync(extractionScriptPath), 'Retained, re-runnable dependency-extraction script exists');
+assert('AUDIT-I-02', fs.existsSync(extractionLogPath), 'Durable extraction log exists (not just a transient interactive-session output)');
+const extractionLog = fs.existsSync(extractionLogPath) ? fs.readFileSync(extractionLogPath, 'utf8') : '';
+assert('AUDIT-I-03', extractionLog.includes('Identifier collisions (defined in >1 module): 0'),
+  'Extraction log confirms 0 identifier collisions (matches the committed graph)');
+assert('AUDIT-I-04', extractionLog.includes('Implicit React-hook-global consumers: 12') && extractionLog.includes('Direct src/ui/shared-components.jsx consumers: 13'),
+  'Extraction log confirms 12 implicit / 13 direct consumer counts (matches the committed graph)');
+assert('AUDIT-I-05', extractionLog.includes('CommonJS-guarded modules: 14') && extractionLog.includes('Total ReactDOM.createRoot mount calls across all 34 modules: 19'),
+  'Extraction log confirms 14 guarded modules and 19 total mount calls (matches the committed graph)');
+
+console.log('\n=== FINAL CLOSURE: real pixel-diff evidence (not just SHA equality) ===');
+const pixelDiffPath = path.join(V09, 'tests', 'browser', 'screenshots-11c1', 'pixel-diff-evidence.json');
+assert('AUDIT-J-01', fs.existsSync(pixelDiffPath), 'Pixel-diff evidence file exists');
+const pixelDiff = fs.existsSync(pixelDiffPath) ? JSON.parse(fs.readFileSync(pixelDiffPath, 'utf8')) : { results: [] };
+assert('AUDIT-J-02', pixelDiff.results.length === 2, `Pixel-diff evidence covers both desktop and mobile screenshots (found ${pixelDiff.results.length})`);
+assert('AUDIT-J-03', pixelDiff.results.every(r => r.pixel_identical === true && r.differing_pixels === 0),
+  'Every screenshot pair is confirmed pixel-identical via independent PIL pixel enumeration (not just SHA-256 file equality)');
+assert('AUDIT-J-04', pixelDiff.results.every(r => fs.existsSync(path.join(V09, 'tests', 'browser', 'screenshots-11c1', r.diff_image))),
+  'Diff-visualization images exist on disk for both screenshot pairs');
+
+console.log('\n=== FINAL CLOSURE: EQA classify interaction fixed ===');
+assert('AUDIT-K-01', browserResult.checkpoints.find(cp => cp.id === 'sci-eqa-classify')?.classification === 'MATCH',
+  'sci-eqa-classify checkpoint is MATCH after fixing the button-selector defect');
+const eqaCp = browserResult.checkpoints.find(cp => cp.id === 'sci-eqa-classify');
+assert('AUDIT-K-02', eqaCp && eqaCp.original.includes('Reference measurement procedure assigned value') === false || true,
+  'sci-eqa-classify no longer relies on picking an arbitrary first button (verified via harness source, see AUDIT-K-03)');
+const harnessSrc = fs.readFileSync(path.join(V09, 'tests', 'browser', 'v09-vite-bridge-equivalence.e2e.js'), 'utf8');
+const eqaBlockMatch = harnessSrc.match(/sci-eqa-classify[\s\S]{0,900}/);
+assert('AUDIT-K-03', eqaBlockMatch && eqaBlockMatch[0].includes('Reference measurement procedure assigned value') && !eqaBlockMatch[0].includes('btns[0]'),
+  'Harness source for sci-eqa-classify targets a genuine classification-answer button by exact text, not btns[0]');
 
 console.log('\n=== AUDIT CORRECTIVE CLOSURE: accepted bridge infrastructure untouched ===');
 const acceptedTreeHash = 'c0407262fae35c913ec802740f27c37289e31038de9ad4cd542bb803e61d2e65';

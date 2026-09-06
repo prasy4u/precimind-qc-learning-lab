@@ -1,0 +1,55 @@
+=== Stage 11C1 Dependency Extraction (retained, re-runnable script) ===
+Modules to analyze: 34
+
+Identifier collisions (defined in >1 module): 0
+Backward/forward-reference dependencies (post string-stripping): 0
+
+Implicit React-hook-global consumers: 12
+  src/ui/core-screens.jsx
+  src/rules/ui-components.jsx
+  src/rules/screens.jsx
+  src/strategy/screens.jsx
+  src/risk/screens.jsx
+  src/investigation/ui-components.jsx
+  src/investigation/screens.jsx
+  src/eqa/ui-components.jsx
+  src/eqa/screens.jsx
+  src/bv/screens.jsx
+  src/pbrtqc/screens.jsx
+  src/ui/app-shell.jsx
+
+Direct src/ui/shared-components.jsx consumers: 13
+  src/ui/core-screens.jsx
+  src/rules/ui-components.jsx
+  src/rules/screens.jsx
+  src/strategy/ui-components.jsx
+  src/strategy/screens.jsx
+  src/risk/ui-components.jsx
+  src/risk/screens.jsx
+  src/investigation/screens.jsx
+  src/eqa/screens.jsx
+  src/bv/ui-components.jsx
+  src/bv/screens.jsx
+  src/pbrtqc/ui-components.jsx
+  src/pbrtqc/screens.jsx
+
+Union (direct OR implicit): 16
+Both (direct AND implicit): 9
+
+CommonJS-guarded modules: 14
+  src/core/statistics.js
+  src/rules/engine.js
+  src/opchar/functions.js
+  src/strategy/core.js
+  src/risk/detection-delay.js
+  src/risk/data.js
+  src/investigation/calc.js
+  src/investigation/data.js
+  src/eqa/calc.js
+  src/eqa/data.js
+  src/bv/calc.js
+  src/bv/data.js
+  src/pbrtqc/calc.js
+  src/pbrtqc/data.js
+
+Total ReactDOM.createRoot mount calls across all 34 modules: 19

@@ -497,9 +497,10 @@ async function measureToggle(browser, refUrl, candUrl, navSteps, activationMetho
       await p.waitForTimeout(300);
     },
     async (p) => {
-      const btns = await p.evaluate(() => Array.from(document.querySelectorAll('#main button')).filter(b => b.textContent.trim().length > 1 && b.textContent.trim().length < 60 && !b.textContent.includes('View full')).map(b => b.textContent.trim()));
-      const pick = btns[0];
-      if (pick) await p.locator('#main button', { hasText: pick }).first().click({ timeout: 2000 });
+      // Click a genuine classification answer button (one of the 7 TARGET_VALUE_TYPE_LABELS),
+      // NOT the first #main button generally (which may be a sub-navigation tab, e.g.
+      // "IQC vs EQA" — a defect caught and fixed during the Stage 11C1 final closure audit).
+      await p.locator('#main button', { hasText: 'Reference measurement procedure assigned value' }).first().click({ timeout: 2000 });
     },
     async (p) => p.evaluate(() => document.getElementById('main')?.textContent.replace(/\s+/g, ' ').trim() || null)
   );

@@ -53,6 +53,17 @@ function MultiLevelLJChart({ runs, showL1, showL2, onPointClick, selectedKeys, r
     return "";
   }
 
+  /* v0.9 accessibility fix (Stage 11B, AD-001): a single activation function
+     so click, Enter, and Space all invoke identical semantics. The v0.8
+     baseline had role="button"/tabIndex={0} with only onClick — keyboard-
+     focusable but not keyboard-activatable (validated Stage 10F). This is
+     an INTENDED v0.9 delta from that known limitation. */
+  function activatePoint(runNumber, levelId) {
+    const k = keyFor(runNumber, levelId);
+    setActive(k);
+    if (onPointClick) onPointClick(runNumber, levelId);
+  }
+
   function renderSeries(pts, levelId, shape) {
     return pts.map(p => {
       const x = xFor(p.i), y = yForSD(p.cr.zScore);
@@ -73,7 +84,13 @@ function MultiLevelLJChart({ runs, showL1, showL2, onPointClick, selectedKeys, r
         <g key={k}
           onMouseEnter={() => setActive(k)}
           onFocus={() => setActive(k)}
-          onClick={() => { setActive(k); if (onPointClick) onPointClick(p.run.runNumber, levelId); }}
+          onClick={() => activatePoint(p.run.runNumber, levelId)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
+              e.preventDefault();
+              activatePoint(p.run.runNumber, levelId);
+            }
+          }}
           tabIndex={0} role="button"
           aria-label={p.cr.levelName + ", run " + p.run.runNumber + ", value " + p.cr.rawValue.toFixed(dp) + ", " + p.cr.zScore.toFixed(2) + " SD"}
           className="mlj-point-g" style={{ cursor: onPointClick ? "pointer" : "default" }}>

@@ -228,6 +228,15 @@ function SchemeCapabilityProfileBuilder({ profile, onChange }) {
 function LongitudinalEqaChart({ timeline, criterionLabel }) {
   const [active, setActive] = useState(null);
   if (!timeline || timeline.length === 0) return <p className="event-list-empty">No longitudinal data is authored for this case.</p>;
+
+  /* v0.9 accessibility fix (Stage 11B, audit-discovered): single activation
+     function so click, Enter, and Space invoke identical toggle semantics,
+     matching the pattern applied to the LJ chart (AD-002) and Rule
+     Detective (AD-001). This control was not named in the Stage 11A debt
+     register but was found by the Stage 11B full-repository audit. */
+  function toggleActive(i) {
+    setActive(a => (i === a ? null : i));
+  }
   const W = 720, H = 320;
   const padL = 56, padR = 24, padT = 20, padB = 50;
   const plotW = W - padL - padR, plotH = H - padT - padB;
@@ -253,7 +262,14 @@ function LongitudinalEqaChart({ timeline, criterionLabel }) {
           const x = xFor(i), y = yFor(p.deviationPct);
           const hasEvent = !!p.event;
           return (
-            <g key={i} onClick={() => setActive(i === active ? null : i)} onFocus={() => setActive(i)} tabIndex={0} role="button"
+            <g key={i} onClick={() => toggleActive(i)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
+                  e.preventDefault();
+                  toggleActive(i);
+                }
+              }}
+              onFocus={() => setActive(i)} tabIndex={0} role="button"
               aria-label={"Round " + p.round + ", deviation " + p.deviationPct + "%" + (hasEvent ? ", event: " + p.event : "")}
               className="ljchart-point-g">
               {hasEvent && <line x1={x} x2={x} y1={padT} y2={H - padB} className="event-line" />}

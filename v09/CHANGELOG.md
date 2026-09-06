@@ -28,3 +28,36 @@
 - No features implemented. No scientific changes. No accessibility fixes yet.
 
 **This changelog does not claim any feature is complete.** Stage 11A is architecture and governance only.
+
+### Stage 11B — Compatibility Foundation + Accessibility Remediation + Test Architecture
+
+**Documentation correction:**
+- Corrected the Stage 11A error stating v0.8 has "13 independent labs" — the validated app shell has 14 primary nav destinations: 11 progress-tracked labs + Home/Competency Map/Evidence. QC-01–12 is a separate competency count from the screen count. Fixed in `V09_PRODUCT_CHARTER.md` and `ADR-001-V09-APPLICATION-ARCHITECTURE.md`.
+
+**Deterministic v0.9 compatibility baseline:**
+- Created `v09/tools/v09-source-order.json` (source-order manifest, 34 application modules + CSS + bootstrap)
+- Created `v09/tools/assemble-v09-compat.js` (consumes `v09/src`, reuses the validated v0.8 document/vendor envelope, deterministic, reports SHA/module count/mount count)
+- Pre-fix compatibility artifact SHA matched the v0.8 faithful candidate exactly (`a9fe9a3a...`) — confirmed via a 21-checkpoint Playwright smoke differential (`V09_COMPAT_BASELINE_MATCH`: 21/21 MATCH, 0 DIFFERENCE)
+
+**Accessibility audit and remediation:**
+- Full-repository search of `v09/src/**` found exactly 3 synthetic `role="button"` SVG controls: Rule Detective (`.mlj-point-g`), LJ chart (`.ljchart-point-g`), and EQA longitudinal chart (`.ljchart-point-g` in `eqa/ui-components.jsx`) — the third was not named in the Stage 11A debt register and was discovered by this audit. Documented in `V09_INTERACTIVE_CONTROL_AUDIT.md`.
+- Fixed all three in `v09/src` only (root `src/` unchanged): each now uses a single shared activation function so click/Enter/Space all invoke identical semantics, with `preventDefault()` on Space. Click behavior verified unchanged; Enter/Space verified newly functional (documented `INTENDED_DELTA` vs. the validated v0.8 known limitation).
+- `V09_ACCESSIBILITY_DEBT.md` updated: AD-001, AD-002 status → `FIXED_STAGE_11B`; new AD-003 (EQA) added and marked `FIXED_STAGE_11B`.
+
+**Test architecture:**
+- `V09_TEST_ARCHITECTURE.md` — formalizes Unit / Integration / Browser-E2E layers, explicit provenance separation from the frozen v0.8 historical suite
+- `v09/tests/unit/v09-scientific-compat.test.js` — 28 assertions (sample SD, signed bias, negative-Sigma preservation, R_4s within-run, 8x vs 10x, single 1₃s operating characteristic, detection-delay model, EQA safeguards, RCV, PBRTQC frozen signatures)
+- `v09/tests/integration/v09-accessibility-source.test.js` — 30 assertions (shared activation functions, Enter/Space handling, preventDefault, preserved aria-labels/classes/ring logic)
+- `v09/tests/browser/v09-accessibility.e2e.js` (maintained, not disposable) — 30 checkpoints: 26 MATCH, 4 INTENDED_DELTA, 0 UNEXPECTED_DIFFERENCE, 0 BLOCKED
+
+**Baseline provenance map updated:**
+- `v09/src/rules/ui-components.jsx`, `v09/src/ui/shared-components.jsx`, `v09/src/eqa/ui-components.jsx` marked `V09_MODIFIED` with rationale; all other 33 copied files remain `UNCHANGED_FROM_V08`
+
+**ADR-001 refined:**
+- Rejected the Stage 11A "split-runtime" recommendation (Vite for new work only, standalone for existing labs)
+- **Status: ACCEPTED — target unified Vite/React build hosting both inherited labs and Morning QC Room**, migration deferred to new **Stage 11C** (added to roadmap)
+
+**Not done in Stage 11B (explicitly deferred):**
+- Vite is NOT installed; no build tooling added
+- Morning QC Room schema/engine/case/UI — not started
+- TD-001 (19-mount cleanup) — not addressed

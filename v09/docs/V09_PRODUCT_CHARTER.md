@@ -9,7 +9,9 @@
 
 Transform PreciMind QC Learning Lab from a collection of strong individual learning laboratories into an **integrated competency-based clinical laboratory QC learning environment**.
 
-v0.8 validated 13 independent domain laboratories (Statistics, LJ, Pattern Challenge, Rule Laboratory, QC Strategy, Sigma, Risk & Frequency, Investigation, External Assurance, BV & RCV, PBRTQC) plus supporting screens (Home, Competency Map, Evidence). Each teaches a competency in isolation. v0.9's defining feature integrates them.
+v0.8 validated 14 primary navigation destinations: 11 progress-tracked learning labs (Statistics Playground, LJ Laboratory, Pattern Challenge, Rule Laboratory, QC Strategy Lab, Sigma Sandbox, Risk & Frequency Lab, Investigation Lab, External Assurance Lab, BV & RCV Lab, Patient Surveillance Lab) plus three supporting screens (Home, Competency Map, Evidence). Each lab teaches a competency in isolation. v0.9's defining feature integrates them.
+
+The competency framework QC-01 through QC-12 is a separate count from the number of lab screens — competencies and screens do not map one-to-one.
 
 ---
 
@@ -193,4 +195,4 @@ Morning QC Room case levels are **provisional and separate from learner levels**
 
 ## Relationship to v0.8
 
-v0.9 does not discard v0.8's thirteen labs — they remain the foundation. Morning QC Room is additive. A learner who has practiced individual labs brings that practiced competency into Morning QC Room cases; a learner who struggles in Morning QC Room can be directed back to the specific underlying lab that needs more practice (a possible future integration point with the Competency Map).
+v0.9 does not discard v0.8's 11 progress-tracked labs — they remain the foundation. Morning QC Room is additive: it is a capstone integrating QC-01 through QC-12 rather than a new thirteenth competency or a fourteenth lab screen bolted onto the existing eleven. A learner who has practiced individual labs brings that practiced competency into Morning QC Room cases; a learner who struggles in Morning QC Room can be directed back to the specific underlying lab that needs more practice (a possible future integration point with the Competency Map).

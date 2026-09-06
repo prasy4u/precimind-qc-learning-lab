@@ -6,40 +6,53 @@ Known accessibility characteristics validated as authentic v0.8 behavior during 
 
 ## AD-001: Rule Laboratory `.mlj-point-g` Keyboard Activation
 
-**Validated v0.8 behavior (Stage 10F):**
+**Status: FIXED_STAGE_11B**
+
+**Validated v0.8 behavior (Stage 10F, unchanged, preserved as historical record):**
 - `.mlj-point-g[role="button"][tabindex="0"]` elements ARE keyboard-focusable (Tab navigation works)
 - Elements have an authored `onClick` handler
 - Elements have **no authored `onKeyDown` handler**
 - Enter and Space key presses do **not** activate point selection
 - Only mouse click (or a dispatched `MouseEvent`) activates `togglePoint()`
 
-**Impact:** A keyboard-only user can navigate to and "focus" a QC point in Rule Detective but cannot select it without a mouse. This affects the Rule Detective interaction gate (rule + trigger point + scope + confidence required before submission).
+**Impact (as it existed in v0.8, and in v09/src before Stage 11B):** A keyboard-only user can navigate to and "focus" a QC point in Rule Detective but cannot select it without a mouse.
 
-**v0.9 improvement candidate:** Add an `onKeyDown` handler that treats Enter/Space identically to click, following standard ARIA `role="button"` conventions.
+**Stage 11B fix (`v09/src/rules/ui-components.jsx` only — root `src/` unchanged):** Added a single `activatePoint()` function invoked identically by `onClick` and by `onKeyDown` (Enter and Space, with `preventDefault()` on Space to avoid page scroll). Verified via `v09/tests/browser/v09-accessibility.e2e.js`: click behavior unchanged (MATCH against v0.8 reference); Enter/Space now activate the point (`INTENDED_DELTA` — a documented, deliberate improvement over the v0.8 known limitation, not an unexpected regression).
 
 ---
 
 ## AD-002: LJ Chart `.ljchart-point-g` Activation Semantics
 
-**Validated v0.8 behavior (Stage 10E):**
+**Status: FIXED_STAGE_11B**
+
+**Validated v0.8 behavior (Stage 10E, unchanged, preserved as historical record):**
 - `.ljchart-point-g[role="button"][tabindex="0"]` elements ARE keyboard-focusable
 - Focus alone changes the `.ljchart-tooltip` content (this part IS keyboard-accessible)
-- Not yet independently verified whether Enter/Space on an LJ point triggers any additional state change beyond the tooltip update, or whether LJ points have further click-only behavior analogous to AD-001
+- Click toggles the active/selected point (on/off)
+- Stage 11B audit confirmed: no additional Enter/Space handling existed pre-fix — click-only toggle beyond the focus-driven tooltip
 
-**v0.9 action:** Verify whether LJ chart points have any click-only behavior beyond tooltip display. If so, apply the same keyboard-activation fix as AD-001 for consistency across both chart types.
-
----
-
-## Cross-Cutting Recommendation
-
-If AD-001 is fixed, apply the identical pattern to AD-002 and any other SVG `role="button"` interactive element in the v0.9 codebase, so keyboard activation semantics are consistent across the whole application rather than fixed piecemeal per screen.
+**Stage 11B fix (`v09/src/ui/shared-components.jsx` only — root `src/` unchanged):** Added a single `toggleActive()` function invoked identically by `onClick` and `onKeyDown` (Enter/Space, `preventDefault()` on Space). Focus-shows-tooltip behavior is unchanged. Verified: focus/click MATCH against v0.8 reference; Enter now toggles (`INTENDED_DELTA`).
 
 ---
 
-## Non-Goals for Stage 11A
+## AD-003: EQA Longitudinal Chart Point Keyboard Activation (Discovered Stage 11B)
 
-This document is a registry only. No code change is made in Stage 11A. Any fix must:
-1. Preserve the existing click behavior exactly
-2. Add equivalent keyboard behavior
-3. Be covered by new v0.9 tests before being considered complete
-4. Be verified not to alter any v0.8-inherited scientific/pedagogic behavior
+**Status: FIXED_STAGE_11B**
+
+Not named in the Stage 11A debt register — found by the Stage 11B full-repository interactive-control audit (`V09_INTERACTIVE_CONTROL_AUDIT.md`).
+
+**Pre-fix v0.8/v09 behavior:** `v09/src/eqa/ui-components.jsx` — the Longitudinal EQA deviation chart uses the identical pattern as AD-002: `.ljchart-point-g[role="button"][tabindex="0"]`, click toggles active round, focus shows tooltip, no `onKeyDown`.
+
+**Stage 11B fix:** Same pattern as AD-002 — single `toggleActive()` function shared by click/Enter/Space. Verified: click MATCH; Enter now toggles (`INTENDED_DELTA`).
+
+---
+
+## Cross-Cutting Outcome
+
+All three synthetic `role="button"` controls found in `v09/src` (Rule Detective, LJ chart, EQA chart) now share the accessibility rule: **Enter and Space trigger the same semantic action as click.** The full-repository audit (Stage 11B) confirms these are the only three such controls — no further undiscovered controls remain in `v09/src` as of this stage.
+
+---
+
+## Non-Goals Carried Forward
+
+Fixes were scoped exclusively to `v09/src/**`. The root `src/**` recovered v0.8 source remains byte-for-byte unchanged (verified by SHA-256 checks in the Stage 11B governance test) — the v0.8 accessibility limitation is preserved as an accurate historical record in the frozen recovery artifacts, while `v09/src` carries the improvement forward.

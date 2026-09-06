@@ -8,13 +8,25 @@
 ## Stage 11A — Development Fork + Architecture Charter *(this stage)*
 Establish `v0.9-development` branch, `v09/` tree, baseline copy map, product charter, technical/accessibility debt registers, ADR-001, scientific invariants inheritance statement, roadmap, changelog. No implementation.
 
-## Stage 11B — Technical Foundation + Accessibility Remediation
-- Formal decision on ADR-001 (build system) for new v0.9 modules
-- Fix AD-001 (Rule Detective keyboard activation) and AD-002 (LJ chart, if applicable) in `v09/src` only
-- Establish the three-layer test architecture proposed in TD-005
+## Stage 11B — Technical Foundation + Accessibility Remediation *(this stage)*
+- Corrected the Stage 11A lab/screen count documentation error
+- Established a runnable v0.9 compatibility baseline (`v09/tools/assemble-v09-compat.js`, `v09/dist/precimind-v0.9-compat.html`)
+- Full-repository interactive-control audit (found a third control — EQA — not named in the Stage 11A debt register)
+- Fixed AD-001 (Rule Detective), AD-002 (LJ chart), and the newly-discovered EQA chart keyboard-activation gaps in `v09/src` only
+- Established the three-layer test architecture (unit / integration / browser)
+- Refined ADR-001: rejected the split-runtime approach, accepted a unified Vite/React target architecture for both inherited labs and Morning QC Room
 - No Morning QC Room implementation yet
 
+## Stage 11C — Unified v0.9 Build Migration
+- Implement the accepted ADR-001 decision: establish a Vite/React unified development/build environment
+- Convert/adapt v09 derivative module boundaries to standard ES modules (retiring the CommonJS guard-wrapper pattern, TD-003)
+- Preserve inherited scientific semantics exactly (no calculation changes)
+- Establish browser equivalence for all 11 inherited labs against the v0.8 baseline, using the same Playwright differential methodology validated in Stages 10A–10F
+- Retain optional offline/static release packaging capability (as a release-output step, not a second development runtime)
+- No Morning QC Room feature implementation yet — this stage is architecture migration only
+
 ## Stage 12A — Morning QC Room Specification + Case Schema
+*(Begins only after Stage 11C passes browser-equivalence validation for the migrated inherited labs.)*
 - Formalize the case-state machine outlined in the Product Charter (BRIEFING → ... → DEBRIEF)
 - Define `case-schema.js` data shape
 - Define competency-tagging taxonomy referenced by the Case Family Catalogue

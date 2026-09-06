@@ -103,6 +103,16 @@ const LJ_KEY_RUNS = new Set([1, 5, 10, 15, 20]);
 
 function LJChart({ points, mean, sd, unitMode, eventAnnotation, decimals }) {
   const [active, setActive] = useState(null);
+
+  /* v0.9 accessibility fix (Stage 11B, AD-002): single activation function so
+     click, Enter, and Space invoke identical toggle semantics. Focus alone
+     continues to show tooltip information (preserved from v0.8); click/
+     Enter/Space toggle the active/selected state. This is an INTENDED v0.9
+     delta from the v0.8 known limitation (keyboard-focusable but not
+     keyboard-activatable via Enter/Space). */
+  function toggleActive(i) {
+    setActive(a => (i === a ? null : i));
+  }
   const W = 760, H = 398;
   const padL = 56, padR = 30, padT = 24, padB = 58;
   const plotW = W - padL - padR;
@@ -165,7 +175,13 @@ function LJChart({ points, mean, sd, unitMode, eventAnnotation, decimals }) {
             <g key={i}
               onMouseEnter={() => setActive(i)}
               onFocus={() => setActive(i)}
-              onClick={() => setActive(i === active ? null : i)}
+              onClick={() => toggleActive(i)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
+                  e.preventDefault();
+                  toggleActive(i);
+                }
+              }}
               tabIndex={0}
               role="button"
               aria-label={"Run " + pt.run + ", value " + pt.raw.toFixed(dp) + ", " + pt.z.toFixed(2) + " SD"}

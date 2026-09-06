@@ -1,8 +1,8 @@
 # ADR-001: v0.9 Application Architecture
 
-**Status:** Proposed (not implemented)  
-**Stage:** 11A  
-**Decision needed by:** Stage 11B
+**Status:** ACCEPTED — TARGET VITE/REACT UNIFIED BUILD, MIGRATION DEFERRED TO STAGE 11C  
+**Stage:** 11A (proposed) → 11B (accepted, refined)  
+**Decision made:** Stage 11B
 
 ---
 
@@ -78,21 +78,39 @@ Considered esbuild directly, or a simpler Rollup config, as leaner alternatives 
 
 ---
 
-## Recommendation
+## Stage 11A Recommendation (Superseded — See Stage 11B Refinement Below)
 
-**Adopt Option B (Vite + React) for new v0.9 development, specifically for Morning QC Room and any substantially new module**, while:
+Stage 11A initially recommended: "Adopt Vite for new v0.9 development (Morning QC Room) while existing labs remain under the current standalone architecture." Stage 11B analysis determined this would create an **awkward split-runtime design** — two parallel application architectures (standalone runtime-Babel for the 11 inherited labs, Vite/React for Morning QC Room) that would have to coexist indefinitely, each requiring separate tooling, separate mental models for contributors, and — worst of all — Morning QC Room would not be able to cleanly share state, navigation, or UI primitives with the inherited labs without an awkward bridge layer between two runtimes.
 
-1. Leaving `v09/src/` as an initially faithful copy of v0.8 (per the baseline map) that can continue to be assembled with the existing `tools/assemble-v08.js`-style approach if a single-file v0.9 build is still desired for some deployment contexts, AND
-2. Introducing a Vite-based build path for the new Morning QC Room modules once Stage 12+ begins.
-
-**Rationale:** Morning QC Room is exactly the kind of feature (large case data sets, complex state machine, many interacting UI components) that justifies a build step's added complexity. The existing 13 labs do not need to be migrated as part of this decision — they can continue to run under the current architecture, minimizing risk to already-validated behavior. The build-system decision is scoped to *new* v0.9 work, not a mandatory rewrite of validated v0.8-derived code.
-
-**This is a recommendation only. No build tooling is installed or configured in Stage 11A.** Formal adoption is deferred to Stage 11B, where the specific Vite configuration, module boundaries, and migration plan (if any) for existing labs will be decided.
+**This split-runtime approach is REJECTED as a final architecture.**
 
 ---
 
-## Open Questions for Stage 11B
+## Stage 11B Refined Decision: Unified Target Architecture
 
-1. Should the 13 existing labs eventually be migrated into the Vite build, or permanently remain on the standalone runtime-Babel architecture?
-2. If migrated, what is the plan for re-validating browser equivalence against the v0.8 baseline after the migration?
-3. What is the acceptable bundle size / load time budget for the combined v0.9 application once Morning QC Room is added?
+**TARGET ARCHITECTURE:** A single unified v0.9 build/runtime should eventually host **both** the inherited labs and Morning QC Room, built with Vite + React.
+
+### Refined Architecture Principles
+
+1. **One React runtime.** Both the inherited 11 labs and Morning QC Room run inside the same React tree, sharing the same app shell, navigation, and level-selection state — not two separate applications stitched together.
+2. **One v0.9 build.** A single Vite build produces the deployable v0.9 artifact. No parallel build pipelines.
+3. **Deterministic ES-module boundaries.** Every module (inherited or new) uses standard `import`/`export` — this retires the CommonJS guard-wrapper pattern (TD-003) as part of the migration, rather than perpetuating it alongside a second, cleaner module system.
+4. **Inherited labs behavior-preserved.** The migration of the 11 existing labs into the unified build must be validated for browser equivalence against the v0.8 baseline (the same rigor as Stages 10A–10F), not merely "ported and assumed correct."
+5. **Morning QC Room integrated into the same application shell** from the start — not bolted on as an isolated route with its own state management.
+6. **Optional single-file/offline packaging is a RELEASE OUTPUT, not a second development runtime.** If offline/single-file distribution remains valuable (e.g., for classrooms without reliable internet), that is solved by a packaging step *after* the unified Vite build (e.g., bundling the built static assets plus a tiny static-file server, or an Electron/Tauri-style wrapper) — not by maintaining a second, parallel hand-authored standalone HTML architecture indefinitely.
+
+### Why This Avoids the Split-Runtime Trap
+
+The Stage 11A recommendation optimized for *minimizing short-term risk* (don't touch the validated labs) at the cost of *long-term architectural coherence* (two runtimes forever). Stage 11B accepts a small amount of additional short-term migration risk — mitigated by rigorous browser-equivalence testing, exactly as the v0.8 recovery already demonstrated is achievable — in exchange for a single coherent codebase that Morning QC Room, and any future v1.0 feature, can build on without an ever-widening architectural fork.
+
+### Migration Timing
+
+**No migration occurs in Stage 11B.** The migration itself is scoped as its own auditable change: **Stage 11C — Unified v0.9 Build Migration** (see `V09_ROADMAP.md`). Stage 11B's role is to make this decision explicit and reasoned, not to execute it.
+
+---
+
+## Resolved Questions (Previously Open in Stage 11A)
+
+1. **Should the 11 existing labs eventually be migrated into the Vite build, or permanently remain on the standalone runtime-Babel architecture?** — **Resolved:** Yes, migrated, as part of Stage 11C, to avoid the split-runtime problem identified above.
+2. **If migrated, what is the plan for re-validating browser equivalence against the v0.8 baseline after the migration?** — **Resolved (in principle, detailed in Stage 11C):** The same Playwright-based differential methodology used in Stages 10A–10F (original v0.8 reference vs. migrated candidate, checkpoint classification MATCH/INTENDED_DELTA/UNEXPECTED_DIFFERENCE/BLOCKED) will be reused, since it is already proven and the tooling already exists.
+3. **What is the acceptable bundle size / load time budget for the combined v0.9 application once Morning QC Room is added?** — **Still open**, to be defined during Stage 11C planning once Morning QC Room's data-volume needs are better understood (deferred, not resolved by this ADR).

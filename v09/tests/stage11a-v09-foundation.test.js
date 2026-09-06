@@ -97,7 +97,11 @@ assert('D-03', Array.isArray(map.files) && map.files.length > 30,
 assert('D-04', map.v08_validated_commit === '1352dba',
   'Baseline map records v0.8 validated commit 1352dba');
 
-// Every copied source has matching initial SHA
+// Every copied source has matching initial SHA — for files still at
+// UNCHANGED_FROM_V08 status. Files intentionally modified in a later stage
+// (tracked via future_change_status = V09_MODIFIED in the baseline map)
+// are expected to diverge from their initial SHA — that is not a defect,
+// it is why the status field and rationale exist.
 let allShasMatch = true;
 let checkedCount = 0;
 for (const entry of map.files) {
@@ -107,12 +111,20 @@ for (const entry of map.files) {
   const srcSha = crypto.createHash('sha256').update(fs.readFileSync(srcFull)).digest('hex');
   const destSha = crypto.createHash('sha256').update(fs.readFileSync(destFull)).digest('hex');
   checkedCount++;
-  if (srcSha !== entry.v08_sha256 || destSha !== entry.v09_initial_sha256) { allShasMatch = false; }
+  // v0.8 original SHA must never change regardless of status
+  if (srcSha !== entry.v08_sha256) { allShasMatch = false; continue; }
+  const status = entry.future_change_status || 'UNCHANGED_FROM_V08';
+  if (status === 'UNCHANGED_FROM_V08') {
+    if (destSha !== entry.v09_initial_sha256) allShasMatch = false;
+  } else if (status === 'V09_MODIFIED') {
+    // Intentional divergence is expected; just require a rationale and a recorded current SHA
+    if (!entry.rationale || !entry.v09_current_sha256) allShasMatch = false;
+  }
 }
 assert('D-05', checkedCount === map.files.length,
   `All ${map.files.length} baseline-map entries verified on disk`);
 assert('D-06', allShasMatch,
-  'Every copied source file has matching v0.8 and v0.9 initial SHA-256');
+  'Every copied source file matches its recorded status (UNCHANGED_FROM_V08 files match v0.8 exactly; V09_MODIFIED files have rationale + recorded current SHA)');
 
 /* -----------------------------------------------------------------------
    SECTION E: Governance documents exist

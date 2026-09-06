@@ -1,0 +1,260 @@
+{
+  "stage": "11B",
+  "artifact_class": "V09_TEST",
+  "browser": "Chromium 141.0.7390.37",
+  "original_reference": "dist/recovered-v0.8-faithful.html (validated v0.8 faithful candidate)",
+  "candidate": "v09/dist/precimind-v0.9-compat.html (current v09/src, post accessibility fixes)",
+  "summary": {
+    "total": 30,
+    "match": 26,
+    "intended_delta": 4,
+    "unexpected_difference": 0,
+    "blocked": 0
+  },
+  "checkpoints": [
+    {
+      "id": "nav-14-destinations",
+      "domain": "nonregression",
+      "action": "14 primary nav destinations",
+      "original": "14",
+      "candidate": "14",
+      "classification": "MATCH"
+    },
+    {
+      "id": "lab-h1-Statistics_Play",
+      "domain": "nonregression",
+      "action": "Statistics Playground: h1 unchanged",
+      "original": "Statistics Playground",
+      "candidate": "Statistics Playground",
+      "classification": "MATCH"
+    },
+    {
+      "id": "lab-h1-LJ_Laboratory",
+      "domain": "nonregression",
+      "action": "LJ Laboratory: h1 unchanged",
+      "original": "Levey-Jennings Laboratory",
+      "candidate": "Levey-Jennings Laboratory",
+      "classification": "MATCH"
+    },
+    {
+      "id": "lab-h1-Pattern_Challen",
+      "domain": "nonregression",
+      "action": "Pattern Challenge: h1 unchanged",
+      "original": "QC Pattern Challenge",
+      "candidate": "QC Pattern Challenge",
+      "classification": "MATCH"
+    },
+    {
+      "id": "lab-h1-Rule_Laboratory",
+      "domain": "nonregression",
+      "action": "Rule Laboratory: h1 unchanged",
+      "original": "Rule Laboratory",
+      "candidate": "Rule Laboratory",
+      "classification": "MATCH"
+    },
+    {
+      "id": "lab-h1-QC_Strategy_Lab",
+      "domain": "nonregression",
+      "action": "QC Strategy Lab: h1 unchanged",
+      "original": "QC Strategy Lab",
+      "candidate": "QC Strategy Lab",
+      "classification": "MATCH"
+    },
+    {
+      "id": "lab-h1-Sigma_Sandbox",
+      "domain": "nonregression",
+      "action": "Sigma Sandbox: h1 unchanged",
+      "original": "Sigma Sandbox",
+      "candidate": "Sigma Sandbox",
+      "classification": "MATCH"
+    },
+    {
+      "id": "lab-h1-Risk___Frequenc",
+      "domain": "nonregression",
+      "action": "Risk & Frequency Lab: h1 unchanged",
+      "original": "Risk & Frequency Lab",
+      "candidate": "Risk & Frequency Lab",
+      "classification": "MATCH"
+    },
+    {
+      "id": "lab-h1-Investigation_L",
+      "domain": "nonregression",
+      "action": "Investigation Lab: h1 unchanged",
+      "original": "Investigation Lab",
+      "candidate": "Investigation Lab",
+      "classification": "MATCH"
+    },
+    {
+      "id": "lab-h1-External_Assura",
+      "domain": "nonregression",
+      "action": "External Assurance Lab: h1 unchanged",
+      "original": "External Assurance Lab",
+      "candidate": "External Assurance Lab",
+      "classification": "MATCH"
+    },
+    {
+      "id": "lab-h1-BV___RCV_Lab",
+      "domain": "nonregression",
+      "action": "BV & RCV Lab: h1 unchanged",
+      "original": "BV & RCV Lab",
+      "candidate": "BV & RCV Lab",
+      "classification": "MATCH"
+    },
+    {
+      "id": "lab-h1-Patient_Surveil",
+      "domain": "nonregression",
+      "action": "Patient Surveillance Lab: h1 unchanged",
+      "original": "Patient Surveillance Lab",
+      "candidate": "Patient Surveillance Lab",
+      "classification": "MATCH"
+    },
+    {
+      "id": "screen-Home",
+      "domain": "nonregression",
+      "action": "Home reachable",
+      "original": "7f6e22f27e6dcfbf",
+      "candidate": "7f6e22f27e6dcfbf",
+      "classification": "MATCH"
+    },
+    {
+      "id": "screen-Competency_Map",
+      "domain": "nonregression",
+      "action": "Competency Map reachable",
+      "original": "ad879a2be1d7363d",
+      "candidate": "ad879a2be1d7363d",
+      "classification": "MATCH"
+    },
+    {
+      "id": "screen-Evidence",
+      "domain": "nonregression",
+      "action": "Evidence reachable",
+      "original": "cdcc9cd024b26158",
+      "candidate": "cdcc9cd024b26158",
+      "classification": "MATCH"
+    },
+    {
+      "id": "level-beginner",
+      "domain": "nonregression",
+      "action": "Level beginner functional",
+      "original": "beginner",
+      "candidate": "beginner",
+      "classification": "MATCH"
+    },
+    {
+      "id": "level-intermediate",
+      "domain": "nonregression",
+      "action": "Level intermediate functional",
+      "original": "intermediate",
+      "candidate": "intermediate",
+      "classification": "MATCH"
+    },
+    {
+      "id": "level-advanced",
+      "domain": "nonregression",
+      "action": "Level advanced functional",
+      "original": "advanced",
+      "candidate": "advanced",
+      "classification": "MATCH"
+    },
+    {
+      "id": "level-expert",
+      "domain": "nonregression",
+      "action": "Level expert functional",
+      "original": "expert",
+      "candidate": "expert",
+      "classification": "MATCH"
+    },
+    {
+      "id": "page-errors",
+      "domain": "nonregression",
+      "action": "No candidate-only page errors",
+      "original": "0",
+      "candidate": "0",
+      "classification": "MATCH"
+    },
+    {
+      "id": "rule-hint-after-1_3s",
+      "domain": "rules",
+      "action": "Hint = \"Selected: none yet\" after 1₃s",
+      "original": "Selected: none yet",
+      "candidate": "Selected: none yet",
+      "classification": "MATCH"
+    },
+    {
+      "id": "rule-click-unchanged",
+      "domain": "rules",
+      "action": "Click activation unchanged (Selected: 4:L1)",
+      "original": "Selected: 4:L1",
+      "candidate": "Selected: 4:L1",
+      "classification": "MATCH"
+    },
+    {
+      "id": "rule-enter-fix",
+      "domain": "rules",
+      "action": "Enter: v0.8 no-activate → v0.9 activates (INTENDED_DELTA)",
+      "original": "Selected: none yet",
+      "candidate": "Selected: 4:L1",
+      "classification": "INTENDED_DELTA",
+      "notes": "v0.8=Selected: none yet (known limitation) | v0.9=Selected: 4:L1 (fixed)"
+    },
+    {
+      "id": "rule-space-fix",
+      "domain": "rules",
+      "action": "Space: v0.8 no-activate → v0.9 activates (INTENDED_DELTA)",
+      "original": "Selected: none yet",
+      "candidate": "Selected: 4:L1",
+      "classification": "INTENDED_DELTA",
+      "notes": "v0.8=Selected: none yet | v0.9=Selected: 4:L1"
+    },
+    {
+      "id": "lj-focus-label",
+      "domain": "lj",
+      "action": "Focus: accessible name unchanged",
+      "original": "Run 1, value 99.20, -0.40 SD",
+      "candidate": "Run 1, value 99.20, -0.40 SD",
+      "classification": "MATCH"
+    },
+    {
+      "id": "lj-focus-tooltip",
+      "domain": "lj",
+      "action": "Focus: tooltip shows point info (unchanged)",
+      "original": "22ee87820b76245a",
+      "candidate": "22ee87820b76245a",
+      "classification": "MATCH"
+    },
+    {
+      "id": "lj-click-unchanged",
+      "domain": "lj",
+      "action": "Click toggle behavior unchanged",
+      "original": "c6e76d75f3dfd493",
+      "candidate": "c6e76d75f3dfd493",
+      "classification": "MATCH"
+    },
+    {
+      "id": "lj-enter-fix",
+      "domain": "lj",
+      "action": "Enter toggle behavior (documented INTENDED_DELTA if changed)",
+      "original": "22ee87820b76245a",
+      "candidate": "c6e76d75f3dfd493",
+      "classification": "INTENDED_DELTA",
+      "notes": "v0.8 Enter has no dedicated handler (focus already shows tooltip); v0.9 Enter now also toggles active state identically to click"
+    },
+    {
+      "id": "eqa-click-unchanged",
+      "domain": "eqa",
+      "action": "EQA click toggle unchanged",
+      "original": "0cc02a8bd4c17a97",
+      "candidate": "0cc02a8bd4c17a97",
+      "classification": "MATCH"
+    },
+    {
+      "id": "eqa-enter-fix",
+      "domain": "eqa",
+      "action": "EQA Enter toggle (INTENDED_DELTA)",
+      "original": "n/a",
+      "candidate": "n/a",
+      "classification": "INTENDED_DELTA",
+      "notes": "Same pattern applied as LJ chart — Enter now toggles active state in v0.9"
+    }
+  ]
+}

@@ -124,6 +124,17 @@ export function validateCase(caseObj) {
 
   // Evidence — required fields, hypothesis references, and prerequisite sanity
   const evidence = caseObj.evidence || [];
+  const panelIdsSet = new Set((caseObj.panels || []).map(p => p && p.id).filter(Boolean));
+  // Stage 12A FINAL closure: which panel TYPES actually exist in this
+  // case, keyed by the action type that depends on them — used to reject
+  // an evidence/action prerequisite referencing a panel-dependent action
+  // (e.g. CHECK_EQA) when no panel of the required type exists at all
+  // (Section 7's exact "CHECK_EQA with no EQA panel" example).
+  const PANEL_DEPENDENT_ACTION_TO_PANEL_TYPE = {
+    CHECK_EQA: 'EQA', CHECK_PBRTQC: 'PBRTQC', CHECK_PATIENT_DISTRIBUTION: 'PATIENT_RESULT_DISTRIBUTION',
+    INSPECT_REAGENT: 'REAGENT_LOT', INSPECT_MAINTENANCE: 'MAINTENANCE',
+  };
+  const presentPanelTypes = new Set((caseObj.panels || []).map(p => p && p.type).filter(Boolean));
   if (!Array.isArray(evidence)) errors.push('evidence: must be an array');
   else {
     evidence.forEach((e, i) => {
@@ -134,6 +145,10 @@ export function validateCase(caseObj) {
         }
         for (const hid of e.weakensHypothesisIds || []) {
           if (!hypothesisIds.has(hid)) errors.push(`evidence[${i}]: weakensHypothesisIds references nonexistent hypothesis "${hid}"`);
+        }
+        // Stage 12A FINAL closure: sourcePanelId must reference a real panel.
+        if (e.sourcePanelId != null && !panelIdsSet.has(e.sourcePanelId)) {
+          errors.push(`evidence[${i}]: sourcePanelId references nonexistent panel "${e.sourcePanelId}" (evidence would be unreachable)`);
         }
         if (e.availableOnlyAfterActionType != null) {
           if (!ACTION_TYPES.includes(e.availableOnlyAfterActionType)) {
@@ -150,6 +165,14 @@ export function validateCase(caseObj) {
           // tautological gate.
           if (e.availableOnlyAfterActionType === 'REQUEST_EVIDENCE') {
             errors.push(`evidence[${i}]: availableOnlyAfterActionType="REQUEST_EVIDENCE" is a tautological/self-referential prerequisite (requesting evidence is itself a REQUEST_EVIDENCE action) — use null (no prerequisite) or a semantically distinct action type instead`);
+          }
+          // Stage 12A FINAL closure: a panel-dependent action prerequisite
+          // (e.g. CHECK_EQA) requires a panel of the corresponding type to
+          // actually exist in this case, or the prerequisite can never be
+          // satisfied (Section 7's exact example: CHECK_EQA with no EQA panel).
+          const requiredPanelType = PANEL_DEPENDENT_ACTION_TO_PANEL_TYPE[e.availableOnlyAfterActionType];
+          if (requiredPanelType && !presentPanelTypes.has(requiredPanelType)) {
+            errors.push(`evidence[${i}]: availableOnlyAfterActionType="${e.availableOnlyAfterActionType}" requires a panel of type "${requiredPanelType}", but no such panel exists in this case (unreachable prerequisite)`);
           }
         }
       }
@@ -215,6 +238,13 @@ export function validateCase(caseObj) {
           if (opt.severity && !SEVERITY_LEVELS.includes(opt.severity)) errors.push(`decisionOpportunities[${i}]: option "${opt.id}" has invalid severity "${opt.severity}"`);
           if (opt.outcomeAppropriate !== undefined && typeof opt.outcomeAppropriate !== 'boolean') {
             errors.push(`decisionOpportunities[${i}]: option "${opt.id}" outcomeAppropriate must be a boolean, found ${typeof opt.outcomeAppropriate}`);
+          }
+          // Stage 12A FINAL closure: actionType must be a recognized
+          // action type — this is the executable contract binding this
+          // option to a specific, legitimate action (engine.js rejects
+          // any attempt to execute this option via a non-matching action).
+          if (opt.actionType != null && !ACTION_TYPES.includes(opt.actionType)) {
+            errors.push(`decisionOpportunities[${i}]: option "${opt.id}" actionType "${opt.actionType}" is not a recognized action type`);
           }
         }
         checkDuplicateIds(d.options || [], `decisionOpportunities[${i}].options`, errors);

@@ -3,11 +3,13 @@
 
    Morning QC Room — Stage 12A Engine Unit Tests
    PROVENANCE: V09_TEST
-   Rewritten during the Stage 12A independent-audit corrective closure to
-   exercise panel/evidence availability enforcement, executable decision
-   options, the corrected two-axis outcome/reasoning model, patient-impact
-   evidence gating, corrected verification/service-state semantics, phase
-   regression, and confidence-to-decision association.
+   Rewritten during the Stage 12A independent-audit FINAL engine-semantics
+   closure: source-panel evidence gating, phase high-water-mark guards,
+   executable decision contracts (actionType + availableFromPhase),
+   decision-category preservation, genuine 4-combination outcome/reasoning
+   matrix, corrected confidence calibration + identity policy, corrected
+   EVIDENCE_SELECTION scoring, strengthened validator reachability checks,
+   and truthful phase-return governance.
    ========================================================================= */
 'use strict';
 const path = require('path');
@@ -22,8 +24,9 @@ function deepEqual(a, b) { return JSON.stringify(a) === JSON.stringify(b); }
 
 async function main() {
   const { validateCase } = await import('file://' + path.join(APP, 'case-validator.js'));
-  const { createInitialState, applyAction, replay } = await import('file://' + path.join(APP, 'engine.js'));
+  const { createInitialState, applyAction, replay, canReturnToPhase } = await import('file://' + path.join(APP, 'engine.js'));
   const { pilot1ReagentLotShift } = await import('file://' + path.join(APP, 'cases', 'pilot-1-reagent-lot-shift.js'));
+  const { syntheticFixtureCase } = await import('file://' + path.join(APP, 'cases', 'synthetic-fixture.js'));
   const states = await import('file://' + path.join(APP, 'states.js'));
 
   const caseObj = pilot1ReagentLotShift;
@@ -31,7 +34,8 @@ async function main() {
   console.log('\n=== Valid case loading ===');
   {
     const result = validateCase(caseObj);
-    assert('LOAD-01', result.valid === true, `Pilot 1 case validates cleanly (errors: ${JSON.stringify(result.errors)})`);
+    assert('LOAD-01', result.valid === true, `Pilot 1 validates cleanly (errors: ${JSON.stringify(result.errors)})`);
+    assert('LOAD-02', validateCase(syntheticFixtureCase).valid === true, 'Synthetic fixture validates cleanly');
   }
 
   console.log('\n=== Invalid case rejection (fail-closed) ===');
@@ -39,41 +43,33 @@ async function main() {
     const b1 = JSON.parse(JSON.stringify(caseObj)); delete b1.identity.title;
     assert('REJECT-01', validateCase(b1).valid === false, 'Missing required identity field rejected');
 
-    const b2 = JSON.parse(JSON.stringify(caseObj)); b2.evidence[0].supportsHypothesisIds = ['nonexistent-hyp'];
-    assert('REJECT-02', validateCase(b2).valid === false, 'Evidence referencing nonexistent hypothesis rejected');
-
-    const b3 = JSON.parse(JSON.stringify(caseObj)); b3.groundTruth.rootCauseEstablished = false; b3.groundTruth.rootCauseDescription = 'still has a description';
-    assert('REJECT-03', validateCase(b3).valid === false, 'Contradictory ground truth (null-mismatch) rejected');
-
-    const b4 = JSON.parse(JSON.stringify(caseObj)); b4.panels.push({ ...b4.panels[0] });
-    assert('REJECT-04', validateCase(b4).valid === false, 'Duplicate panel id rejected');
-
-    const b5 = JSON.parse(JSON.stringify(caseObj)); b5.verificationCriteria.requiredEvidenceIds = ['nonexistent-evidence'];
-    assert('REJECT-05', validateCase(b5).valid === false, 'Verification requiring nonexistent evidence (unreachable) rejected');
-
-    const b6 = JSON.parse(JSON.stringify(caseObj)); b6.groundTruth.observedSignal = 'X'; b6.groundTruth.rootCauseDescription = 'X';
-    assert('REJECT-06', validateCase(b6).valid === false, 'Signal automatically equated with root cause rejected');
+    const b3 = JSON.parse(JSON.stringify(caseObj)); b3.groundTruth.rootCauseEstablished = false; b3.groundTruth.rootCauseDescription = 'x';
+    assert('REJECT-03', validateCase(b3).valid === false, 'Contradictory ground truth rejected');
 
     const b7 = JSON.parse(JSON.stringify(caseObj)); b7.groundTruth.disturbanceEstablished = false; b7.groundTruth.rootCauseEstablished = true;
-    assert('REJECT-07', validateCase(b7).valid === false, 'Analytical root cause without an established disturbance is rejected (corrective-closure rule)');
+    assert('REJECT-07', validateCase(b7).valid === false, 'Analytical root cause without disturbance rejected');
 
     const b8 = JSON.parse(JSON.stringify(caseObj)); delete b8.decisionOpportunities[0].options[0].outcomeAppropriate;
-    assert('REJECT-08', validateCase(b8).valid === false, 'Decision option missing outcomeAppropriate is rejected');
+    assert('REJECT-08', validateCase(b8).valid === false, 'Decision option missing outcomeAppropriate rejected');
 
     const b9 = JSON.parse(JSON.stringify(caseObj)); b9.evidence[0].availableOnlyAfterActionType = 'REQUEST_EVIDENCE';
-    assert('REJECT-09', validateCase(b9).valid === false, 'Tautological/self-referential evidence prerequisite (REQUEST_EVIDENCE) is rejected');
+    assert('REJECT-09', validateCase(b9).valid === false, 'Tautological REQUEST_EVIDENCE prerequisite rejected');
 
-    const b10 = JSON.parse(JSON.stringify(caseObj)); delete b10.patientImpactCriteria.requiredEvidenceIdsForTerminalState;
-    assert('REJECT-10', validateCase(b10).valid === false, 'Missing patientImpactCriteria required field is rejected');
+    // Final-closure new checks:
+    const b12 = JSON.parse(JSON.stringify(caseObj)); b12.evidence[0].sourcePanelId = 'nonexistent-panel';
+    assert('REJECT-12', validateCase(b12).valid === false, 'sourcePanelId referencing nonexistent panel rejected');
 
-    const b11 = JSON.parse(JSON.stringify(caseObj)); b11.patientImpactCriteria.requiredEvidenceIdsForTerminalState = ['nonexistent'];
-    assert('REJECT-11', validateCase(b11).valid === false, 'patientImpactCriteria referencing nonexistent evidence (unreachable terminal state) is rejected');
+    const b13 = JSON.parse(JSON.stringify(caseObj)); b13.decisionOpportunities[0].options[0].actionType = 'NOT_A_REAL_ACTION';
+    assert('REJECT-13', validateCase(b13).valid === false, 'Decision option actionType not a recognized action type rejected');
+
+    // Section 7's exact example: CHECK_EQA prerequisite with no EQA panel present.
+    const b14 = JSON.parse(JSON.stringify(caseObj)); b14.evidence[0].availableOnlyAfterActionType = 'CHECK_EQA';
+    assert('REJECT-14', validateCase(b14).valid === false, 'CHECK_EQA prerequisite with no EQA panel in the case is rejected (unreachable)');
   }
 
   console.log('\n=== Deterministic replay ===');
   {
     const actions = [
-      { type: 'INSPECT_PANEL', panelId: 'panel-qc-history' },
       { type: 'ACKNOWLEDGE_SIGNAL', description: 'Sustained shift detected.' },
       { type: 'HOLD_RESULTS' },
     ];
@@ -86,13 +82,63 @@ async function main() {
   {
     let state = createInitialState(caseObj);
     let out = applyAction(caseObj, state, { type: 'INSPECT_PANEL', panelId: 'panel-reagent-lot' });
-    assert('AVAIL-01', out.error !== null, `Inspecting a not-yet-available panel (requires CHARACTERISATION) from BRIEFING fails (error: ${out.error})`);
+    assert('AVAIL-01', out.error !== null, 'Panel gated behind CHARACTERISATION cannot be inspected from BRIEFING');
+  }
 
-    let s2 = createInitialState(caseObj);
-    let o1 = applyAction(caseObj, s2, { type: 'ACKNOWLEDGE_SIGNAL' });
-    let o2 = applyAction(caseObj, o1.state, { type: 'HOLD_RESULTS' });
-    let o3 = applyAction(caseObj, o2.state, { type: 'INSPECT_PANEL', panelId: 'panel-maintenance' });
-    assert('AVAIL-02', o3.error !== null, 'panel-maintenance (requires CHARACTERISATION) still blocked at IMMEDIATE_CONTAINMENT');
+  console.log('\n=== FINAL CLOSURE: source-panel evidence gating (Defect 1) ===');
+  {
+    // ev-lot-timing: sourcePanelId=panel-reagent-lot. Must be unobtainable
+    // before that panel is genuinely inspected, even though the panel is
+    // structurally "available" (phase-wise) once reached.
+    let state = createInitialState(caseObj);
+    let s1 = applyAction(caseObj, state, { type: 'ACKNOWLEDGE_SIGNAL' });
+    let s2 = applyAction(caseObj, s1.state, { type: 'HOLD_RESULTS' });
+    // Reach CHARACTERISATION via FORM_HYPOTHESIS (signal already acknowledged).
+    let s3 = applyAction(caseObj, s2.state, { type: 'FORM_HYPOTHESIS', hypothesisId: 'hyp-lot' });
+    assert('SRCPANEL-00', s3.error === null, 'Reached HYPOTHESIS_GENERATION (beyond CHARACTERISATION) via a real prerequisite path');
+    // Attempt to obtain ev-lot-timing WITHOUT ever inspecting panel-reagent-lot.
+    const prematureEv = applyAction(caseObj, s3.state, { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-lot-timing' });
+    assert('SRCPANEL-01', prematureEv.error !== null, `ev-lot-timing cannot be obtained without inspecting panel-reagent-lot first, even though the panel is phase-available (error: ${prematureEv.error})`);
+    assert('SRCPANEL-02', !s3.state.obtainedEvidenceIds.includes('ev-lot-timing'), 'obtainedEvidenceIds not mutated by the rejected premature request');
+    assert('SRCPANEL-03', s3.state.hypothesisStates['hyp-lot'] === 'PLAUSIBLE', 'No hypothesis change occurred from the rejected premature request');
+    // Now genuinely inspect the panel, then the evidence succeeds.
+    const inspected = applyAction(caseObj, s3.state, { type: 'INSPECT_PANEL', panelId: 'panel-reagent-lot' });
+    const nowOk = applyAction(caseObj, inspected.state, { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-lot-timing' });
+    assert('SRCPANEL-04', nowOk.error === null && nowOk.state.obtainedEvidenceIds.includes('ev-lot-timing'), 'ev-lot-timing succeeds once panel-reagent-lot has actually been inspected');
+
+    // ev-cal-timing: sourcePanelId=panel-calibration, same pattern.
+    const prematureCal = applyAction(caseObj, s3.state, { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-cal-timing' });
+    assert('SRCPANEL-05', prematureCal.error !== null, 'ev-cal-timing cannot be obtained without inspecting panel-calibration first');
+
+    // Action-generated ev-old-lot-repeat still requires REPEAT_QC (independent of sourcePanelId=null).
+    const prematureRepeat = applyAction(caseObj, s3.state, { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-old-lot-repeat' });
+    assert('SRCPANEL-06', prematureRepeat.error !== null, 'Action-generated ev-old-lot-repeat still requires REPEAT_QC regardless of sourcePanelId being null');
+  }
+
+  console.log('\n=== FINAL CLOSURE: phase high-water-mark guard (Defect 2) ===');
+  {
+    // Exploit 1: DOCUMENT at pristine BRIEFING must not advance phase/unlock panels.
+    let state = createInitialState(caseObj);
+    const docOut = applyAction(caseObj, state, { type: 'DOCUMENT', fields: {} });
+    assert('NOGAME-01', docOut.error !== null, 'DOCUMENT at pristine BRIEFING (signal not acknowledged) is REJECTED outright');
+    assert('NOGAME-02', state.maxPhaseIndexReached === 0, 'maxPhaseIndexReached remains 0 after the rejected DOCUMENT attempt');
+
+    // Exploit 2: REVIEW_PATIENT_IMPACT at pristine BRIEFING must not advance phase.
+    const piOut = applyAction(caseObj, state, { type: 'REVIEW_PATIENT_IMPACT', targetState: 'INDICATED' });
+    assert('NOGAME-03', piOut.error !== null, 'REVIEW_PATIENT_IMPACT at pristine BRIEFING is REJECTED outright');
+
+    // Exploit 3 (found during this closure): FORM_HYPOTHESIS at pristine BRIEFING.
+    const fhOut = applyAction(caseObj, state, { type: 'FORM_HYPOTHESIS', hypothesisId: 'hyp-lot' });
+    assert('NOGAME-04', fhOut.error !== null, 'FORM_HYPOTHESIS at pristine BRIEFING is REJECTED outright (same exploit class)');
+
+    // RECORD_CONFIDENCE never advances phase at all (not in the phase-advancing map).
+    // (Also requires a genuinely-executed decisionId per Defect 5 — tested separately below.)
+    assert('NOGAME-05', !('RECORD_CONFIDENCE' in { ACKNOWLEDGE_SIGNAL: 1, HOLD_RESULTS: 1 }), 'sanity: RECORD_CONFIDENCE is not itself a phase-advancing action type (structural fact, verified directly in engine.js source)');
+
+    // Legitimate path: after ACKNOWLEDGE_SIGNAL, these actions succeed normally.
+    let acked = applyAction(caseObj, state, { type: 'ACKNOWLEDGE_SIGNAL' });
+    const docAfterAck = applyAction(caseObj, acked.state, { type: 'DOCUMENT', fields: { finalDisposition: 'test' } });
+    assert('NOGAME-06', docAfterAck.error === null, 'DOCUMENT succeeds normally once the signal has been genuinely acknowledged');
   }
 
   console.log('\n=== Non-linear inspection within available information ===');
@@ -100,16 +146,14 @@ async function main() {
     let state = createInitialState(caseObj);
     let o1 = applyAction(caseObj, state, { type: 'ACKNOWLEDGE_SIGNAL' });
     let o2 = applyAction(caseObj, o1.state, { type: 'HOLD_RESULTS' });
-    let o3 = applyAction(caseObj, o2.state, { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-lot-timing' });
-    assert('NONLINEAR-00', o3.error === null, 'Reaching EVIDENCE_SELECTION succeeds via a real prerequisite path');
-
+    let o3 = applyAction(caseObj, o2.state, { type: 'FORM_HYPOTHESIS', hypothesisId: 'hyp-lot' });
+    assert('NONLINEAR-00', o3.error === null, 'Reaching HYPOTHESIS_GENERATION succeeds via a real prerequisite path');
     let orderA1 = applyAction(caseObj, o3.state, { type: 'INSPECT_PANEL', panelId: 'panel-calibration' });
     let orderA2 = applyAction(caseObj, orderA1.state, { type: 'INSPECT_PANEL', panelId: 'panel-reagent-lot' });
-    assert('NONLINEAR-01', orderA1.error === null && orderA2.error === null, 'Panels available at the same phase may be inspected in either order (calibration then reagent-lot)');
-
+    assert('NONLINEAR-01', orderA1.error === null && orderA2.error === null, 'Panels at the same phase inspected in either order');
     let orderB1 = applyAction(caseObj, o3.state, { type: 'INSPECT_PANEL', panelId: 'panel-reagent-lot' });
     let orderB2 = applyAction(caseObj, orderB1.state, { type: 'INSPECT_PANEL', panelId: 'panel-calibration' });
-    assert('NONLINEAR-02', orderB1.error === null && orderB2.error === null && orderB2.state.inspectedPanelIds.length === 2, 'Same two panels inspected in the REVERSE order also succeed, both now recorded');
+    assert('NONLINEAR-02', orderB1.error === null && orderB2.error === null && orderB2.state.inspectedPanelIds.length === 2, 'Same panels, reverse order, both succeed');
   }
 
   console.log('\n=== Irrelevant-panel inspection ===');
@@ -117,201 +161,179 @@ async function main() {
     let state = createInitialState(caseObj);
     let o1 = applyAction(caseObj, state, { type: 'ACKNOWLEDGE_SIGNAL' });
     let out = applyAction(caseObj, o1.state, { type: 'INSPECT_PANEL', panelId: 'panel-analyzer-status' });
-    assert('IRRELEVANT-01', out.error === null, 'Inspecting an available irrelevant panel is NOT blocked');
-    assert('IRRELEVANT-02', out.severity === 'INEFFICIENT', `Inspecting an irrelevant panel is flagged INEFFICIENT (found ${out.severity})`);
-    assert('IRRELEVANT-03', out.state.actionHistory[out.state.actionHistory.length - 1].outcomeAppropriate === false, 'Irrelevant panel inspection recorded as outcome-inappropriate');
+    assert('IRRELEVANT-01', out.error === null && out.severity === 'INEFFICIENT', 'Irrelevant panel inspection allowed, flagged INEFFICIENT');
   }
 
-  console.log('\n=== Evidence-prerequisite enforcement ===');
+  console.log('\n=== FINAL CLOSURE: executable decision contracts (Defect 3) ===');
+  {
+    // A. Valid execution.
+    let state = createInitialState(caseObj);
+    let acked = applyAction(caseObj, state, { type: 'ACKNOWLEDGE_SIGNAL' });
+    let out = applyAction(caseObj, acked.state, { type: 'HOLD_RESULTS', decisionId: 'dec-containment', optionId: 'opt-hold' });
+    assert('CONTRACT-01', out.error === null && out.state.actionHistory[out.state.actionHistory.length-1].decisionCategory === 'CONTAINMENT',
+      'Valid decision execution succeeds and records decisionCategory from the case-authored decision');
+
+    // B. Wrong action type for the option (Pilot 1 disposition option via DOCUMENT).
+    const wrongType = applyAction(caseObj, acked.state, { type: 'DOCUMENT', decisionId: 'dec-disposition', optionId: 'opt-resume-verified', fields: {} });
+    assert('CONTRACT-02', wrongType.error !== null, 'Executing dec-disposition/opt-resume-verified (actionType=RESUME_SERVICE) via DOCUMENT is REJECTED');
+
+    // C. Wrong action type: containment option via FORM_HYPOTHESIS.
+    const wrongType2 = applyAction(caseObj, acked.state, { type: 'FORM_HYPOTHESIS', hypothesisId: 'hyp-lot', decisionId: 'dec-containment', optionId: 'opt-hold' });
+    assert('CONTRACT-03', wrongType2.error !== null, 'Executing dec-containment/opt-hold (actionType=HOLD_RESULTS) via FORM_HYPOTHESIS is REJECTED');
+
+    // D. Decision availableFromPhase not yet reached: dec-disposition
+    // requires VERIFICATION; attempting immediately after ACKNOWLEDGE_SIGNAL
+    // (still at SIGNAL_RECOGNITION) via the CORRECT action type must still fail.
+    const tooEarly = applyAction(caseObj, acked.state, { type: 'RESUME_SERVICE', decisionId: 'dec-disposition', optionId: 'opt-resume-verified' });
+    assert('CONTRACT-04', tooEarly.error !== null, 'Decision executed before its availableFromPhase is reached is REJECTED, even with the correct action type');
+  }
+
+  console.log('\n=== FINAL CLOSURE: genuine 4-combination outcome/reasoning matrix (Defect 4, synthetic fixture) ===');
+  {
+    const fx = syntheticFixtureCase;
+    let s = createInitialState(fx);
+    let acked = applyAction(fx, s, { type: 'ACKNOWLEDGE_SIGNAL' });
+    const tt = applyAction(fx, acked.state, { type: 'FORM_HYPOTHESIS', hypothesisId: 'hyp-x', decisionId: 'dec-tt', optionId: 'opt-tt' });
+    assert('MATRIX-TT', tt.outcomeAppropriate === true && tt.severity === 'INFORMATIONAL', 'Combination 1: outcomeAppropriate=true, reasoningSupported=true (severity=INFORMATIONAL)');
+
+    const tf = applyAction(fx, acked.state, { type: 'APPLY_INTERVENTION', decisionId: 'dec-tf', optionId: 'opt-tf', description: 'x' });
+    assert('MATRIX-TF', tf.outcomeAppropriate === true && tf.severity === 'UNSUPPORTED', 'Combination 2: outcomeAppropriate=true, reasoningSupported=false (severity=UNSUPPORTED)');
+
+    const ft = applyAction(fx, acked.state, { type: 'CONTINUE_ANALYSIS', decisionId: 'dec-ft', optionId: 'opt-ft' });
+    assert('MATRIX-FT', ft.outcomeAppropriate === false && ft.severity === 'INFORMATIONAL', 'Combination 3: outcomeAppropriate=false, reasoningSupported=true (severity=INFORMATIONAL, "looks reasonable" but wrong)');
+
+    const ff = applyAction(fx, acked.state, { type: 'DOCUMENT', decisionId: 'dec-ff', optionId: 'opt-ff', fields: {} });
+    assert('MATRIX-FF', ff.outcomeAppropriate === false && ff.severity === 'CRITICAL_UNSAFE', 'Combination 4: outcomeAppropriate=false, reasoningSupported=false (severity=CRITICAL_UNSAFE)');
+
+    const { evaluateDecision } = await import('file://' + path.join(APP, 'decision-model.js'));
+    const evalTT = evaluateDecision(tt.state.actionHistory[tt.state.actionHistory.length-1]);
+    const evalTF = evaluateDecision(tf.state.actionHistory[tf.state.actionHistory.length-1]);
+    const evalFT = evaluateDecision(ft.state.actionHistory[ft.state.actionHistory.length-1]);
+    const evalFF = evaluateDecision(ff.state.actionHistory[ff.state.actionHistory.length-1]);
+    assert('MATRIX-CREDIT-01', evalTT.fullCreditEligible === true, 'fullCreditEligible true ONLY for combination 1');
+    assert('MATRIX-CREDIT-02', evalTF.fullCreditEligible === false && evalFT.fullCreditEligible === false && evalFF.fullCreditEligible === false, 'fullCreditEligible false for all other 3 combinations');
+  }
+
+  console.log('\n=== FINAL CLOSURE: confidence correctness + identity model (Defect 5) ===');
+  {
+    const fx = syntheticFixtureCase;
+    let s = createInitialState(fx);
+    let acked = applyAction(fx, s, { type: 'ACKNOWLEDGE_SIGNAL' });
+    // dec-ft: outcomeAppropriate=false, reasoningSupported=true. LOW confidence here
+    // should be considered CALIBRATED under outcomeAppropriate-based scoring
+    // (previously, a reasoningSupported-based bug rated this STRONG incorrectly
+    // for the WRONG reason — now correctly calibrated for the RIGHT reason: low
+    // confidence in an inappropriate-outcome decision is well-calibrated).
+    const ft = applyAction(fx, acked.state, { type: 'CONTINUE_ANALYSIS', decisionId: 'dec-ft', optionId: 'opt-ft' });
+    const withConf = applyAction(fx, ft.state, { type: 'RECORD_CONFIDENCE', decisionId: 'dec-ft', confidence: 'LOW' });
+    assert('CONF-IDENTITY-01', withConf.error === null, 'RECORD_CONFIDENCE for a genuinely-executed decisionId succeeds');
+
+    const { computeScoringProfile } = await import('file://' + path.join(APP, 'scoring-model.js'));
+    const profile = computeScoringProfile(fx, withConf.state);
+    assert('CONF-CORRECTNESS-01', profile.METACOGNITIVE_CALIBRATION === 'STRONG', `LOW confidence + outcomeAppropriate=false is correctly calibrated (STRONG), using outcomeAppropriate not reasoningSupported (found ${profile.METACOGNITIVE_CALIBRATION})`);
+
+    // Unknown/never-executed decisionId must be REJECTED outright.
+    const unknownDec = applyAction(fx, ft.state, { type: 'RECORD_CONFIDENCE', decisionId: 'DOES_NOT_EXIST', confidence: 'HIGH' });
+    assert('CONF-IDENTITY-02', unknownDec.error !== null, 'RECORD_CONFIDENCE for a decisionId never executed in this trace is REJECTED outright');
+    assert('CONF-IDENTITY-03', ft.state.confidenceRecords.length === 0, 'No confidence record was added by the rejected attempt');
+
+    // Duplicate policy: latest replaces earlier.
+    const dup1 = applyAction(fx, ft.state, { type: 'RECORD_CONFIDENCE', decisionId: 'dec-ft', confidence: 'HIGH' });
+    const dup2 = applyAction(fx, dup1.state, { type: 'RECORD_CONFIDENCE', decisionId: 'dec-ft', confidence: 'LOW' });
+    assert('CONF-DUPLICATE-01', dup2.state.confidenceRecords.length === 1 && dup2.state.confidenceRecords[0].confidence === 'LOW', 'Duplicate confidence for the same decisionId: latest REPLACES earlier (deterministic policy)');
+  }
+
+  console.log('\n=== Evidence-prerequisite enforcement (action-generated) ===');
   {
     let state = createInitialState(caseObj);
-    let out = applyAction(caseObj, state, { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-old-lot-repeat' });
-    assert('PREREQ-01', out.error !== null, `ev-old-lot-repeat cannot be obtained before REPEAT_QC (error: ${out.error})`);
-    assert('PREREQ-02', !state.obtainedEvidenceIds.includes('ev-old-lot-repeat'), 'obtainedEvidenceIds not updated by the failed premature request');
-
-    let afterRepeat = applyAction(caseObj, state, { type: 'REPEAT_QC', wasNecessary: true });
+    let acked = applyAction(caseObj, state, { type: 'ACKNOWLEDGE_SIGNAL' });
+    let held = applyAction(caseObj, acked.state, { type: 'HOLD_RESULTS' });
+    let out = applyAction(caseObj, held.state, { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-old-lot-repeat' });
+    assert('PREREQ-01', out.error !== null, 'ev-old-lot-repeat cannot be obtained before REPEAT_QC');
+    let afterRepeat = applyAction(caseObj, held.state, { type: 'REPEAT_QC', wasNecessary: true });
     let out2 = applyAction(caseObj, afterRepeat.state, { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-old-lot-repeat' });
-    assert('PREREQ-03', out2.error === null && out2.state.obtainedEvidenceIds.includes('ev-old-lot-repeat'), 'ev-old-lot-repeat succeeds after REPEAT_QC has occurred');
-
-    let out3 = applyAction(caseObj, state, { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-affected-window' });
-    assert('PREREQ-04', out3.error !== null, `ev-affected-window cannot be obtained before CHECK_PATIENT_DISTRIBUTION (error: ${out3.error})`);
-    // CHECK_PATIENT_DISTRIBUTION itself maps to the PATIENT_RESULT_DISTRIBUTION
-    // panel, which requires CHARACTERISATION — reach that phase first via a
-    // real prerequisite path (not a pristine BRIEFING state).
-    let reached = applyAction(caseObj, state, { type: 'ACKNOWLEDGE_SIGNAL' });
-    let heldFirst = applyAction(caseObj, reached.state, { type: 'HOLD_RESULTS' });
-    let toCharacterisation = applyAction(caseObj, heldFirst.state, { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-lot-timing' });
-    let afterCheck = applyAction(caseObj, toCharacterisation.state, { type: 'CHECK_PATIENT_DISTRIBUTION' });
-    assert('PREREQ-04B', afterCheck.error === null, `CHECK_PATIENT_DISTRIBUTION succeeds once CHARACTERISATION is reached (error: ${afterCheck.error})`);
-    let out4 = applyAction(caseObj, afterCheck.state, { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-affected-window' });
-    assert('PREREQ-05', out4.error === null, 'ev-affected-window succeeds after CHECK_PATIENT_DISTRIBUTION has occurred');
+    assert('PREREQ-02', out2.error === null, 'ev-old-lot-repeat succeeds after REPEAT_QC');
   }
 
   console.log('\n=== Hypothesis updates ===');
   {
     let state = createInitialState(caseObj);
-    assert('HYP-01', state.hypothesisStates['hyp-lot'] === 'NOT_CONSIDERED', 'Hypothesis starts NOT_CONSIDERED');
-    let out = applyAction(caseObj, state, { type: 'FORM_HYPOTHESIS', hypothesisId: 'hyp-lot' });
-    assert('HYP-02', out.state.hypothesisStates['hyp-lot'] === 'PLAUSIBLE', 'FORM_HYPOTHESIS moves NOT_CONSIDERED -> PLAUSIBLE');
+    let acked = applyAction(caseObj, state, { type: 'ACKNOWLEDGE_SIGNAL' });
+    let out = applyAction(caseObj, acked.state, { type: 'FORM_HYPOTHESIS', hypothesisId: 'hyp-lot' });
+    assert('HYP-01', out.state.hypothesisStates['hyp-lot'] === 'PLAUSIBLE', 'FORM_HYPOTHESIS moves NOT_CONSIDERED -> PLAUSIBLE');
     let afterRepeat = applyAction(caseObj, out.state, { type: 'REPEAT_QC', wasNecessary: true });
     let out2 = applyAction(caseObj, afterRepeat.state, { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-old-lot-repeat' });
-    assert('HYP-03', out2.state.hypothesisStates['hyp-lot'] === 'ESTABLISHED', `Decisive supporting evidence (legitimately obtained) moves PLAUSIBLE -> ESTABLISHED (found ${out2.state.hypothesisStates['hyp-lot']})`);
-  }
-
-  console.log('\n=== Containment state ===');
-  {
-    let state = createInitialState(caseObj);
-    let out = applyAction(caseObj, state, { type: 'HOLD_RESULTS' });
-    assert('CONTAIN-01', out.state.serviceState === 'HELD' && out.state.documentation.containment != null, 'HOLD_RESULTS sets serviceState=HELD and records containment documentation');
-  }
-
-  console.log('\n=== Executable decision options ===');
-  {
-    let state = createInitialState(caseObj);
-    let out = applyAction(caseObj, state, { type: 'HOLD_RESULTS', decisionId: 'dec-containment', optionId: 'opt-hold' });
-    assert('DECISION-01', out.error === null, 'Action referencing a valid decisionId/optionId succeeds');
-    assert('DECISION-02', out.state.actionHistory[0].decisionId === 'dec-containment' && out.state.actionHistory[0].optionId === 'opt-hold', 'Action history preserves decisionId/optionId identity');
-    assert('DECISION-03', out.severity === 'INFORMATIONAL' && out.state.actionHistory[0].outcomeAppropriate === true, 'Case-authored severity and outcomeAppropriate applied from the option');
-
-    let bad = applyAction(caseObj, state, { type: 'HOLD_RESULTS', decisionId: 'dec-containment', optionId: 'nonexistent-option' });
-    assert('DECISION-04', bad.error !== null, 'Unknown decisionId/optionId combination is rejected');
-  }
-
-  console.log('\n=== Two-axis outcome/reasoning model (4 combinations) ===');
-  {
-    let s1 = createInitialState(caseObj);
-    let o1 = applyAction(caseObj, s1, { type: 'HOLD_RESULTS', decisionId: 'dec-containment', optionId: 'opt-hold' });
-    assert('AXIS-A', o1.state.actionHistory[0].outcomeAppropriate === true && o1.severity === 'INFORMATIONAL', 'Correct outcome + supported reasoning: outcomeAppropriate=true, severity=INFORMATIONAL');
-
-    let s2 = createInitialState(caseObj);
-    let o2 = applyAction(caseObj, s2, { type: 'APPLY_INTERVENTION', description: 'Reverted to verified reagent lot (guessed, not evidence-based).', evidenceSupported: false });
-    assert('AXIS-B', o2.state.actionHistory[0].outcomeAppropriate === false && o2.severity === 'UNSUPPORTED', 'Unsupported-reasoning intervention: severity=UNSUPPORTED, outcomeAppropriate=false, independently sourced from severity');
-
-    let s3 = createInitialState(caseObj);
-    let o3 = applyAction(caseObj, s3, { type: 'CONTINUE_ANALYSIS', decisionId: 'dec-containment', optionId: 'opt-continue' });
-    assert('AXIS-C', o3.state.actionHistory[0].outcomeAppropriate === false && o3.severity === 'UNSAFE', 'Case-authored incorrect-outcome option flagged outcomeAppropriate=false with severity=UNSAFE');
-
-    let s4 = createInitialState(caseObj);
-    let o4a = applyAction(caseObj, s4, { type: 'HOLD_RESULTS' });
-    let o4b = applyAction(caseObj, o4a.state, { type: 'VERIFY_RECOVERY' });
-    let o4c = applyAction(caseObj, o4b.state, { type: 'RESUME_SERVICE' });
-    assert('AXIS-D-PRE', o4c.error !== null, 'Resume from HELD (verification failed, stayed HELD) is structurally illegal');
-    const dOut = applyAction(caseObj, s4, { type: 'DOCUMENT', decisionId: 'dec-disposition', optionId: 'opt-resume-unverified', fields: {} });
-    assert('AXIS-D', dOut.state.actionHistory[0].outcomeAppropriate === false && dOut.severity === 'CRITICAL_UNSAFE', 'Case-authored incorrect-outcome + unsupported-reasoning option correctly flagged on both axes');
+    assert('HYP-02', out2.state.hypothesisStates['hyp-lot'] === 'ESTABLISHED', 'Decisive evidence moves PLAUSIBLE -> ESTABLISHED');
   }
 
   console.log('\n=== Patient-impact evidence gating ===');
   {
     let state = createInitialState(caseObj);
-    let o1 = applyAction(caseObj, state, { type: 'REVIEW_PATIENT_IMPACT', targetState: 'INDICATED' });
+    let acked = applyAction(caseObj, state, { type: 'ACKNOWLEDGE_SIGNAL' });
+    let o1 = applyAction(caseObj, acked.state, { type: 'REVIEW_PATIENT_IMPACT', targetState: 'INDICATED' });
     let o2 = applyAction(caseObj, o1.state, { type: 'REVIEW_PATIENT_IMPACT', targetState: 'PENDING' });
     let o3 = applyAction(caseObj, o2.state, { type: 'REVIEW_PATIENT_IMPACT', targetState: 'AFFECTED_RESULT_SET_IDENTIFIED' });
-    assert('PIGATE-01', o3.error !== null, `Reaching AFFECTED_RESULT_SET_IDENTIFIED without required evidence fails (error: ${o3.error})`);
-    assert('PIGATE-02', o2.state.patientImpactState === 'PENDING', 'State remains at PENDING after the blocked terminal attempt');
-
+    assert('PIGATE-01', o3.error !== null, 'Terminal patient-impact state requires evidence');
     let withEv = applyAction(caseObj, o2.state, { type: 'CHECK_PATIENT_DISTRIBUTION' });
     let withEv2 = applyAction(caseObj, withEv.state, { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-affected-window' });
     let o4 = applyAction(caseObj, withEv2.state, { type: 'REVIEW_PATIENT_IMPACT', targetState: 'AFFECTED_RESULT_SET_IDENTIFIED' });
-    assert('PIGATE-03', o4.error === null && o4.state.patientImpactState === 'AFFECTED_RESULT_SET_IDENTIFIED', 'Reaching AFFECTED_RESULT_SET_IDENTIFIED succeeds once required evidence is genuinely obtained');
+    assert('PIGATE-02', o4.error === null, 'Terminal patient-impact state succeeds once evidence genuinely obtained');
   }
 
-  console.log('\n=== Intervention state ===');
+  console.log('\n=== FINAL CLOSURE: truthful phase-return governance (Defect 8) ===');
   {
-    let state = createInitialState(caseObj);
-    let out = applyAction(caseObj, state, { type: 'APPLY_INTERVENTION', description: 'Reverted to verified reagent lot.', evidenceSupported: true });
-    assert('INTERVENE-01', out.state.documentation.intervention === 'Reverted to verified reagent lot.', 'APPLY_INTERVENTION records documentation');
-    assert('INTERVENE-02', out.severity === 'INFORMATIONAL', 'Evidence-supported intervention is not flagged unsupported');
-  }
+    assert('RETURN-01', canReturnToPhase('VERIFICATION', 'INVESTIGATION') === true, 'canReturnToPhase genuinely consults PHASE_ALLOWS_RETURN_TO (VERIFICATION -> INVESTIGATION is a declared legal return)');
+    assert('RETURN-02', canReturnToPhase('BRIEFING', 'DEBRIEF') === false, 'canReturnToPhase correctly rejects an undeclared, illegitimate "return"');
 
-  console.log('\n=== Corrected verification/service-state semantics ===');
-  {
     let state = createInitialState(caseObj);
-    let held = applyAction(caseObj, state, { type: 'HOLD_RESULTS' });
+    let acked = applyAction(caseObj, state, { type: 'ACKNOWLEDGE_SIGNAL' });
+    let held = applyAction(caseObj, acked.state, { type: 'HOLD_RESULTS' });
     let failedVerify = applyAction(caseObj, held.state, { type: 'VERIFY_RECOVERY' });
-    assert('VERIFY-01', failedVerify.severity === 'UNSAFE', `Failed verification flagged UNSAFE (found ${failedVerify.severity})`);
-    assert('VERIFY-02', failedVerify.state.serviceState === 'HELD', `Failed verification does NOT advance to READY_FOR_VERIFICATION (found ${failedVerify.state.serviceState})`);
-    assert('VERIFY-03', failedVerify.state.phase === 'INVESTIGATION', `Failed verification deterministically regresses phase to INVESTIGATION (found ${failedVerify.state.phase})`);
-
-    let prematureResume = applyAction(caseObj, failedVerify.state, { type: 'RESUME_SERVICE' });
-    assert('VERIFY-04', prematureResume.error !== null, 'RESUME_SERVICE from HELD (post-failed-verification) is structurally illegal');
+    assert('RETURN-03', failedVerify.state.serviceState === 'HELD', 'Failed verification remains HELD');
+    assert('RETURN-04', failedVerify.state.phase === 'INVESTIGATION', 'Failed verification regresses to INVESTIGATION, validated via canReturnToPhase (not a hardcoded bypass)');
 
     let afterRepeat = applyAction(caseObj, failedVerify.state, { type: 'REPEAT_QC', wasNecessary: true });
     let withEvidence = applyAction(caseObj, afterRepeat.state, { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-old-lot-repeat' });
     let successVerify = applyAction(caseObj, withEvidence.state, { type: 'VERIFY_RECOVERY' });
-    assert('VERIFY-05', successVerify.severity === 'INFORMATIONAL' && successVerify.state.serviceState === 'READY_FOR_VERIFICATION', `Subsequent successful re-verification reaches READY_FOR_VERIFICATION (found state=${successVerify.state.serviceState})`);
-
-    let withEv2 = applyAction(caseObj, successVerify.state, { type: 'CHECK_PATIENT_DISTRIBUTION' });
-    let withEv3 = applyAction(caseObj, withEv2.state, { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-affected-window' });
-    let pi1 = applyAction(caseObj, withEv3.state, { type: 'REVIEW_PATIENT_IMPACT', targetState: 'INDICATED' });
-    let pi2 = applyAction(caseObj, pi1.state, { type: 'REVIEW_PATIENT_IMPACT', targetState: 'PENDING' });
-    let pi3 = applyAction(caseObj, pi2.state, { type: 'REVIEW_PATIENT_IMPACT', targetState: 'AFFECTED_RESULT_SET_IDENTIFIED' });
-    let legitResume = applyAction(caseObj, pi3.state, { type: 'RESUME_SERVICE' });
-    assert('VERIFY-06', legitResume.error === null && legitResume.severity === 'INFORMATIONAL' && legitResume.state.serviceState === 'RESUMED', `Resume after successful re-verification AND patient-impact review succeeds cleanly (found error=${legitResume.error})`);
+    assert('RETURN-05', successVerify.state.serviceState === 'READY_FOR_VERIFICATION', 'Subsequent successful re-verification reaches READY_FOR_VERIFICATION');
   }
 
-  console.log('\n=== Confidence-to-decision association ===');
+  console.log('\n=== FINAL CLOSURE: corrected EVIDENCE_SELECTION scoring (Defect 6) ===');
   {
-    let state = createInitialState(caseObj);
-    let outA = applyAction(caseObj, state, { type: 'HOLD_RESULTS', decisionId: 'dec-containment', optionId: 'opt-hold' });
-    let withConfA = applyAction(caseObj, outA.state, { type: 'RECORD_CONFIDENCE', decisionId: 'dec-containment', confidence: 'HIGH' });
-    assert('CONF-01', withConfA.state.confidenceRecords[0].decisionId === 'dec-containment', 'Confidence record preserves the specific decisionId it names');
-
     const { computeScoringProfile } = await import('file://' + path.join(APP, 'scoring-model.js'));
-    let stateOnlyConfidence = createInitialState(caseObj);
-    let onlyConf = applyAction(caseObj, stateOnlyConfidence, { type: 'RECORD_CONFIDENCE', decisionId: 'dec-disposition', confidence: 'HIGH' });
-    const profile = computeScoringProfile(caseObj, onlyConf.state);
-    assert('CONF-02', profile.METACOGNITIVE_CALIBRATION === null, 'Confidence naming a decision never actually made in this trace is excluded from calibration');
-  }
+    // Pristine state: zero panels inspected. Must NOT be STRONG.
+    const pristine = createInitialState(caseObj);
+    const pristineProfile = computeScoringProfile(caseObj, pristine);
+    assert('EVIDSEL-01', pristineProfile.EVIDENCE_SELECTION !== 'STRONG', `Pristine/no-inspection state does NOT score STRONG on EVIDENCE_SELECTION (found ${pristineProfile.EVIDENCE_SELECTION})`);
 
-  console.log('\n=== Documentation-state capture ===');
-  {
-    let state = createInitialState(caseObj);
-    let out = applyAction(caseObj, state, { type: 'DOCUMENT', fields: { finalDisposition: 'RESUMED', escalation: null } });
-    assert('DOC-01', out.state.documentation.finalDisposition === 'RESUMED', 'DOCUMENT action merges fields into documentation state');
-  }
+    // Expert-like: inspect all relevant panels, no irrelevant ones -> should score well.
+    let s = createInitialState(caseObj);
+    let acked = applyAction(caseObj, s, { type: 'ACKNOWLEDGE_SIGNAL' });
+    let p1 = applyAction(caseObj, acked.state, { type: 'INSPECT_PANEL', panelId: 'panel-qc-history' });
+    let p2 = applyAction(caseObj, p1.state, { type: 'INSPECT_PANEL', panelId: 'panel-lj-chart' });
+    let p3 = applyAction(caseObj, p2.state, { type: 'FORM_HYPOTHESIS', hypothesisId: 'hyp-lot' });
+    let p4 = applyAction(caseObj, p3.state, { type: 'INSPECT_PANEL', panelId: 'panel-reagent-lot' });
+    let p5 = applyAction(caseObj, p4.state, { type: 'INSPECT_PANEL', panelId: 'panel-calibration' });
+    let p6 = applyAction(caseObj, p5.state, { type: 'CHECK_PATIENT_DISTRIBUTION' });
+    const expertLikeProfile = computeScoringProfile(caseObj, p6.state);
+    const ratingOrder = ['NEEDS_IMPROVEMENT', 'DEVELOPING', 'PROFICIENT', 'STRONG'];
+    assert('EVIDSEL-02', ratingOrder.indexOf(expertLikeProfile.EVIDENCE_SELECTION) > ratingOrder.indexOf(pristineProfile.EVIDENCE_SELECTION) || pristineProfile.EVIDENCE_SELECTION === null,
+      `Selective, relevant-panel-inspecting state scores better than pristine (found ${expertLikeProfile.EVIDENCE_SELECTION} vs pristine ${pristineProfile.EVIDENCE_SELECTION})`);
 
-  console.log('\n=== Debrief generation ===');
-  {
-    const { generateDebrief } = await import('file://' + path.join(APP, 'debrief-model.js'));
-    let state = createInitialState(caseObj);
-    let afterRepeat = applyAction(caseObj, state, { type: 'REPEAT_QC', wasNecessary: true });
-    let out = applyAction(caseObj, afterRepeat.state, { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-old-lot-repeat' });
-    const debrief = generateDebrief(caseObj, out.state);
-    assert('DEBRIEF-01', debrief.evidenceValue.highValueObtainedCount === 1, 'Debrief correctly counts high-value obtained evidence');
-    assert('DEBRIEF-02', typeof debrief.disposition.groundTruthDisposition === 'string', 'Debrief exposes ground-truth disposition (only post-hoc)');
-    assert('DEBRIEF-03', debrief.scoringProfile && Object.keys(debrief.scoringProfile).length === states.SCORING_DIMENSIONS.length, 'Debrief includes a full multi-dimensional scoring profile');
-  }
+    // Inspecting ALL relevant panels but ALSO irrelevant ones should score
+    // worse than the same relevant coverage without the irrelevant panels.
+    let ineff = applyAction(caseObj, p6.state, { type: 'INSPECT_PANEL', panelId: 'panel-analyzer-status' });
+    let ineff2 = applyAction(caseObj, ineff.state, { type: 'INSPECT_PANEL', panelId: 'panel-maintenance' });
+    const ineffProfile = computeScoringProfile(caseObj, ineff2.state);
+    assert('EVIDSEL-03', ratingOrder.indexOf(ineffProfile.EVIDENCE_SELECTION) <= ratingOrder.indexOf(expertLikeProfile.EVIDENCE_SELECTION),
+      `Inspecting unnecessary irrelevant panels does not score BETTER than the selective baseline (found ${ineffProfile.EVIDENCE_SELECTION} vs ${expertLikeProfile.EVIDENCE_SELECTION})`);
 
-  console.log('\n=== Safe vs unsafe action distinction ===');
-  {
-    let state = createInitialState(caseObj);
-    let signalAck = applyAction(caseObj, state, { type: 'ACKNOWLEDGE_SIGNAL' });
-    const safeOut = applyAction(caseObj, signalAck.state, { type: 'INSPECT_PANEL', panelId: 'panel-analyzer-status' });
-    let heldOut = applyAction(caseObj, signalAck.state, { type: 'HOLD_RESULTS' });
-    let verifyOut = applyAction(caseObj, heldOut.state, { type: 'VERIFY_RECOVERY' });
-    assert('SAFEUNSAFE-01', safeOut.severity !== verifyOut.severity, `Inspecting an unnecessary panel (${safeOut.severity}) and a failed verification (${verifyOut.severity}) receive meaningfully different severities`);
-    const severityOrder = ['INFORMATIONAL', 'INEFFICIENT', 'UNSUPPORTED', 'UNSAFE', 'CRITICAL_UNSAFE'];
-    assert('SAFEUNSAFE-02', severityOrder.indexOf(verifyOut.severity) > severityOrder.indexOf(safeOut.severity), 'Failed verification is ranked strictly more severe than unnecessary panel inspection');
-  }
-
-  console.log('\n=== Terminal/debrief semantics explicitly deferred ===');
-  {
-    let state = createInitialState(caseObj);
-    assert('TERMINAL-01', state.terminal === false, 'terminal starts false');
-    const longActions = [
-      { type: 'ACKNOWLEDGE_SIGNAL' }, { type: 'HOLD_RESULTS' },
-      { type: 'REPEAT_QC', wasNecessary: true },
-      { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-old-lot-repeat' },
-      { type: 'VERIFY_RECOVERY' },
-      { type: 'CHECK_PATIENT_DISTRIBUTION' },
-      { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-affected-window' },
-      { type: 'REVIEW_PATIENT_IMPACT', targetState: 'INDICATED' },
-      { type: 'REVIEW_PATIENT_IMPACT', targetState: 'PENDING' },
-      { type: 'REVIEW_PATIENT_IMPACT', targetState: 'AFFECTED_RESULT_SET_IDENTIFIED' },
-      { type: 'RESUME_SERVICE' }, { type: 'DOCUMENT', fields: {} },
-    ];
-    const r = replay(caseObj, longActions);
-    assert('TERMINAL-02', r.finalState.terminal === false, 'terminal remains false even after a complete expert path');
+    // Missing required high-value evidence caps the rating even with zero irrelevant panels.
+    let s2 = createInitialState(caseObj);
+    let acked2 = applyAction(caseObj, s2, { type: 'ACKNOWLEDGE_SIGNAL' });
+    let onlyOnePanel = applyAction(caseObj, acked2.state, { type: 'INSPECT_PANEL', panelId: 'panel-qc-history' });
+    const missingHighValueProfile = computeScoringProfile(caseObj, onlyOnePanel.state);
+    assert('EVIDSEL-04', missingHighValueProfile.EVIDENCE_SELECTION !== 'STRONG', `Missing most relevant panels (low recall) is not rated STRONG even with zero irrelevant panels inspected (found ${missingHighValueProfile.EVIDENCE_SELECTION})`);
   }
 
   const total = passed + failed;

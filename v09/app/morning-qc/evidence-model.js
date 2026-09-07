@@ -44,16 +44,27 @@ export function summarizePanelUsage(caseObj, finalState) {
   const inspected = new Set(finalState.inspectedPanelIds || []);
   const inspectedItems = panels.filter(p => inspected.has(p.id));
   const irrelevantInspected = inspectedItems.filter(p => p.relevance === 'IRRELEVANT');
-  const relevantUninspected = panels.filter(p => p.relevance === 'RELEVANT' && !inspected.has(p.id));
+  const relevantPanels = panels.filter(p => p.relevance === 'RELEVANT');
+  const relevantInspected = relevantPanels.filter(p => inspected.has(p.id));
+  const relevantUninspected = relevantPanels.filter(p => !inspected.has(p.id));
 
   return {
     totalPanels: panels.length,
     inspectedCount: inspectedItems.length,
     irrelevantInspectedCount: irrelevantInspected.length,
     relevantUninspectedIds: relevantUninspected.map(p => p.id),
-    // Expert performance includes correctly NOT inspecting irrelevant panels
-    // (Stage 12A Section 6/19) — this is a positive signal, not a penalty
-    // for low inspection count; the scoring model interprets this ratio.
+    totalRelevantPanels: relevantPanels.length,
+    relevantInspectedCount: relevantInspected.length,
+    // Precision-like: correctly avoiding irrelevant panels (Stage 12A
+    // Section 6/19) — a positive signal on its own, but NOT sufficient
+    // alone (see recallRatio below and scoring-model.js's FINAL-closure
+    // fix: a pristine, zero-inspection state must not score STRONG merely
+    // because it trivially avoided irrelevant panels too).
     selectivityRatio: panels.length > 0 ? 1 - (irrelevantInspected.length / panels.length) : null,
+    // Recall-like: did the learner actually obtain the relevant
+    // information that exists, rather than merely avoid the irrelevant?
+    // null (not zero) when there are no relevant panels to recall, so
+    // rate() doesn't misinterpret an edge case as a failure.
+    recallRatio: relevantPanels.length > 0 ? relevantInspected.length / relevantPanels.length : null,
   };
 }

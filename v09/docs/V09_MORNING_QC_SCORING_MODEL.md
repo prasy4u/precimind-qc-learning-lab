@@ -73,3 +73,14 @@ Two scoring-semantics defects were found and fixed:
 - **`METACOGNITIVE_CALIBRATION` previously compared every confidence record against "the last decision in the entire case,"** regardless of which decision the confidence record actually named. It now matches each record to its specific `decisionId` among decisions genuinely made in the trace, and excludes any confidence record naming a decision that never occurred (rather than silently mismatching it to an unrelated decision).
 - **`INVESTIGATION_STRATEGY` now explicitly penalizes missed high-value evidence**, not just the ratio among evidence actually obtained — a learner who grabs one low-value item and stops no longer scores misleadingly well merely because they took few actions.
 - **The high-value/supportive/low-value evidence distinction is now explicit** (`evidence-model.js`'s `supportiveObtained` bucket): appropriate, relevant-but-non-decisive evidence is never counted as "low-value" — only genuinely irrelevant evidence is.
+
+---
+
+## Stage 12A Independent-Audit FINAL Engine-Semantics Closure
+
+Two further scoring defects were found and fixed:
+
+- **`METACOGNITIVE_CALIBRATION` was scoring against the wrong axis.** `computeCalibration()` previously used `reasoningSupported` to judge whether a confidence level was well-calibrated. Since `outcomeAppropriate` and `reasoningSupported` are intentionally independent, this meant a learner with an *inappropriate outcome but well-supported-looking reasoning* could be scored as if their confidence were judged against the reasoning quality, not the actual correctness of their conclusion. Corrected to use `outcomeAppropriate` — confidence calibration is specifically about whether confidence matched the correctness of the *conclusion*, not the quality of the reasoning behind it.
+- **`EVIDENCE_SELECTION` rewarded non-engagement.** A pristine state with zero panels inspected trivially avoided all irrelevant panels, producing a perfect `selectivityRatio` and a `STRONG` rating despite obtaining no information at all. Corrected by combining selectivity with a new `recallRatio` (fraction of *relevant* panels actually inspected) via their minimum — a learner must both avoid irrelevant panels *and* actually obtain the relevant information that exists to score well.
+
+Confidence identity was also hardened: `RECORD_CONFIDENCE` now rejects a `decisionId` that was never genuinely executed in the trace (fail-closed, not silently recorded and later excluded), and duplicate confidence entries for the same decision follow an explicit "latest replaces earlier" policy — both defined and tested deterministically, per Section 18's requirement that confidence identity never be ambiguous.

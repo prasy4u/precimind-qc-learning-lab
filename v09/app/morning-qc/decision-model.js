@@ -58,22 +58,15 @@ export function classifyDecision(actionType) {
 }
 
 /**
- * Evaluates a single action-history entry along two SEPARATE, independently
- * SOURCED axes (Stage 12A corrective closure):
- *   - outcomeAppropriate: read directly from the engine-recorded field,
- *     which in turn is sourced from the case-authored decision option
- *     (when the action executed one) or a narrow action-type default —
- *     NEVER derived from severity here.
- *   - reasoningSupported: derived from severity, representing whether the
- *     REASONING PROCESS behind the action was adequately supported,
- *     independent of whether the outcome itself was correct.
- * A correct outcome reached via poor reasoning (outcomeAppropriate=true,
- * reasoningSupported=false) and an incorrect outcome reached via
- * carefully-supported-but-wrong reasoning (outcomeAppropriate=false,
- * reasoningSupported=true) are both representable and distinguishable.
+ * Stage 12A FINAL closure: for a case-authored decision (the action-
+ * history entry carries a decisionCategory recorded directly by
+ * engine.js from the executed decisionOpportunity), that ENGINE-RECORDED
+ * category is authoritative — it survives into scoring without being
+ * re-derived. For non-case-authored actions (no matching decision was
+ * executed), category still falls back to the action-type mapping below.
  */
 export function evaluateDecision(historyEntry) {
-  const category = classifyDecision(historyEntry.type);
+  const category = historyEntry.decisionCategory || classifyDecision(historyEntry.type);
   const severity = historyEntry.resultingSeverity;
   const reasoningSupported = !(severity === 'UNSUPPORTED' || severity === 'UNSAFE' || severity === 'CRITICAL_UNSAFE');
   const outcomeAppropriate = historyEntry.outcomeAppropriate !== undefined ? historyEntry.outcomeAppropriate : true;

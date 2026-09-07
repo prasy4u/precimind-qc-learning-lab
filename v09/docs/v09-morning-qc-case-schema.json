@@ -1,5 +1,5 @@
 {
-  "description": "Morning QC Room Stage 12A case contract — machine-readable field lists (mirrors case-schema.js). Regenerated during the Stage 12A corrective closure to include signalExplanationEstablished/Description, DECISION_OPTION_REQUIRED_FIELDS, and PATIENT_IMPACT_CRITERIA_REQUIRED_FIELDS.",
+  "description": "Morning QC Room Stage 12A case contract — machine-readable field lists (mirrors case-schema.js). Regenerated during the Stage 12A FINAL engine-semantics closure to include sourcePanelId (evidence) and actionType (decision options).",
   "identityRequiredFields": [
     "id",
     "title",
@@ -97,7 +97,8 @@
     "label",
     "consequenceSummary",
     "severity",
-    "outcomeAppropriate"
+    "outcomeAppropriate",
+    "actionType"
   ],
   "verificationCriteriaRequiredFields": [
     "requiredEvidenceIds",
@@ -120,6 +121,7 @@
   "evidenceRequiredFields": [
     "id",
     "source",
+    "sourcePanelId",
     "timestamp",
     "observedValueOrFinding",
     "interpretationLimits",

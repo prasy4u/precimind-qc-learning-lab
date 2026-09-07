@@ -266,3 +266,21 @@ Fifteen domain-model and scientific defects corrected in the Morning QC Room fou
 **Testing**: engine 61/61 (was 41), pilot paths 41/41 (was 28), governance 60/60 (was 42, +18 corrective-closure assertions) — Stage 12A total 162/162. All 3 revised pilots validate cleanly. All prior baselines reconfirmed unchanged: pre-11C1 v0.9 189/189, Stage 11C1 98/98 (with node_modules)/94/94 (without), Stage 11C2 parity 35/35 and governance 49/49, v0.8 3849/3849. All three frozen tree SHAs (Stage 11B, Stage 11C1 bridge, Stage 11C2 modular) reconfirmed byte-identical.
 
 Only 18 files changed, all within `v09/app/morning-qc/**`, `v09/tests/morning-qc/**`, `v09/tests/stage12a-morning-qc-foundation.test.js`, and Morning QC documentation. No frozen architecture, inherited modules, or historical governance tests touched.
+
+### Stage 12A — FINAL Engine-Semantics Closure
+
+Nine engine-semantics defects corrected, found by a second independent re-audit of commit ade9831:
+
+1. Source-panel evidence gating: new `sourcePanelId` field; panel-derived evidence now requires the source panel to be genuinely inspected, not merely phase-available.
+2. Phase high-water-mark gaming closed: all phase-advancing actions except `ACKNOWLEDGE_SIGNAL` now require the signal to be acknowledged first, rejected outright if not — closing 3 exploit instances (2 from the audit, 1 found during this work: `FORM_HYPOTHESIS`).
+3. Executable decision contracts: decision options declare `actionType`; engine rejects mismatched action types and enforces `availableFromPhase` before the action's own phase-advance. Decision `category` recorded and consumed directly by `decision-model.js`.
+4. Genuine four-combination outcome/reasoning matrix via a small synthetic fixture case (not distorting pilot science) — 1 test-design bug found and fixed along the way.
+5. Confidence calibration corrected to use `outcomeAppropriate`, not `reasoningSupported`; `RECORD_CONFIDENCE` rejects unexecuted `decisionId`s; explicit "latest replaces earlier" duplicate policy.
+6. `EVIDENCE_SELECTION` false-perfect-score bug fixed via a new recall metric combined with selectivity.
+7. Validator reachability strengthened: rejects invalid `sourcePanelId`, invalid decision `actionType`, and unreachable `CHECK_EQA`-with-no-EQA-panel prerequisites.
+8. Phase-return governance made truthful via `canReturnToPhase()`, genuinely consulting `PHASE_ALLOWS_RETURN_TO` — 1 real design gap found and fixed (nominal vs. stale current phase).
+9. Pilot 1's unreachable `opt-resume-unverified` redesigned into the genuinely-reachable `opt-resume-no-pi-review` scenario.
+
+**Testing**: engine 59/59 (was 41), pilot paths 39/39 (was 28), governance 77/77 (was 60) — Stage 12A total 175/175. All regressions reconfirmed unchanged: pre-11C1 v0.9 189/189, Stage 11C1 98/98 (with)/94/94 (without node_modules), Stage 11C2 parity 35/35 and governance 49/49, v0.8 3849/3849. All three frozen tree SHAs reconfirmed byte-identical.
+
+Only 17 files changed (16 modified + 1 new: `cases/synthetic-fixture.js`), all within `v09/app/morning-qc/**`, Morning QC documentation, and `v09/tests/morning-qc/**`/the Stage 12A governance test. No historical-governance test correction needed this cycle.

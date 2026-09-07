@@ -3,53 +3,54 @@
 
    Morning QC Room — Stage 12A Deterministic Simulation Engine
    PROVENANCE: V09_NEW
-   Revised during the Stage 12A independent-audit corrective closure.
+   Revised during the Stage 12A independent-audit FINAL engine-semantics
+   closure (see V09_STAGE12A_REPORT.md for the full defect log).
 
-   Core principle (Section 12): given a case definition + current state +
-   action history, the resulting state is REPRODUCIBLE. No hidden random
-   scientific outcomes — this engine contains zero calls to Math.random()
-   or any nondeterministic source.
+   FINAL-CLOSURE CHANGES:
+     1. Panel-derived evidence (evidence.sourcePanelId != null) now
+        requires the source panel to have been ACTUALLY INSPECTED, not
+        merely "available" — closing an exploit where evidence could be
+        obtained from a panel never opened.
+     2. Phase high-water-mark advancement is now GUARDED: every
+        phase-advancing action except ACKNOWLEDGE_SIGNAL requires
+        documentation.signal to already be set (i.e. the signal must be
+        genuinely acknowledged first). This closes an exploit where
+        DOCUMENT, REVIEW_PATIENT_IMPACT, or FORM_HYPOTHESIS could fire
+        from a pristine BRIEFING state and unlock later-phase panels
+        purely by their nominal phase target, without any real
+        investigative progress. The guard REJECTS the action entirely
+        (no state mutation) when unmet — it does not merely skip the
+        phase-advance.
+     3. Case-authored decisionId/optionId execution is now a genuine
+        contract: each option declares an `actionType`; the engine
+        REJECTS execution if action.type does not match, and separately
+        enforces the owning decision's `availableFromPhase` against
+        maxPhaseIndexReached (checked BEFORE the action's own phase
+        advance, avoiding a chicken-and-egg self-unlock). The executed
+        decision's `category` is recorded on the action-history entry
+        (decisionCategory) for decision-model.js to consume directly,
+        rather than re-deriving category from action.type alone.
+     4. Phase regression (failed VERIFY_RECOVERY) now genuinely consults
+        PHASE_ALLOWS_RETURN_TO via a canReturnToPhase() helper, rather
+        than hardcoding the target phase — the engine still decides WHEN
+        regression occurs; the table is the validation authority for
+        WHETHER the target is a legitimate return.
+     5. RECORD_CONFIDENCE now validates that decisionId refers to a
+        decision genuinely already executed in this trace — an unknown/
+        never-made decisionId is REJECTED outright (fail-closed), not
+        silently recorded and later excluded from scoring. Duplicate
+        confidence for the same decisionId follows an explicit,
+        deterministic policy: the LATEST recorded value REPLACES the
+        earlier one.
 
-   CORRECTIVE-CLOSURE CHANGES (see V09_STAGE12A_REPORT.md for the full
-   defect log):
-     1. Panel availability is now ENFORCED (not merely declared) via a
-        high-water-mark phase index, so a panel becomes accessible once
-        the learner has ever reached its availableFromPhase, and remains
-        accessible even if the phase later regresses (see #6 below) —
-        the learner never LOSES access to something already legitimately
-        seen.
-     2. Evidence prerequisites (availableOnlyAfterActionType) are now
-        ENFORCED — requesting evidence before its declared prerequisite
-        action has occurred fails and does not update obtainedEvidenceIds
-        or any hypothesis state.
-     3. Case-defined decisionOpportunities are now EXECUTABLE: an action
-        may carry { decisionId, optionId }, in which case the engine looks
-        up the case-authored option and uses its OWN severity AND
-        outcomeAppropriate fields as the authoritative record — replacing
-        the prior heuristic, action-type-only severity guess.
-     4. outcomeAppropriate is now a genuinely independent axis, sourced
-        directly from the case-authored option when present — never
-        merely "severity !== CRITICAL_UNSAFE".
-     5. Patient-impact TERMINAL states (COMPLETED_NO_AFFECTED_RESULTS,
-        AFFECTED_RESULT_SET_IDENTIFIED) now require the case's declared
-        patientImpactCriteria.requiredEvidenceIdsForTerminalState to be
-        obtained first.
-     6. VERIFY_RECOVERY no longer moves serviceState to
-        READY_FOR_VERIFICATION when criteria are NOT met — a failed
-        verification correctly remains in a held/investigative state
-        (HELD), not a state implying readiness to resume. The engine also
-        deterministically regresses phase to INVESTIGATION on a failed
-        verification attempt (implementing the previously-unused
-        PHASE_ALLOWS_RETURN_TO table).
-     7. Confidence records are scored against the SPECIFIC decision they
-        name (via decisionId), not "the last decision in the case" — see
-        scoring-model.js's computeCalibration(), which consumes the
-        decisionId-tagged decision list this engine now produces.
+   Core principle (unchanged): given a case definition + current state +
+   action history, the resulting state is REPRODUCIBLE. Zero
+   Math.random() or any nondeterministic source.
    ========================================================================= */
 
 import {
-  SIMULATION_PHASES, SERVICE_STATE_TRANSITIONS, PATIENT_IMPACT_TRANSITIONS,
-  HYPOTHESIS_STATE_TRANSITIONS, ACTION_TYPES,
+  SIMULATION_PHASES, PHASE_ALLOWS_RETURN_TO, SERVICE_STATE_TRANSITIONS,
+  PATIENT_IMPACT_TRANSITIONS, HYPOTHESIS_STATE_TRANSITIONS, ACTION_TYPES,
 } from './states.js';
 
 /* -----------------------------------------------------------------------
@@ -62,11 +63,6 @@ export function createInitialState(caseObj) {
   }
   return {
     phase: 'BRIEFING',
-    // High-water-mark of phase progress (corrective-closure fix #1/#6):
-    // tracks the furthest phase index ever reached, independent of the
-    // CURRENT phase (which may regress on a failed verification). Panel/
-    // evidence availability below consults this, not `phase`, so a
-    // legitimate regression never hides previously-available information.
     maxPhaseIndexReached: 0,
     serviceState: 'RUNNING',
     patientImpactState: 'NOT_INDICATED',
@@ -81,15 +77,10 @@ export function createInitialState(caseObj) {
       investigationPerformed: [], establishedCause: null, intervention: null,
       verification: null, patientImpactAssessment: null, finalDisposition: null, escalation: null,
     },
-    verificationAttempts: [], // { atMinute, criteriaWereMet }
-    // Stage 12A Section 13 resolution (Option B, corrective closure):
-    // `terminal` and the DEBRIEF phase are explicitly DEFERRED runtime
-    // semantics in this stage — the engine never sets `terminal: true`
-    // and never transitions into DEBRIEF itself; Stage 12B owns session
-    // completion. The field remains present for a stable downstream
-    // shape, but its value is permanently `false` throughout Stage 12A —
-    // this is now documented rather than silently implied to be
-    // functional.
+    verificationAttempts: [],
+    // Stage 12A Section 13 resolution (Option B, retained from the prior
+    // corrective closure): terminal/DEBRIEF are explicitly DEFERRED to
+    // Stage 12B. Not reopened in this final closure.
     terminal: false,
   };
 }
@@ -107,21 +98,44 @@ function phaseIndex(phaseName) {
 }
 
 /* -----------------------------------------------------------------------
-   PANEL / EVIDENCE AVAILABILITY (corrective-closure fix #1/#2)
+   PHASE-RETURN GOVERNANCE (final-closure fix #4): genuinely consults
+   PHASE_ALLOWS_RETURN_TO as the validation authority. The engine still
+   decides WHEN a regression happens (see VERIFY_RECOVERY below); this
+   helper only answers WHETHER a candidate target is a legitimate return
+   from a given phase.
+   ----------------------------------------------------------------------- */
+export function canReturnToPhase(fromPhase, toPhase) {
+  return Array.isArray(PHASE_ALLOWS_RETURN_TO[fromPhase]) && PHASE_ALLOWS_RETURN_TO[fromPhase].includes(toPhase);
+}
+
+/* -----------------------------------------------------------------------
+   PANEL / EVIDENCE AVAILABILITY (final-closure fix #1)
    ----------------------------------------------------------------------- */
 function isPanelAvailable(panel, state) {
   if (!panel) return false;
   return state.maxPhaseIndexReached >= phaseIndex(panel.availableFromPhase);
 }
 
-function isEvidenceAvailable(evidenceItem, state) {
+function isEvidenceAvailable(evidenceItem, caseObj, state) {
   if (!evidenceItem) return false;
-  if (!evidenceItem.availableOnlyAfterActionType) return true;
-  return state.actionHistory.some(h => h.type === evidenceItem.availableOnlyAfterActionType);
+  // Panel-derived evidence: the source panel must exist, be legitimately
+  // available, AND have actually been inspected.
+  if (evidenceItem.sourcePanelId != null) {
+    const panel = (caseObj.panels || []).find(p => p.id === evidenceItem.sourcePanelId);
+    if (!panel) return false;
+    if (!isPanelAvailable(panel, state)) return false;
+    if (!state.inspectedPanelIds.includes(evidenceItem.sourcePanelId)) return false;
+  }
+  // Action-generated evidence: the declared prerequisite action must
+  // have occurred. Independent of, and in addition to, the panel check.
+  if (evidenceItem.availableOnlyAfterActionType != null) {
+    if (!state.actionHistory.some(h => h.type === evidenceItem.availableOnlyAfterActionType)) return false;
+  }
+  return true;
 }
 
 /* -----------------------------------------------------------------------
-   DECISION-OPTION LOOKUP (corrective-closure fix #3/#4)
+   DECISION-OPTION LOOKUP AND CONTRACT ENFORCEMENT (final-closure fix #3)
    ----------------------------------------------------------------------- */
 function findDecisionOption(caseObj, decisionId, optionId) {
   const decision = (caseObj.decisionOpportunities || []).find(d => d.id === decisionId);
@@ -132,23 +146,31 @@ function findDecisionOption(caseObj, decisionId, optionId) {
 }
 
 /* -----------------------------------------------------------------------
-   PHASE DERIVATION (non-forced, non-linear; regression is
-   engine-determined by outcome, never learner-selected)
+   PHASE-ADVANCE GUARD (final-closure fix #2): every phase-advancing
+   action except ACKNOWLEDGE_SIGNAL requires the signal to already be
+   genuinely acknowledged. This is checked BEFORE the action executes;
+   if unmet, the action is REJECTED ENTIRELY (no state mutation, no
+   partial effect) — closing the "call a late-phase action from a
+   pristine state to unlock everything" exploit while still permitting
+   free (non-linear) ordering of INSPECT_PANEL and other non-phase-
+   advancing actions at any time information is genuinely available.
    ----------------------------------------------------------------------- */
+const PHASE_ADVANCING_ACTIONS = {
+  ACKNOWLEDGE_SIGNAL: 'SIGNAL_RECOGNITION',
+  HOLD_RESULTS: 'IMMEDIATE_CONTAINMENT',
+  CONTINUE_ANALYSIS: 'IMMEDIATE_CONTAINMENT',
+  FORM_HYPOTHESIS: 'HYPOTHESIS_GENERATION',
+  REQUEST_EVIDENCE: 'EVIDENCE_SELECTION',
+  APPLY_INTERVENTION: 'INTERVENTION',
+  VERIFY_RECOVERY: 'VERIFICATION',
+  REVIEW_PATIENT_IMPACT: 'PATIENT_IMPACT_REVIEW',
+  RESUME_SERVICE: 'RESUME_OR_HOLD',
+  ESCALATE: 'RESUME_OR_HOLD',
+  DOCUMENT: 'DOCUMENTATION',
+};
+const PHASE_ADVANCE_REQUIRES_SIGNAL = new Set(Object.keys(PHASE_ADVANCING_ACTIONS).filter(t => t !== 'ACKNOWLEDGE_SIGNAL'));
+
 function derivePhaseFromAction(actionType, currentPhase) {
-  const PHASE_ADVANCING_ACTIONS = {
-    ACKNOWLEDGE_SIGNAL: 'SIGNAL_RECOGNITION',
-    HOLD_RESULTS: 'IMMEDIATE_CONTAINMENT',
-    CONTINUE_ANALYSIS: 'IMMEDIATE_CONTAINMENT',
-    FORM_HYPOTHESIS: 'HYPOTHESIS_GENERATION',
-    REQUEST_EVIDENCE: 'EVIDENCE_SELECTION',
-    APPLY_INTERVENTION: 'INTERVENTION',
-    VERIFY_RECOVERY: 'VERIFICATION',
-    REVIEW_PATIENT_IMPACT: 'PATIENT_IMPACT_REVIEW',
-    RESUME_SERVICE: 'RESUME_OR_HOLD',
-    ESCALATE: 'RESUME_OR_HOLD',
-    DOCUMENT: 'DOCUMENTATION',
-  };
   const target = PHASE_ADVANCING_ACTIONS[actionType];
   if (!target) return currentPhase;
   const currentIdx = phaseIndex(currentPhase);
@@ -164,20 +186,35 @@ export function applyAction(caseObj, state, action) {
     return { state, error: `Unknown action type: ${action.type}`, severity: null };
   }
 
+  // Final-closure fix #2: reject premature phase-advancing actions
+  // outright, before any other processing.
+  if (PHASE_ADVANCE_REQUIRES_SIGNAL.has(action.type) && state.documentation.signal == null) {
+    return { state, error: `Action "${action.type}" requires the signal to be acknowledged first (ACKNOWLEDGE_SIGNAL) — premature phase-advancing actions are rejected to prevent phase high-water-mark gaming`, severity: null };
+  }
+
   const next = deepCloneState(state);
   let severity = 'INFORMATIONAL';
   let outcomeAppropriate = true;
   let note = null;
   let decisionRef = null;
+  let decisionCategory = null;
 
+  // Final-closure fix #3: case-authored decision contract enforcement.
   let authoredOption = null;
   if (action.decisionId && action.optionId) {
     const found = findDecisionOption(caseObj, action.decisionId, action.optionId);
     if (!found) {
       return { state, error: `Unknown decisionId/optionId: ${action.decisionId}/${action.optionId}`, severity: null };
     }
+    if (found.option.actionType !== action.type) {
+      return { state, error: `Decision option "${action.optionId}" requires action type "${found.option.actionType}", but action type "${action.type}" was submitted — decision identity is bound to a specific, matching action`, severity: null };
+    }
+    if (state.maxPhaseIndexReached < phaseIndex(found.decision.availableFromPhase)) {
+      return { state, error: `Decision "${action.decisionId}" is not yet available (requires phase >= ${found.decision.availableFromPhase})`, severity: null };
+    }
     authoredOption = found.option;
     decisionRef = { decisionId: action.decisionId, optionId: action.optionId };
+    decisionCategory = found.decision.category;
   }
 
   switch (action.type) {
@@ -206,17 +243,18 @@ export function applyAction(caseObj, state, action) {
         CHECK_EQA: 'EQA', CHECK_PBRTQC: 'PBRTQC', CHECK_PATIENT_DISTRIBUTION: 'PATIENT_RESULT_DISTRIBUTION',
       };
       const panel = (caseObj.panels || []).find(p => p.type === typeMap[action.type]);
-      if (panel) {
-        if (!isPanelAvailable(panel, next)) {
-          return { state, error: `Panel of type "${typeMap[action.type]}" is not yet available (requires phase >= ${panel.availableFromPhase})`, severity: null };
-        }
-        if (!next.inspectedPanelIds.includes(panel.id)) {
-          next.inspectedPanelIds.push(panel.id);
-          next.elapsedMinutes += panel.costTimeMinutes || 0;
-        }
+      if (!panel) {
+        return { state, error: `No panel of type "${typeMap[action.type]}" exists in this case — action unreachable`, severity: null };
       }
-      severity = panel && panel.relevance === 'IRRELEVANT' ? 'INEFFICIENT' : 'INFORMATIONAL';
-      outcomeAppropriate = !(panel && panel.relevance === 'IRRELEVANT');
+      if (!isPanelAvailable(panel, next)) {
+        return { state, error: `Panel of type "${typeMap[action.type]}" is not yet available (requires phase >= ${panel.availableFromPhase})`, severity: null };
+      }
+      if (!next.inspectedPanelIds.includes(panel.id)) {
+        next.inspectedPanelIds.push(panel.id);
+        next.elapsedMinutes += panel.costTimeMinutes || 0;
+      }
+      severity = panel.relevance === 'IRRELEVANT' ? 'INEFFICIENT' : 'INFORMATIONAL';
+      outcomeAppropriate = panel.relevance !== 'IRRELEVANT';
       break;
     }
     case 'ACKNOWLEDGE_SIGNAL': {
@@ -229,6 +267,7 @@ export function applyAction(caseObj, state, action) {
       }
       next.serviceState = 'HELD';
       next.documentation.containment = action.reason || 'Held pending investigation.';
+      if (authoredOption) { severity = authoredOption.severity; outcomeAppropriate = authoredOption.outcomeAppropriate; }
       break;
     }
     case 'CONTINUE_ANALYSIS': {
@@ -237,6 +276,7 @@ export function applyAction(caseObj, state, action) {
       } else if (next.serviceState !== 'RUNNING') {
         return { state, error: `Illegal service-state transition: ${next.serviceState} -> RUNNING`, severity: null };
       }
+      if (authoredOption) { severity = authoredOption.severity; outcomeAppropriate = authoredOption.outcomeAppropriate; }
       break;
     }
     case 'REPEAT_QC':
@@ -257,13 +297,17 @@ export function applyAction(caseObj, state, action) {
         next.hypothesisStates[hid] = 'PLAUSIBLE';
         next.documentation.hypothesesConsidered.push(hid);
       }
+      if (authoredOption) { severity = authoredOption.severity; outcomeAppropriate = authoredOption.outcomeAppropriate; }
       break;
     }
     case 'REQUEST_EVIDENCE': {
       const ev = (caseObj.evidence || []).find(e => e.id === action.evidenceId);
       if (!ev) return { state, error: `Unknown evidenceId: ${action.evidenceId}`, severity: null };
-      if (!isEvidenceAvailable(ev, next)) {
-        return { state, error: `Evidence "${ev.id}" is not yet available (requires prior action type: ${ev.availableOnlyAfterActionType})`, severity: null };
+      if (!isEvidenceAvailable(ev, caseObj, next)) {
+        const reasonParts = [];
+        if (ev.sourcePanelId != null) reasonParts.push(`source panel "${ev.sourcePanelId}" must be inspected`);
+        if (ev.availableOnlyAfterActionType != null) reasonParts.push(`prior action type "${ev.availableOnlyAfterActionType}" must have occurred`);
+        return { state, error: `Evidence "${ev.id}" is not yet available (${reasonParts.join(' AND ')})`, severity: null };
       }
       if (!ev.relevant) { severity = 'INEFFICIENT'; outcomeAppropriate = false; }
       if (!next.obtainedEvidenceIds.includes(ev.id)) {
@@ -283,12 +327,14 @@ export function applyAction(caseObj, state, action) {
           if (canTransition(HYPOTHESIS_STATE_TRANSITIONS, cur, target)) next.hypothesisStates[hid] = target;
         }
       }
+      if (authoredOption) { severity = authoredOption.severity; outcomeAppropriate = authoredOption.outcomeAppropriate; }
       break;
     }
     case 'APPLY_INTERVENTION': {
       next.documentation.intervention = action.description || null;
       severity = action.evidenceSupported === false ? 'UNSUPPORTED' : 'INFORMATIONAL';
       outcomeAppropriate = action.evidenceSupported !== false;
+      if (authoredOption) { severity = authoredOption.severity; outcomeAppropriate = authoredOption.outcomeAppropriate; }
       break;
     }
     case 'VERIFY_RECOVERY': {
@@ -309,19 +355,30 @@ export function applyAction(caseObj, state, action) {
         next.phase = derivePhaseFromAction(action.type, next.phase);
         const idx1 = phaseIndex(next.phase);
         if (idx1 > next.maxPhaseIndexReached) next.maxPhaseIndexReached = idx1;
-        next.actionHistory.push({ ...action, resultingSeverity: severity, outcomeAppropriate, note, decisionId: decisionRef?.decisionId || null, optionId: decisionRef?.optionId || null });
+        next.actionHistory.push({ ...action, resultingSeverity: severity, outcomeAppropriate, note, decisionId: decisionRef?.decisionId || null, optionId: decisionRef?.optionId || null, decisionCategory });
         return { state: next, error: null, severity, note, outcomeAppropriate };
       } else {
-        // Corrective-closure fix #6: a FAILED verification does NOT
-        // advance serviceState — it remains wherever it already was
-        // (typically HELD). Phase deterministically regresses to
-        // INVESTIGATION (engine-determined by outcome, not learner choice).
         severity = 'UNSAFE';
         outcomeAppropriate = false;
         if (authoredOption) { severity = authoredOption.severity; outcomeAppropriate = authoredOption.outcomeAppropriate; }
         note = 'Verification attempted before required evidence was obtained; remaining in a held/investigative state.';
-        next.phase = 'INVESTIGATION';
-        next.actionHistory.push({ ...action, resultingSeverity: severity, outcomeAppropriate, note, decisionId: decisionRef?.decisionId || null, optionId: decisionRef?.optionId || null });
+        // Final-closure fix #4: genuinely consult canReturnToPhase() as
+        // the validation authority. The attempted action's OWN nominal
+        // phase (VERIFICATION) is the "from" side of the return check —
+        // attempting VERIFY_RECOVERY represents having reached the
+        // VERIFICATION phase conceptually (the attempt happened), and the
+        // regression is FROM there back to INVESTIGATION, per the table.
+        // Using the pre-attempt current phase instead would incorrectly
+        // block the regression whenever verification is attempted before
+        // other actions have separately advanced phase that far.
+        const nominalPhase = derivePhaseFromAction(action.type, next.phase); // -> 'VERIFICATION' or unchanged
+        const regressionTarget = 'INVESTIGATION';
+        if (canReturnToPhase(nominalPhase, regressionTarget)) {
+          next.phase = regressionTarget;
+        } else {
+          next.phase = nominalPhase;
+        }
+        next.actionHistory.push({ ...action, resultingSeverity: severity, outcomeAppropriate, note, decisionId: decisionRef?.decisionId || null, optionId: decisionRef?.optionId || null, decisionCategory });
         return { state: next, error: null, severity, note, outcomeAppropriate };
       }
     }
@@ -335,11 +392,12 @@ export function applyAction(caseObj, state, action) {
         const required = caseObj.patientImpactCriteria?.requiredEvidenceIdsForTerminalState || [];
         const met = required.length > 0 && required.every(id => next.obtainedEvidenceIds.includes(id));
         if (!met) {
-          return { state, error: `Cannot reach terminal patient-impact state "${targetState}" without the case's required evidence (patientImpactCriteria.requiredEvidenceIdsForTerminalState)`, severity: null };
+          return { state, error: `Cannot reach terminal patient-impact state "${targetState}" without the case's required evidence`, severity: null };
         }
       }
       next.patientImpactState = targetState;
       next.documentation.patientImpactAssessment = action.summary || targetState;
+      if (authoredOption) { severity = authoredOption.severity; outcomeAppropriate = authoredOption.outcomeAppropriate; }
       break;
     }
     case 'RESUME_SERVICE': {
@@ -360,6 +418,7 @@ export function applyAction(caseObj, state, action) {
         severity = 'INFORMATIONAL';
         outcomeAppropriate = true;
       }
+      if (authoredOption) { severity = authoredOption.severity; outcomeAppropriate = authoredOption.outcomeAppropriate; }
       next.serviceState = 'RESUMED';
       next.documentation.finalDisposition = 'RESUMED';
       break;
@@ -371,13 +430,23 @@ export function applyAction(caseObj, state, action) {
       next.serviceState = 'ESCALATED';
       next.documentation.escalation = action.reason || 'Escalated.';
       next.documentation.finalDisposition = 'ESCALATED';
+      if (authoredOption) { severity = authoredOption.severity; outcomeAppropriate = authoredOption.outcomeAppropriate; }
       break;
     }
     case 'DOCUMENT': {
       next.documentation = { ...next.documentation, ...(action.fields || {}) };
+      if (authoredOption) { severity = authoredOption.severity; outcomeAppropriate = authoredOption.outcomeAppropriate; }
       break;
     }
     case 'RECORD_CONFIDENCE': {
+      // Final-closure fix #5: decisionId must refer to a decision
+      // genuinely already executed in this trace. Fail closed otherwise.
+      const alreadyExecuted = next.actionHistory.some(h => h.decisionId === action.decisionId);
+      if (!alreadyExecuted) {
+        return { state, error: `RECORD_CONFIDENCE references decisionId "${action.decisionId}", which has not been executed in this trace`, severity: null };
+      }
+      // Deterministic duplicate policy: latest replaces earlier for the same decisionId.
+      next.confidenceRecords = next.confidenceRecords.filter(r => r.decisionId !== action.decisionId);
       next.confidenceRecords.push({ decisionId: action.decisionId, confidence: action.confidence, atMinute: next.elapsedMinutes });
       break;
     }
@@ -385,19 +454,10 @@ export function applyAction(caseObj, state, action) {
       break;
   }
 
-  // Corrective-closure fix: authoredOption override is UNIVERSAL, not an
-  // allow-list of specific action types (this previously missed
-  // FORM_HYPOTHESIS and other action types that can legitimately execute
-  // a case-authored decision option).
-  if (authoredOption) {
-    severity = authoredOption.severity;
-    outcomeAppropriate = authoredOption.outcomeAppropriate;
-  }
-
   next.phase = derivePhaseFromAction(action.type, next.phase);
   const newPhaseIdx = phaseIndex(next.phase);
   if (newPhaseIdx > next.maxPhaseIndexReached) next.maxPhaseIndexReached = newPhaseIdx;
-  next.actionHistory.push({ ...action, resultingSeverity: severity, outcomeAppropriate, note, decisionId: decisionRef?.decisionId || null, optionId: decisionRef?.optionId || null });
+  next.actionHistory.push({ ...action, resultingSeverity: severity, outcomeAppropriate, note, decisionId: decisionRef?.decisionId || null, optionId: decisionRef?.optionId || null, decisionCategory });
   return { state: next, error: null, severity, note, outcomeAppropriate };
 }
 

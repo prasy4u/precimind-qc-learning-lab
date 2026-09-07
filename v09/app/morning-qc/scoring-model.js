@@ -73,7 +73,22 @@ export function computeScoringProfile(caseObj, finalState) {
       profile.INVESTIGATION_STRATEGY = rate(evidenceUsage.efficiencyRatio);
     }
   }
-  profile.EVIDENCE_SELECTION = rate(panelUsage.selectivityRatio);
+  // EVIDENCE_SELECTION (FINAL-closure fix): must reflect BOTH avoiding
+  // irrelevant information (selectivityRatio) AND actually obtaining the
+  // relevant information that exists (recallRatio) — a pristine,
+  // zero-inspection state must NOT score STRONG merely because it
+  // trivially avoided irrelevant panels too. Combined via the MINIMUM of
+  // the two ratios, so a recall failure drags the score down regardless
+  // of selectivity. Returns null (not a numeric default) when there is
+  // not yet enough panel-inspection behavior to judge meaningfully.
+  {
+    const sel = panelUsage.selectivityRatio;
+    const rec = panelUsage.recallRatio;
+    if (sel == null && rec == null) profile.EVIDENCE_SELECTION = null;
+    else if (rec == null) profile.EVIDENCE_SELECTION = rate(sel);
+    else if (sel == null) profile.EVIDENCE_SELECTION = rate(rec);
+    else profile.EVIDENCE_SELECTION = rate(Math.min(sel, rec));
+  }
   profile.PATIENT_IMPACT_REASONING = rate(fractionSupported(patientImpactDecisions));
   // DECISION_APPROPRIATENESS: outcome-correctness axis, not reasoning-support.
   profile.DECISION_APPROPRIATENESS = rate(fractionOutcomeAppropriate(dispositionDecisions));
@@ -97,16 +112,29 @@ export function computeScoringProfile(caseObj, finalState) {
  * excluded from calibration (it cannot be scored against a decision that
  * never happened).
  */
+/**
+ * Confidence calibration (Section 18, FINAL closure fix): correctness for
+ * calibration purposes must use `outcomeAppropriate` (the case-authored
+ * correctness-of-the-conclusion axis), NOT `reasoningSupported` (the
+ * independent reasoning-quality axis) — the two are intentionally kept
+ * separate throughout this model, and calibration is specifically about
+ * whether confidence matched the CORRECTNESS OF THE OUTCOME, not the
+ * quality of reasoning behind it. Each confidence record is matched to
+ * the SPECIFIC decision it names via `decisionId`, among decisions
+ * genuinely executed in the trace (engine.js's RECORD_CONFIDENCE handler
+ * already rejects a decisionId that was never executed, so every record
+ * reaching here refers to a real decision).
+ */
 function computeCalibration(finalState) {
   if (!finalState.confidenceRecords || finalState.confidenceRecords.length === 0) return null;
   const decisions = summarizeDecisions(finalState.actionHistory).filter(d => d.decisionId);
   let calibrated = 0, total = 0;
   for (const rec of finalState.confidenceRecords) {
     const matchingDecision = decisions.find(d => d.decisionId === rec.decisionId);
-    if (!matchingDecision) continue; // unknown/unmatched decisionId — not scored
+    if (!matchingDecision) continue; // defensive; engine.js already prevents this case
     total++;
-    const highConfidenceCorrect = rec.confidence === 'HIGH' && matchingDecision.reasoningSupported;
-    const lowConfidenceIncorrect = rec.confidence === 'LOW' && !matchingDecision.reasoningSupported;
+    const highConfidenceCorrect = rec.confidence === 'HIGH' && matchingDecision.outcomeAppropriate;
+    const lowConfidenceIncorrect = rec.confidence === 'LOW' && !matchingDecision.outcomeAppropriate;
     const moderateEither = rec.confidence === 'MODERATE';
     if (highConfidenceCorrect || lowConfidenceIncorrect || moderateEither) calibrated++;
   }

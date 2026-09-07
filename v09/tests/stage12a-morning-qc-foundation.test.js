@@ -204,14 +204,17 @@ async function main() {
   console.log('\n=== 21. Corrective-closure: decision opportunities affect engine classifications ===');
   {
     const s = createInitialState(pilots[0]);
-    const out = applyAction(pilots[0], s, { type: 'CONTINUE_ANALYSIS', decisionId: 'dec-containment', optionId: 'opt-continue' });
+    const acked = applyAction(pilots[0], s, { type: 'ACKNOWLEDGE_SIGNAL' });
+    const out = applyAction(pilots[0], acked.state, { type: 'CONTINUE_ANALYSIS', decisionId: 'dec-containment', optionId: 'opt-continue' });
     assert('21', out.severity === 'UNSAFE' && out.outcomeAppropriate === false, 'Case-authored decisionId/optionId genuinely drives engine severity/outcomeAppropriate');
   }
 
   console.log('\n=== 22. Corrective-closure: Pilot 2 dismissal is genuinely UNSUPPORTED ===');
   {
     const r = replay(pilots[1], [
+      { type: 'ACKNOWLEDGE_SIGNAL' },
       { type: 'INSPECT_PANEL', panelId: 'panel-pbrtqc' },
+      { type: 'INSPECT_PANEL', panelId: 'panel-qc-history' },
       { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-iqc-stable' },
       { type: 'DOCUMENT', decisionId: 'dec-take-seriously', optionId: 'opt-dismiss', fields: {} },
     ]);
@@ -232,16 +235,18 @@ async function main() {
   console.log('\n=== 24. Corrective-closure: patient-impact terminal state requires evidence ===');
   {
     let s = createInitialState(pilots[0]);
-    let o1 = applyAction(pilots[0], s, { type: 'REVIEW_PATIENT_IMPACT', targetState: 'INDICATED' });
+    let acked = applyAction(pilots[0], s, { type: 'ACKNOWLEDGE_SIGNAL' });
+    let o1 = applyAction(pilots[0], acked.state, { type: 'REVIEW_PATIENT_IMPACT', targetState: 'INDICATED' });
     let o2 = applyAction(pilots[0], o1.state, { type: 'REVIEW_PATIENT_IMPACT', targetState: 'PENDING' });
     let o3 = applyAction(pilots[0], o2.state, { type: 'REVIEW_PATIENT_IMPACT', targetState: 'AFFECTED_RESULT_SET_IDENTIFIED' });
-    assert('24', o3.error !== null, 'Terminal patient-impact state cannot be declared without the case-required evidence');
+    assert('24', o3.error !== null && o3.error.includes('required evidence'), `Terminal patient-impact state cannot be declared without the case-required evidence (found error: ${o3.error})`);
   }
 
   console.log('\n=== 25. Corrective-closure: failed verification does not produce a misleading ready/resume state ===');
   {
     let s = createInitialState(pilots[0]);
-    let held = applyAction(pilots[0], s, { type: 'HOLD_RESULTS' });
+    let acked = applyAction(pilots[0], s, { type: 'ACKNOWLEDGE_SIGNAL' });
+    let held = applyAction(pilots[0], acked.state, { type: 'HOLD_RESULTS' });
     let failedVerify = applyAction(pilots[0], held.state, { type: 'VERIFY_RECOVERY' });
     assert('25a', failedVerify.state.serviceState === 'HELD', 'Failed verification remains HELD, does not advance to READY_FOR_VERIFICATION');
     assert('25b', failedVerify.state.phase === 'INVESTIGATION', 'Failed verification returns phase to INVESTIGATION');
@@ -288,6 +293,109 @@ async function main() {
   {
     const results = pilots.map(p => validateCase(p));
     assert('30', results.every(r => r.valid === true), `All 3 revised pilots validate cleanly (errors: ${JSON.stringify(results.map(r => r.errors))})`);
+  }
+
+  console.log('\n=== 31. FINAL CLOSURE: panel-derived evidence cannot bypass panel inspection ===');
+  {
+    let s1 = applyAction(pilots[0], createInitialState(pilots[0]), { type: 'ACKNOWLEDGE_SIGNAL' });
+    let s2 = applyAction(pilots[0], s1.state, { type: 'HOLD_RESULTS' });
+    let s3 = applyAction(pilots[0], s2.state, { type: 'FORM_HYPOTHESIS', hypothesisId: 'hyp-lot' });
+    const prematureEv = applyAction(pilots[0], s3.state, { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-lot-timing' });
+    assert('31', prematureEv.error !== null, 'Panel-derived evidence (ev-lot-timing) cannot be obtained without inspecting its source panel first');
+  }
+
+  console.log('\n=== 32. FINAL CLOSURE: DOCUMENT at briefing cannot unlock later panels ===');
+  {
+    const s = createInitialState(pilots[0]);
+    const out = applyAction(pilots[0], s, { type: 'DOCUMENT', fields: {} });
+    assert('32', out.error !== null && s.maxPhaseIndexReached === 0, 'DOCUMENT at pristine BRIEFING is rejected and does not advance maxPhaseIndexReached');
+  }
+
+  console.log('\n=== 33. FINAL CLOSURE: premature patient-impact action cannot unlock late panels ===');
+  {
+    const s = createInitialState(pilots[0]);
+    const out = applyAction(pilots[0], s, { type: 'REVIEW_PATIENT_IMPACT', targetState: 'INDICATED' });
+    assert('33', out.error !== null, 'REVIEW_PATIENT_IMPACT at pristine BRIEFING is rejected');
+  }
+
+  console.log('\n=== 34. FINAL CLOSURE: decision availableFromPhase is enforced ===');
+  {
+    let acked = applyAction(pilots[0], createInitialState(pilots[0]), { type: 'ACKNOWLEDGE_SIGNAL' });
+    const tooEarly = applyAction(pilots[0], acked.state, { type: 'RESUME_SERVICE', decisionId: 'dec-disposition', optionId: 'opt-resume-verified' });
+    assert('34', tooEarly.error !== null, 'dec-disposition (availableFromPhase=VERIFICATION) cannot execute before that phase is reached, even with the correct action type');
+  }
+
+  console.log('\n=== 35. FINAL CLOSURE: wrong action type cannot execute a decision option ===');
+  {
+    let acked = applyAction(pilots[0], createInitialState(pilots[0]), { type: 'ACKNOWLEDGE_SIGNAL' });
+    const wrongType = applyAction(pilots[0], acked.state, { type: 'FORM_HYPOTHESIS', hypothesisId: 'hyp-lot', decisionId: 'dec-containment', optionId: 'opt-hold' });
+    assert('35', wrongType.error !== null, 'dec-containment/opt-hold (actionType=HOLD_RESULTS) cannot be executed via FORM_HYPOTHESIS');
+  }
+
+  console.log('\n=== 36. FINAL CLOSURE: case-authored decision category survives into scoring ===');
+  {
+    let acked = applyAction(pilots[0], createInitialState(pilots[0]), { type: 'ACKNOWLEDGE_SIGNAL' });
+    const out = applyAction(pilots[0], acked.state, { type: 'HOLD_RESULTS', decisionId: 'dec-containment', optionId: 'opt-hold' });
+    const { evaluateDecision } = await import('file://' + path.join(MQC, 'decision-model.js'));
+    const evaluated = evaluateDecision(out.state.actionHistory[out.state.actionHistory.length - 1]);
+    assert('36', evaluated.category === 'CONTAINMENT', `Engine-recorded decisionCategory (CONTAINMENT) survives into decision-model.js evaluation (found ${evaluated.category})`);
+  }
+
+  console.log('\n=== 37. All four outcome/reasoning combinations are represented ===');
+  {
+    const { syntheticFixtureCase } = await import('file://' + path.join(MQC, 'cases', 'synthetic-fixture.js'));
+    assert('37a', validateCase(syntheticFixtureCase).valid === true, 'Synthetic fixture (used for the 4-combination matrix) validates cleanly');
+    let acked = applyAction(syntheticFixtureCase, createInitialState(syntheticFixtureCase), { type: 'ACKNOWLEDGE_SIGNAL' });
+    const tt = applyAction(syntheticFixtureCase, acked.state, { type: 'FORM_HYPOTHESIS', hypothesisId: 'hyp-x', decisionId: 'dec-tt', optionId: 'opt-tt' });
+    const tf = applyAction(syntheticFixtureCase, acked.state, { type: 'APPLY_INTERVENTION', decisionId: 'dec-tf', optionId: 'opt-tf', description: 'x' });
+    const ft = applyAction(syntheticFixtureCase, acked.state, { type: 'CONTINUE_ANALYSIS', decisionId: 'dec-ft', optionId: 'opt-ft' });
+    const ff = applyAction(syntheticFixtureCase, acked.state, { type: 'DOCUMENT', decisionId: 'dec-ff', optionId: 'opt-ff', fields: {} });
+    assert('37b', tt.outcomeAppropriate === true && tt.severity !== 'CRITICAL_UNSAFE' && tt.severity !== 'UNSAFE' && tt.severity !== 'UNSUPPORTED', 'Combination (true,true) represented');
+    assert('37c', tf.outcomeAppropriate === true && tf.severity === 'UNSUPPORTED', 'Combination (true,false) represented');
+    assert('37d', ft.outcomeAppropriate === false && ft.severity !== 'CRITICAL_UNSAFE' && ft.severity !== 'UNSAFE' && ft.severity !== 'UNSUPPORTED', 'Combination (false,true) represented');
+    assert('37e', ff.outcomeAppropriate === false && ff.severity === 'CRITICAL_UNSAFE', 'Combination (false,false) represented');
+  }
+
+  console.log('\n=== 38. Confidence uses outcome correctness, not reasoning support ===');
+  {
+    const { syntheticFixtureCase } = await import('file://' + path.join(MQC, 'cases', 'synthetic-fixture.js'));
+    const { computeScoringProfile } = await import('file://' + path.join(MQC, 'scoring-model.js'));
+    let acked = applyAction(syntheticFixtureCase, createInitialState(syntheticFixtureCase), { type: 'ACKNOWLEDGE_SIGNAL' });
+    const ft = applyAction(syntheticFixtureCase, acked.state, { type: 'CONTINUE_ANALYSIS', decisionId: 'dec-ft', optionId: 'opt-ft' }); // outcomeAppropriate=false, reasoningSupported=true
+    const withConf = applyAction(syntheticFixtureCase, ft.state, { type: 'RECORD_CONFIDENCE', decisionId: 'dec-ft', confidence: 'LOW' });
+    const profile = computeScoringProfile(syntheticFixtureCase, withConf.state);
+    assert('38', profile.METACOGNITIVE_CALIBRATION === 'STRONG', `LOW confidence correctly calibrated against outcomeAppropriate=false (STRONG), not the reasoningSupported=true axis (found ${profile.METACOGNITIVE_CALIBRATION})`);
+  }
+
+  console.log('\n=== 39. Unknown/unmade decision confidence is rejected ===');
+  {
+    const s = createInitialState(pilots[0]);
+    const out = applyAction(pilots[0], s, { type: 'RECORD_CONFIDENCE', decisionId: 'NEVER_EXECUTED', confidence: 'HIGH' });
+    assert('39', out.error !== null, 'RECORD_CONFIDENCE for a decisionId never executed in this trace is rejected outright');
+  }
+
+  console.log('\n=== 40. Zero-inspection state cannot produce STRONG Evidence Selection ===');
+  {
+    const { computeScoringProfile } = await import('file://' + path.join(MQC, 'scoring-model.js'));
+    const profile = computeScoringProfile(pilots[0], createInitialState(pilots[0]));
+    assert('40', profile.EVIDENCE_SELECTION !== 'STRONG', `Pristine state does not score STRONG on EVIDENCE_SELECTION (found ${profile.EVIDENCE_SELECTION})`);
+  }
+
+  console.log('\n=== 41. Impossible CHECK_EQA prerequisite (no EQA panel) is rejected ===');
+  {
+    const broken = JSON.parse(JSON.stringify(pilots[0])); // Pilot 1 has no EQA panel
+    broken.evidence[0].availableOnlyAfterActionType = 'CHECK_EQA';
+    assert('41', validateCase(broken).valid === false, 'CHECK_EQA prerequisite rejected when no EQA panel exists in the case');
+  }
+
+  console.log('\n=== 42. Failed-verification phase regression governed by the declared return model ===');
+  {
+    const { canReturnToPhase } = await import('file://' + path.join(MQC, 'engine.js'));
+    assert('42a', canReturnToPhase('VERIFICATION', 'INVESTIGATION') === true, 'canReturnToPhase consults the declared PHASE_ALLOWS_RETURN_TO table');
+    let acked = applyAction(pilots[0], createInitialState(pilots[0]), { type: 'ACKNOWLEDGE_SIGNAL' });
+    let held = applyAction(pilots[0], acked.state, { type: 'HOLD_RESULTS' });
+    let failedVerify = applyAction(pilots[0], held.state, { type: 'VERIFY_RECOVERY' });
+    assert('42b', failedVerify.state.phase === 'INVESTIGATION' && failedVerify.state.serviceState === 'HELD', 'Failed verification regresses to INVESTIGATION while remaining HELD, per the declared return model');
   }
 
   const total = passed + failed;

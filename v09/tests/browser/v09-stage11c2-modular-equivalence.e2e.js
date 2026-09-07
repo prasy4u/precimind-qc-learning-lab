@@ -143,7 +143,16 @@ async function measureToggle(browser, refUrl, candUrl, navSteps, activationMetho
     record('startup-page-errors', 'startup', 'Page errors count', String(o.errors.length), String(c.errors.length),
       o.errors.length === c.errors.length ? 'MATCH' : 'UNEXPECTED_DIFFERENCE',
       c.errors.length > 0 ? `candidate errors: ${c.errors.join('; ')}` : undefined);
-    /* Console-error classification (Stage 11C1 final closure, Defect 2 fix):
+    /* Console-error classification (Stage 11C2 corrective closure, Defect 3 fix):
+       For Stage 11C2, REFERENCE = Stage 11C1 Vite bridge and
+       CANDIDATE = Stage 11C2 modular Vite build. BOTH sides are
+       package-managed React/Vite builds with build-time JSX compilation —
+       there is NO expected runtime-Babel asymmetry here (unlike the
+       Stage 11B-vs-11C1 comparison, where the reference used runtime
+       Babel standalone). Any Babel/runtime-compilation evidence on
+       EITHER side is now genuinely unexpected and must produce
+       UNEXPECTED_DIFFERENCE, not be waved through as reference-only noise.
+
        A failed-resource console message is classified HARNESS_NOISE ONLY
        when machine-retained requestfailed evidence demonstrates it
        corresponds to a request deliberately aborted by this harness's own
@@ -154,15 +163,12 @@ async function measureToggle(browser, refUrl, candUrl, navSteps, activationMetho
        intentionally-aborted font-request failures; any excess or
        unmatched failed-resource message remains visible to the
        application-error comparison and can produce UNEXPECTED_DIFFERENCE.
-         - REFERENCE_ONLY_TOOLING_NOISE: the frozen Stage 11B reference
-           still uses runtime Babel standalone and prints a "[BABEL] Note:
-           ...deoptimised..." console notice. The Vite bridge has NO
-           runtime Babel (Stage 11C1 Section 12 requirement), so it never
-           prints this notice. This is expected and reference-only.
-         - APPLICATION_ERROR: anything not matched to real font-request
-           failure evidence and not Babel tooling noise. These MUST be
-           compared reference vs candidate, and candidate application
-           errors MUST be zero. */
+       Both sides are evaluated SYMMETRICALLY — no asymmetry is assumed or
+       described as expected for Stage 11C2 (neither v09/dist-vite-bridge/
+       nor v09/dist-vite/ embeds a Google Fonts <link> tag, so in practice
+       neither side is expected to issue a font request at all; if either
+       side unexpectedly does, that is measured and compared like any
+       other evidence, not assumed away). */
     const FONT_DOMAINS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
     function isFontDomainFailure(reqFailure) {
       return FONT_DOMAINS.some(d => reqFailure.url.includes(d));
@@ -175,8 +181,9 @@ async function measureToggle(browser, refUrl, candUrl, navSteps, activationMetho
       const babelNoise = [];
       const appErrors = [];
       const isGenericResourceFailure = (e) => e.includes('net::ERR_FAILED') || e.includes('Failed to load resource');
+      const isBabelNoise = (e) => e.includes('[BABEL]') || e.includes('deoptimised');
       for (const e of consoleErrs) {
-        if (e.includes('[BABEL]') || e.includes('deoptimised')) { babelNoise.push(e); continue; }
+        if (isBabelNoise(e)) { babelNoise.push(e); continue; }
         if (isGenericResourceFailure(e) && fontFailureBudget > 0) {
           harnessNoise.push(e);
           harnessNoiseEvidence.push(fontFailureEvidence[fontFailureEvidence.length - fontFailureBudget]);
@@ -192,30 +199,28 @@ async function measureToggle(browser, refUrl, candUrl, navSteps, activationMetho
     const oClassified = classifyConsoleErrors(o.consoleErrors, o.requestFailures);
     const cClassified = classifyConsoleErrors(c.consoleErrors, c.requestFailures);
 
-    record('startup-console-harness-noise', 'startup', 'Harness-induced font-request failures (backed by real requestfailed evidence)',
+    record('startup-console-harness-noise', 'startup', 'Harness-induced font-request failures (backed by real requestfailed evidence, evaluated symmetrically)',
       String(oClassified.harnessNoise.length), String(cClassified.harnessNoise.length),
-      /* This asymmetry is genuine and understood, not swept under a broad rule:
-         the frozen reference HTML (recovery/original-v0.8.html envelope) contains
-         Google Fonts <link> tags, so the harness's own
-         page.route('**fonts...**', r => r.abort()) interception produces a real
-         requestfailed event (and a matching console entry) for the reference.
-         The current v09/index.html (accepted Stage 11C1 bridge input,
-         deliberately left unchanged per audit instruction — see
-         V09_MODULE_DEPENDENCY_GRAPH.md / CHANGELOG.md corrective-closure notes)
-         does not itself contain a Google Fonts <link> tag, so the Vite bridge
-         never issues that request at all and produces zero such events. */
-      'MATCH',
-      `Explained, non-application asymmetry, backed by real requestfailed evidence (not string-matching alone): ` +
+      /* Stage 11C2: no asymmetry is assumed. Neither dist-vite-bridge/ nor
+         dist-vite/ embeds a Google Fonts <link> tag, so both sides are
+         expected to produce zero font-domain requestfailed events and
+         zero corresponding console entries. If a genuine asymmetry were
+         found here, it would be UNEXPECTED_DIFFERENCE, not explained away. */
+      oClassified.harnessNoise.length === cClassified.harnessNoise.length ? 'MATCH' : 'UNEXPECTED_DIFFERENCE',
+      `Symmetric evaluation, backed by real requestfailed evidence (not string-matching alone): ` +
       `reference requestFailed events matching font domains: ${JSON.stringify(o.requestFailures.filter(isFontDomainFailure))}; ` +
       `candidate requestFailed events matching font domains: ${JSON.stringify(c.requestFailures.filter(isFontDomainFailure))}. ` +
-      `Console entries consumed as harness noise (matched 1:1 against this evidence, up to its count): ref=${JSON.stringify(oClassified.harnessNoise)} cand=${JSON.stringify(cClassified.harnessNoise)}. ` +
-      `Any failed-resource console entry beyond this demonstrated font-failure count would remain unmatched and visible to the application-error comparison below.`);
+      `Console entries consumed as harness noise (matched 1:1 against this evidence, up to its count): ref=${JSON.stringify(oClassified.harnessNoise)} cand=${JSON.stringify(cClassified.harnessNoise)}.`);
 
-    record('startup-console-babel-noise', 'startup', 'Reference-only Babel-runtime tooling noise',
+    record('startup-console-babel-noise', 'startup', 'Babel/runtime-compilation noise (NO asymmetry expected — both sides are package-managed Vite builds)',
       String(oClassified.babelNoise.length), String(cClassified.babelNoise.length),
-      /* Expected asymmetry: reference uses runtime Babel (has the notice); candidate has none (no runtime Babel by design). */
-      (oClassified.babelNoise.length >= 0 && cClassified.babelNoise.length === 0) ? 'MATCH' : 'UNEXPECTED_DIFFERENCE',
-      `Reference retains runtime Babel (frozen Stage 11B compat path) and prints its deoptimisation notice; Vite bridge has zero runtime Babel by design (Stage 11C1 requirement), so zero such notices is expected and correct, not a defect. ref=${JSON.stringify(oClassified.babelNoise)} cand=${JSON.stringify(cClassified.babelNoise)}`);
+      /* Stage 11C2: unlike Stage 11B-vs-11C1, there is NO expected Babel
+         asymmetry — both dist-vite-bridge/ and dist-vite/ use build-time
+         JSX compilation via @vitejs/plugin-react, with zero runtime Babel.
+         Any Babel/deoptimisation evidence on EITHER side is genuinely
+         unexpected. */
+      (oClassified.babelNoise.length === 0 && cClassified.babelNoise.length === 0) ? 'MATCH' : 'UNEXPECTED_DIFFERENCE',
+      `Both reference (Stage 11C1 bridge) and candidate (Stage 11C2 modular build) use build-time JSX compilation with zero runtime Babel — zero Babel notices expected on BOTH sides. ref=${JSON.stringify(oClassified.babelNoise)} cand=${JSON.stringify(cClassified.babelNoise)}`);
 
     record('startup-console-application-errors', 'startup', 'Genuine application console errors (unmatched to any harness-noise or Babel-noise evidence)',
       String(oClassified.appErrors.length), String(cClassified.appErrors.length),

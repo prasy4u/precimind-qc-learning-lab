@@ -185,7 +185,7 @@ assert('19c', reproEvidence.frozen_stage11c1_bridge_tree_sha256_reconfirmed_unch
 /* -----------------------------------------------------------------------
    20. Active scientific parity
    ----------------------------------------------------------------------- */
-console.log('\n=== 20. Active scientific parity ===');
+console.log('\n=== 20. Active scientific parity (including strengthened PBRTQC/Ped-Pfr evidence) ===');
 // We can't easily re-run the async test file's exit code here without
 // spawning it; instead verify its existence and re-invoke it as a subprocess.
 let parityOutput = '';
@@ -198,6 +198,24 @@ try {
   parityExitCode = e.status;
 }
 assert('20', parityExitCode === 0 && parityOutput.includes('SCIENTIFIC PARITY PASSED'), 'Active-module scientific parity test passes (re-invoked as subprocess)');
+
+// Stage 11C2 corrective closure (Defect 1/2 governance): verify the parity
+// test's own captured output demonstrates it genuinely executed
+// runPbrtqcStream() end-to-end (not just calculateNPed with hard-coded
+// indices) and explicitly asserted the unsupported-multirule Ped/Pfr
+// restriction — rather than merely trusting the subprocess exit code.
+assert('20a', parityOutput.includes('PBRTQC-A-01') && parityOutput.includes('first alert raw index = 93 (found 93)'),
+  'Parity test genuinely executed Scenario A via the active engine and found first alert index 93');
+assert('20b', parityOutput.includes('PBRTQC-B-01') && parityOutput.includes('first alert raw index = 106 (found 106)'),
+  'Parity test genuinely executed Scenario B via the active engine and found first alert index 106');
+assert('20c', parityOutput.includes('PBRTQC-C-01') && parityOutput.includes('firstAlertRawIndex = null (found null)'),
+  'Parity test genuinely executed Scenario C (aggressive truncation) via the active engine and found no alert');
+assert('20d', parityOutput.includes('PBRTQC-C-02') && parityOutput.includes('excluded count = 51 (found 51)'),
+  'Parity test genuinely confirmed excluded count = 51 for aggressive truncation via the active engine');
+assert('20e', parityOutput.includes('OPCHAR-03') && parityOutput.includes('NOT supported (found supported=false)'),
+  'Parity test explicitly asserts the unsupported multirule ["13s","22s"] does not receive Ped/Pfr support');
+assert('20f', parityOutput.includes('OPCHAR-04') && parityOutput.includes('No numerical Ped/Pfr invented'),
+  'Parity test explicitly asserts no numerical Ped/Pfr is invented for the unsupported multirule');
 
 /* -----------------------------------------------------------------------
    21-22. Browser equivalence: zero unexpected, zero blocked

@@ -35,6 +35,7 @@ async function main() {
   const eqa = await import('file://' + path.join(APP, 'eqa', 'calc.js'));
   const bv = await import('file://' + path.join(APP, 'bv', 'calc.js'));
   const pbrtqc = await import('file://' + path.join(APP, 'pbrtqc', 'calc.js'));
+  const pbrtqcData = await import('file://' + path.join(APP, 'pbrtqc', 'data.js'));
 
   /* -----------------------------------------------------------------------
      1. Sample SD uses n-1
@@ -182,20 +183,83 @@ async function main() {
 
   /* -----------------------------------------------------------------------
      11. Frozen PBRTQC signatures: +6, +8, aggressive-truncation scenarios
+     — Stage 11C2 corrective closure (Defect 1): exercises the ACTIVE
+     runPbrtqcStream() itself against Population A raw data, not just
+     calculateNPed() with hard-coded first-alert indices. This proves the
+     active surveillance engine (moving-mean window logic, error injection,
+     control-limit alerting, truncation/exclusion) is correct end-to-end,
+     not merely that the NPed arithmetic is correct given an assumed index.
      ----------------------------------------------------------------------- */
-  console.log('\n=== PBRTQC Frozen Signatures ===');
+  console.log('\n=== PBRTQC Frozen Signatures (full runPbrtqcStream execution) ===');
   {
-    // Case A: onset=81, firstAlert=93 -> NPed=12 (magnitude +6)
-    const nA = pbrtqc.calculateNPed(81, 93, 150);
-    assert('PBRTQC-01', nA.supported === true && nA.detected === true && nA.nped === 12,
-      `Case A (+6): NPed=12 (found ${nA.nped})`);
-    // Case B: onset=81, firstAlert=106 -> NPed=25 (magnitude +8)
-    const nB = pbrtqc.calculateNPed(81, 106, 150);
-    assert('PBRTQC-02', nB.nped === 25, `Case B (+8): NPed=25 (found ${nB.nped})`);
-    // Case C: aggressive truncation -> no alert
-    const nC = pbrtqc.calculateNPed(81, null, 150);
-    assert('PBRTQC-03', nC.detected === false && nC.nped === undefined,
-      `Case C (aggressive truncation): detected=false, nped=undefined (found detected=${nC.detected})`);
+    const popARaw = pbrtqcData.POPULATION_A_VALUES.map(v => ({ value: v }));
+    assert('PBRTQC-POP-A-LEN', popARaw.length === 150, `Population A has 150 raw values (found ${popARaw.length})`);
+
+    // Scenario A: moving-mean W=20, limits 137-143, +6 additive error, onset=81, no truncation.
+    const scenarioA = pbrtqc.runPbrtqcStream(popARaw, {
+      algorithmId: 'moving-mean', windowSize: 20,
+      lowerControlLimit: 137, upperControlLimit: 143,
+      errorScenario: { errorType: 'persistent-additive', magnitude: 6, onsetIndex: 81 },
+    });
+    assert('PBRTQC-A-01', scenarioA.firstAlertRawIndex === 93,
+      `Scenario A (active engine): first alert raw index = 93 (found ${scenarioA.firstAlertRawIndex})`);
+    assert('PBRTQC-A-02', scenarioA.excludedCount === 0,
+      `Scenario A (active engine): excluded count = 0 (found ${scenarioA.excludedCount})`);
+    const npedA = pbrtqc.calculateNPed(81, scenarioA.firstAlertRawIndex, 150);
+    assert('PBRTQC-A-03', npedA.supported === true && npedA.detected === true && npedA.nped === 12,
+      `Scenario A (active engine): NPed = 12, derived from the engine's own alert index, not a hard-coded value (found ${npedA.nped})`);
+
+    // Scenario B: moving-mean W=20, limits 133-147, +8 additive error, onset=81, no truncation.
+    const scenarioB = pbrtqc.runPbrtqcStream(popARaw, {
+      algorithmId: 'moving-mean', windowSize: 20,
+      lowerControlLimit: 133, upperControlLimit: 147,
+      errorScenario: { errorType: 'persistent-additive', magnitude: 8, onsetIndex: 81 },
+    });
+    assert('PBRTQC-B-01', scenarioB.firstAlertRawIndex === 106,
+      `Scenario B (active engine): first alert raw index = 106 (found ${scenarioB.firstAlertRawIndex})`);
+    assert('PBRTQC-B-02', scenarioB.excludedCount === 0,
+      `Scenario B (active engine): excluded count = 0 (found ${scenarioB.excludedCount})`);
+    const npedB = pbrtqc.calculateNPed(81, scenarioB.firstAlertRawIndex, 150);
+    assert('PBRTQC-B-03', npedB.nped === 25,
+      `Scenario B (active engine): NPed = 25, derived from the engine's own alert index (found ${npedB.nped})`);
+
+    // Scenario C: same as B + upperTruncationLimit=146 -> error-bearing values hidden -> no alert.
+    const scenarioC = pbrtqc.runPbrtqcStream(popARaw, {
+      algorithmId: 'moving-mean', windowSize: 20,
+      lowerControlLimit: 133, upperControlLimit: 147,
+      upperTruncationLimit: 146,
+      errorScenario: { errorType: 'persistent-additive', magnitude: 8, onsetIndex: 81 },
+    });
+    assert('PBRTQC-C-01', scenarioC.firstAlertRawIndex === null,
+      `Scenario C (active engine, aggressive truncation): no alert, firstAlertRawIndex = null (found ${scenarioC.firstAlertRawIndex})`);
+    assert('PBRTQC-C-02', scenarioC.excludedCount === 51,
+      `Scenario C (active engine): excluded count = 51 (found ${scenarioC.excludedCount})`);
+    const npedC = pbrtqc.calculateNPed(81, scenarioC.firstAlertRawIndex, 150);
+    assert('PBRTQC-C-03', npedC.detected === false && npedC.nped === undefined,
+      `Scenario C (active engine): detected=false, nped=undefined (found detected=${npedC.detected}, nped=${npedC.nped})`);
+  }
+
+  /* -----------------------------------------------------------------------
+     12. Ped/Pfr scope restriction — explicit unsupported-multirule assertion
+     — Stage 11C2 corrective closure (Defect 2): confirms no numerical
+     Ped/Pfr is invented for a multirule combination, not merely that pure
+     1_3s is supported.
+     ----------------------------------------------------------------------- */
+  console.log('\n=== Operating Characteristic: Explicit Unsupported-Multirule Check ===');
+  {
+    const single = opchar.operatingCharacteristic13s
+      ? opchar.operatingCharacteristic13s(2, 1.0)
+      : opchar.operatingCharacteristic(['13s'], 2, 1.0);
+    assert('OPCHAR-02', single.supported === true,
+      `Pure ["13s"] is supported (found ${single.supported})`);
+
+    const multirule = opchar.operatingCharacteristic
+      ? opchar.operatingCharacteristic(['13s', '22s'], 2, 1.0)
+      : null;
+    assert('OPCHAR-03', multirule !== null && multirule.supported === false,
+      `Multirule ["13s","22s"] is explicitly NOT supported (found supported=${multirule?.supported})`);
+    assert('OPCHAR-04', multirule !== null && multirule.pfr === undefined && multirule.ped === undefined,
+      `No numerical Ped/Pfr invented for the unsupported multirule (found pfr=${multirule?.pfr}, ped=${multirule?.ped})`);
   }
 
   /* -----------------------------------------------------------------------

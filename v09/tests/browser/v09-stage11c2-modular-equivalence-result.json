@@ -25,20 +25,20 @@
     {
       "id": "startup-console-harness-noise",
       "domain": "startup",
-      "action": "Harness-induced font-request failures (backed by real requestfailed evidence)",
+      "action": "Harness-induced font-request failures (backed by real requestfailed evidence, evaluated symmetrically)",
       "original": "0",
       "candidate": "0",
       "classification": "MATCH",
-      "notes": "Explained, non-application asymmetry, backed by real requestfailed evidence (not string-matching alone): reference requestFailed events matching font domains: []; candidate requestFailed events matching font domains: []. Console entries consumed as harness noise (matched 1:1 against this evidence, up to its count): ref=[] cand=[]. Any failed-resource console entry beyond this demonstrated font-failure count would remain unmatched and visible to the application-error comparison below."
+      "notes": "Symmetric evaluation, backed by real requestfailed evidence (not string-matching alone): reference requestFailed events matching font domains: []; candidate requestFailed events matching font domains: []. Console entries consumed as harness noise (matched 1:1 against this evidence, up to its count): ref=[] cand=[]."
     },
     {
       "id": "startup-console-babel-noise",
       "domain": "startup",
-      "action": "Reference-only Babel-runtime tooling noise",
+      "action": "Babel/runtime-compilation noise (NO asymmetry expected — both sides are package-managed Vite builds)",
       "original": "0",
       "candidate": "0",
       "classification": "MATCH",
-      "notes": "Reference retains runtime Babel (frozen Stage 11B compat path) and prints its deoptimisation notice; Vite bridge has zero runtime Babel by design (Stage 11C1 requirement), so zero such notices is expected and correct, not a defect. ref=[] cand=[]"
+      "notes": "Both reference (Stage 11C1 bridge) and candidate (Stage 11C2 modular build) use build-time JSX compilation with zero runtime Babel — zero Babel notices expected on BOTH sides. ref=[] cand=[]"
     },
     {
       "id": "startup-console-application-errors",

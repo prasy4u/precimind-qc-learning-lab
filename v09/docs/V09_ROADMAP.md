@@ -25,7 +25,7 @@ Establish `v0.9-development` branch, `v09/` tree, baseline copy map, product cha
 - Eliminated runtime Babel from the new build path (JSX compiled at build time)
 - Produced a fully source-inspected, evidence-based dependency graph (`v09/docs/v09-module-dependency-graph.json` + `V09_MODULE_DEPENDENCY_GRAPH.md`): zero cycles, zero collisions, 12 modules relying on an implicit React-hook global, 14 CommonJS-guarded modules, recommended migration order
 - Established deterministic build-tree hashing with confirmed reproducibility (including clean `npm ci`)
-- Browser-equivalence confirmed against the frozen Stage 11B reference: 53/53 MATCH, 0 unexpected differences, 0 blocked
+- Browser-equivalence confirmed against the frozen Stage 11B reference: 63/63 MATCH, 0 unexpected differences, 0 blocked (final accepted total, after the Stage 11C1 audit corrective closures — the initial 53/53 figure was superseded once genuine scientific-interaction checkpoints and evidence-based console classification were added)
 
 ### Stage 11C2 — ES Modules + Single React Root + Final Architecture Equivalence *(complete)*
 - Converted all 34 modules to standard ES modules under `v09/app/**`, verified surgical (34/34 strict source-transform PASS — no scientific/pedagogic content altered)
@@ -80,4 +80,4 @@ Establish `v0.9-development` branch, `v09/` tree, baseline copy map, product cha
 
 ## Sequencing Notes
 
-This sequence may be revised as Stage 11B architecture analysis proceeds — in particular, the build-system decision (ADR-001) may reveal that some accessibility fixes (Stage 11B) are easier or harder depending on which architecture is chosen for new components. Stage 11B should confirm or adjust this roadmap before Stage 12A begins.
+Stage 11C2 has now implemented the unified Vite/React active architecture (ES modules, single React root) that ADR-001 targeted. This roadmap's remaining stages (12A onward, Morning QC Room) build on the active `v09/app/**` application and are no longer conditional on an architecture decision — that decision has been made and executed. Stage 12A begins only once independent audit of Stage 11C2 confirms acceptance; it is not self-authorized within this stage sequence.

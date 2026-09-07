@@ -73,6 +73,7 @@ export function evaluateDecision(historyEntry) {
   return {
     category,
     decisionId: historyEntry.decisionId || null,
+    decisionEventId: historyEntry.decisionEventId || null,
     optionId: historyEntry.optionId || null,
     actionType: historyEntry.type,
     outcomeAppropriate,

@@ -346,12 +346,14 @@ async function main() {
     const { syntheticFixtureCase } = await import('file://' + path.join(MQC, 'cases', 'synthetic-fixture.js'));
     assert('37a', validateCase(syntheticFixtureCase).valid === true, 'Synthetic fixture (used for the 4-combination matrix) validates cleanly');
     let acked = applyAction(syntheticFixtureCase, createInitialState(syntheticFixtureCase), { type: 'ACKNOWLEDGE_SIGNAL' });
-    const tt = applyAction(syntheticFixtureCase, acked.state, { type: 'FORM_HYPOTHESIS', hypothesisId: 'hyp-x', decisionId: 'dec-tt', optionId: 'opt-tt' });
-    const tf = applyAction(syntheticFixtureCase, acked.state, { type: 'APPLY_INTERVENTION', decisionId: 'dec-tf', optionId: 'opt-tf', description: 'x' });
+    let charInspected = applyAction(syntheticFixtureCase, acked.state, { type: 'INSPECT_PANEL', panelId: 'panel-a' });
+    const tt = applyAction(syntheticFixtureCase, charInspected.state, { type: 'FORM_HYPOTHESIS', hypothesisId: 'hyp-x', decisionId: 'dec-tt', optionId: 'opt-tt' });
+    const hypFirst = applyAction(syntheticFixtureCase, charInspected.state, { type: 'FORM_HYPOTHESIS', hypothesisId: 'hyp-x' });
+    const tf = applyAction(syntheticFixtureCase, hypFirst.state, { type: 'APPLY_INTERVENTION', decisionId: 'dec-tf', optionId: 'opt-tf', description: 'x' });
     const ft = applyAction(syntheticFixtureCase, acked.state, { type: 'CONTINUE_ANALYSIS', decisionId: 'dec-ft', optionId: 'opt-ft' });
     const ff = applyAction(syntheticFixtureCase, acked.state, { type: 'DOCUMENT', decisionId: 'dec-ff', optionId: 'opt-ff', fields: {} });
-    assert('37b', tt.outcomeAppropriate === true && tt.severity !== 'CRITICAL_UNSAFE' && tt.severity !== 'UNSAFE' && tt.severity !== 'UNSUPPORTED', 'Combination (true,true) represented');
-    assert('37c', tf.outcomeAppropriate === true && tf.severity === 'UNSUPPORTED', 'Combination (true,false) represented');
+    assert('37b', tt.error === null && tt.outcomeAppropriate === true && tt.severity !== 'CRITICAL_UNSAFE' && tt.severity !== 'UNSAFE' && tt.severity !== 'UNSUPPORTED', `Combination (true,true) represented (error: ${tt.error})`);
+    assert('37c', tf.error === null && tf.outcomeAppropriate === true && tf.severity === 'UNSUPPORTED', `Combination (true,false) represented (error: ${tf.error})`);
     assert('37d', ft.outcomeAppropriate === false && ft.severity !== 'CRITICAL_UNSAFE' && ft.severity !== 'UNSAFE' && ft.severity !== 'UNSUPPORTED', 'Combination (false,true) represented');
     assert('37e', ff.outcomeAppropriate === false && ff.severity === 'CRITICAL_UNSAFE', 'Combination (false,false) represented');
   }
@@ -362,16 +364,74 @@ async function main() {
     const { computeScoringProfile } = await import('file://' + path.join(MQC, 'scoring-model.js'));
     let acked = applyAction(syntheticFixtureCase, createInitialState(syntheticFixtureCase), { type: 'ACKNOWLEDGE_SIGNAL' });
     const ft = applyAction(syntheticFixtureCase, acked.state, { type: 'CONTINUE_ANALYSIS', decisionId: 'dec-ft', optionId: 'opt-ft' }); // outcomeAppropriate=false, reasoningSupported=true
-    const withConf = applyAction(syntheticFixtureCase, ft.state, { type: 'RECORD_CONFIDENCE', decisionId: 'dec-ft', confidence: 'LOW' });
+    const withConf = applyAction(syntheticFixtureCase, ft.state, { type: 'RECORD_CONFIDENCE', decisionEventId: ft.decisionEventId, confidence: 'LOW' });
     const profile = computeScoringProfile(syntheticFixtureCase, withConf.state);
-    assert('38', profile.METACOGNITIVE_CALIBRATION === 'STRONG', `LOW confidence correctly calibrated against outcomeAppropriate=false (STRONG), not the reasoningSupported=true axis (found ${profile.METACOGNITIVE_CALIBRATION})`);
+    assert('38', profile.METACOGNITIVE_CALIBRATION === 'STRONG', `LOW confidence correctly calibrated against outcomeAppropriate=false, using decisionEventId identity (found ${profile.METACOGNITIVE_CALIBRATION})`);
   }
 
-  console.log('\n=== 39. Unknown/unmade decision confidence is rejected ===');
+  console.log('\n=== 39. Unknown/unmade decision-event confidence is rejected ===');
   {
     const s = createInitialState(pilots[0]);
-    const out = applyAction(pilots[0], s, { type: 'RECORD_CONFIDENCE', decisionId: 'NEVER_EXECUTED', confidence: 'HIGH' });
-    assert('39', out.error !== null, 'RECORD_CONFIDENCE for a decisionId never executed in this trace is rejected outright');
+    const out = applyAction(pilots[0], s, { type: 'RECORD_CONFIDENCE', decisionEventId: 'NEVER_EXECUTED#1', confidence: 'HIGH' });
+    assert('39', out.error !== null, 'RECORD_CONFIDENCE for a decisionEventId never executed in this trace is rejected outright');
+  }
+
+  console.log('\n=== ACCEPTANCE CLOSURE 1: ACK + DOCUMENT does not unlock future panels ===');
+  {
+    const { deriveUnlockedPhaseIndex } = await import('file://' + path.join(MQC, 'engine.js'));
+    let acked = applyAction(pilots[0], createInitialState(pilots[0]), { type: 'ACKNOWLEDGE_SIGNAL' });
+    let doc = applyAction(pilots[0], acked.state, { type: 'DOCUMENT', fields: {} });
+    const blocked = applyAction(pilots[0], doc.state, { type: 'INSPECT_PANEL', panelId: 'panel-reagent-lot' });
+    assert('43', doc.error === null && blocked.error !== null, 'ACK + DOCUMENT succeeds administratively but does NOT unlock CHARACTERISATION-gated panels');
+  }
+
+  console.log('\n=== ACCEPTANCE CLOSURE 2: ACK + REVIEW_PATIENT_IMPACT does not unlock future panels ===');
+  {
+    let acked = applyAction(pilots[0], createInitialState(pilots[0]), { type: 'ACKNOWLEDGE_SIGNAL' });
+    let pi = applyAction(pilots[0], acked.state, { type: 'REVIEW_PATIENT_IMPACT', targetState: 'INDICATED' });
+    const blocked = applyAction(pilots[0], pi.state, { type: 'INSPECT_PANEL', panelId: 'panel-calibration' });
+    assert('44', pi.error === null && blocked.error !== null, 'ACK + REVIEW_PATIENT_IMPACT succeeds administratively but does NOT unlock CHARACTERISATION-gated panels');
+  }
+
+  console.log('\n=== ACCEPTANCE CLOSURE 3: ACK + FORM_HYPOTHESIS cannot game the progression high-water mark ===');
+  {
+    let acked = applyAction(pilots[0], createInitialState(pilots[0]), { type: 'ACKNOWLEDGE_SIGNAL' });
+    const prematureHyp = applyAction(pilots[0], acked.state, { type: 'FORM_HYPOTHESIS', hypothesisId: 'hyp-lot' });
+    assert('45', prematureHyp.error !== null, 'FORM_HYPOTHESIS immediately after ACK (no genuine CHARACTERISATION progress) is rejected as premature');
+  }
+
+  console.log('\n=== ACCEPTANCE CLOSURE 4: Pilot 2 disposition cannot execute before genuine EVIDENCE_SELECTION ===');
+  {
+    let acked = applyAction(pilots[1], createInitialState(pilots[1]), { type: 'ACKNOWLEDGE_SIGNAL' });
+    let doc = applyAction(pilots[1], acked.state, { type: 'DOCUMENT', fields: {} });
+    const prematureDisposition = applyAction(pilots[1], doc.state, { type: 'DOCUMENT', decisionId: 'dec-disposition', optionId: 'opt-continue-documented', fields: {} });
+    assert('46', prematureDisposition.error !== null, 'dec-disposition (requires EVIDENCE_SELECTION) rejected with zero evidence obtained, even after generic DOCUMENT');
+  }
+
+  console.log('\n=== ACCEPTANCE CLOSURE 5: decision phase gating uses the genuine progression authority ===');
+  {
+    const { deriveUnlockedPhaseIndex } = await import('file://' + path.join(MQC, 'engine.js'));
+    let acked = applyAction(pilots[0], createInitialState(pilots[0]), { type: 'ACKNOWLEDGE_SIGNAL' });
+    assert('47', deriveUnlockedPhaseIndex(acked.state) === states.SIMULATION_PHASES.indexOf('SIGNAL_RECOGNITION'), 'Genuinely-unlocked index reflects only real milestones, consulted directly by decision gating (not a mutable action-driven counter)');
+  }
+
+  console.log('\n=== ACCEPTANCE CLOSURE 6-9: decisionEventId architecture and revision ===');
+  {
+    let acked = applyAction(pilots[1], createInitialState(pilots[1]), { type: 'ACKNOWLEDGE_SIGNAL' });
+    let inspected = applyAction(pilots[1], acked.state, { type: 'INSPECT_PANEL', panelId: 'panel-pbrtqc' });
+    const first = applyAction(pilots[1], inspected.state, { type: 'FORM_HYPOTHESIS', hypothesisId: 'hyp-analytical', decisionId: 'dec-take-seriously', optionId: 'opt-investigate' });
+    assert('48', first.decisionEventId === 'dec-take-seriously#1', 'Executed decision receives a stable decisionEventId');
+    const revised = applyAction(pilots[1], first.state, { type: 'DOCUMENT', decisionId: 'dec-take-seriously', optionId: 'opt-dismiss', fields: {} });
+    assert('49', revised.decisionEventId === 'dec-take-seriously#2' && revised.decisionEventId !== first.decisionEventId, 'Revised decision under the same decisionId receives a DISTINCT decisionEventId');
+
+    const { computeScoringProfile } = await import('file://' + path.join(MQC, 'scoring-model.js'));
+    const confFirst = applyAction(pilots[1], revised.state, { type: 'RECORD_CONFIDENCE', decisionEventId: first.decisionEventId, confidence: 'HIGH' });
+    const profileFirst = computeScoringProfile(pilots[1], confFirst.state);
+    assert('50', profileFirst.METACOGNITIVE_CALIBRATION === 'STRONG', 'Calibration evaluates the EXACT referenced decision event (first, correct: HIGH confidence well-calibrated)');
+
+    const confRevised = applyAction(pilots[1], revised.state, { type: 'RECORD_CONFIDENCE', decisionEventId: revised.decisionEventId, confidence: 'HIGH' });
+    const profileRevised = computeScoringProfile(pilots[1], confRevised.state);
+    assert('51', profileRevised.METACOGNITIVE_CALIBRATION !== 'STRONG', 'HIGH confidence in an INCORRECT revised decision does NOT score STRONG merely because the earlier decision was correct (calibration does not conflate decision events)');
   }
 
   console.log('\n=== 40. Zero-inspection state cannot produce STRONG Evidence Selection ===');

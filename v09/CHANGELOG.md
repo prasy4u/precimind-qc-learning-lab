@@ -284,3 +284,14 @@ Nine engine-semantics defects corrected, found by a second independent re-audit 
 **Testing**: engine 59/59 (was 41), pilot paths 39/39 (was 28), governance 77/77 (was 60) — Stage 12A total 175/175. All regressions reconfirmed unchanged: pre-11C1 v0.9 189/189, Stage 11C1 98/98 (with)/94/94 (without node_modules), Stage 11C2 parity 35/35 and governance 49/49, v0.8 3849/3849. All three frozen tree SHAs reconfirmed byte-identical.
 
 Only 17 files changed (16 modified + 1 new: `cases/synthetic-fixture.js`), all within `v09/app/morning-qc/**`, Morning QC documentation, and `v09/tests/morning-qc/**`/the Stage 12A governance test. No historical-governance test correction needed this cycle.
+
+### Stage 12A — FINAL ACCEPTANCE Micro-Closure
+
+Two engine-semantic defects corrected, found by a third independent re-audit of commit c137c31:
+
+1. Progression authority completely redesigned: replaced mutable `maxPhaseIndexReached` (advanced whenever an action's nominal phase target was forward progress) with `deriveUnlockedPhaseIndex(state)`, a pure function recomputed from genuine milestone facts only. `DOCUMENT` and `REVIEW_PATIENT_IMPACT` execute freely as "limited administrative records" once the signal is acknowledged, but never unlock anything further. Added execution-time prerequisites for `FORM_HYPOTHESIS`/`REQUEST_EVIDENCE` (genuine `CHARACTERISATION`), `APPLY_INTERVENTION` (genuine `HYPOTHESIS_GENERATION`), `VERIFY_RECOVERY` (genuine `IMMEDIATE_CONTAINMENT`). Verified against all 3 named exploits plus the derived Pilot 2 disposition exploit.
+2. Decision-event identity introduced: every executed decision receives a stable `decisionEventId`. `RECORD_CONFIDENCE` now references this, not the reusable `decisionId`, supporting legitimate decision revision (REASSESS doctrine) without conflating an earlier and later occurrence's correctness during calibration.
+
+**Testing**: engine 49/49, pilot paths 39/39 (unchanged — existing paths already followed genuine sequences), governance 86/86 (was 77) — Stage 12A total 174/174. All regressions reconfirmed unchanged. All three frozen tree SHAs reconfirmed byte-identical. Case data (schema, validator, all 3 pilots) required zero changes this cycle.
+
+Only 8 files changed, all within `v09/app/morning-qc/{engine,decision-model,scoring-model}.js`, Morning QC documentation, and `v09/tests/morning-qc/engine.test.cjs`/the Stage 12A governance test.

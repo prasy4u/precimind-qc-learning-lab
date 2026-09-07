@@ -84,3 +84,9 @@ Two further scoring defects were found and fixed:
 - **`EVIDENCE_SELECTION` rewarded non-engagement.** A pristine state with zero panels inspected trivially avoided all irrelevant panels, producing a perfect `selectivityRatio` and a `STRONG` rating despite obtaining no information at all. Corrected by combining selectivity with a new `recallRatio` (fraction of *relevant* panels actually inspected) via their minimum — a learner must both avoid irrelevant panels *and* actually obtain the relevant information that exists to score well.
 
 Confidence identity was also hardened: `RECORD_CONFIDENCE` now rejects a `decisionId` that was never genuinely executed in the trace (fail-closed, not silently recorded and later excluded), and duplicate confidence entries for the same decision follow an explicit "latest replaces earlier" policy — both defined and tested deterministically, per Section 18's requirement that confidence identity never be ambiguous.
+
+---
+
+## Stage 12A Independent-Audit FINAL ACCEPTANCE Micro-Closure
+
+`METACOGNITIVE_CALIBRATION` now matches confidence records to the exact **decision event** (`decisionEventId`) they name, not the reusable decision definition (`decisionId`). This directly supports the Room's REASSESS doctrine: a learner may legitimately revise an earlier decision (e.g., re-executing `dec-take-seriously` first as `opt-investigate`, then later as `opt-dismiss`) — each execution is a distinct, separately-identified event, so confidence recorded against the revised (second) event is never accidentally scored using the first event's correctness. Verified directly: HIGH confidence in a correct first decision event scores `STRONG`; HIGH confidence in an incorrect *revised* event under the same decision definition does not.

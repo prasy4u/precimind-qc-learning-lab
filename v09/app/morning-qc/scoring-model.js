@@ -113,24 +113,20 @@ export function computeScoringProfile(caseObj, finalState) {
  * never happened).
  */
 /**
- * Confidence calibration (Section 18, FINAL closure fix): correctness for
- * calibration purposes must use `outcomeAppropriate` (the case-authored
- * correctness-of-the-conclusion axis), NOT `reasoningSupported` (the
- * independent reasoning-quality axis) — the two are intentionally kept
- * separate throughout this model, and calibration is specifically about
- * whether confidence matched the CORRECTNESS OF THE OUTCOME, not the
- * quality of reasoning behind it. Each confidence record is matched to
- * the SPECIFIC decision it names via `decisionId`, among decisions
- * genuinely executed in the trace (engine.js's RECORD_CONFIDENCE handler
- * already rejects a decisionId that was never executed, so every record
- * reaching here refers to a real decision).
+ * Confidence calibration (Section 18, ACCEPTANCE-closure fix): each
+ * confidence record is matched to the SPECIFIC decision EVENT it names
+ * via `decisionEventId` (not the reusable `decisionId`) — so a learner
+ * who legitimately REVISES a decision under the same decisionId (per the
+ * Room's REASSESS doctrine) and records new confidence is scored against
+ * the exact revised event, never an earlier occurrence of the same
+ * decision definition.
  */
 function computeCalibration(finalState) {
   if (!finalState.confidenceRecords || finalState.confidenceRecords.length === 0) return null;
-  const decisions = summarizeDecisions(finalState.actionHistory).filter(d => d.decisionId);
+  const decisions = summarizeDecisions(finalState.actionHistory).filter(d => d.decisionEventId);
   let calibrated = 0, total = 0;
   for (const rec of finalState.confidenceRecords) {
-    const matchingDecision = decisions.find(d => d.decisionId === rec.decisionId);
+    const matchingDecision = decisions.find(d => d.decisionEventId === rec.decisionEventId);
     if (!matchingDecision) continue; // defensive; engine.js already prevents this case
     total++;
     const highConfidenceCorrect = rec.confidence === 'HIGH' && matchingDecision.outcomeAppropriate;

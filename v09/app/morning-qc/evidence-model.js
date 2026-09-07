@@ -20,6 +20,11 @@ export function summarizeEvidenceUsage(caseObj, finalState) {
   const missedItems = evidence.filter(e => !obtained.has(e.id));
 
   const highValueObtained = obtainedItems.filter(e => e.decisive && e.relevant);
+  // Corrective-closure clarification: "supportive" evidence (relevant,
+  // non-decisive) is explicitly its own bucket, distinct from "low-value"
+  // (irrelevant). Appropriate supportive evidence must never be counted
+  // as low-value merely because it isn't decisive.
+  const supportiveObtained = obtainedItems.filter(e => e.relevant && !e.decisive);
   const lowValueObtained = obtainedItems.filter(e => !e.relevant);
   const highValueMissed = missedItems.filter(e => e.decisive && e.relevant);
 
@@ -27,6 +32,7 @@ export function summarizeEvidenceUsage(caseObj, finalState) {
     totalEvidence: evidence.length,
     obtainedCount: obtainedItems.length,
     highValueObtained: highValueObtained.map(e => e.id),
+    supportiveObtained: supportiveObtained.map(e => e.id),
     lowValueObtained: lowValueObtained.map(e => e.id),
     highValueMissed: highValueMissed.map(e => e.id),
     efficiencyRatio: obtainedItems.length > 0 ? highValueObtained.length / obtainedItems.length : null,

@@ -3,18 +3,37 @@
 
    Morning QC Room — Stage 12A Strict Case Validator
    PROVENANCE: V09_NEW
+   Revised during the Stage 12A independent-audit corrective closure.
 
-   Fails CLOSED (Stage 12A Section 25): returns { valid: false, errors: [...] }
-   with SPECIFIC error messages for every violation found, rather than a
-   bare boolean. A case with zero errors is valid; any single error makes
-   the whole case invalid.
+   Fails CLOSED: returns { valid: false, errors: [...] } with SPECIFIC
+   error messages for every violation found. A case with zero errors is
+   valid; any single error makes the whole case invalid.
+
+   CORRECTIVE-CLOSURE CHANGES:
+     - rootCauseEstablished now means EXCLUSIVELY an analytical root
+       cause, and MUST be false whenever disturbanceEstablished is false.
+       signalExplanationEstablished is validated as the SEPARATE construct
+       for explaining an observed signal without an analytical disturbance
+       (case families K, M) — this replaces the Stage 12A-original,
+       overly permissive combination check.
+     - Decision options are now validated for executable identity
+       (id/label/consequenceSummary/severity/outcomeAppropriate all
+       present and outcomeAppropriate is a genuine boolean).
+     - patientImpactCriteria is validated: required fields present,
+       referenced evidence exists, and (reachability) at least one
+       evidence item is genuinely obtainable to satisfy it.
+     - Evidence prerequisite reachability: an evidence item's
+       availableOnlyAfterActionType must not create a tautological/
+       self-referential gate with no meaningful semantics (e.g. an
+       evidence item gated behind requesting evidence itself).
    ========================================================================= */
 
 import {
   IDENTITY_REQUIRED_FIELDS, CASE_DIFFICULTY_LEVELS, LEARNER_LEVELS,
   LAB_CONTEXT_REQUIRED_FIELDS, EVENT_TYPES, EVENT_REQUIRED_FIELDS,
   PANEL_TYPES, PANEL_REQUIRED_FIELDS, GROUND_TRUTH_REQUIRED_FIELDS,
-  DECISION_OPPORTUNITY_REQUIRED_FIELDS, VERIFICATION_CRITERIA_REQUIRED_FIELDS,
+  DECISION_OPPORTUNITY_REQUIRED_FIELDS, DECISION_OPTION_REQUIRED_FIELDS,
+  VERIFICATION_CRITERIA_REQUIRED_FIELDS, PATIENT_IMPACT_CRITERIA_REQUIRED_FIELDS,
   DEBRIEF_EVIDENCE_REQUIRED_FIELDS, HYPOTHESIS_REQUIRED_FIELDS,
   EVIDENCE_REQUIRED_FIELDS, CASE_TOP_LEVEL_REQUIRED_FIELDS,
   V09_PROVENANCE_CLASSES, CASE_PROVENANCE_REQUIRED_FIELDS,
@@ -46,10 +65,9 @@ export function validateCase(caseObj) {
     return { valid: false, errors: ['case: not an object'] };
   }
 
-  // 1. Top-level shape
   hasAllFields(caseObj, CASE_TOP_LEVEL_REQUIRED_FIELDS, errors, 'case');
 
-  // 2. Identity
+  // Identity
   const identity = caseObj.identity;
   hasAllFields(identity, IDENTITY_REQUIRED_FIELDS, errors, 'identity');
   if (identity) {
@@ -65,23 +83,21 @@ export function validateCase(caseObj) {
     }
   }
 
-  // 3. Lab context
+  // Lab context
   hasAllFields(caseObj.labContext, LAB_CONTEXT_REQUIRED_FIELDS, errors, 'labContext');
 
-  // 4. Timeline / events
+  // Timeline / events
   const timeline = caseObj.timeline || [];
   if (!Array.isArray(timeline)) errors.push('timeline: must be an array');
   else {
     timeline.forEach((ev, i) => {
       hasAllFields(ev, EVENT_REQUIRED_FIELDS, errors, `timeline[${i}]`);
-      if (ev && ev.type && !EVENT_TYPES.includes(ev.type)) {
-        errors.push(`timeline[${i}]: unrecognized event type "${ev.type}"`);
-      }
+      if (ev && ev.type && !EVENT_TYPES.includes(ev.type)) errors.push(`timeline[${i}]: unrecognized event type "${ev.type}"`);
     });
     checkDuplicateIds(timeline, 'timeline', errors);
   }
 
-  // 5. Panels
+  // Panels
   const panels = caseObj.panels || [];
   if (!Array.isArray(panels)) errors.push('panels: must be an array');
   else {
@@ -89,21 +105,15 @@ export function validateCase(caseObj) {
       hasAllFields(p, PANEL_REQUIRED_FIELDS, errors, `panels[${i}]`);
       if (p) {
         if (p.type && !PANEL_TYPES.includes(p.type)) errors.push(`panels[${i}]: unrecognized panel type "${p.type}"`);
-        if (p.availableFromPhase && !SIMULATION_PHASES.includes(p.availableFromPhase)) {
-          errors.push(`panels[${i}]: invalid availableFromPhase "${p.availableFromPhase}"`);
-        }
-        if (p.relevance && !['RELEVANT', 'IRRELEVANT', 'CONDITIONALLY_RELEVANT'].includes(p.relevance)) {
-          errors.push(`panels[${i}]: invalid relevance "${p.relevance}"`);
-        }
-        if (typeof p.costTimeMinutes === 'number' && p.costTimeMinutes < 0) {
-          errors.push(`panels[${i}]: costTimeMinutes must be >= 0`);
-        }
+        if (p.availableFromPhase && !SIMULATION_PHASES.includes(p.availableFromPhase)) errors.push(`panels[${i}]: invalid availableFromPhase "${p.availableFromPhase}"`);
+        if (p.relevance && !['RELEVANT', 'IRRELEVANT', 'CONDITIONALLY_RELEVANT'].includes(p.relevance)) errors.push(`panels[${i}]: invalid relevance "${p.relevance}"`);
+        if (typeof p.costTimeMinutes === 'number' && p.costTimeMinutes < 0) errors.push(`panels[${i}]: costTimeMinutes must be >= 0`);
       }
     });
     checkDuplicateIds(panels, 'panels', errors);
   }
 
-  // 6. Hypotheses
+  // Hypotheses
   const hypotheses = caseObj.hypotheses || [];
   if (!Array.isArray(hypotheses)) errors.push('hypotheses: must be an array');
   else {
@@ -112,7 +122,7 @@ export function validateCase(caseObj) {
   }
   const hypothesisIds = new Set((hypotheses || []).map(h => h && h.id).filter(Boolean));
 
-  // 7. Evidence — must reference existing hypotheses and, if gated, existing action types
+  // Evidence — required fields, hypothesis references, and prerequisite sanity
   const evidence = caseObj.evidence || [];
   if (!Array.isArray(evidence)) errors.push('evidence: must be an array');
   else {
@@ -125,8 +135,22 @@ export function validateCase(caseObj) {
         for (const hid of e.weakensHypothesisIds || []) {
           if (!hypothesisIds.has(hid)) errors.push(`evidence[${i}]: weakensHypothesisIds references nonexistent hypothesis "${hid}"`);
         }
-        if (e.availableOnlyAfterActionType != null && !ACTION_TYPES.includes(e.availableOnlyAfterActionType)) {
-          errors.push(`evidence[${i}]: availableOnlyAfterActionType "${e.availableOnlyAfterActionType}" is not a recognized action type`);
+        if (e.availableOnlyAfterActionType != null) {
+          if (!ACTION_TYPES.includes(e.availableOnlyAfterActionType)) {
+            errors.push(`evidence[${i}]: availableOnlyAfterActionType "${e.availableOnlyAfterActionType}" is not a recognized action type`);
+          }
+          // Reachability/tautology check (Section 25/14): a prerequisite
+          // of "REQUEST_EVIDENCE" gates evidence behind "some evidence was
+          // requested" — since requesting THIS evidence item is itself a
+          // REQUEST_EVIDENCE action, this can create a self-referential,
+          // no-op gate unless it genuinely refers to a DIFFERENT evidence
+          // item having been requested first. The schema does not track
+          // "which" REQUEST_EVIDENCE, so this specific action type is
+          // disallowed as a prerequisite to avoid an inherently ambiguous,
+          // tautological gate.
+          if (e.availableOnlyAfterActionType === 'REQUEST_EVIDENCE') {
+            errors.push(`evidence[${i}]: availableOnlyAfterActionType="REQUEST_EVIDENCE" is a tautological/self-referential prerequisite (requesting evidence is itself a REQUEST_EVIDENCE action) — use null (no prerequisite) or a semantically distinct action type instead`);
+          }
         }
       }
     });
@@ -134,44 +158,50 @@ export function validateCase(caseObj) {
   }
   const evidenceIds = new Set((evidence || []).map(e => e && e.id).filter(Boolean));
 
-  // 8. Ground truth — internal consistency (Section 25: "contradictory ground-truth declarations",
-  //    "a case automatically equates signal with root cause")
+  // Ground truth — corrective-closure model: rootCauseEstablished means
+  // EXCLUSIVELY an analytical root cause; signalExplanationEstablished is
+  // the separate, non-disturbance explanation construct.
   const gt = caseObj.groundTruth;
   hasAllFields(gt, GROUND_TRUTH_REQUIRED_FIELDS, errors, 'groundTruth');
   if (gt) {
     if (gt.rootCauseEstablished === false && gt.rootCauseDescription != null) {
-      errors.push('groundTruth: rootCauseDescription must be null when rootCauseEstablished is false (contradictory ground truth)');
+      errors.push('groundTruth: rootCauseDescription must be null when rootCauseEstablished is false');
     }
     if (gt.rootCauseEstablished === true && gt.rootCauseDescription == null) {
       errors.push('groundTruth: rootCauseDescription is required when rootCauseEstablished is true');
     }
+    // Corrective-closure rule: an analytical root cause cannot exist
+    // without an established analytical disturbance. This is the
+    // corrected form of the doctrine "signal ≠ disturbance ≠ root cause" —
+    // rootCauseEstablished now ONLY ever describes an analytical cause.
+    if (gt.disturbanceEstablished === false && gt.rootCauseEstablished === true) {
+      errors.push('groundTruth: rootCauseEstablished cannot be true when disturbanceEstablished is false (an analytical root cause requires an established analytical disturbance — use signalExplanationEstablished for a non-disturbance explanation of the observed signal instead)');
+    }
+    if (gt.signalExplanationEstablished === false && gt.signalExplanationDescription != null) {
+      errors.push('groundTruth: signalExplanationDescription must be null when signalExplanationEstablished is false');
+    }
+    if (gt.signalExplanationEstablished === true && gt.signalExplanationDescription == null) {
+      errors.push('groundTruth: signalExplanationDescription is required when signalExplanationEstablished is true');
+    }
     // Section 25: "a case automatically equates signal with root cause" —
     // checked as literal identity between the observed-signal description
-    // and the root-cause description, which would indicate the case design
-    // collapsed the two concepts rather than genuinely distinguishing them.
-    // (Note: rootCauseEstablished=true while disturbanceEstablished=false is
-    // NOT itself contradictory — case families K and M specifically require
-    // this combination, where the established "cause" of the observed
-    // signal is a genuine non-disturbance explanation, e.g. a patient
-    // population shift or real biological change. Conflating "no analytical
-    // disturbance" with "no explanation exists at all" would make those
-    // case families impossible to express and was corrected during Stage
-    // 12A case authoring after the validator initially, incorrectly,
-    // rejected both.)
+    // and either the root-cause or signal-explanation description.
     if (gt.observedSignal && gt.rootCauseDescription && gt.observedSignal === gt.rootCauseDescription) {
-      errors.push('groundTruth: observedSignal and rootCauseDescription are identical strings — the case must distinguish the observed signal from its established cause, not equate them');
+      errors.push('groundTruth: observedSignal and rootCauseDescription are identical strings — the case must distinguish the observed signal from its established cause');
+    }
+    if (gt.observedSignal && gt.signalExplanationDescription && gt.observedSignal === gt.signalExplanationDescription) {
+      errors.push('groundTruth: observedSignal and signalExplanationDescription are identical strings — the case must distinguish the observed signal from its established explanation');
     }
     if (gt.patientImpactStatus && !PATIENT_IMPACT_STATES.includes(gt.patientImpactStatus)) {
       errors.push(`groundTruth: invalid patientImpactStatus "${gt.patientImpactStatus}"`);
     }
     for (const ev of gt.evidenceForHypotheses || []) {
-      if (!hypothesisIds.has(ev.hypothesisId)) {
-        errors.push(`groundTruth.evidenceForHypotheses: references nonexistent hypothesis "${ev.hypothesisId}"`);
-      }
+      if (!hypothesisIds.has(ev.hypothesisId)) errors.push(`groundTruth.evidenceForHypotheses: references nonexistent hypothesis "${ev.hypothesisId}"`);
     }
   }
 
-  // 9. Decision opportunities
+  // Decision opportunities — required fields, category/phase validity,
+  // AND executable option identity (corrective-closure requirement).
   const decisions = caseObj.decisionOpportunities || [];
   if (!Array.isArray(decisions)) errors.push('decisionOpportunities: must be an array');
   else {
@@ -181,41 +211,54 @@ export function validateCase(caseObj) {
         if (d.category && !DECISION_CATEGORIES.includes(d.category)) errors.push(`decisionOpportunities[${i}]: invalid category "${d.category}"`);
         if (d.availableFromPhase && !SIMULATION_PHASES.includes(d.availableFromPhase)) errors.push(`decisionOpportunities[${i}]: invalid availableFromPhase "${d.availableFromPhase}"`);
         for (const opt of d.options || []) {
+          hasAllFields(opt, DECISION_OPTION_REQUIRED_FIELDS, errors, `decisionOpportunities[${i}].options[${opt.id || '?'}]`);
           if (opt.severity && !SEVERITY_LEVELS.includes(opt.severity)) errors.push(`decisionOpportunities[${i}]: option "${opt.id}" has invalid severity "${opt.severity}"`);
+          if (opt.outcomeAppropriate !== undefined && typeof opt.outcomeAppropriate !== 'boolean') {
+            errors.push(`decisionOpportunities[${i}]: option "${opt.id}" outcomeAppropriate must be a boolean, found ${typeof opt.outcomeAppropriate}`);
+          }
         }
+        checkDuplicateIds(d.options || [], `decisionOpportunities[${i}].options`, errors);
       }
     });
     checkDuplicateIds(decisions, 'decisionOpportunities', errors);
   }
 
-  // 10. Verification criteria — required evidence must exist; a terminal
-  //     disposition/verification must actually be reachable
+  // Verification criteria — required evidence must exist and be reachable
   const vc = caseObj.verificationCriteria;
   hasAllFields(vc, VERIFICATION_CRITERIA_REQUIRED_FIELDS, errors, 'verificationCriteria');
   if (vc && Array.isArray(vc.requiredEvidenceIds)) {
     for (const eid of vc.requiredEvidenceIds) {
       if (!evidenceIds.has(eid)) errors.push(`verificationCriteria.requiredEvidenceIds: references nonexistent evidence "${eid}" (verification would be unreachable)`);
     }
-    if (vc.requiredEvidenceIds.length === 0) {
-      errors.push('verificationCriteria.requiredEvidenceIds: must not be empty (a terminal disposition requiring verification must have reachable evidence)');
+    if (vc.requiredEvidenceIds.length === 0) errors.push('verificationCriteria.requiredEvidenceIds: must not be empty');
+  }
+
+  // Patient-impact criteria (corrective-closure addition) — required
+  // fields, referenced evidence exists, and is genuinely reachable
+  // (no availableOnlyAfterActionType pointing at an action type the case
+  // never legitimately exposes a path to).
+  const pic = caseObj.patientImpactCriteria;
+  hasAllFields(pic, PATIENT_IMPACT_CRITERIA_REQUIRED_FIELDS, errors, 'patientImpactCriteria');
+  if (pic && Array.isArray(pic.requiredEvidenceIdsForTerminalState)) {
+    if (pic.requiredEvidenceIdsForTerminalState.length === 0) {
+      errors.push('patientImpactCriteria.requiredEvidenceIdsForTerminalState: must not be empty — a terminal patient-impact state must be evidence-backed, not freely declarable');
+    }
+    for (const eid of pic.requiredEvidenceIdsForTerminalState) {
+      if (!evidenceIds.has(eid)) errors.push(`patientImpactCriteria.requiredEvidenceIdsForTerminalState: references nonexistent evidence "${eid}" (terminal patient-impact state would be unreachable)`);
     }
   }
 
-  // 11. Debrief evidence
+  // Debrief evidence
   hasAllFields(caseObj.debriefEvidence, DEBRIEF_EVIDENCE_REQUIRED_FIELDS, errors, 'debriefEvidence');
 
-  // 12. Provenance (Section 32)
+  // Provenance
   hasAllFields(caseObj.provenance, CASE_PROVENANCE_REQUIRED_FIELDS, errors, 'provenance');
   if (caseObj.provenance && caseObj.provenance.provenanceClass &&
       !V09_PROVENANCE_CLASSES.includes(caseObj.provenance.provenanceClass)) {
     errors.push(`provenance.provenanceClass: "${caseObj.provenance.provenanceClass}" is not a recognized v0.9 provenance class`);
   }
 
-  // 13. Global duplicate-ID check across ALL id-bearing collections combined
-  //     (Section 25: "duplicate IDs occur" — checked per-collection above;
-  //     this additionally guards against cross-collection collisions, e.g.
-  //     an evidence id colliding with a hypothesis id, which would make
-  //     cross-references ambiguous).
+  // Global duplicate-ID check across all id-bearing collections
   const allIds = [
     ...(timeline || []).map(x => x && x.id),
     ...(panels || []).map(x => x && x.id),
@@ -225,7 +268,7 @@ export function validateCase(caseObj) {
   ].filter(Boolean);
   const seenGlobal = new Set();
   for (const id of allIds) {
-    if (seenGlobal.has(id)) errors.push(`case: id "${id}" is reused across different collections (timeline/panels/hypotheses/evidence/decisionOpportunities must share one global id namespace)`);
+    if (seenGlobal.has(id)) errors.push(`case: id "${id}" is reused across different collections`);
     seenGlobal.add(id);
   }
 

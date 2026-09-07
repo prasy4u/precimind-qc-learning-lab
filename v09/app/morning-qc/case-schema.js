@@ -100,10 +100,24 @@ export const PANEL_REQUIRED_FIELDS = [
    ----------------------------------------------------------------------- */
 export const GROUND_TRUTH_REQUIRED_FIELDS = [
   'observedSignal',         // string — what the learner should be able to observe
-  'disturbanceEstablished', // boolean — whether a genuine analytical disturbance exists at all
+  'disturbanceEstablished', // boolean — whether a genuine ANALYTICAL disturbance exists at all
   'disturbanceDescription', // string | null
-  'rootCauseEstablished',   // boolean — whether the case's narrative ever conclusively establishes a cause
+  'rootCauseEstablished',   // boolean — whether an ANALYTICAL root cause is established.
+                            // Stage 12A corrective closure: this field means EXCLUSIVELY an
+                            // analytical root cause. It must be false whenever
+                            // disturbanceEstablished is false (see case-validator.js) — a
+                            // case may still explain the observed SIGNAL without any
+                            // analytical disturbance (see signalExplanationEstablished
+                            // below), but that is never called a "root cause."
   'rootCauseDescription',   // string | null — MUST be null if rootCauseEstablished is false
+  'signalExplanationEstablished', // boolean — whether a non-disturbance explanation for the
+                            // observed signal is established (e.g. population case-mix
+                            // shift, a statistically significant serial change under RCV
+                            // assumptions). Independent of rootCauseEstablished — a case can
+                            // have signalExplanationEstablished=true and rootCauseEstablished
+                            // =false simultaneously (this is the correct, intended
+                            // combination for case families K and M).
+  'signalExplanationDescription', // string | null — MUST be null if signalExplanationEstablished is false
   'patientImpactStatus',    // one of PATIENT_IMPACT_STATES (states.js)
   'appropriateDisposition', // string — the case-author's intended correct final disposition
   'evidenceForHypotheses',  // array of { hypothesisId, supports: boolean, weight: 'DECISIVE'|'SUPPORTIVE'|'WEAK' }
@@ -116,7 +130,18 @@ export const DECISION_OPPORTUNITY_REQUIRED_FIELDS = [
   'id',              // string
   'category',        // one of DECISION_CATEGORIES (states.js)
   'availableFromPhase', // one of SIMULATION_PHASES
-  'options',         // array of { id, label, consequenceSummary, severity (one of SEVERITY_LEVELS) }
+  'options',         // array of { id, label, consequenceSummary, severity (one of SEVERITY_LEVELS),
+                     //            outcomeAppropriate (boolean) }
+];
+
+// Stage 12A corrective closure: each decision option must declare BOTH
+// severity (reasoning-quality/safety axis) AND outcomeAppropriate
+// (correctness-of-outcome axis, per the case's ground truth) as
+// independent, explicitly-authored fields — NOT one derived from the
+// other. This is what makes the two-axis decision model genuinely
+// case-authored rather than inferred from severity alone.
+export const DECISION_OPTION_REQUIRED_FIELDS = [
+  'id', 'label', 'consequenceSummary', 'severity', 'outcomeAppropriate',
 ];
 
 /* -----------------------------------------------------------------------
@@ -125,6 +150,23 @@ export const DECISION_OPPORTUNITY_REQUIRED_FIELDS = [
 export const VERIFICATION_CRITERIA_REQUIRED_FIELDS = [
   'requiredEvidenceIds',  // array of evidence IDs that must be inspected/obtained
   'minimumConfirmationDescription', // string — what "enough" verification looks like for this case
+];
+
+/* -----------------------------------------------------------------------
+   PATIENT-IMPACT CRITERIA (Stage 12A corrective closure)
+
+   Mirrors verificationCriteria's pattern: a case must declare which
+   evidence is required before a TERMINAL patient-impact state
+   (COMPLETED_NO_AFFECTED_RESULTS or AFFECTED_RESULT_SET_IDENTIFIED) may
+   be reached. This prevents a learner from declaring an affected-result
+   set (or its absence) merely by selecting the next enum value with no
+   supporting evidence — the QC-disturbance-≠-patient-impact doctrine
+   must be evidence-backed, not just modeled as reachable states.
+   ----------------------------------------------------------------------- */
+export const PATIENT_IMPACT_CRITERIA_REQUIRED_FIELDS = [
+  'requiredEvidenceIdsForTerminalState', // array of evidence IDs required before reaching
+                                          // COMPLETED_NO_AFFECTED_RESULTS or AFFECTED_RESULT_SET_IDENTIFIED
+  'minimumConfirmationDescription',      // string — what "enough" patient-impact evidence looks like
 ];
 
 /* -----------------------------------------------------------------------
@@ -166,8 +208,8 @@ export const EVIDENCE_REQUIRED_FIELDS = [
    ----------------------------------------------------------------------- */
 export const CASE_TOP_LEVEL_REQUIRED_FIELDS = [
   'identity', 'labContext', 'timeline', 'panels', 'groundTruth',
-  'decisionOpportunities', 'verificationCriteria', 'debriefEvidence',
-  'hypotheses', 'evidence', 'provenance',
+  'decisionOpportunities', 'verificationCriteria', 'patientImpactCriteria',
+  'debriefEvidence', 'hypotheses', 'evidence', 'provenance',
 ];
 
 /* -----------------------------------------------------------------------

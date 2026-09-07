@@ -3,13 +3,24 @@
 
    Morning QC Room — Stage 12A Scoring Model
    PROVENANCE: V09_NEW
+   Revised during the Stage 12A independent-audit corrective closure.
 
-   Section 19: establishes a scoring MODEL, not final product gamification.
-   Produces per-dimension qualitative ratings (never a single collapsed
-   score — Section 19 explicitly forbids this). Does not award points
-   simply for opening every panel, and does not punish correctly ignoring
-   irrelevant information (Section 19) — see evidence-model.js's
-   selectivityRatio, which treats high selectivity as positive.
+   Section 19: a scoring MODEL, not final product gamification. Produces
+   per-dimension qualitative ratings — never a single collapsed score.
+
+   CORRECTIVE-CLOSURE CHANGES:
+     - DECISION_APPROPRIATENESS now reads the outcomeAppropriate axis
+       (correctness of the outcome per case-authored ground truth),
+       NOT the reasoningSupported axis (which VERIFICATION_QUALITY and
+       others already use). Previously this dimension accidentally
+       measured the same thing as several others.
+     - METACOGNITIVE_CALIBRATION now associates each confidence record
+       with the SPECIFIC decision it names (via decisionId), not "the
+       last decision in the entire case" — see computeCalibration().
+     - INVESTIGATION_STRATEGY now explicitly penalizes missing high-value
+       evidence, regardless of how efficient the OBTAINED evidence ratio
+       looks — a learner who grabs one low-value item and stops no longer
+       scores misleadingly well merely because they took few actions.
    ========================================================================= */
 
 import { SCORING_DIMENSIONS } from './states.js';
@@ -37,30 +48,39 @@ export function computeScoringProfile(caseObj, finalState) {
   const panelUsage = summarizePanelUsage(caseObj, finalState);
 
   const containmentDecisions = decisions.filter(d => d.category === 'CONTAINMENT');
-  const interventionDecisions = decisions.filter(d => d.category === 'INTERVENTION');
   const verificationDecisions = decisions.filter(d => d.category === 'VERIFICATION');
   const dispositionDecisions = decisions.filter(d => d.category === 'DISPOSITION');
   const patientImpactDecisions = decisions.filter(d => d.category === 'PATIENT_IMPACT_REVIEW');
-  const investigationDecisions = decisions.filter(d => d.category === 'INVESTIGATION');
 
   const fractionSupported = (arr) => arr.length > 0 ? arr.filter(d => d.reasoningSupported).length / arr.length : null;
+  const fractionOutcomeAppropriate = (arr) => arr.length > 0 ? arr.filter(d => d.outcomeAppropriate).length / arr.length : null;
 
   const profile = {};
   profile.SIGNAL_RECOGNITION = rate(finalState.documentation.signal ? 1 : 0);
-  profile.STATISTICAL_INTERPRETATION = null; // Stage 12A: not yet wired to a specific numeric-interpretation action; reserved for case-specific extension.
+  profile.STATISTICAL_INTERPRETATION = null; // reserved
   profile.ANALYTICAL_REASONING = rate(fractionSupported(decisions.filter(d => d.category === 'INTERPRETATION')));
-  profile.RULE_INTERPRETATION = null; // reserved: case-specific, populated when a case exercises rule-engine evidence directly.
+  profile.RULE_INTERPRETATION = null; // reserved
   profile.RISK_REASONING = rate(fractionSupported(containmentDecisions));
-  profile.INVESTIGATION_STRATEGY = rate(evidenceUsage.efficiencyRatio);
+  // INVESTIGATION_STRATEGY: penalize missed high-value evidence directly,
+  // not just the ratio among what was obtained (corrective-closure fix).
+  {
+    const hasMissedHighValue = evidenceUsage.highValueMissed.length > 0;
+    if (hasMissedHighValue) {
+      profile.INVESTIGATION_STRATEGY = evidenceUsage.efficiencyRatio != null
+        ? RATINGS[Math.max(0, RATINGS.indexOf(rate(evidenceUsage.efficiencyRatio)) - 1)]
+        : RATINGS[0];
+    } else {
+      profile.INVESTIGATION_STRATEGY = rate(evidenceUsage.efficiencyRatio);
+    }
+  }
   profile.EVIDENCE_SELECTION = rate(panelUsage.selectivityRatio);
   profile.PATIENT_IMPACT_REASONING = rate(fractionSupported(patientImpactDecisions));
-  profile.DECISION_APPROPRIATENESS = rate(fractionSupported(dispositionDecisions));
+  // DECISION_APPROPRIATENESS: outcome-correctness axis, not reasoning-support.
+  profile.DECISION_APPROPRIATENESS = rate(fractionOutcomeAppropriate(dispositionDecisions));
   profile.VERIFICATION_QUALITY = rate(fractionSupported(verificationDecisions));
   profile.DOCUMENTATION_GOVERNANCE = rate(Object.values(finalState.documentation).filter(v => v != null && (Array.isArray(v) ? v.length > 0 : true)).length / Object.keys(finalState.documentation).length);
   profile.METACOGNITIVE_CALIBRATION = computeCalibration(finalState);
 
-  // Every SCORING_DIMENSIONS key must be present (even if null/reserved),
-  // so downstream consumers can rely on a stable shape.
   for (const dim of SCORING_DIMENSIONS) {
     if (!(dim in profile)) profile[dim] = null;
   }
@@ -68,21 +88,25 @@ export function computeScoringProfile(caseObj, finalState) {
 }
 
 /**
- * Confidence calibration (Section 18): confidence is never used as a
- * substitute for correctness. This classifies each recorded confidence
- * value against whether the corresponding decision (nearest-in-time
- * action) was reasoning-supported, without altering correctness itself.
+ * Confidence calibration (Section 18, corrective-closure fix): each
+ * confidence record is now matched to the SPECIFIC decision it names via
+ * `decisionId` (looked up among action-history entries that executed a
+ * case decision option), rather than always comparing against "the last
+ * decision in the entire case." A confidence record whose decisionId
+ * does not correspond to ANY decision actually made in the trace is
+ * excluded from calibration (it cannot be scored against a decision that
+ * never happened).
  */
 function computeCalibration(finalState) {
   if (!finalState.confidenceRecords || finalState.confidenceRecords.length === 0) return null;
-  const decisions = summarizeDecisions(finalState.actionHistory);
+  const decisions = summarizeDecisions(finalState.actionHistory).filter(d => d.decisionId);
   let calibrated = 0, total = 0;
   for (const rec of finalState.confidenceRecords) {
-    const nearestDecision = decisions[decisions.length - 1]; // Stage 12A: simple nearest-prior-decision heuristic
-    if (!nearestDecision) continue;
+    const matchingDecision = decisions.find(d => d.decisionId === rec.decisionId);
+    if (!matchingDecision) continue; // unknown/unmatched decisionId — not scored
     total++;
-    const highConfidenceCorrect = rec.confidence === 'HIGH' && nearestDecision.reasoningSupported;
-    const lowConfidenceIncorrect = rec.confidence === 'LOW' && !nearestDecision.reasoningSupported;
+    const highConfidenceCorrect = rec.confidence === 'HIGH' && matchingDecision.reasoningSupported;
+    const lowConfidenceIncorrect = rec.confidence === 'LOW' && !matchingDecision.reasoningSupported;
     const moderateEither = rec.confidence === 'MODERATE';
     if (highConfidenceCorrect || lowConfidenceIncorrect || moderateEither) calibrated++;
   }

@@ -58,8 +58,10 @@ export const pilot2PbrtqcPopulationShift = {
     observedSignal: 'PBRTQC moving-mean statistic crosses alert threshold at t=720.',
     disturbanceEstablished: false,
     disturbanceDescription: null,
-    rootCauseEstablished: true,
-    rootCauseDescription: 'Patient population case-mix shift (new cardiology step-down ward) explains the PBRTQC trend; no analytical disturbance exists.',
+    rootCauseEstablished: false,
+    rootCauseDescription: null,
+    signalExplanationEstablished: true,
+    signalExplanationDescription: 'Patient population case-mix shift (new cardiology step-down ward) explains the PBRTQC trend; no analytical disturbance exists, so this is a signal explanation, not an analytical root cause.',
     patientImpactStatus: 'NOT_INDICATED',
     appropriateDisposition: 'CONTINUE_ANALYSIS_DOCUMENT_EXPLANATION',
     evidenceForHypotheses: [
@@ -70,17 +72,21 @@ export const pilot2PbrtqcPopulationShift = {
   },
   decisionOpportunities: [
     { id: 'dec-take-seriously', category: 'INTERPRETATION', availableFromPhase: 'SIGNAL_RECOGNITION', options: [
-      { id: 'opt-investigate', label: 'Investigate the PBRTQC alert despite passing IQC', consequenceSummary: 'Correct — PBRTQC can detect signals IQC misses; dismissing it because IQC passed is the forbidden inference for this family.', severity: 'INFORMATIONAL' },
-      { id: 'opt-dismiss', label: 'Dismiss the alert because IQC is passing', consequenceSummary: 'Applies the forbidden deterministic inference for this case family.', severity: 'UNSUPPORTED' },
+      { id: 'opt-investigate', label: 'Investigate the PBRTQC alert despite passing IQC', consequenceSummary: 'Correct — PBRTQC can detect signals IQC misses; dismissing it because IQC passed is the forbidden inference for this family.', severity: 'INFORMATIONAL', outcomeAppropriate: true },
+      { id: 'opt-dismiss', label: 'Dismiss the alert because IQC is passing', consequenceSummary: 'Applies the forbidden deterministic inference for this case family.', severity: 'UNSUPPORTED', outcomeAppropriate: false },
     ]},
     { id: 'dec-disposition', category: 'DISPOSITION', availableFromPhase: 'RESUME_OR_HOLD', options: [
-      { id: 'opt-continue-documented', label: 'Continue analysis, document the case-mix explanation', consequenceSummary: 'Matches ground truth — no analytical disturbance was ever established.', severity: 'INFORMATIONAL' },
-      { id: 'opt-hold-unnecessarily', label: 'Hold results indefinitely pending further analytical investigation', consequenceSummary: 'Once the decisive case-mix evidence is in hand, continued holding is unsupported by the evidence.', severity: 'UNSUPPORTED' },
+      { id: 'opt-continue-documented', label: 'Continue analysis, document the case-mix explanation', consequenceSummary: 'Matches ground truth — no analytical disturbance was ever established.', severity: 'INFORMATIONAL', outcomeAppropriate: true },
+      { id: 'opt-hold-unnecessarily', label: 'Hold results indefinitely pending further analytical investigation', consequenceSummary: 'Once the decisive case-mix evidence is in hand, continued holding is unsupported by the evidence.', severity: 'UNSUPPORTED', outcomeAppropriate: false },
     ]},
   ],
   verificationCriteria: {
     requiredEvidenceIds: ['ev-case-mix-decisive'],
     minimumConfirmationDescription: 'The stratified re-analysis excluding the new ward\'s specimens must be obtained and show the alert resolves before concluding no analytical disturbance exists.',
+  },
+  patientImpactCriteria: {
+    requiredEvidenceIdsForTerminalState: ['ev-case-mix-decisive'],
+    minimumConfirmationDescription: 'This case never requires a terminal patient-impact declaration (patientImpactStatus remains NOT_INDICATED throughout, since no analytical disturbance exists) — this field is present for schema completeness and would gate an AFFECTED/COMPLETED declaration behind the same decisive evidence, if ever pursued.',
   },
   debriefEvidence: {
     strongPathDescription: 'Take the PBRTQC alert seriously despite passing IQC; inspect the patient-distribution panel; recognize the ward-opening timing; request the decisive stratified re-analysis; conclude population shift, not analytical error; continue analysis without unnecessary hold.',

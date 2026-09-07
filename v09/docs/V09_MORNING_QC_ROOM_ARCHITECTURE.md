@@ -89,3 +89,22 @@ This distinction was validated directly: the pilot-path "unsafe" tests (`P1-UNSA
 ## 8. Reuse of Existing Scientific Modules
 
 Per Section 31, Morning QC Room imports rather than duplicates. Pilot case scientific rationale references exact function calls against the active modules: `app/core/statistics.js` (Pilot 1: mean/SD/bias/Sigma), `app/bv/calc.js:calculateClassicalRcv` (Pilot 3: RCV). No formula is reimplemented inside `v09/app/morning-qc/**`.
+
+---
+
+## 9. Stage 12A Independent-Audit Corrective Closure
+
+An independent audit found the initial Stage 12A foundation had several domain-model and scientific gaps that made the engine's stated behaviors partly aspirational rather than enforced. All were corrected:
+
+- **Panel/evidence availability is now genuinely ENFORCED**, not merely declared. `engine.js` tracks a `maxPhaseIndexReached` high-water mark (so a legitimate phase regression never revokes previously-earned access) and checks `panel.availableFromPhase` before permitting `INSPECT_PANEL`, and `evidence.availableOnlyAfterActionType` before permitting `REQUEST_EVIDENCE`. Both are directly tested with negative cases (premature access correctly fails and does not silently update state).
+- **Case-defined `decisionOpportunities` are now EXECUTABLE.** An action may carry `{ decisionId, optionId }`; the engine looks up the case-authored option and uses its own `severity` **and** `outcomeAppropriate` fields as authoritative, replacing the earlier heuristic-only severity guess. This override is universal across all action types (a gap where `FORM_HYPOTHESIS` didn't respect it was caught and fixed during this closure).
+- **The two-axis decision model is now genuinely independent.** `outcomeAppropriate` is sourced directly from the case-authored option (or a narrow action-type default), never derived from severity as "anything except `CRITICAL_UNSAFE`" — the prior model's actual flaw.
+- **`rootCauseEstablished` now means exclusively an analytical root cause.** A new, separate ground-truth construct — `signalExplanationEstablished` / `signalExplanationDescription` — models a non-disturbance explanation for an observed signal (population shift, statistically significant serial change), restoring the frozen doctrine that signal ≠ disturbance ≠ root cause without redefining what "root cause" means.
+- **Pilot 3's RCV science was corrected.** The case no longer treats RCV exceedance as establishing "a genuine biological/clinical change" — RCV exceedance ≠ disease, and does not establish etiological cause. The corrected case models only the defensible statistical inference, adds a specimen-handling/preanalytical evidence item, and leaves a preanalytical hypothesis appropriately `WEAKENED` (never `CONTRADICTED`) rather than falsely eliminating every alternative through IQC/EQA alone.
+- **Patient-impact terminal states are now evidence-backed.** A new `patientImpactCriteria.requiredEvidenceIdsForTerminalState` field gates `COMPLETED_NO_AFFECTED_RESULTS`/`AFFECTED_RESULT_SET_IDENTIFIED` behind genuinely obtained evidence — a learner can no longer declare an affected-result set merely by selecting the next enum value.
+- **Verification/service-state semantics corrected.** A FAILED verification (`VERIFY_RECOVERY` with unmet criteria) no longer advances `serviceState` to `READY_FOR_VERIFICATION` — it correctly remains `HELD`, and the engine deterministically regresses `phase` to `INVESTIGATION`, implementing the previously-declared-but-unused `PHASE_ALLOWS_RETURN_TO` return path.
+- **Confidence is now scored against the specific decision it names**, via `decisionId`, not "the last decision in the case" — a confidence record naming a decision that never actually occurred in the trace is excluded from calibration rather than silently mismatched.
+- **`DECISION_APPROPRIATENESS` now reads the outcome-correctness axis**, not reasoning-support (which other dimensions already measured) — the two were previously, unintentionally, measuring the same thing.
+- **Pilot 1's Sigma provenance is now explicit** (`labContext.sigmaContext`): the reported Sigma (0.97) uses a pre-specified analytical CVA of 2%, not the post-shift sample SD of the disturbed cluster — both are documented and distinguished.
+
+Full defect-by-defect detail in `V09_STAGE12A_REPORT.md`.

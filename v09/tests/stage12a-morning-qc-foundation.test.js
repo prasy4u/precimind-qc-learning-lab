@@ -193,6 +193,103 @@ async function main() {
   })(), 'package.json dependencies/devDependencies unchanged (only new scripts may be added)');
   assert('19d', unchangedSince('v09/package-lock.json', BASE_REF), 'package-lock.json unchanged');
 
+  console.log('\n=== 20. Corrective-closure: panel/evidence availability enforcement ===');
+  {
+    const premature = applyAction(pilots[0], createInitialState(pilots[0]), { type: 'INSPECT_PANEL', panelId: 'panel-reagent-lot' });
+    assert('20a', premature.error !== null, 'Panel gated behind CHARACTERISATION cannot be inspected from BRIEFING');
+    const prematureEv = applyAction(pilots[0], createInitialState(pilots[0]), { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-old-lot-repeat' });
+    assert('20b', prematureEv.error !== null, 'Evidence gated behind REPEAT_QC cannot be obtained prematurely');
+  }
+
+  console.log('\n=== 21. Corrective-closure: decision opportunities affect engine classifications ===');
+  {
+    const s = createInitialState(pilots[0]);
+    const out = applyAction(pilots[0], s, { type: 'CONTINUE_ANALYSIS', decisionId: 'dec-containment', optionId: 'opt-continue' });
+    assert('21', out.severity === 'UNSAFE' && out.outcomeAppropriate === false, 'Case-authored decisionId/optionId genuinely drives engine severity/outcomeAppropriate');
+  }
+
+  console.log('\n=== 22. Corrective-closure: Pilot 2 dismissal is genuinely UNSUPPORTED ===');
+  {
+    const r = replay(pilots[1], [
+      { type: 'INSPECT_PANEL', panelId: 'panel-pbrtqc' },
+      { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-iqc-stable' },
+      { type: 'DOCUMENT', decisionId: 'dec-take-seriously', optionId: 'opt-dismiss', fields: {} },
+    ]);
+    const last = r.trace[r.trace.length - 1];
+    assert('22', last.severity === 'UNSUPPORTED' && last.outcomeAppropriate === false, 'Pilot 2\'s dismissal path produces an ACTUAL engine-recorded UNSUPPORTED decision');
+  }
+
+  console.log('\n=== 23. Corrective-closure: Pilot 3 unsupported analytical hold is classified ===');
+  {
+    const r = replay(pilots[2], [
+      { type: 'ACKNOWLEDGE_SIGNAL' },
+      { type: 'FORM_HYPOTHESIS', hypothesisId: 'hyp-analytical-error', decisionId: 'dec-interpretation', optionId: 'opt-assume-error' },
+    ]);
+    const last = r.trace[r.trace.length - 1];
+    assert('23', last.severity === 'UNSUPPORTED' && last.outcomeAppropriate === false, 'Pilot 3\'s unsupported analytical-error assumption is engine-classified');
+  }
+
+  console.log('\n=== 24. Corrective-closure: patient-impact terminal state requires evidence ===');
+  {
+    let s = createInitialState(pilots[0]);
+    let o1 = applyAction(pilots[0], s, { type: 'REVIEW_PATIENT_IMPACT', targetState: 'INDICATED' });
+    let o2 = applyAction(pilots[0], o1.state, { type: 'REVIEW_PATIENT_IMPACT', targetState: 'PENDING' });
+    let o3 = applyAction(pilots[0], o2.state, { type: 'REVIEW_PATIENT_IMPACT', targetState: 'AFFECTED_RESULT_SET_IDENTIFIED' });
+    assert('24', o3.error !== null, 'Terminal patient-impact state cannot be declared without the case-required evidence');
+  }
+
+  console.log('\n=== 25. Corrective-closure: failed verification does not produce a misleading ready/resume state ===');
+  {
+    let s = createInitialState(pilots[0]);
+    let held = applyAction(pilots[0], s, { type: 'HOLD_RESULTS' });
+    let failedVerify = applyAction(pilots[0], held.state, { type: 'VERIFY_RECOVERY' });
+    assert('25a', failedVerify.state.serviceState === 'HELD', 'Failed verification remains HELD, does not advance to READY_FOR_VERIFICATION');
+    assert('25b', failedVerify.state.phase === 'INVESTIGATION', 'Failed verification returns phase to INVESTIGATION');
+  }
+
+  console.log('\n=== 26. Corrective-closure: signal explanation separate from analytical root cause ===');
+  {
+    assert('26a', pilots[1].groundTruth.rootCauseEstablished === false && pilots[1].groundTruth.signalExplanationEstablished === true,
+      'Pilot 2: rootCauseEstablished=false while signalExplanationEstablished=true — genuinely independent');
+    const badCombo = JSON.parse(JSON.stringify(pilots[1]));
+    badCombo.groundTruth.rootCauseEstablished = true;
+    assert('26b', validateCase(badCombo).valid === false, 'Validator rejects an analytical root cause without an established disturbance');
+  }
+
+  console.log('\n=== 27. Corrective-closure: RCV case does not claim biological etiology ===');
+  {
+    const gt = pilots[2].groundTruth;
+    assert('27a', gt.rootCauseEstablished === false, 'Pilot 3 does not claim an analytical root cause');
+    assert('27b', !/genuine biological/i.test(gt.signalExplanationDescription || ''), 'Pilot 3\'s signal explanation does not assert a "genuine biological" cause as fact');
+    assert('27c', /does not establish/i.test(gt.signalExplanationDescription || ''), 'Pilot 3\'s signal explanation explicitly states what RCV does NOT establish');
+    const rcvEvidence = pilots[2].evidence.find(e => e.id === 'ev-rcv-calculation');
+    assert('27d', /does not|not establish/i.test(rcvEvidence.interpretationLimits), 'RCV evidence documents its own interpretation limits');
+  }
+
+  console.log('\n=== 28. Corrective-closure: confidence linked to the intended decision ===');
+  {
+    const { computeScoringProfile } = await import('file://' + path.join(MQC, 'scoring-model.js'));
+    let s = createInitialState(pilots[0]);
+    let onlyConf = applyAction(pilots[0], s, { type: 'RECORD_CONFIDENCE', decisionId: 'dec-disposition', confidence: 'HIGH' });
+    const profile = computeScoringProfile(pilots[0], onlyConf.state);
+    assert('28', profile.METACOGNITIVE_CALIBRATION === null, 'Confidence naming a decision never actually made is excluded from calibration');
+  }
+
+  console.log('\n=== 29. Corrective-closure: Sigma 0.97 has explicit CV=2% provenance ===');
+  {
+    const stats = await import('file://' + path.join(V09, 'app', 'core', 'statistics.js'));
+    const sigmaCtx = pilots[0].labContext.sigmaContext;
+    assert('29a', sigmaCtx && sigmaCtx.cvaUsedForSigma === 2, 'Pilot 1 labContext.sigmaContext explicitly declares CV=2% as the Sigma input');
+    const sigma = stats.calcSigma(9, 7.0667, 2);
+    assert('29b', Math.abs(sigma.value - 0.9667) < 0.001 && sigma.valid === true, `calcSigma(9, 7.0667, 2) reproduces 0.9667 exactly (found ${sigma.value})`);
+  }
+
+  console.log('\n=== 30. All 3 revised pilot cases validate ===');
+  {
+    const results = pilots.map(p => validateCase(p));
+    assert('30', results.every(r => r.valid === true), `All 3 revised pilots validate cleanly (errors: ${JSON.stringify(results.map(r => r.errors))})`);
+  }
+
   const total = passed + failed;
   console.log(`\n${'='.repeat(60)}`);
   console.log(`Stage 12A Morning QC Foundation Tests: ${passed}/${total} passed, ${failed} failed`);

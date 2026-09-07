@@ -62,3 +62,14 @@ Recording a confidence value never alters the underlying correctness determinati
 ## What Stage 12A Does NOT Implement
 
 Per Section 19: no numeric point totals, no leaderboard, no single grade. Per Section 18: no elaborate metacognitive analytics beyond the calibration classification the engine needs. These remain reserved for a later UI/product stage, once the full Morning QC Room interaction shell exists to present multi-dimensional feedback meaningfully rather than as a bare data structure.
+
+---
+
+## Stage 12A Independent-Audit Corrective Closure
+
+Two scoring-semantics defects were found and fixed:
+
+- **`DECISION_APPROPRIATENESS` previously used the same reasoning-support fraction as `VERIFICATION_QUALITY` and other dimensions** — it now reads `outcomeAppropriate` (the case-authored correctness-of-outcome axis) for `DISPOSITION`-category decisions, genuinely measuring something distinct from reasoning quality.
+- **`METACOGNITIVE_CALIBRATION` previously compared every confidence record against "the last decision in the entire case,"** regardless of which decision the confidence record actually named. It now matches each record to its specific `decisionId` among decisions genuinely made in the trace, and excludes any confidence record naming a decision that never occurred (rather than silently mismatching it to an unrelated decision).
+- **`INVESTIGATION_STRATEGY` now explicitly penalizes missed high-value evidence**, not just the ratio among evidence actually obtained — a learner who grabs one low-value item and stops no longer scores misleadingly well merely because they took few actions.
+- **The high-value/supportive/low-value evidence distinction is now explicit** (`evidence-model.js`'s `supportiveObtained` bucket): appropriate, relevant-but-non-decisive evidence is never counted as "low-value" — only genuinely irrelevant evidence is.

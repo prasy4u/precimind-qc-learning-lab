@@ -1,5 +1,5 @@
 {
-  "description": "Morning QC Room Stage 12A case contract — machine-readable field lists (mirrors case-schema.js).",
+  "description": "Morning QC Room Stage 12A case contract — machine-readable field lists (mirrors case-schema.js). Regenerated during the Stage 12A corrective closure to include signalExplanationEstablished/Description, DECISION_OPTION_REQUIRED_FIELDS, and PATIENT_IMPACT_CRITERIA_REQUIRED_FIELDS.",
   "identityRequiredFields": [
     "id",
     "title",
@@ -80,6 +80,8 @@
     "disturbanceDescription",
     "rootCauseEstablished",
     "rootCauseDescription",
+    "signalExplanationEstablished",
+    "signalExplanationDescription",
     "patientImpactStatus",
     "appropriateDisposition",
     "evidenceForHypotheses"
@@ -90,8 +92,19 @@
     "availableFromPhase",
     "options"
   ],
+  "decisionOptionRequiredFields": [
+    "id",
+    "label",
+    "consequenceSummary",
+    "severity",
+    "outcomeAppropriate"
+  ],
   "verificationCriteriaRequiredFields": [
     "requiredEvidenceIds",
+    "minimumConfirmationDescription"
+  ],
+  "patientImpactCriteriaRequiredFields": [
+    "requiredEvidenceIdsForTerminalState",
     "minimumConfirmationDescription"
   ],
   "debriefEvidenceRequiredFields": [
@@ -124,6 +137,7 @@
     "groundTruth",
     "decisionOpportunities",
     "verificationCriteria",
+    "patientImpactCriteria",
     "debriefEvidence",
     "hypotheses",
     "evidence",
@@ -154,6 +168,61 @@
     "DOCUMENTATION",
     "DEBRIEF"
   ],
+  "phaseAllowsReturnTo": {
+    "BRIEFING": [],
+    "SCAN": [
+      "BRIEFING"
+    ],
+    "SIGNAL_RECOGNITION": [
+      "SCAN",
+      "BRIEFING"
+    ],
+    "IMMEDIATE_CONTAINMENT": [
+      "SIGNAL_RECOGNITION",
+      "SCAN"
+    ],
+    "CHARACTERISATION": [
+      "IMMEDIATE_CONTAINMENT",
+      "SIGNAL_RECOGNITION",
+      "SCAN"
+    ],
+    "HYPOTHESIS_GENERATION": [
+      "CHARACTERISATION",
+      "SIGNAL_RECOGNITION"
+    ],
+    "EVIDENCE_SELECTION": [
+      "HYPOTHESIS_GENERATION",
+      "CHARACTERISATION"
+    ],
+    "INVESTIGATION": [
+      "EVIDENCE_SELECTION",
+      "HYPOTHESIS_GENERATION"
+    ],
+    "INTERVENTION": [
+      "INVESTIGATION",
+      "EVIDENCE_SELECTION"
+    ],
+    "VERIFICATION": [
+      "INTERVENTION",
+      "INVESTIGATION"
+    ],
+    "PATIENT_IMPACT_REVIEW": [
+      "VERIFICATION",
+      "CHARACTERISATION",
+      "INVESTIGATION"
+    ],
+    "RESUME_OR_HOLD": [
+      "VERIFICATION",
+      "PATIENT_IMPACT_REVIEW"
+    ],
+    "DOCUMENTATION": [
+      "RESUME_OR_HOLD",
+      "PATIENT_IMPACT_REVIEW"
+    ],
+    "DEBRIEF": [
+      "DOCUMENTATION"
+    ]
+  },
   "serviceStates": [
     "RUNNING",
     "UNDER_REVIEW",

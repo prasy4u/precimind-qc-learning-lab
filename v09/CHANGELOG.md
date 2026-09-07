@@ -242,3 +242,27 @@ A final independent audit of the prior closure identified two remaining auditabi
 **Documentation**: `V09_MORNING_QC_ROOM_ARCHITECTURE.md`, `v09-morning-qc-case-schema.json` (generated directly from source, not hand-transcribed), `V09_MORNING_QC_CASE_CATALOGUE.md`, `V09_MORNING_QC_SCORING_MODEL.md`, `V09_STAGE12A_REPORT.md`. Roadmap updated: Stage 12A marked complete, Stage 12B (interaction shell) defined next.
 
 **Not implemented** (explicitly out of scope per Section 30): no Morning QC Room screen, no navigation integration, no full visual panels, no dashboards, no case-selection UI.
+
+### Stage 12A — Independent-Audit Corrective Closure
+
+Fifteen domain-model and scientific defects corrected in the Morning QC Room foundation, found by independent audit of commit f3910a9:
+
+1. Panel availability now enforced via a regression-safe `maxPhaseIndexReached` high-water mark.
+2. Evidence prerequisites (`availableOnlyAfterActionType`) now enforced; premature requests fail without mutating state. Pilot 3's tautological `REQUEST_EVIDENCE`-as-prerequisite removed; validator now rejects this pattern.
+3. Case-defined `decisionOpportunities` made executable via `{decisionId, optionId}`, universally (a gap where `FORM_HYPOTHESIS` didn't respect the override was found and fixed).
+4. Two-axis decision model corrected: `outcomeAppropriate` is now case-authored, never derived from severity.
+5. New `signalExplanationEstablished`/`signalExplanationDescription` ground-truth fields separate a non-disturbance signal explanation from an analytical root cause; `rootCauseEstablished` now means exclusively the latter, validator-enforced.
+6. Pilot 2 revised accordingly (population shift is a signal explanation, not a root cause).
+7. Pilot 3's RCV science corrected — no longer claims RCV exceedance establishes "a genuine biological/clinical change"; hypotheses restructured, a specimen-handling/preanalytical evidence item added, preanalytical hypothesis left appropriately `WEAKENED`.
+8. Patient-impact terminal states now evidence-gated via `patientImpactCriteria.requiredEvidenceIdsForTerminalState`; Pilot 1 gained `ev-affected-window`.
+9. Failed verification no longer advances to `READY_FOR_VERIFICATION` — remains `HELD`.
+10. Phase regression implemented: failed verification deterministically returns to `INVESTIGATION` via the previously-unused `PHASE_ALLOWS_RETURN_TO` table.
+11. Confidence-to-decision association corrected: matched by `decisionId`, unmatched records excluded from calibration.
+12. Pilot 1 Sigma provenance clarified via `labContext.sigmaContext` (CV=2% pre-specified analytical CVA, distinct from post-shift sample SD).
+13. Scoring model corrected: `DECISION_APPROPRIATENESS` reads outcome-correctness, not reasoning-support; `INVESTIGATION_STRATEGY` penalizes missed high-value evidence.
+14. Terminal/debrief semantics explicitly deferred to Stage 12B (documented, not silently unfinished).
+15. Validator strengthened: option `outcomeAppropriate` required; `patientImpactCriteria` reachability validated; tautological evidence prerequisites rejected.
+
+**Testing**: engine 61/61 (was 41), pilot paths 41/41 (was 28), governance 60/60 (was 42, +18 corrective-closure assertions) — Stage 12A total 162/162. All 3 revised pilots validate cleanly. All prior baselines reconfirmed unchanged: pre-11C1 v0.9 189/189, Stage 11C1 98/98 (with node_modules)/94/94 (without), Stage 11C2 parity 35/35 and governance 49/49, v0.8 3849/3849. All three frozen tree SHAs (Stage 11B, Stage 11C1 bridge, Stage 11C2 modular) reconfirmed byte-identical.
+
+Only 18 files changed, all within `v09/app/morning-qc/**`, `v09/tests/morning-qc/**`, `v09/tests/stage12a-morning-qc-foundation.test.js`, and Morning QC documentation. No frozen architecture, inherited modules, or historical governance tests touched.

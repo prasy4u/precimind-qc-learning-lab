@@ -72,7 +72,9 @@ All 3 validate cleanly. Machine-readable scientific rationale for each in `app/m
 
 ## Path-Test Results
 
-For all 3 pilots: **expert path** (zero inefficient/unsafe actions, correct hypothesis established, correct disposition), **safe-but-inefficient path** (same correct conclusion, additional irrelevant-panel inspections flagged `INEFFICIENT`, more elapsed time), **unsafe/premature path** (structurally legal but flagged `UNSAFE`/`CRITICAL_UNSAFE`, never establishes the correct hypothesis). Debrief output directly confirmed to differ meaningfully between expert and unsafe paths (`P1-DEBRIEF-DIFF`).
+For all 3 pilots: **expert path** (zero inefficient/unsafe actions, correct hypothesis established, correct disposition), **safe-but-inefficient path** (same correct conclusion, additional irrelevant-panel inspections flagged `INEFFICIENT`, more elapsed time), **unsafe/premature path** (structurally legal but produces an ACTUAL engine-recorded `UNSUPPORTED`/`UNSAFE`/`CRITICAL_UNSAFE` decision via a case-authored `decisionId`/`optionId`, not merely "fails to establish the correct hypothesis"). Debrief output directly confirmed to differ meaningfully between expert and unsafe paths (`P1-DEBRIEF-DIFF`).
+
+**Corrective-closure note:** this claim was NOT fully true in the initial Stage 12A submission — independent audit found Pilot 2's and Pilot 3's "unsafe" paths only demonstrated a missing correct conclusion, with no actual engine-recorded severity behind them (the case-defined `decisionOpportunities` were not yet wired into the engine at all). This is now corrected for all 3 pilots — see the corrective-closure section below.
 
 ## Test Totals (Stage 12A, reported separately)
 
@@ -97,3 +99,27 @@ For all 3 pilots: **expert path** (zero inefficient/unsafe actions, correct hypo
 ## Scope Discipline
 
 No production UI, no navigation destination, no dashboards, no case-selection screen. All new code under `v09/app/morning-qc/**`, `v09/tests/morning-qc/**`, `v09/tests/stage12a-morning-qc-foundation.test.js`, and `v09/docs/*morning-qc*`/`*Stage12A*`. Zero changes to any of the 34 inherited active modules, `main.jsx`, frozen `v09/src/**`, the Stage 11C1 bridge, or package dependencies (only new test-invocation npm scripts would be added if needed — none were required for Stage 12A specifically, since these tests are run directly via `node`).
+
+---
+
+## Independent-Audit Corrective Closure
+
+An independent audit of the initial Stage 12A commit found the domain model was well-designed but the engine did not yet ENFORCE several behaviors it claimed to model. Fifteen distinct defects were corrected:
+
+1. **Panel availability enforced** via a `maxPhaseIndexReached` high-water mark in engine state (regression-safe: a phase regression never revokes previously-earned panel access).
+2. **Evidence prerequisites enforced**: `availableOnlyAfterActionType` is now checked before `REQUEST_EVIDENCE` succeeds; premature requests fail without mutating state. Pilot 3's RCV evidence had a tautological `REQUEST_EVIDENCE` prerequisite — removed (now directly requestable), and the validator now rejects this specific self-referential pattern outright.
+3. **Decision opportunities made executable**: actions may carry `{ decisionId, optionId }`; the engine looks up the case-authored option for authoritative `severity`/`outcomeAppropriate`. A gap where this override didn't apply to `FORM_HYPOTHESIS` (and was only an allow-list for a few action types) was found and fixed — the override is now universal.
+4. **Two-axis model corrected**: `outcomeAppropriate` no longer derives from severity ("anything except `CRITICAL_UNSAFE`") — it is a genuinely independent, case-authored field on every decision option.
+5. **Signal explanation separated from analytical root cause**: new `signalExplanationEstablished`/`signalExplanationDescription` ground-truth fields; `rootCauseEstablished` now means exclusively an analytical cause and the validator rejects it being true when `disturbanceEstablished` is false.
+6. **Pilot 2 revised**: `rootCauseEstablished` → `false`; `signalExplanationEstablished` → `true` (population case-mix shift explains the signal without being an analytical root cause).
+7. **Pilot 3 RCV science corrected**: no longer claims RCV exceedance establishes "a genuine biological/clinical change." Hypotheses restructured (`hyp-statistically-significant-change` replaces the overclaiming `hyp-genuine-biological-change`); added `hyp-preanalytical-factor` and a specimen-handling evidence item (`ev-specimen-handling`, `panel-specimen-context`) so the case does not falsely eliminate every alternative through IQC/EQA alone — the preanalytical hypothesis is correctly left `WEAKENED`, never `CONTRADICTED`.
+8. **Patient-impact terminal states evidence-gated**: new `patientImpactCriteria.requiredEvidenceIdsForTerminalState`; Pilot 1 gained a new evidence item (`ev-affected-window`, via `CHECK_PATIENT_DISTRIBUTION`) identifying the actual affected result window before `AFFECTED_RESULT_SET_IDENTIFIED` can be declared.
+9. **Verification/service-state semantics corrected**: a failed `VERIFY_RECOVERY` no longer advances to `READY_FOR_VERIFICATION` — it remains `HELD`.
+10. **Phase regression implemented**: failed verification deterministically regresses `phase` to `INVESTIGATION` (the engine, not the learner, determines this), using the previously-declared-but-unused `PHASE_ALLOWS_RETURN_TO` table (extended with the `VERIFICATION → INVESTIGATION` entry).
+11. **Confidence-to-decision association corrected**: `computeCalibration()` now matches each confidence record to its specific `decisionId` among decisions actually made in the trace, excluding unmatched records rather than silently comparing against an unrelated decision.
+12. **Pilot 1 Sigma provenance clarified**: `labContext.sigmaContext` explicitly documents that Sigma 0.97 uses a pre-specified analytical CVA of 2%, distinct from the post-shift sample SD (≈0.4761) of the disturbed cluster.
+13. **Scoring model corrected**: `DECISION_APPROPRIATENESS` now reads the outcome-correctness axis (was accidentally duplicating `VERIFICATION_QUALITY`'s reasoning-support measure); `INVESTIGATION_STRATEGY` now penalizes missed high-value evidence directly.
+14. **Terminal/debrief semantics explicitly deferred** (Option B): `terminal` remains permanently `false` throughout Stage 12A and this is now documented as an intentional deferral to Stage 12B, not a silently-unfinished feature.
+15. **Validator strengthened**: decision options now require `outcomeAppropriate`; `patientImpactCriteria` is validated for required-field presence and evidence reachability; the `REQUEST_EVIDENCE`-as-prerequisite tautology is explicitly rejected.
+
+**Testing after closure**: engine unit tests 61/61 (was 41, all genuinely re-verified — 2 test-authoring bugs of my own were also found and fixed along the way: an off-by-one in a panel-count assertion, and two instances of calling an action from an unrealistic starting phase). Pilot path tests 41/41 (was 28). Stage 12A governance 60/60 (was 42, +18 new corrective-closure-specific assertions). All 3 revised pilot cases validate cleanly.

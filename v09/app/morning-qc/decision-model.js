@@ -68,7 +68,17 @@ export function classifyDecision(actionType) {
 export function evaluateDecision(historyEntry) {
   const category = historyEntry.decisionCategory || classifyDecision(historyEntry.type);
   const severity = historyEntry.resultingSeverity;
-  const reasoningSupported = !(severity === 'UNSUPPORTED' || severity === 'UNSAFE' || severity === 'CRITICAL_UNSAFE');
+  // Stage 12A FINAL EVIDENCE/REASONING closure: use the engine-recorded
+  // reasoningSupported directly when present (computed by engine.js AT
+  // DECISION TIME, from the case-authored requiredEvidenceIdsForSupportedReasoning
+  // and the evidence genuinely obtained by that point) — this represents
+  // what was actually true when the learner made the decision, and must
+  // not be reconstructed after the fact from severity alone. Fallback to
+  // severity-based inference only for legacy/non-case-authored actions
+  // (historyEntry.reasoningSupported === undefined).
+  const reasoningSupported = historyEntry.reasoningSupported !== undefined
+    ? historyEntry.reasoningSupported
+    : !(severity === 'UNSUPPORTED' || severity === 'UNSAFE' || severity === 'CRITICAL_UNSAFE');
   const outcomeAppropriate = historyEntry.outcomeAppropriate !== undefined ? historyEntry.outcomeAppropriate : true;
   return {
     category,

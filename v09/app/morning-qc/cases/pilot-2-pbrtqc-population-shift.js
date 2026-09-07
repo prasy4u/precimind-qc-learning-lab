@@ -72,12 +72,12 @@ export const pilot2PbrtqcPopulationShift = {
   },
   decisionOpportunities: [
     { id: 'dec-take-seriously', category: 'INTERPRETATION', availableFromPhase: 'SIGNAL_RECOGNITION', options: [
-      { id: 'opt-investigate', label: 'Investigate the PBRTQC alert despite passing IQC', consequenceSummary: 'Correct — PBRTQC can detect signals IQC misses; dismissing it because IQC passed is the forbidden inference for this family.', severity: 'INFORMATIONAL', outcomeAppropriate: true, actionType: 'FORM_HYPOTHESIS' },
-      { id: 'opt-dismiss', label: 'Dismiss the alert because IQC is passing', consequenceSummary: 'Applies the forbidden deterministic inference for this case family.', severity: 'UNSUPPORTED', outcomeAppropriate: false, actionType: 'DOCUMENT' },
+      { id: 'opt-investigate', label: 'Investigate the PBRTQC alert despite passing IQC', consequenceSummary: 'Correct — PBRTQC can detect signals IQC misses; dismissing it because IQC passed is the forbidden inference for this family.', severity: 'INFORMATIONAL', outcomeAppropriate: true, actionType: 'FORM_HYPOTHESIS', requiredEvidenceIdsForSupportedReasoning: [] },
+      { id: 'opt-dismiss', label: 'Dismiss the alert because IQC is passing', consequenceSummary: 'Applies the forbidden deterministic inference for this case family.', severity: 'UNSUPPORTED', outcomeAppropriate: false, actionType: 'DOCUMENT', requiredEvidenceIdsForSupportedReasoning: [] },
     ]},
     { id: 'dec-disposition', category: 'DISPOSITION', availableFromPhase: 'EVIDENCE_SELECTION', options: [
-      { id: 'opt-continue-documented', label: 'Continue analysis, document the case-mix explanation', consequenceSummary: 'Matches ground truth — no analytical disturbance was ever established.', severity: 'INFORMATIONAL', outcomeAppropriate: true, actionType: 'DOCUMENT' },
-      { id: 'opt-hold-unnecessarily', label: 'Hold results indefinitely pending further analytical investigation', consequenceSummary: 'Once the decisive case-mix evidence is in hand, continued holding is unsupported by the evidence.', severity: 'UNSUPPORTED', outcomeAppropriate: false, actionType: 'HOLD_RESULTS' },
+      { id: 'opt-continue-documented', label: 'Continue analysis, document the case-mix explanation', consequenceSummary: 'Matches ground truth — no analytical disturbance was ever established.', severity: 'INFORMATIONAL', outcomeAppropriate: true, actionType: 'DOCUMENT', requiredEvidenceIdsForSupportedReasoning: ['ev-case-mix-decisive'] },
+      { id: 'opt-hold-unnecessarily', label: 'Hold results indefinitely pending further analytical investigation', consequenceSummary: 'Once the decisive case-mix evidence is in hand, continued holding is unsupported by the evidence.', severity: 'UNSUPPORTED', outcomeAppropriate: false, actionType: 'HOLD_RESULTS', requiredEvidenceIdsForSupportedReasoning: [] },
     ]},
   ],
   verificationCriteria: {

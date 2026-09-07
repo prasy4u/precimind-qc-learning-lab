@@ -83,13 +83,13 @@ export const pilot3RcvPatientImpact = {
   },
   decisionOpportunities: [
     { id: 'dec-interpretation', category: 'INTERPRETATION', availableFromPhase: 'SIGNAL_RECOGNITION', options: [
-      { id: 'opt-apply-rcv', label: 'Apply RCV to assess statistical significance, without over-claiming biological certainty', consequenceSummary: 'Correct method for this question.', severity: 'INFORMATIONAL', outcomeAppropriate: true, actionType: 'FORM_HYPOTHESIS' },
-      { id: 'opt-assume-error', label: 'Assume an analytical error without checking IQC/EQA/RCV', consequenceSummary: 'Applies the forbidden inference for this case family.', severity: 'UNSUPPORTED', outcomeAppropriate: false, actionType: 'FORM_HYPOTHESIS' },
+      { id: 'opt-apply-rcv', label: 'Apply RCV to assess statistical significance, without over-claiming biological certainty', consequenceSummary: 'Correct method for this question.', severity: 'INFORMATIONAL', outcomeAppropriate: true, actionType: 'FORM_HYPOTHESIS', requiredEvidenceIdsForSupportedReasoning: [] },
+      { id: 'opt-assume-error', label: 'Assume an analytical error without checking IQC/EQA/RCV', consequenceSummary: 'Applies the forbidden inference for this case family.', severity: 'UNSUPPORTED', outcomeAppropriate: false, actionType: 'FORM_HYPOTHESIS', requiredEvidenceIdsForSupportedReasoning: [] },
     ]},
     { id: 'dec-disposition', category: 'DISPOSITION', availableFromPhase: 'SIGNAL_RECOGNITION', options: [
-      { id: 'opt-no-hold-document', label: 'No analytical hold; document the RCV-based statistical finding, with correct interpretation limits, for the clinical team', consequenceSummary: 'Matches ground truth.', severity: 'INFORMATIONAL', outcomeAppropriate: true, actionType: 'DOCUMENT' },
-      { id: 'opt-hold-analytical', label: 'Hold analytical service pending an unnecessary analytical investigation', consequenceSummary: 'IQC and EQA both support ongoing validity; an analytical hold is not evidence-supported here.', severity: 'UNSUPPORTED', outcomeAppropriate: false, actionType: 'HOLD_RESULTS' },
-      { id: 'opt-overclaim-biological', label: 'Document that the change definitively reflects a genuine biological/clinical cause', consequenceSummary: 'Over-interprets RCV exceedance as proof of biological etiology — RCV is a statistical threshold, not a diagnostic or causal determination.', severity: 'UNSUPPORTED', outcomeAppropriate: false, actionType: 'DOCUMENT' },
+      { id: 'opt-no-hold-document', label: 'No analytical hold; document the RCV-based statistical finding, with correct interpretation limits, for the clinical team', consequenceSummary: 'Matches ground truth.', severity: 'INFORMATIONAL', outcomeAppropriate: true, actionType: 'DOCUMENT', requiredEvidenceIdsForSupportedReasoning: ['ev-iqc-clean', 'ev-eqa-pass', 'ev-rcv-calculation'] },
+      { id: 'opt-hold-analytical', label: 'Hold analytical service pending an unnecessary analytical investigation', consequenceSummary: 'IQC and EQA both support ongoing validity; an analytical hold is not evidence-supported here.', severity: 'UNSUPPORTED', outcomeAppropriate: false, actionType: 'HOLD_RESULTS', requiredEvidenceIdsForSupportedReasoning: [] },
+      { id: 'opt-overclaim-biological', label: 'Document that the change definitively reflects a genuine biological/clinical cause', consequenceSummary: 'Over-interprets RCV exceedance as proof of biological etiology — RCV is a statistical threshold, not a diagnostic or causal determination.', severity: 'UNSUPPORTED', outcomeAppropriate: false, actionType: 'DOCUMENT', requiredEvidenceIdsForSupportedReasoning: [] },
     ]},
   ],
   verificationCriteria: {

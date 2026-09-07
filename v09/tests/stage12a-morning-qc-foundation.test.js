@@ -80,7 +80,7 @@ async function main() {
 
   /* --- 5-9. Load the actual modules --- */
   const { validateCase } = await import('file://' + path.join(MQC, 'case-validator.js'));
-  const { createInitialState, applyAction, replay } = await import('file://' + path.join(MQC, 'engine.js'));
+  const { createInitialState, applyAction, replay, deriveUnlockedPhaseIndex } = await import('file://' + path.join(MQC, 'engine.js'));
   const states = await import('file://' + path.join(MQC, 'states.js'));
   const { pilot1ReagentLotShift, pilot2PbrtqcPopulationShift, pilot3RcvPatientImpact } = await import('file://' + path.join(MQC, 'cases', 'index.js'));
   const { generateDebrief } = await import('file://' + path.join(MQC, 'debrief-model.js'));
@@ -226,10 +226,11 @@ async function main() {
   {
     const r = replay(pilots[2], [
       { type: 'ACKNOWLEDGE_SIGNAL' },
+      { type: 'INSPECT_PANEL', panelId: 'panel-patient-distribution' },
       { type: 'FORM_HYPOTHESIS', hypothesisId: 'hyp-analytical-error', decisionId: 'dec-interpretation', optionId: 'opt-assume-error' },
     ]);
     const last = r.trace[r.trace.length - 1];
-    assert('23', last.severity === 'UNSUPPORTED' && last.outcomeAppropriate === false, 'Pilot 3\'s unsupported analytical-error assumption is engine-classified');
+    assert('23', last.severity === 'UNSUPPORTED' && last.outcomeAppropriate === false, `Pilot 3's unsupported analytical-error assumption is engine-classified (found error: ${last.error}, severity: ${last.severity})`);
   }
 
   console.log('\n=== 24. Corrective-closure: patient-impact terminal state requires evidence ===');
@@ -456,6 +457,76 @@ async function main() {
     let held = applyAction(pilots[0], acked.state, { type: 'HOLD_RESULTS' });
     let failedVerify = applyAction(pilots[0], held.state, { type: 'VERIFY_RECOVERY' });
     assert('42b', failedVerify.state.phase === 'INVESTIGATION' && failedVerify.state.serviceState === 'HELD', 'Failed verification regresses to INVESTIGATION while remaining HELD, per the declared return model');
+  }
+
+  console.log('\n=== 52. Pre-seeded plausibility does not count as learner progression ===');
+  {
+    const s2 = createInitialState(pilots[1]);
+    const s3 = createInitialState(pilots[2]);
+    assert('52a', s2.phase === 'BRIEFING' && deriveUnlockedPhaseIndex(s2) === 0, `Pilot 2 pristine state: narrative phase BRIEFING, genuinely unlocked index 0 (found phase=${s2.phase}, unlockedIdx=${deriveUnlockedPhaseIndex(s2)})`);
+    assert('52b', s3.phase === 'BRIEFING' && deriveUnlockedPhaseIndex(s3) === 0, `Pilot 3 pristine state: narrative phase BRIEFING, genuinely unlocked index 0 (found phase=${s3.phase}, unlockedIdx=${deriveUnlockedPhaseIndex(s3)})`);
+    assert('52c', pilots[1].hypotheses.some(h => h.plausibleFromStart === true), 'Pilot 2 genuinely pre-seeds a plausibleFromStart hypothesis (the field remains supported)');
+    assert('52d', pilots[2].hypotheses.some(h => h.plausibleFromStart === true), 'Pilot 3 genuinely pre-seeds a plausibleFromStart hypothesis (the field remains supported)');
+  }
+
+  console.log('\n=== 53. Pilot 2/3 CHARACTERISATION-gated panels blocked from pristine BRIEFING ===');
+  {
+    const p2 = applyAction(pilots[1], createInitialState(pilots[1]), { type: 'INSPECT_PANEL', panelId: 'panel-patient-distribution' });
+    assert('53a', p2.error !== null, `Pilot 2 panel-patient-distribution (CHARACTERISATION) blocked from pristine BRIEFING (error: ${p2.error})`);
+    const p3 = applyAction(pilots[2], createInitialState(pilots[2]), { type: 'INSPECT_PANEL', panelId: 'panel-specimen-context' });
+    assert('53b', p3.error !== null, `Pilot 3 panel-specimen-context (CHARACTERISATION) blocked from pristine BRIEFING (error: ${p3.error})`);
+  }
+
+  console.log('\n=== 54. Pilot 2 evidence-supported reasoning: early vs supported disposition ===');
+  {
+    let s = createInitialState(pilots[1]);
+    let a1 = applyAction(pilots[1], s, { type: 'ACKNOWLEDGE_SIGNAL' });
+    let a2 = applyAction(pilots[1], a1.state, { type: 'INSPECT_PANEL', panelId: 'panel-qc-history' });
+    let a3 = applyAction(pilots[1], a2.state, { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-iqc-stable' });
+    const early = applyAction(pilots[1], a3.state, { type: 'DOCUMENT', decisionId: 'dec-disposition', optionId: 'opt-continue-documented', fields: {} });
+    assert('54a', early.outcomeAppropriate === true && early.reasoningSupported === false, `Pilot 2 disposition with only ev-iqc-stable: outcomeAppropriate=true, reasoningSupported=false (found outcomeAppropriate=${early.outcomeAppropriate}, reasoningSupported=${early.reasoningSupported})`);
+    assert('54b', early.severity === 'UNSUPPORTED', `Severity reflects the unsupported reasoning (found ${early.severity})`);
+
+    let a4 = applyAction(pilots[1], a3.state, { type: 'INSPECT_PANEL', panelId: 'panel-patient-distribution' });
+    let a5 = applyAction(pilots[1], a4.state, { type: 'CHECK_PATIENT_DISTRIBUTION' });
+    let a6 = applyAction(pilots[1], a5.state, { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-case-mix-decisive' });
+    const supported = applyAction(pilots[1], a6.state, { type: 'DOCUMENT', decisionId: 'dec-disposition', optionId: 'opt-continue-documented', fields: {} });
+    assert('54c', supported.outcomeAppropriate === true && supported.reasoningSupported === true && supported.severity === 'INFORMATIONAL', `Same disposition after obtaining ev-case-mix-decisive IS supported (found reasoningSupported=${supported.reasoningSupported}, severity=${supported.severity})`);
+  }
+
+  console.log('\n=== 55. Pilot 3 evidence-supported reasoning: early vs supported disposition ===');
+  {
+    let s = createInitialState(pilots[2]);
+    let a1 = applyAction(pilots[2], s, { type: 'ACKNOWLEDGE_SIGNAL' });
+    const early = applyAction(pilots[2], a1.state, { type: 'DOCUMENT', decisionId: 'dec-disposition', optionId: 'opt-no-hold-document', fields: {} });
+    assert('55a', early.outcomeAppropriate === true && early.reasoningSupported === false, `Pilot 3 disposition with zero evidence: outcomeAppropriate=true, reasoningSupported=false (found outcomeAppropriate=${early.outcomeAppropriate}, reasoningSupported=${early.reasoningSupported})`);
+    assert('55b', early.severity === 'UNSUPPORTED', `Severity reflects the unsupported reasoning (found ${early.severity})`);
+
+    let a2 = applyAction(pilots[2], a1.state, { type: 'INSPECT_PANEL', panelId: 'panel-qc-history' });
+    let a3 = applyAction(pilots[2], a2.state, { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-iqc-clean' });
+    let a4 = applyAction(pilots[2], a3.state, { type: 'INSPECT_PANEL', panelId: 'panel-eqa' });
+    let a5 = applyAction(pilots[2], a4.state, { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-eqa-pass' });
+    let a6 = applyAction(pilots[2], a5.state, { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-rcv-calculation' });
+    const supported = applyAction(pilots[2], a6.state, { type: 'DOCUMENT', decisionId: 'dec-disposition', optionId: 'opt-no-hold-document', fields: {} });
+    assert('55c', supported.outcomeAppropriate === true && supported.reasoningSupported === true && supported.severity === 'INFORMATIONAL', `Same disposition after its required evidence IS supported (found reasoningSupported=${supported.reasoningSupported}, severity=${supported.severity})`);
+  }
+
+  console.log('\n=== 56. Decision-event history records reasoning-supported state at decision time ===');
+  {
+    let s = createInitialState(pilots[1]);
+    let a1 = applyAction(pilots[1], s, { type: 'ACKNOWLEDGE_SIGNAL' });
+    let a2 = applyAction(pilots[1], a1.state, { type: 'INSPECT_PANEL', panelId: 'panel-qc-history' });
+    let a3 = applyAction(pilots[1], a2.state, { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-iqc-stable' });
+    const early = applyAction(pilots[1], a3.state, { type: 'DOCUMENT', decisionId: 'dec-disposition', optionId: 'opt-continue-documented', fields: {} });
+    const historyEntry = early.state.actionHistory[early.state.actionHistory.length - 1];
+    assert('56', historyEntry.reasoningSupported === false, `The persisted action-history entry itself records reasoningSupported=false (the fact as it was at decision time), not reconstructed later (found ${historyEntry.reasoningSupported})`);
+  }
+
+  console.log('\n=== 57. Validator rejects a dangling requiredEvidenceIdsForSupportedReasoning ID ===');
+  {
+    const broken = JSON.parse(JSON.stringify(pilots[0]));
+    broken.decisionOpportunities[0].options[0].requiredEvidenceIdsForSupportedReasoning = ['nonexistent-evidence-id'];
+    assert('57', validateCase(broken).valid === false, 'Validator rejects a dangling requiredEvidenceIdsForSupportedReasoning reference');
   }
 
   const total = passed + failed;

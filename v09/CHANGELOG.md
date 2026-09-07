@@ -295,3 +295,16 @@ Two engine-semantic defects corrected, found by a third independent re-audit of 
 **Testing**: engine 49/49, pilot paths 39/39 (unchanged — existing paths already followed genuine sequences), governance 86/86 (was 77) — Stage 12A total 174/174. All regressions reconfirmed unchanged. All three frozen tree SHAs reconfirmed byte-identical. Case data (schema, validator, all 3 pilots) required zero changes this cycle.
 
 Only 8 files changed, all within `v09/app/morning-qc/{engine,decision-model,scoring-model}.js`, Morning QC documentation, and `v09/tests/morning-qc/engine.test.cjs`/the Stage 12A governance test.
+
+### Stage 12A — FINAL EVIDENCE/REASONING Acceptance Closure
+
+Two closely related defects corrected, found by a fourth independent re-audit of commit 903d20e:
+
+1. Pre-seeded plausibility bug: `deriveUnlockedPhaseIndex()` counted any hypothesis not `NOT_CONSIDERED` toward `HYPOTHESIS_GENERATION`, including case-authored `plausibleFromStart:true` hypotheses — letting Pilot 2/3 begin already unlocked past `HYPOTHESIS_GENERATION` from a pristine state. Corrected to consult `documentation.hypothesesConsidered.length > 0` (genuine learner action only). A companion bug in `FORM_HYPOTHESIS`'s handler (only recorded consideration on a state-transition, missing genuine engagement with already-plausible hypotheses) was found and fixed alongside it.
+2. Missing evidence-supported-reasoning model: new `requiredEvidenceIdsForSupportedReasoning` decision-option field, separate from `availableFromPhase`. Engine computes `reasoningSupported` explicitly at decision time from evidence genuinely obtained beforehand, persists it on the history entry, and escalates severity to at least `UNSUPPORTED` when unmet — while `outcomeAppropriate` remains exactly as authored. Pilot 2's `opt-continue-documented` now requires `ev-case-mix-decisive`; Pilot 3's `opt-no-hold-document` now requires `ev-iqc-clean`, `ev-eqa-pass`, `ev-rcv-calculation`.
+
+A genuine test-regression was traced during this closure: governance assertion 23 began failing after fixing defect 1 — confirmed (via replay against the git-committed old `engine.js`) that the test had been unwittingly relying on the exact bug just fixed, not a new regression. Corrected by adding a genuine panel-inspection step, matching the already-correct equivalent pattern in `pilot-paths.test.cjs`.
+
+**Testing**: engine 49/49 (unchanged), pilot paths 39/39 (unchanged — zero case/path edits needed), governance 100/100 (was 86, +14 new assertions, +1 corrected). Both exact audit-reported false-full-credit scenarios verified fixed. All regressions reconfirmed unchanged; all three frozen tree SHAs reconfirmed byte-identical.
+
+Only 12 files changed, all within `v09/app/morning-qc/**`, Morning QC documentation, and the Stage 12A governance test.

@@ -246,6 +246,21 @@ export function validateCase(caseObj) {
           if (opt.actionType != null && !ACTION_TYPES.includes(opt.actionType)) {
             errors.push(`decisionOpportunities[${i}]: option "${opt.id}" actionType "${opt.actionType}" is not a recognized action type`);
           }
+          // Stage 12A FINAL EVIDENCE/REASONING closure: every referenced
+          // requiredEvidenceIdsForSupportedReasoning entry must exist in
+          // THIS case's evidence array — fail closed on dangling references.
+          // An empty array is valid (genuinely evidence-independent option).
+          if (opt.requiredEvidenceIdsForSupportedReasoning !== undefined) {
+            if (!Array.isArray(opt.requiredEvidenceIdsForSupportedReasoning)) {
+              errors.push(`decisionOpportunities[${i}]: option "${opt.id}" requiredEvidenceIdsForSupportedReasoning must be an array`);
+            } else {
+              for (const eid of opt.requiredEvidenceIdsForSupportedReasoning) {
+                if (!evidenceIds.has(eid)) {
+                  errors.push(`decisionOpportunities[${i}]: option "${opt.id}" requiredEvidenceIdsForSupportedReasoning references nonexistent evidence "${eid}" (unreachable reasoning requirement)`);
+                }
+              }
+            }
+          }
         }
         checkDuplicateIds(d.options || [], `decisionOpportunities[${i}].options`, errors);
       }

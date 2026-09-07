@@ -54,16 +54,16 @@ export const syntheticFixtureCase = {
   decisionOpportunities: [
     // Four synthetic decisions, one for each outcome x reasoning combination.
     { id: 'dec-tt', category: 'INTERPRETATION', availableFromPhase: 'SIGNAL_RECOGNITION', options: [
-      { id: 'opt-tt', label: 'Appropriate outcome, supported reasoning', consequenceSummary: 'Both axes true.', severity: 'INFORMATIONAL', outcomeAppropriate: true, actionType: 'FORM_HYPOTHESIS' },
+      { id: 'opt-tt', label: 'Appropriate outcome, supported reasoning', consequenceSummary: 'Both axes true.', severity: 'INFORMATIONAL', outcomeAppropriate: true, actionType: 'FORM_HYPOTHESIS', requiredEvidenceIdsForSupportedReasoning: [] },
     ]},
     { id: 'dec-tf', category: 'INTERPRETATION', availableFromPhase: 'SIGNAL_RECOGNITION', options: [
-      { id: 'opt-tf', label: 'Appropriate outcome, UNSUPPORTED reasoning', consequenceSummary: 'Outcome happens to be right, but reasoning was not evidence-based.', severity: 'UNSUPPORTED', outcomeAppropriate: true, actionType: 'APPLY_INTERVENTION' },
+      { id: 'opt-tf', label: 'Appropriate outcome, UNSUPPORTED reasoning', consequenceSummary: 'Outcome happens to be right, but reasoning was not evidence-based.', severity: 'UNSUPPORTED', outcomeAppropriate: true, actionType: 'APPLY_INTERVENTION', requiredEvidenceIdsForSupportedReasoning: [] },
     ]},
     { id: 'dec-ft', category: 'INTERPRETATION', availableFromPhase: 'SIGNAL_RECOGNITION', options: [
-      { id: 'opt-ft', label: 'INAPPROPRIATE outcome, reasoning that looks supported', consequenceSummary: 'A plausible-sounding but wrong conclusion.', severity: 'INFORMATIONAL', outcomeAppropriate: false, actionType: 'CONTINUE_ANALYSIS' },
+      { id: 'opt-ft', label: 'INAPPROPRIATE outcome, reasoning that looks supported', consequenceSummary: 'A plausible-sounding but wrong conclusion.', severity: 'INFORMATIONAL', outcomeAppropriate: false, actionType: 'CONTINUE_ANALYSIS', requiredEvidenceIdsForSupportedReasoning: [] },
     ]},
     { id: 'dec-ff', category: 'INTERPRETATION', availableFromPhase: 'SIGNAL_RECOGNITION', options: [
-      { id: 'opt-ff', label: 'INAPPROPRIATE outcome, UNSUPPORTED reasoning', consequenceSummary: 'Both axes false.', severity: 'CRITICAL_UNSAFE', outcomeAppropriate: false, actionType: 'DOCUMENT' },
+      { id: 'opt-ff', label: 'INAPPROPRIATE outcome, UNSUPPORTED reasoning', consequenceSummary: 'Both axes false.', severity: 'CRITICAL_UNSAFE', outcomeAppropriate: false, actionType: 'DOCUMENT', requiredEvidenceIdsForSupportedReasoning: [] },
     ]},
   ],
   verificationCriteria: { requiredEvidenceIds: ['ev-free'], minimumConfirmationDescription: 'n/a' },

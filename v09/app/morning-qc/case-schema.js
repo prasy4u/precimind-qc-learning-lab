@@ -147,8 +147,18 @@ export const DECISION_OPPORTUNITY_REQUIRED_FIELDS = [
 // rejects any attempt to execute a decisionId/optionId via a
 // non-matching action.type), so case decision identity can never be
 // attached arbitrarily to an unrelated action.
+// Stage 12A FINAL EVIDENCE/REASONING closure: each option must also
+// declare `requiredEvidenceIdsForSupportedReasoning` — the evidence
+// genuinely needed before THIS SPECIFIC conclusion is adequately
+// evidence-supported. This is deliberately SEPARATE from the owning
+// decision's `availableFromPhase` (which only gates WHEN the decision
+// may be attempted, not whether the reasoning behind a given answer is
+// supported). An option with no genuine evidence prerequisite uses an
+// empty array — the field itself is always required, but a populated
+// list is not.
 export const DECISION_OPTION_REQUIRED_FIELDS = [
   'id', 'label', 'consequenceSummary', 'severity', 'outcomeAppropriate', 'actionType',
+  'requiredEvidenceIdsForSupportedReasoning',
 ];
 
 /* -----------------------------------------------------------------------

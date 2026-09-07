@@ -117,8 +117,15 @@ export function deriveUnlockedPhaseIndex(state) {
   if (state.documentation.signal != null) idx = Math.max(idx, phaseIndex('SIGNAL_RECOGNITION'));
   if (state.containmentDecided) idx = Math.max(idx, phaseIndex('IMMEDIATE_CONTAINMENT'));
   if (state.inspectedPanelIds.length > 0) idx = Math.max(idx, phaseIndex('CHARACTERISATION'));
-  const hypothesisFormedCount = Object.values(state.hypothesisStates).filter(s => s !== 'NOT_CONSIDERED').length;
-  if (hypothesisFormedCount > 0) idx = Math.max(idx, phaseIndex('HYPOTHESIS_GENERATION'));
+  // Stage 12A FINAL EVIDENCE/REASONING closure fix: HYPOTHESIS_GENERATION
+  // must reflect genuine LEARNER-PERFORMED hypothesis consideration, not
+  // case-authored initial plausibility (hypotheses.plausibleFromStart).
+  // A case may legitimately start a hypothesis at PLAUSIBLE before any
+  // learner action — that describes the SCENARIO, not learner progress.
+  // documentation.hypothesesConsidered is populated ONLY by a genuine,
+  // successfully-executed FORM_HYPOTHESIS action (see the FORM_HYPOTHESIS
+  // case below), making it the correct learner-action authority here.
+  if (state.documentation.hypothesesConsidered.length > 0) idx = Math.max(idx, phaseIndex('HYPOTHESIS_GENERATION'));
   if (state.obtainedEvidenceIds.length > 0) idx = Math.max(idx, phaseIndex('EVIDENCE_SELECTION'));
   if (state.documentation.investigationPerformed.length > 0) idx = Math.max(idx, phaseIndex('INVESTIGATION'));
   if (state.documentation.intervention != null) idx = Math.max(idx, phaseIndex('INTERVENTION'));
@@ -227,6 +234,7 @@ export function applyAction(caseObj, state, action) {
   const next = deepCloneState(state);
   let severity = 'INFORMATIONAL';
   let outcomeAppropriate = true;
+  let reasoningSupported = true;
   let note = null;
   let decisionRef = null;
   let decisionCategory = null;
@@ -248,6 +256,30 @@ export function applyAction(caseObj, state, action) {
     decisionRef = { decisionId: action.decisionId, optionId: action.optionId };
     decisionCategory = found.decision.category;
     decisionEventId = nextDecisionEventId(state, action.decisionId);
+
+    // Stage 12A FINAL EVIDENCE/REASONING closure: determine
+    // reasoningSupported from BOTH the authored severity (an option
+    // authored as UNSUPPORTED/UNSAFE/CRITICAL_UNSAFE for reasons
+    // unrelated to evidence timing is never "reasoning supported") AND
+    // whether the case-declared requiredEvidenceIdsForSupportedReasoning
+    // were genuinely obtained BEFORE this decision (using `state`, i.e.
+    // evidence obtained prior to this action — what the learner actually
+    // knew at decision time, not evidence this same action might obtain).
+    // outcomeAppropriate is preserved EXACTLY as authored regardless —
+    // the two axes remain independent: a correct conclusion reached
+    // prematurely is still outcomeAppropriate=true, reasoningSupported=false.
+    outcomeAppropriate = authoredOption.outcomeAppropriate;
+    severity = authoredOption.severity;
+    const requiredForReasoning = authoredOption.requiredEvidenceIdsForSupportedReasoning || [];
+    const evidenceGenuinelyObtained = requiredForReasoning.every(id => state.obtainedEvidenceIds.includes(id));
+    const SEVERITY_ORDER = ['INFORMATIONAL', 'INEFFICIENT', 'UNSUPPORTED', 'UNSAFE', 'CRITICAL_UNSAFE'];
+    const authoredImpliesSupported = SEVERITY_ORDER.indexOf(authoredOption.severity) < SEVERITY_ORDER.indexOf('UNSUPPORTED');
+    if (authoredImpliesSupported && !evidenceGenuinelyObtained) {
+      reasoningSupported = false;
+      severity = 'UNSUPPORTED';
+    } else {
+      reasoningSupported = authoredImpliesSupported;
+    }
   }
 
   switch (action.type) {
@@ -261,8 +293,10 @@ export function applyAction(caseObj, state, action) {
         next.inspectedPanelIds.push(action.panelId);
         next.elapsedMinutes += panel.costTimeMinutes || 0;
       }
-      severity = panel.relevance === 'IRRELEVANT' ? 'INEFFICIENT' : 'INFORMATIONAL';
-      outcomeAppropriate = panel.relevance !== 'IRRELEVANT';
+      if (!authoredOption) {
+        severity = panel.relevance === 'IRRELEVANT' ? 'INEFFICIENT' : 'INFORMATIONAL';
+        outcomeAppropriate = panel.relevance !== 'IRRELEVANT';
+      }
       note = panel.relevance === 'IRRELEVANT' ? 'Inspected a panel the case marks irrelevant to this scenario.' : null;
       break;
     }
@@ -284,8 +318,10 @@ export function applyAction(caseObj, state, action) {
         next.inspectedPanelIds.push(panel.id);
         next.elapsedMinutes += panel.costTimeMinutes || 0;
       }
-      severity = panel.relevance === 'IRRELEVANT' ? 'INEFFICIENT' : 'INFORMATIONAL';
-      outcomeAppropriate = panel.relevance !== 'IRRELEVANT';
+      if (!authoredOption) {
+        severity = panel.relevance === 'IRRELEVANT' ? 'INEFFICIENT' : 'INFORMATIONAL';
+        outcomeAppropriate = panel.relevance !== 'IRRELEVANT';
+      }
       break;
     }
     case 'ACKNOWLEDGE_SIGNAL': {
@@ -299,7 +335,6 @@ export function applyAction(caseObj, state, action) {
       next.serviceState = 'HELD';
       next.containmentDecided = true;
       next.documentation.containment = action.reason || 'Held pending investigation.';
-      if (authoredOption) { severity = authoredOption.severity; outcomeAppropriate = authoredOption.outcomeAppropriate; }
       break;
     }
     case 'CONTINUE_ANALYSIS': {
@@ -309,15 +344,16 @@ export function applyAction(caseObj, state, action) {
         return { state, error: `Illegal service-state transition: ${next.serviceState} -> RUNNING`, severity: null };
       }
       next.containmentDecided = true;
-      if (authoredOption) { severity = authoredOption.severity; outcomeAppropriate = authoredOption.outcomeAppropriate; }
       break;
     }
     case 'REPEAT_QC':
     case 'REPEAT_CALIBRATION': {
       next.elapsedMinutes += action.costTimeMinutes || 10;
       next.documentation.investigationPerformed.push(action.type);
-      severity = action.wasNecessary === false ? 'INEFFICIENT' : 'INFORMATIONAL';
-      outcomeAppropriate = action.wasNecessary !== false;
+      if (!authoredOption) {
+        severity = action.wasNecessary === false ? 'INEFFICIENT' : 'INFORMATIONAL';
+        outcomeAppropriate = action.wasNecessary !== false;
+      }
       break;
     }
     case 'FORM_HYPOTHESIS': {
@@ -328,9 +364,18 @@ export function applyAction(caseObj, state, action) {
           return { state, error: `Illegal hypothesis transition for ${hid}`, severity: null };
         }
         next.hypothesisStates[hid] = 'PLAUSIBLE';
+      }
+      // Stage 12A FINAL EVIDENCE/REASONING closure fix: record genuine
+      // learner engagement whenever FORM_HYPOTHESIS is actually EXECUTED,
+      // regardless of whether the underlying hypothesis state changed —
+      // a hypothesis that started plausibleFromStart:true still requires
+      // the LEARNER to genuinely call this action for it to count as
+      // learner-performed consideration (the case-authored initial
+      // plausibility describes the scenario, not learner progress; see
+      // deriveUnlockedPhaseIndex()). Only recorded once per hypothesis.
+      if (!next.documentation.hypothesesConsidered.includes(hid)) {
         next.documentation.hypothesesConsidered.push(hid);
       }
-      if (authoredOption) { severity = authoredOption.severity; outcomeAppropriate = authoredOption.outcomeAppropriate; }
       break;
     }
     case 'REQUEST_EVIDENCE': {
@@ -342,7 +387,7 @@ export function applyAction(caseObj, state, action) {
         if (ev.availableOnlyAfterActionType != null) reasonParts.push(`prior action type "${ev.availableOnlyAfterActionType}" must have occurred`);
         return { state, error: `Evidence "${ev.id}" is not yet available (${reasonParts.join(' AND ')})`, severity: null };
       }
-      if (!ev.relevant) { severity = 'INEFFICIENT'; outcomeAppropriate = false; }
+      if (!ev.relevant && !authoredOption) { severity = 'INEFFICIENT'; outcomeAppropriate = false; }
       if (!next.obtainedEvidenceIds.includes(ev.id)) {
         next.obtainedEvidenceIds.push(ev.id);
         next.documentation.evidenceReviewed.push(ev.id);
@@ -360,14 +405,14 @@ export function applyAction(caseObj, state, action) {
           if (canTransition(HYPOTHESIS_STATE_TRANSITIONS, cur, target)) next.hypothesisStates[hid] = target;
         }
       }
-      if (authoredOption) { severity = authoredOption.severity; outcomeAppropriate = authoredOption.outcomeAppropriate; }
       break;
     }
     case 'APPLY_INTERVENTION': {
       next.documentation.intervention = action.description || null;
-      severity = action.evidenceSupported === false ? 'UNSUPPORTED' : 'INFORMATIONAL';
-      outcomeAppropriate = action.evidenceSupported !== false;
-      if (authoredOption) { severity = authoredOption.severity; outcomeAppropriate = authoredOption.outcomeAppropriate; }
+      if (!authoredOption) {
+        severity = action.evidenceSupported === false ? 'UNSUPPORTED' : 'INFORMATIONAL';
+        outcomeAppropriate = action.evidenceSupported !== false;
+      }
       break;
     }
     case 'VERIFY_RECOVERY': {
@@ -382,24 +427,20 @@ export function applyAction(caseObj, state, action) {
           return { state, error: `Illegal service-state transition: ${next.serviceState} -> READY_FOR_VERIFICATION`, severity: null };
         }
         next.serviceState = 'READY_FOR_VERIFICATION';
-        severity = 'INFORMATIONAL';
-        outcomeAppropriate = true;
-        if (authoredOption) { severity = authoredOption.severity; outcomeAppropriate = authoredOption.outcomeAppropriate; }
+        if (!authoredOption) { severity = 'INFORMATIONAL'; outcomeAppropriate = true; }
         next.phase = deriveNarrativePhase(action.type, next.phase);
         next.maxPhaseIndexReached = deriveUnlockedPhaseIndex(next);
-        next.actionHistory.push({ ...action, resultingSeverity: severity, outcomeAppropriate, note, decisionId: decisionRef?.decisionId || null, optionId: decisionRef?.optionId || null, decisionCategory, decisionEventId });
-        return { state: next, error: null, severity, note, outcomeAppropriate, decisionEventId };
+        next.actionHistory.push({ ...action, resultingSeverity: severity, outcomeAppropriate, reasoningSupported, note, decisionId: decisionRef?.decisionId || null, optionId: decisionRef?.optionId || null, decisionCategory, decisionEventId });
+        return { state: next, error: null, severity, note, outcomeAppropriate, reasoningSupported, decisionEventId };
       } else {
-        severity = 'UNSAFE';
-        outcomeAppropriate = false;
-        if (authoredOption) { severity = authoredOption.severity; outcomeAppropriate = authoredOption.outcomeAppropriate; }
+        if (!authoredOption) { severity = 'UNSAFE'; outcomeAppropriate = false; }
         note = 'Verification attempted before required evidence was obtained; remaining in a held/investigative state.';
         const nominalPhase = deriveNarrativePhase(action.type, next.phase);
         const regressionTarget = 'INVESTIGATION';
         next.phase = canReturnToPhase(nominalPhase, regressionTarget) ? regressionTarget : nominalPhase;
         next.maxPhaseIndexReached = deriveUnlockedPhaseIndex(next);
-        next.actionHistory.push({ ...action, resultingSeverity: severity, outcomeAppropriate, note, decisionId: decisionRef?.decisionId || null, optionId: decisionRef?.optionId || null, decisionCategory, decisionEventId });
-        return { state: next, error: null, severity, note, outcomeAppropriate, decisionEventId };
+        next.actionHistory.push({ ...action, resultingSeverity: severity, outcomeAppropriate, reasoningSupported, note, decisionId: decisionRef?.decisionId || null, optionId: decisionRef?.optionId || null, decisionCategory, decisionEventId });
+        return { state: next, error: null, severity, note, outcomeAppropriate, reasoningSupported, decisionEventId };
       }
     }
     case 'REVIEW_PATIENT_IMPACT': {
@@ -421,7 +462,6 @@ export function applyAction(caseObj, state, action) {
       // later investigative panels, no matter how early it is called.
       next.patientImpactState = targetState;
       next.documentation.patientImpactAssessment = action.summary || targetState;
-      if (authoredOption) { severity = authoredOption.severity; outcomeAppropriate = authoredOption.outcomeAppropriate; }
       break;
     }
     case 'RESUME_SERVICE': {
@@ -431,15 +471,14 @@ export function applyAction(caseObj, state, action) {
       const lastVerification = next.verificationAttempts[next.verificationAttempts.length - 1];
       const patientImpactHandled = ['NOT_INDICATED', 'COMPLETED_NO_AFFECTED_RESULTS', 'AFFECTED_RESULT_SET_IDENTIFIED'].includes(next.patientImpactState);
       if (!lastVerification || !lastVerification.criteriaWereMet) {
-        severity = 'CRITICAL_UNSAFE'; outcomeAppropriate = false;
+        if (!authoredOption) { severity = 'CRITICAL_UNSAFE'; outcomeAppropriate = false; }
         note = 'Service resumed without adequate verification — premature release risk.';
       } else if (!patientImpactHandled) {
-        severity = 'UNSAFE'; outcomeAppropriate = false;
+        if (!authoredOption) { severity = 'UNSAFE'; outcomeAppropriate = false; }
         note = 'Service resumed before patient-impact review was addressed.';
       } else {
-        severity = 'INFORMATIONAL'; outcomeAppropriate = true;
+        if (!authoredOption) { severity = 'INFORMATIONAL'; outcomeAppropriate = true; }
       }
-      if (authoredOption) { severity = authoredOption.severity; outcomeAppropriate = authoredOption.outcomeAppropriate; }
       next.serviceState = 'RESUMED';
       next.documentation.finalDisposition = 'RESUMED';
       break;
@@ -451,7 +490,6 @@ export function applyAction(caseObj, state, action) {
       next.serviceState = 'ESCALATED';
       next.documentation.escalation = action.reason || 'Escalated.';
       next.documentation.finalDisposition = 'ESCALATED';
-      if (authoredOption) { severity = authoredOption.severity; outcomeAppropriate = authoredOption.outcomeAppropriate; }
       break;
     }
     case 'DOCUMENT': {
@@ -459,7 +497,6 @@ export function applyAction(caseObj, state, action) {
       // feeds deriveUnlockedPhaseIndex, so it can never unlock later
       // panels merely by being called, however early.
       next.documentation = { ...next.documentation, ...(action.fields || {}) };
-      if (authoredOption) { severity = authoredOption.severity; outcomeAppropriate = authoredOption.outcomeAppropriate; }
       break;
     }
     case 'RECORD_CONFIDENCE': {
@@ -481,8 +518,8 @@ export function applyAction(caseObj, state, action) {
 
   next.phase = deriveNarrativePhase(action.type, next.phase);
   next.maxPhaseIndexReached = deriveUnlockedPhaseIndex(next);
-  next.actionHistory.push({ ...action, resultingSeverity: severity, outcomeAppropriate, note, decisionId: decisionRef?.decisionId || null, optionId: decisionRef?.optionId || null, decisionCategory, decisionEventId });
-  return { state: next, error: null, severity, note, outcomeAppropriate, decisionEventId };
+  next.actionHistory.push({ ...action, resultingSeverity: severity, outcomeAppropriate, reasoningSupported, note, decisionId: decisionRef?.decisionId || null, optionId: decisionRef?.optionId || null, decisionCategory, decisionEventId });
+  return { state: next, error: null, severity, note, outcomeAppropriate, reasoningSupported, decisionEventId };
 }
 
 /* -----------------------------------------------------------------------

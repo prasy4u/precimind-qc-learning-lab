@@ -101,12 +101,12 @@ export const pilot1ReagentLotShift = {
   },
   decisionOpportunities: [
     { id: 'dec-containment', category: 'CONTAINMENT', availableFromPhase: 'SIGNAL_RECOGNITION', options: [
-      { id: 'opt-hold', label: 'Hold results pending investigation', consequenceSummary: 'Safe; appropriate given a sustained rule violation.', severity: 'INFORMATIONAL', outcomeAppropriate: true, actionType: 'HOLD_RESULTS' },
-      { id: 'opt-continue', label: 'Continue analysis without holding', consequenceSummary: 'Unsafe given a sustained, uninvestigated shift.', severity: 'UNSAFE', outcomeAppropriate: false, actionType: 'CONTINUE_ANALYSIS' },
+      { id: 'opt-hold', label: 'Hold results pending investigation', consequenceSummary: 'Safe; appropriate given a sustained rule violation.', severity: 'INFORMATIONAL', outcomeAppropriate: true, actionType: 'HOLD_RESULTS', requiredEvidenceIdsForSupportedReasoning: [] },
+      { id: 'opt-continue', label: 'Continue analysis without holding', consequenceSummary: 'Unsafe given a sustained, uninvestigated shift.', severity: 'UNSAFE', outcomeAppropriate: false, actionType: 'CONTINUE_ANALYSIS', requiredEvidenceIdsForSupportedReasoning: [] },
     ]},
     { id: 'dec-disposition', category: 'DISPOSITION', availableFromPhase: 'VERIFICATION', options: [
-      { id: 'opt-resume-verified', label: 'Resume after verified correction and patient-impact review', consequenceSummary: 'Correct disposition.', severity: 'INFORMATIONAL', outcomeAppropriate: true, actionType: 'RESUME_SERVICE' },
-      { id: 'opt-resume-no-pi-review', label: 'Resume immediately after verified correction, without addressing patient-impact review', consequenceSummary: 'Verification succeeded, but resuming before patient-impact review is addressed is unsafe given an established disturbance with a likely-affected result set.', severity: 'UNSAFE', outcomeAppropriate: false, actionType: 'RESUME_SERVICE' },
+      { id: 'opt-resume-verified', label: 'Resume after verified correction and patient-impact review', consequenceSummary: 'Correct disposition.', severity: 'INFORMATIONAL', outcomeAppropriate: true, actionType: 'RESUME_SERVICE', requiredEvidenceIdsForSupportedReasoning: [] },
+      { id: 'opt-resume-no-pi-review', label: 'Resume immediately after verified correction, without addressing patient-impact review', consequenceSummary: 'Verification succeeded, but resuming before patient-impact review is addressed is unsafe given an established disturbance with a likely-affected result set.', severity: 'UNSAFE', outcomeAppropriate: false, actionType: 'RESUME_SERVICE', requiredEvidenceIdsForSupportedReasoning: [] },
     ]},
   ],
   verificationCriteria: {

@@ -90,3 +90,9 @@ Confidence identity was also hardened: `RECORD_CONFIDENCE` now rejects a `decisi
 ## Stage 12A Independent-Audit FINAL ACCEPTANCE Micro-Closure
 
 `METACOGNITIVE_CALIBRATION` now matches confidence records to the exact **decision event** (`decisionEventId`) they name, not the reusable decision definition (`decisionId`). This directly supports the Room's REASSESS doctrine: a learner may legitimately revise an earlier decision (e.g., re-executing `dec-take-seriously` first as `opt-investigate`, then later as `opt-dismiss`) — each execution is a distinct, separately-identified event, so confidence recorded against the revised (second) event is never accidentally scored using the first event's correctness. Verified directly: HIGH confidence in a correct first decision event scores `STRONG`; HIGH confidence in an incorrect *revised* event under the same decision definition does not.
+
+---
+
+## Stage 12A Independent-Audit FINAL EVIDENCE/REASONING Acceptance Closure
+
+`reasoningSupported` is no longer inferred solely from severity after the fact — it is computed explicitly by the engine AT DECISION TIME from the case-authored `requiredEvidenceIdsForSupportedReasoning` and persisted directly on the action-history entry. `decision-model.js`'s `evaluateDecision()` now reads this recorded value directly when present, falling back to severity-based inference only for legacy/non-case-authored actions. This closes a false-full-credit gap: a learner reaching a case's correct disposition before genuinely obtaining its required evidence previously received `reasoningSupported=true` by default; now correctly receives `outcomeAppropriate=true, reasoningSupported=false`, with severity raised to at least `UNSUPPORTED` — teaching "correct answer, reached prematurely" as a distinct, recorded outcome rather than silently granting full credit.

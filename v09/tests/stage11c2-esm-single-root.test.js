@@ -239,11 +239,27 @@ assert('23', sciCheckpoints.every(cp => cp && cp.classification === 'MATCH'), 'A
 /* -----------------------------------------------------------------------
    24. No Morning QC implementation
    ----------------------------------------------------------------------- */
-console.log('\n=== 24. No Morning QC implementation ===');
+console.log('\n=== 24. No Morning QC implementation was present AT the Stage 11C2 commit ===');
+/* This assertion is intentionally HISTORICAL (checked via git, at the
+   Stage 11C2 commit itself), not a live filesystem check. It verifies
+   Stage 11C2's OWN commit did not silently introduce Morning QC Room
+   work — it must NOT verify the current live working tree, because a
+   later, explicitly authorized stage (Stage 12A) legitimately adds
+   v09/app/morning-qc/**, and this test must keep passing after that
+   legitimate addition rather than falsely flagging it as a Stage 11C2
+   regression. (Corrected during Stage 12A after re-running the full
+   regression suite surfaced this exact false-positive — see
+   V09_STAGE12A_REPORT.md.) */
 const morningQcFiles = ['case-schema.js', 'case-engine.js', 'decision-engine.js', 'competency-map.js', 'scoring.js', 'debrief.js'];
 const noMorningQcLegacy = morningQcFiles.every(f => !fs.existsSync(path.join(V09, 'src', 'morning-qc', f)));
-const noMorningQcActive = !fs.existsSync(path.join(APP, 'morning-qc'));
-assert('24', noMorningQcLegacy && noMorningQcActive, 'No Morning QC Room implementation exists in legacy or active source');
+let noMorningQcAtStage11C2Commit = false;
+try {
+  const lsTreeOut = execSync('git ls-tree -r ce9a6ea --name-only -- v09/app/morning-qc', { cwd: ROOT }).toString().trim();
+  noMorningQcAtStage11C2Commit = lsTreeOut.length === 0;
+} catch (e) {
+  noMorningQcAtStage11C2Commit = false;
+}
+assert('24', noMorningQcLegacy && noMorningQcAtStage11C2Commit, 'No Morning QC Room implementation existed in legacy source or at the Stage 11C2 commit (ce9a6ea) itself — historical check, not a live-tree check');
 
 // 14 nav destinations (not 15)
 const navCp = (browserResult.checkpoints || []).find(cp => cp.id === 'nav-14-destinations');

@@ -37,21 +37,23 @@ Establish `v0.9-development` branch, `v09/` tree, baseline copy map, product cha
 - A genuine gap was found in the Stage 11C1 dependency graph during actual migration (missing imports for bare-identifier data references, not caught by the original regex-based extraction) — caught via real browser execution and a dedicated raw-source cross-reference check, not by trusting the plan; fully documented in `V09_STAGE11C2_MIGRATION_REPORT.md`
 - No Morning QC Room feature implementation — this stage was architecture migration only
 
-## Stage 12A — Morning QC Room Specification + Case Schema
-*(Begins only after Stage 11C passes browser-equivalence validation for the migrated inherited labs.)*
-- Formalize the case-state machine outlined in the Product Charter (BRIEFING → ... → DEBRIEF)
-- Define `case-schema.js` data shape
-- Define competency-tagging taxonomy referenced by the Case Family Catalogue
-- No case content authored yet
+## Stage 12A — Morning QC Room Foundation *(complete)*
+- Established the domain foundation and deterministic simulation engine under `v09/app/morning-qc/**`: `types.js`, `states.js` (simulation phases, service-state/patient-impact/hypothesis-evidence transition tables, action types, severity model), `case-schema.js`, `case-validator.js` (strict, fail-closed), `engine.js` (deterministic replay), `decision-model.js`, `evidence-model.js`, `scoring-model.js` (12 independent dimensions), `debrief-model.js`
+- Retrieved, normalized, and reviewed the Stage 11A A–P case-family catalogue; identified 5 coverage gaps and 3 new candidate families (Q, R, S); documented overlaps rather than silently merging families
+- Authored exactly 3 fully structured pilot cases (not all 16+ families), each with machine-readable scientific rationale distinguishing known from intentionally-uncertain facts
+- Validated via genuine engine execution: 41 engine unit-test assertions + 28 pilot-path assertions (expert / safe-but-inefficient / unsafe paths for each of the 3 pilots) — all passing, with 2 genuine engine bugs and 1 genuine validator design flaw caught and fixed during authoring (not merely asserted correct)
+- No production UI, no navigation integration — 14 primary destinations unchanged, reconfirmed against the retained Stage 11C2 browser-equivalence evidence
+- No existing scientific formula duplicated; Morning QC case rationale imports/references the active `app/core/statistics.js` and `app/bv/calc.js` functions directly
 
-## Stage 12B — Morning QC Room Deterministic Case Engine
-- Implement `case-engine.js` and `decision-engine.js` per the schema from 12A
-- Engine must be pure/testable independent of UI
-- Unit tests for state transitions
+## Stage 12B — Morning QC Room Interaction Shell and Panel Architecture
+*(Not yet started.)*
+- Build the non-linear information-panel UI (QC chart, analyzer status, reagent lot, etc.) driven by the Stage 12A engine
+- Wire the 3 pilot cases (and additional cases as authored) to a real interactive shell
+- Still no production navigation integration until the interaction shell is validated
 
-## Stage 12C — Case Library v1
-- Author concrete cases for a representative subset of the Case Family Catalogue (Families A–P)
-- Each case validated against the schema and engine from 12A/12B
+## Stage 12C — Expanded Case Library
+- Author additional concrete cases from the revised A–S case-family catalogue (`V09_MORNING_QC_CASE_CATALOGUE.md`)
+- Each case validated against the Stage 12A schema/engine (`case-validator.js`)
 
 ## Stage 13A — Morning QC Room UI Shell
 - Build the non-linear information-panel interface (QC chart, analyzer status, reagent lot, etc.)
@@ -80,4 +82,4 @@ Establish `v0.9-development` branch, `v09/` tree, baseline copy map, product cha
 
 ## Sequencing Notes
 
-Stage 11C2 has now implemented the unified Vite/React active architecture (ES modules, single React root) that ADR-001 targeted. This roadmap's remaining stages (12A onward, Morning QC Room) build on the active `v09/app/**` application and are no longer conditional on an architecture decision — that decision has been made and executed. Stage 12A begins only once independent audit of Stage 11C2 confirms acceptance; it is not self-authorized within this stage sequence.
+Stage 11C2 has now implemented the unified Vite/React active architecture (ES modules, single React root) that ADR-001 targeted, and passed independent audit. This roadmap's remaining stages (12A onward, Morning QC Room) build on the active `v09/app/**` application and are no longer conditional on an architecture decision — that decision has been made and executed. Stage 12A (foundation/engine) is now complete. Stage 12B onward remain gated on independent audit acceptance of the preceding stage before proceeding, not self-authorized.

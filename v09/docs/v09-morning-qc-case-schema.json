@@ -1,0 +1,314 @@
+{
+  "description": "Morning QC Room Stage 12A case contract — machine-readable field lists (mirrors case-schema.js).",
+  "identityRequiredFields": [
+    "id",
+    "title",
+    "caseFamily",
+    "version",
+    "difficulty",
+    "intendedLearnerLevel",
+    "competencyMapping"
+  ],
+  "caseDifficultyLevels": [
+    "LEVEL_1_CLEAR_SIGNAL",
+    "LEVEL_2_COMPETING_EXPLANATION",
+    "LEVEL_3_MULTIPLE_SIGNALS_INCOMPLETE_EVIDENCE",
+    "LEVEL_4_ANALYTICAL_PLUS_RISK_TRADEOFF",
+    "LEVEL_5_COMPLEX_GOVERNANCE_LONGITUDINAL"
+  ],
+  "learnerLevels": [
+    "beginner",
+    "intermediate",
+    "advanced",
+    "expert"
+  ],
+  "labContextRequiredFields": [
+    "analyte",
+    "analyticalMethod",
+    "qcMaterials",
+    "qcStrategy",
+    "apsSource"
+  ],
+  "eventTypes": [
+    "QC_OBSERVATION",
+    "ANALYZER_MESSAGE",
+    "MAINTENANCE",
+    "CALIBRATION",
+    "REAGENT_LOT_CHANGE",
+    "ENVIRONMENTAL",
+    "EQA_INFORMATION",
+    "PBRTQC_EVENT",
+    "PATIENT_RESULT_SIGNAL",
+    "OPERATOR_ACTION"
+  ],
+  "eventRequiredFields": [
+    "id",
+    "type",
+    "timestamp",
+    "description",
+    "panelId"
+  ],
+  "panelTypes": [
+    "QC_HISTORY",
+    "LJ_CHART",
+    "ANALYZER_STATUS",
+    "REAGENT_LOT",
+    "CALIBRATION",
+    "MAINTENANCE",
+    "EQA",
+    "PATIENT_RESULT_DISTRIBUTION",
+    "PBRTQC",
+    "PREVIOUS_UNRESOLVED_EVENTS",
+    "APS_TEA",
+    "SIGMA",
+    "QC_STRATEGY_FREQUENCY",
+    "PATIENT_RISK_CONTEXT"
+  ],
+  "panelRequiredFields": [
+    "id",
+    "type",
+    "availableFromPhase",
+    "relevance",
+    "costTimeMinutes",
+    "mayBeMisleading",
+    "provenance",
+    "content"
+  ],
+  "groundTruthRequiredFields": [
+    "observedSignal",
+    "disturbanceEstablished",
+    "disturbanceDescription",
+    "rootCauseEstablished",
+    "rootCauseDescription",
+    "patientImpactStatus",
+    "appropriateDisposition",
+    "evidenceForHypotheses"
+  ],
+  "decisionOpportunityRequiredFields": [
+    "id",
+    "category",
+    "availableFromPhase",
+    "options"
+  ],
+  "verificationCriteriaRequiredFields": [
+    "requiredEvidenceIds",
+    "minimumConfirmationDescription"
+  ],
+  "debriefEvidenceRequiredFields": [
+    "strongPathDescription",
+    "weakPathDescriptions",
+    "commonMisconceptions"
+  ],
+  "hypothesisRequiredFields": [
+    "id",
+    "label",
+    "plausibleFromStart"
+  ],
+  "evidenceRequiredFields": [
+    "id",
+    "source",
+    "timestamp",
+    "observedValueOrFinding",
+    "interpretationLimits",
+    "supportsHypothesisIds",
+    "weakensHypothesisIds",
+    "decisive",
+    "relevant",
+    "availableOnlyAfterActionType"
+  ],
+  "caseTopLevelRequiredFields": [
+    "identity",
+    "labContext",
+    "timeline",
+    "panels",
+    "groundTruth",
+    "decisionOpportunities",
+    "verificationCriteria",
+    "debriefEvidence",
+    "hypotheses",
+    "evidence",
+    "provenance"
+  ],
+  "v09ProvenanceClasses": [
+    "V09_NEW",
+    "V09_MODIFIED",
+    "V09_TEST"
+  ],
+  "caseProvenanceRequiredFields": [
+    "provenanceClass",
+    "scientificDependencies"
+  ],
+  "simulationPhases": [
+    "BRIEFING",
+    "SCAN",
+    "SIGNAL_RECOGNITION",
+    "IMMEDIATE_CONTAINMENT",
+    "CHARACTERISATION",
+    "HYPOTHESIS_GENERATION",
+    "EVIDENCE_SELECTION",
+    "INVESTIGATION",
+    "INTERVENTION",
+    "VERIFICATION",
+    "PATIENT_IMPACT_REVIEW",
+    "RESUME_OR_HOLD",
+    "DOCUMENTATION",
+    "DEBRIEF"
+  ],
+  "serviceStates": [
+    "RUNNING",
+    "UNDER_REVIEW",
+    "HELD",
+    "LIMITED_RELEASE",
+    "READY_FOR_VERIFICATION",
+    "RESUMED",
+    "ESCALATED"
+  ],
+  "serviceStateTransitions": {
+    "RUNNING": [
+      "UNDER_REVIEW",
+      "HELD"
+    ],
+    "UNDER_REVIEW": [
+      "HELD",
+      "LIMITED_RELEASE",
+      "RUNNING"
+    ],
+    "HELD": [
+      "UNDER_REVIEW",
+      "READY_FOR_VERIFICATION",
+      "ESCALATED"
+    ],
+    "LIMITED_RELEASE": [
+      "HELD",
+      "READY_FOR_VERIFICATION",
+      "ESCALATED"
+    ],
+    "READY_FOR_VERIFICATION": [
+      "RESUMED",
+      "HELD",
+      "ESCALATED"
+    ],
+    "RESUMED": [
+      "UNDER_REVIEW",
+      "ESCALATED"
+    ],
+    "ESCALATED": [
+      "HELD",
+      "UNDER_REVIEW"
+    ]
+  },
+  "patientImpactStates": [
+    "NOT_INDICATED",
+    "INDICATED",
+    "PENDING",
+    "COMPLETED_NO_AFFECTED_RESULTS",
+    "AFFECTED_RESULT_SET_IDENTIFIED",
+    "ESCALATION_REQUIRED"
+  ],
+  "patientImpactTransitions": {
+    "NOT_INDICATED": [
+      "INDICATED"
+    ],
+    "INDICATED": [
+      "PENDING"
+    ],
+    "PENDING": [
+      "COMPLETED_NO_AFFECTED_RESULTS",
+      "AFFECTED_RESULT_SET_IDENTIFIED"
+    ],
+    "COMPLETED_NO_AFFECTED_RESULTS": [],
+    "AFFECTED_RESULT_SET_IDENTIFIED": [
+      "ESCALATION_REQUIRED"
+    ],
+    "ESCALATION_REQUIRED": []
+  },
+  "hypothesisEvidenceStates": [
+    "NOT_CONSIDERED",
+    "PLAUSIBLE",
+    "SUPPORTED",
+    "WEAKENED",
+    "CONTRADICTED",
+    "ESTABLISHED"
+  ],
+  "hypothesisStateTransitions": {
+    "NOT_CONSIDERED": [
+      "PLAUSIBLE"
+    ],
+    "PLAUSIBLE": [
+      "SUPPORTED",
+      "WEAKENED",
+      "CONTRADICTED",
+      "ESTABLISHED"
+    ],
+    "SUPPORTED": [
+      "ESTABLISHED",
+      "WEAKENED",
+      "CONTRADICTED"
+    ],
+    "WEAKENED": [
+      "SUPPORTED",
+      "CONTRADICTED",
+      "PLAUSIBLE"
+    ],
+    "CONTRADICTED": [],
+    "ESTABLISHED": []
+  },
+  "actionTypes": [
+    "INSPECT_PANEL",
+    "ACKNOWLEDGE_SIGNAL",
+    "HOLD_RESULTS",
+    "CONTINUE_ANALYSIS",
+    "REPEAT_QC",
+    "REPEAT_CALIBRATION",
+    "INSPECT_REAGENT",
+    "INSPECT_MAINTENANCE",
+    "CHECK_EQA",
+    "CHECK_PBRTQC",
+    "CHECK_PATIENT_DISTRIBUTION",
+    "FORM_HYPOTHESIS",
+    "REQUEST_EVIDENCE",
+    "APPLY_INTERVENTION",
+    "VERIFY_RECOVERY",
+    "REVIEW_PATIENT_IMPACT",
+    "RESUME_SERVICE",
+    "ESCALATE",
+    "DOCUMENT",
+    "RECORD_CONFIDENCE"
+  ],
+  "severityLevels": [
+    "INFORMATIONAL",
+    "INEFFICIENT",
+    "UNSUPPORTED",
+    "UNSAFE",
+    "CRITICAL_UNSAFE"
+  ],
+  "confidenceLevels": [
+    "LOW",
+    "MODERATE",
+    "HIGH"
+  ],
+  "decisionCategories": [
+    "OBSERVATION",
+    "INTERPRETATION",
+    "CONTAINMENT",
+    "INVESTIGATION",
+    "INTERVENTION",
+    "VERIFICATION",
+    "PATIENT_IMPACT_REVIEW",
+    "DISPOSITION"
+  ],
+  "scoringDimensions": [
+    "SIGNAL_RECOGNITION",
+    "STATISTICAL_INTERPRETATION",
+    "ANALYTICAL_REASONING",
+    "RULE_INTERPRETATION",
+    "RISK_REASONING",
+    "INVESTIGATION_STRATEGY",
+    "EVIDENCE_SELECTION",
+    "PATIENT_IMPACT_REASONING",
+    "DECISION_APPROPRIATENESS",
+    "VERIFICATION_QUALITY",
+    "DOCUMENTATION_GOVERNANCE",
+    "METACOGNITIVE_CALIBRATION"
+  ]
+}

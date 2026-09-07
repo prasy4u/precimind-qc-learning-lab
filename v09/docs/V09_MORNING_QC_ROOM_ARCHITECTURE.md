@@ -1,0 +1,91 @@
+# Morning QC Room — Stage 12A Architecture
+
+**Status:** Foundation only — no production UI, no navigation integration (Stage 12A Sections 30, 33). This document describes the domain model and simulation engine established in Stage 12A.
+
+---
+
+## 1. Module Location
+
+All Morning QC Room foundation code lives under `v09/app/morning-qc/`:
+
+```
+v09/app/morning-qc/
+  types.js              — JSDoc type documentation (no runtime code)
+  states.js              — all enumerated state spaces + legal transition tables
+  case-schema.js         — formal case-contract field-list definitions
+  case-validator.js      — strict, fail-closed case validator
+  engine.js               — deterministic simulation engine
+  decision-model.js       — decision categorization (Section 17: separate axes)
+  evidence-model.js       — evidence/panel usage summarization
+  scoring-model.js        — multi-dimensional scoring profile (Section 19)
+  debrief-model.js        — structured post-case debrief generator (Section 24)
+  data/
+    pilot-scientific-rationale.js — Section 27 rationale for the 3 pilot cases
+  cases/
+    pilot-1-reagent-lot-shift.js
+    pilot-2-pbrtqc-population-shift.js
+    pilot-3-rcv-patient-impact.js
+    index.js
+```
+
+No Morning QC Room screen is attached to production navigation. The 14 primary navigation destinations are unchanged (verified by the Stage 12A governance test, re-running the retained Stage 11C2 browser-equivalence evidence).
+
+---
+
+## 2. Simulation Phases (Non-Linear)
+
+`states.js` defines 14 `SIMULATION_PHASES` (Section 5): `BRIEFING → SCAN → SIGNAL_RECOGNITION → IMMEDIATE_CONTAINMENT → CHARACTERISATION → HYPOTHESIS_GENERATION → EVIDENCE_SELECTION → INVESTIGATION → INTERVENTION → VERIFICATION → PATIENT_IMPACT_REVIEW → RESUME_OR_HOLD → DOCUMENTATION → DEBRIEF`.
+
+These are **reasoning-progress markers derived from the action history**, not a UI wizard the learner steps through directly — `engine.js`'s `derivePhaseFromAction()` advances the current phase based on which action types the learner has taken, and `PHASE_ALLOWS_RETURN_TO` documents which earlier phases remain legitimately revisitable (e.g., a failed `VERIFICATION` can return to `INVESTIGATION`).
+
+Panel inspection is explicitly **not gated by phase** — the engine tests directly verify (`NONLINEAR-01`/`NONLINEAR-02`) that a learner can inspect a "later-phase" panel before formally reaching that phase, modeling genuine non-linear investigation (Section 6).
+
+---
+
+## 3. Service State, Patient-Impact State, Hypothesis State
+
+Three independent state machines, each with an explicit, tested legal-transition table (`states.js`):
+
+- **`SERVICE_STATES`** (7 states, Section 21): `RUNNING, UNDER_REVIEW, HELD, LIMITED_RELEASE, READY_FOR_VERIFICATION, RESUMED, ESCALATED`. Notably, `RESUMED` is only reachable via `READY_FOR_VERIFICATION` — a learner cannot "resume" a service that was never held, which the engine enforces structurally (not merely via a severity flag).
+- **`PATIENT_IMPACT_STATES`** (6 states, Section 22): `NOT_INDICATED → INDICATED → PENDING → {COMPLETED_NO_AFFECTED_RESULTS | AFFECTED_RESULT_SET_IDENTIFIED} → ESCALATION_REQUIRED`. Patient impact is never automatically inferred from a QC signal — it requires an explicit `REVIEW_PATIENT_IMPACT` action sequence.
+- **`HYPOTHESIS_EVIDENCE_STATES`** (6 states, Section 15): `NOT_CONSIDERED → PLAUSIBLE → {SUPPORTED | WEAKENED | CONTRADICTED} → ESTABLISHED`. A hypothesis reaching `ESTABLISHED` requires the engine to have processed at least one `decisive: true` evidence item supporting it — "most-supported" alone is not sufficient (this is directly tested: `HYP-04`).
+
+---
+
+## 4. Structural Legality vs. Severity Flagging
+
+A key architectural decision made during Stage 12A: the engine distinguishes two independent concerns that Section 20/21 could otherwise conflate:
+
+1. **Structural legality** — enforced unconditionally via the transition tables. An illegal transition (e.g., `HELD → RESUMED` directly, skipping `READY_FOR_VERIFICATION`) is rejected outright with an error; the state does not change.
+2. **Severity flagging** — for actions that ARE structurally legal but reflect unsafe or inefficient reasoning (e.g., resuming service after a `VERIFY_RECOVERY` attempt that did NOT meet the case's required-evidence criteria). These are recorded with a `SEVERITY_LEVELS` value (`INFORMATIONAL, INEFFICIENT, UNSUPPORTED, UNSAFE, CRITICAL_UNSAFE`) on the action-history entry, for scoring/debrief consumption — the action still proceeds, because forcibly blocking every unsafe-but-legal choice would prevent the simulation from ever teaching the CONSEQUENCE of that choice.
+
+This distinction was validated directly: the pilot-path "unsafe" tests (`P1-UNSAFE-*`) confirm a premature-resume path is structurally legal (the engine lets it happen) while being flagged `CRITICAL_UNSAFE` and producing a debrief that meaningfully differs from the expert path's debrief (`P1-DEBRIEF-DIFF`).
+
+---
+
+## 5. Determinism
+
+`engine.js` contains zero calls to `Math.random()` or any other nondeterministic source. `replay(caseObj, actions)` given the same case and action list always produces byte-identical final state — verified directly (`DETERM-01`) via JSON-stringified deep equality across two independent replay calls.
+
+---
+
+## 6. Case Validation (Fail-Closed)
+
+`case-validator.js` returns `{ valid, errors }` rather than a bare boolean, and accumulates every violation found rather than stopping at the first. During Stage 12A case authoring, the validator caught **two genuine design errors** before they reached the engine test suite:
+
+1. An overly strict ground-truth rule that incorrectly assumed `rootCauseEstablished` could never be `true` when `disturbanceEstablished` was `false` — this would have made case families K and M (where the established explanation for a signal is precisely that no disturbance exists) impossible to express. Corrected to instead check for literal identity between `observedSignal` and `rootCauseDescription` (Section 25's actual requirement: "a case automatically equates signal with root cause").
+2. (See `V09_STAGE12A_REPORT.md` for the full defect log, including two further genuine engine bugs the test suite itself caught: a missing `PLAUSIBLE → ESTABLISHED` hypothesis transition, and an unrealistic test scenario that called `VERIFY_RECOVERY` from a pristine `RUNNING` state.)
+
+---
+
+## 7. Scoring and Debrief
+
+`scoring-model.js` computes a profile across all 12 `SCORING_DIMENSIONS` (Section 19) — every dimension reported independently, several deliberately `null` where Stage 12A's pilot cases do not yet exercise that dimension (e.g., `STATISTICAL_INTERPRETATION`, `RULE_INTERPRETATION` are reserved for future cases that directly exercise rule-engine/statistical evidence). No dimension is ever collapsed into a single score.
+
+`debrief-model.js` consults `groundTruth` **only after the case is complete** — ground truth is never exposed to `engine.js` during play, keeping the "learner must not receive ground truth during the case" requirement (Section 9) structurally enforced by module boundaries, not just convention.
+
+---
+
+## 8. Reuse of Existing Scientific Modules
+
+Per Section 31, Morning QC Room imports rather than duplicates. Pilot case scientific rationale references exact function calls against the active modules: `app/core/statistics.js` (Pilot 1: mean/SD/bias/Sigma), `app/bv/calc.js:calculateClassicalRcv` (Pilot 3: RCV). No formula is reimplemented inside `v09/app/morning-qc/**`.

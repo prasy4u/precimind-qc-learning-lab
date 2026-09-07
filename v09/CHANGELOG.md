@@ -221,3 +221,24 @@ A final independent audit of the prior closure identified two remaining auditabi
 **Prior baselines reconfirmed unchanged:** v0.9 pre-11C2 total 287/287, v0.8 3849/3849, Stage 11C1 governance 98/98 (node_modules present) and 94/94 (absent), Stage 11B compat SHA `975adef...`, Stage 11C1 bridge tree SHA `c0407262...`.
 
 **Not done in Stage 11C2** (explicitly out of scope): Morning QC Room implementation, any scientific/pedagogic content change, self-authorization of Stage 12A.
+
+### Stage 12A — Morning QC Room Foundation
+
+**Domain foundation and deterministic simulation engine established** under `v09/app/morning-qc/**`: `types.js`, `states.js` (14 simulation phases, service-state/patient-impact/hypothesis-evidence transition tables, 20 action types, 5-level severity model, 12 scoring dimensions), `case-schema.js` (formal case contract), `case-validator.js` (strict, fail-closed), `engine.js` (deterministic replay, zero `Math.random()`), `decision-model.js`, `evidence-model.js`, `scoring-model.js`, `debrief-model.js`.
+
+**Revised case-family catalogue**: retrieved and normalized the Stage 11A A–P families to the new case-schema contract, classified by learning purpose, documented 5 explicit overlaps (not silently merged), identified 5 coverage gaps against Section 11's required concepts, and proposed 3 new families (Q: reagent degradation within a lot, R: failed corrective action requiring iteration, S: unnecessary investigation/repeat-testing waste).
+
+**Three pilot cases authored** (not all 19 families): Pilot 1 (Family B, reagent lot shift — straightforward systematic disturbance requiring containment/investigation/verification), Pilot 2 (Family K, PBRTQC alert explained by population shift — misleading/discordant scenario), Pilot 3 (Family M, RCV-based patient-impact reasoning integrating IQC/EQA — careful patient-impact case). All numeric scientific content (Sigma, bias, RCV=17.53%, relative difference=21.43%) computed directly via the active `app/core/statistics.js` and `app/bv/calc.js` functions during authoring, not invented.
+
+**Genuine defects found and fixed during authoring, not merely asserted correct:**
+- The case validator's initial ground-truth rule incorrectly assumed `rootCauseEstablished` could never be true when `disturbanceEstablished` was false — this would have made case families K and M (where the established explanation for a signal is precisely that no analytical disturbance exists) impossible to express. Corrected to check for literal signal/root-cause string identity instead (the actual Section 25 requirement).
+- The engine's hypothesis-transition table was missing a legal `PLAUSIBLE → ESTABLISHED` transition, caught by an engine unit test expecting decisive evidence to establish a hypothesis directly.
+- An initial engine test called `VERIFY_RECOVERY` and `RESUME_SERVICE` from a pristine `RUNNING` state — both correctly rejected as structurally illegal (verification/resumption implies resuming FROM a held/reviewed state), revealing the test scenario was unrealistic, not the engine. Tests corrected to follow the realistic `HOLD_RESULTS → VERIFY_RECOVERY → RESUME_SERVICE` flow.
+
+**Testing**: 41 engine unit-test assertions (`tests/morning-qc/engine.test.cjs`) + 28 pilot-path assertions (`tests/morning-qc/pilot-paths.test.cjs`, expert/safe-but-inefficient/unsafe paths for all 3 pilots) + 42 Stage 12A governance assertions (`tests/stage12a-morning-qc-foundation.test.js`) — all passing.
+
+**No production impact**: 14 primary navigation destinations unchanged (reconfirmed against retained Stage 11C2 browser evidence); Stage 11C2 modular tree SHA (`4614aca9...`) reconfirmed unchanged; frozen `v09/src/**` and Stage 11C1 bridge unchanged; no existing scientific formula duplicated (Morning QC rationale imports/references the active scientific modules directly).
+
+**Documentation**: `V09_MORNING_QC_ROOM_ARCHITECTURE.md`, `v09-morning-qc-case-schema.json` (generated directly from source, not hand-transcribed), `V09_MORNING_QC_CASE_CATALOGUE.md`, `V09_MORNING_QC_SCORING_MODEL.md`, `V09_STAGE12A_REPORT.md`. Roadmap updated: Stage 12A marked complete, Stage 12B (interaction shell) defined next.
+
+**Not implemented** (explicitly out of scope per Section 30): no Morning QC Room screen, no navigation integration, no full visual panels, no dashboards, no case-selection UI.

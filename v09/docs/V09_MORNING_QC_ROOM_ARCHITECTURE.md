@@ -153,3 +153,29 @@ A fourth independent re-audit found two closely related defects in the progressi
 Pilot 2's `dec-disposition/opt-continue-documented` now requires `ev-case-mix-decisive` (the case's own decisive stratified re-analysis). Pilot 3's `dec-disposition/opt-no-hold-document` now requires `ev-iqc-clean`, `ev-eqa-pass`, and `ev-rcv-calculation` — the full evidentiary basis the case's rationale describes for the no-hold conclusion. Neither pilot's accepted RCV/signal-explanation science was altered.
 
 All existing pilot expert/safe-inefficient/unsafe paths continued to pass unchanged, since they already obtained the relevant evidence before their dispositions.
+
+---
+
+## 13. Stage 12A Independent-Audit FINAL PROGRESSION-INVARIANT Closure
+
+A fifth independent re-audit identified the ROOT architectural defect underlying every progression exploit found in prior closures: `deriveUnlockedPhaseIndex()` treated each milestone fact (signal, containment, panel, hypothesis, evidence, repeat, intervention, verification-attempted) as **independent** — any single fact being true, regardless of whether its own prerequisites were genuinely satisfied, could set the unlock frontier to that tier. This let a single out-of-order action leapfrog the simulation:
+
+- `REPEAT_QC`/`REPEAT_CALIBRATION` had no execution prerequisite at all — callable from a pristine state, immediately populating `investigationPerformed` and leapfrogging straight to `INVESTIGATION`.
+- A **failed** `VERIFY_RECOVERY` attempt was still appended to `verificationAttempts`, and the old check (`verificationAttempts.length > 0`) treated *any* attempt — successful or not — as reaching `VERIFICATION`, directly contradicting the engine's own simultaneous narrative regression to `INVESTIGATION`.
+- Inspecting a legitimate `BRIEFING`-tier panel (permitted, and pedagogically intended, before `ACKNOWLEDGE_SIGNAL`) was independently sufficient to set `CHARACTERISATION`, regardless of whether the signal had been acknowledged at all.
+
+**`deriveUnlockedPhaseIndex()` was redesigned as an explicit prerequisite-qualified chain**, not a set of independent OR-conditions: each tier now requires its own preceding milestone(s) to be genuinely satisfied before it can contribute to the frontier —
+
+- `SIGNAL_RECOGNITION`: genuine signal acknowledgement (root of the chain; nothing else is reachable without it).
+- `IMMEDIATE_CONTAINMENT`: signal acknowledged + genuine containment decision.
+- `CHARACTERISATION`: signal acknowledged + at least one genuine panel inspection. **Deliberately documented design decision**: containment is *not* a prerequisite for characterisation — Pilot 3 never contains anything (no analytical disturbance exists in that case) and legitimately characterises/investigates directly from signal recognition.
+- `HYPOTHESIS_GENERATION`: genuine `CHARACTERISATION` + learner-performed consideration.
+- `EVIDENCE_SELECTION`: genuine `CHARACTERISATION` + evidence genuinely obtained.
+- `INVESTIGATION`: genuine `CHARACTERISATION` + a genuinely-permitted investigative repeat. `REPEAT_QC`/`REPEAT_CALIBRATION` now carry their own execution-time `CHARACTERISATION` prerequisite (matching the pattern already established for `FORM_HYPOTHESIS`/`REQUEST_EVIDENCE`).
+- `INTERVENTION`: genuine `HYPOTHESIS_GENERATION` + a documented intervention.
+- `VERIFICATION`: genuine `IMMEDIATE_CONTAINMENT` + a **successful** verification specifically (`verificationAttempts.some(v => v.criteriaWereMet === true)`, not merely `.length > 0`) — a failed attempt remains recorded for history/debrief purposes but can never itself establish the tier.
+- `RESUME_OR_HOLD`: genuine service resumption/escalation (already structurally gated elsewhere).
+
+An **exhaustive progression-invariant adversarial test layer** (`tests/morning-qc/progression-invariants.test.cjs`, 34 assertions) now directly exercises this chain — for every state fact the function consumes, demonstrating how it is legitimately earned, what its lower-level prerequisites are, and that it cannot be generated prematurely. This is deliberately broader than the four named exploits, testing the architecture itself rather than only the examples the audit demonstrated.
+
+All existing pilot expert/safe-inefficient paths continued to pass after adding a single missing `INSPECT_PANEL` step to one unsafe-path test that had (like a prior test in an earlier closure) unwittingly relied on the exact bug just fixed.

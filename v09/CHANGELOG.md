@@ -308,3 +308,22 @@ A genuine test-regression was traced during this closure: governance assertion 2
 **Testing**: engine 49/49 (unchanged), pilot paths 39/39 (unchanged — zero case/path edits needed), governance 100/100 (was 86, +14 new assertions, +1 corrected). Both exact audit-reported false-full-credit scenarios verified fixed. All regressions reconfirmed unchanged; all three frozen tree SHAs reconfirmed byte-identical.
 
 Only 12 files changed, all within `v09/app/morning-qc/**`, Morning QC documentation, and the Stage 12A governance test.
+
+### Stage 12A — FINAL PROGRESSION-INVARIANT Closure
+
+Root architectural defect corrected, found by a fifth independent re-audit of commit d3f1947: `deriveUnlockedPhaseIndex()` treated every milestone fact as an independent OR-condition rather than a prerequisite-qualified chain, letting a single out-of-order action leapfrog the frontier. Four confirmed exploits, all traced to this one root cause:
+
+1. `REPEAT_QC` from pristine BRIEFING — no execution prerequisite existed at all, immediately reaching INVESTIGATION.
+2. Same defect for `REPEAT_CALIBRATION`.
+3. A failed `VERIFY_RECOVERY` attempt was still counted as reaching VERIFICATION (`.length > 0` instead of checking for a genuine success).
+4. A legitimate BRIEFING-tier panel inspection independently unlocked CHARACTERISATION regardless of signal-acknowledgement status.
+
+**Root fix**: `deriveUnlockedPhaseIndex()` redesigned as an explicit prerequisite chain — each tier requires its own preceding milestone(s) genuinely satisfied (documented per-tier). `REPEAT_QC`/`REPEAT_CALIBRATION` gained the same `CHARACTERISATION` execution prerequisite already established for `FORM_HYPOTHESIS`/`REQUEST_EVIDENCE`. `VERIFICATION` now requires `verificationAttempts.some(v => v.criteriaWereMet === true)`, not merely an attempt.
+
+**Exhaustive progression-invariant test layer added** (`tests/morning-qc/progression-invariants.test.cjs`, 34 assertions) — exercises every state fact the function consumes, not just the four named exploits.
+
+One existing pilot-path test needed a fix (added a missing `INSPECT_PANEL` step) — traced honestly as unwittingly relying on the exact bug just fixed, matching the pattern established in the prior closure.
+
+**Testing**: engine 49/49 (unchanged), pilot paths 39/39 (unchanged in count, 1 corrected), new progression-invariants suite 34/34, governance 105/105 (was 100, +5) — Stage 12A total 227/227. All regressions reconfirmed unchanged; all three frozen tree SHAs reconfirmed byte-identical. Case data, schema, validator, decision-model, and scoring-model required zero changes this cycle.
+
+Only 6 files changed, all within `v09/app/morning-qc/engine.js`, Morning QC documentation, and `v09/tests/morning-qc/**`.

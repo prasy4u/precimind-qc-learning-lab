@@ -113,24 +113,85 @@ function phaseIndex(phaseName) {
    progression.
    ----------------------------------------------------------------------- */
 export function deriveUnlockedPhaseIndex(state) {
+  // Stage 12A PROGRESSION-INVARIANT closure: each tier is now
+  // PREREQUISITE-QUALIFIED — a later milestone contributes to the
+  // unlocked frontier ONLY when its own preceding context was
+  // genuinely, legitimately satisfied. The prior model treated every
+  // fact (signal, containment, panel, hypothesis, evidence, repeat,
+  // intervention, verification-attempted) as INDEPENDENT, letting a
+  // single out-of-order action (e.g. REPEAT_QC from a pristine state)
+  // leapfrog straight to a late tier. This is now an explicit AND-chain,
+  // documented per tier below.
   let idx = phaseIndex('BRIEFING');
-  if (state.documentation.signal != null) idx = Math.max(idx, phaseIndex('SIGNAL_RECOGNITION'));
-  if (state.containmentDecided) idx = Math.max(idx, phaseIndex('IMMEDIATE_CONTAINMENT'));
-  if (state.inspectedPanelIds.length > 0) idx = Math.max(idx, phaseIndex('CHARACTERISATION'));
-  // Stage 12A FINAL EVIDENCE/REASONING closure fix: HYPOTHESIS_GENERATION
-  // must reflect genuine LEARNER-PERFORMED hypothesis consideration, not
-  // case-authored initial plausibility (hypotheses.plausibleFromStart).
-  // A case may legitimately start a hypothesis at PLAUSIBLE before any
-  // learner action — that describes the SCENARIO, not learner progress.
-  // documentation.hypothesesConsidered is populated ONLY by a genuine,
-  // successfully-executed FORM_HYPOTHESIS action (see the FORM_HYPOTHESIS
-  // case below), making it the correct learner-action authority here.
-  if (state.documentation.hypothesesConsidered.length > 0) idx = Math.max(idx, phaseIndex('HYPOTHESIS_GENERATION'));
-  if (state.obtainedEvidenceIds.length > 0) idx = Math.max(idx, phaseIndex('EVIDENCE_SELECTION'));
-  if (state.documentation.investigationPerformed.length > 0) idx = Math.max(idx, phaseIndex('INVESTIGATION'));
-  if (state.documentation.intervention != null) idx = Math.max(idx, phaseIndex('INTERVENTION'));
-  if (state.verificationAttempts.length > 0) idx = Math.max(idx, phaseIndex('VERIFICATION'));
+
+  const signalAcked = state.documentation.signal != null;
+  if (!signalAcked) return idx; // nothing beyond BRIEFING is reachable without a genuinely acknowledged signal
+
+  idx = Math.max(idx, phaseIndex('SIGNAL_RECOGNITION'));
+
+  // IMMEDIATE_CONTAINMENT requires signal acknowledgement (already true
+  // here) plus a genuine containment decision (HOLD_RESULTS/CONTINUE_ANALYSIS).
+  const containmentReached = state.containmentDecided;
+  if (containmentReached) idx = Math.max(idx, phaseIndex('IMMEDIATE_CONTAINMENT'));
+
+  // CHARACTERISATION requires signal acknowledgement (already true here)
+  // PLUS at least one genuine panel inspection — closing the exploit
+  // where inspecting a BRIEFING/SCAN-tier panel BEFORE ACKNOWLEDGE_SIGNAL
+  // would previously unlock CHARACTERISATION regardless of signal state.
+  // Documented design decision: containment is deliberately NOT a
+  // prerequisite for characterisation — Pilot 3 never contains anything
+  // (no analytical disturbance exists in that case), and its expert path
+  // legitimately proceeds straight from signal recognition into
+  // characterising/inspecting evidence without ever calling HOLD_RESULTS.
+  const characterisationReached = signalAcked && state.inspectedPanelIds.length > 0;
+  if (characterisationReached) idx = Math.max(idx, phaseIndex('CHARACTERISATION'));
+
+  // HYPOTHESIS_GENERATION requires genuine CHARACTERISATION (not merely
+  // "a hypothesis exists" — see the prior closure's plausibleFromStart
+  // fix, still in effect via hypothesesConsidered) PLUS learner-performed
+  // consideration.
+  const hypothesisGenReached = characterisationReached && state.documentation.hypothesesConsidered.length > 0;
+  if (hypothesisGenReached) idx = Math.max(idx, phaseIndex('HYPOTHESIS_GENERATION'));
+
+  // EVIDENCE_SELECTION requires genuine CHARACTERISATION plus evidence
+  // actually obtained — an evidence flag can no longer leapfrog past an
+  // unearned CHARACTERISATION tier.
+  const evidenceSelReached = characterisationReached && state.obtainedEvidenceIds.length > 0;
+  if (evidenceSelReached) idx = Math.max(idx, phaseIndex('EVIDENCE_SELECTION'));
+
+  // INVESTIGATION requires genuine CHARACTERISATION plus a genuinely
+  // permitted investigative repeat (REPEAT_QC/REPEAT_CALIBRATION now also
+  // carry their own execution-time CHARACTERISATION prerequisite — see
+  // EXECUTION_PREREQUISITES below — so this fact can never be recorded
+  // before CHARACTERISATION is genuinely reached in the first place;
+  // the check is retained here too for defense-in-depth / clarity).
+  const investigationReached = characterisationReached && state.documentation.investigationPerformed.length > 0;
+  if (investigationReached) idx = Math.max(idx, phaseIndex('INVESTIGATION'));
+
+  // INTERVENTION requires genuine HYPOTHESIS_GENERATION plus a documented
+  // intervention (APPLY_INTERVENTION already carries its own execution-time
+  // HYPOTHESIS_GENERATION prerequisite; retained here for clarity/defense).
+  const interventionReached = hypothesisGenReached && state.documentation.intervention != null;
+  if (interventionReached) idx = Math.max(idx, phaseIndex('INTERVENTION'));
+
+  // VERIFICATION requires genuine IMMEDIATE_CONTAINMENT plus a
+  // SUCCESSFUL verification — NOT merely an attempt. A failed
+  // VERIFY_RECOVERY (criteriaWereMet: false) is recorded in
+  // verificationAttempts for history/debrief purposes, but must never
+  // itself establish that the VERIFICATION tier has been legitimately
+  // reached for information-unlocking purposes — closing the exploit
+  // where a premature, failed verification attempt inflated the unlock
+  // frontier despite the engine simultaneously reporting a regression
+  // back to INVESTIGATION.
+  const verificationReached = containmentReached && state.verificationAttempts.some(v => v.criteriaWereMet === true);
+  if (verificationReached) idx = Math.max(idx, phaseIndex('VERIFICATION'));
+
+  // RESUME_OR_HOLD remains dependent on the service-state machine's own
+  // structural transition rules (RESUME_SERVICE/ESCALATE already require
+  // a genuinely successful verification and/or valid prior state via
+  // SERVICE_STATE_TRANSITIONS elsewhere in this file).
   if (state.serviceState === 'RESUMED' || state.serviceState === 'ESCALATED') idx = Math.max(idx, phaseIndex('RESUME_OR_HOLD'));
+
   // DOCUMENTATION / DEBRIEF are never auto-unlocked — Stage 12A Section 13 deferral.
   return idx;
 }
@@ -226,6 +287,15 @@ export function applyAction(caseObj, state, action) {
     REQUEST_EVIDENCE: 'CHARACTERISATION',
     APPLY_INTERVENTION: 'HYPOTHESIS_GENERATION',
     VERIFY_RECOVERY: 'IMMEDIATE_CONTAINMENT',
+    // Stage 12A PROGRESSION-INVARIANT closure: REPEAT_QC/REPEAT_CALIBRATION
+    // previously had NO execution-time prerequisite at all — accepted from
+    // a pristine BRIEFING state and immediately populating
+    // documentation.investigationPerformed, which (under the OLD
+    // independent-fact unlock model) leapfrogged straight to INVESTIGATION.
+    // A genuine investigative repeat presupposes the learner has at least
+    // characterised the disturbance (inspected something) first.
+    REPEAT_QC: 'CHARACTERISATION',
+    REPEAT_CALIBRATION: 'CHARACTERISATION',
   };
   if (EXECUTION_PREREQUISITES[action.type] && unlockedIdx < phaseIndex(EXECUTION_PREREQUISITES[action.type])) {
     return { state, error: `Action "${action.type}" requires genuine progression to at least ${EXECUTION_PREREQUISITES[action.type]} (found unlocked index ${unlockedIdx}) — premature actions cannot retroactively unlock progression they have not genuinely earned`, severity: null };

@@ -169,3 +169,22 @@ A fourth independent re-audit found two closely related defects:
 **A genuine test-regression was found and traced during this closure**: after fixing defect 1, governance assertion 23 (Pilot 3's unsupported-analytical-error path) began failing. Investigation confirmed this was NOT a new engine bug — the test had been *unwittingly relying on the exact pre-seeded-plausibility bug just fixed* (Pilot 3's `hyp-analytical-error` has `plausibleFromStart: true`, which the old buggy unlock computation let bypass the `CHARACTERISATION` prerequisite for `FORM_HYPOTHESIS`). Confirmed by replaying the same action sequence against the git-committed *old* `engine.js`: it passed there only because of the bug. Fixed by adding a genuine `INSPECT_PANEL` step before the `FORM_HYPOTHESIS` call, matching the already-correct pattern used in `pilot-paths.test.cjs`'s equivalent scenario (which required no changes).
 
 **Testing after this closure**: engine unit tests 49/49 (unchanged), pilot path tests 39/39 (unchanged — existing paths already obtained the required evidence before their dispositions), Stage 12A governance 100/100 (was 86, +14 new assertions, +1 corrected). Both exact audit-reported false-full-credit scenarios (Pilot 2 with only `ev-iqc-stable`; Pilot 3 with zero evidence) verified to now correctly produce `outcomeAppropriate=true, reasoningSupported=false, severity=UNSUPPORTED`, and both correctly upgrade to `reasoningSupported=true, severity=INFORMATIONAL` once their required evidence is genuinely obtained.
+
+---
+
+## Independent-Audit FINAL PROGRESSION-INVARIANT Closure
+
+A fifth independent re-audit identified the root architectural defect underlying every progression exploit found across prior closures: `deriveUnlockedPhaseIndex()` treated each milestone fact as an **independent** OR-condition rather than a **prerequisite-qualified chain**, letting a single out-of-order action leapfrog the frontier. Four confirmed exploits, all traced to this one root cause:
+
+1. `REPEAT_QC`/`REPEAT_CALIBRATION` had no execution prerequisite — callable from pristine `BRIEFING`, immediately leapfrogging to `INVESTIGATION`.
+2. Same defect for `REPEAT_CALIBRATION`.
+3. A **failed** verification attempt was still counted (`verificationAttempts.length > 0`) as reaching `VERIFICATION`, contradicting the engine's own simultaneous regression to `INVESTIGATION`.
+4. A legitimate `BRIEFING`-tier panel inspection (permitted pre-signal) independently unlocked `CHARACTERISATION` regardless of signal-acknowledgement status.
+
+**Root fix**: `deriveUnlockedPhaseIndex()` redesigned as an explicit prerequisite chain — each tier requires its own preceding milestone(s) genuinely satisfied (documented per-tier in the architecture doc), rather than independent facts taking a maximum. `REPEAT_QC`/`REPEAT_CALIBRATION` gained the same `CHARACTERISATION` execution-time prerequisite already established for `FORM_HYPOTHESIS`/`REQUEST_EVIDENCE`. `VERIFICATION` now requires a genuinely *successful* attempt (`criteriaWereMet === true`), not merely an attempt.
+
+**Exhaustive progression-invariant test layer added** (`tests/morning-qc/progression-invariants.test.cjs`, 34 assertions) — directly exercises every state fact `deriveUnlockedPhaseIndex` consumes, not just the four named exploits, confirming each tier's legitimate-earning path, its prerequisites, and its resistance to premature leapfrogging.
+
+**One existing test needed a fix, traced honestly**: Pilot 1's unsafe-path test (in `pilot-paths.test.cjs`) called `REPEAT_QC` without ever having inspected a panel first — this had been unwittingly relying on the exact bug just fixed (previously, `REPEAT_QC` had no prerequisite at all). Fixed by adding a genuine `INSPECT_PANEL` step, matching the same honest-tracing pattern established in the prior closure (where a governance assertion was found to rely on the pre-seeded-plausibility bug).
+
+**Testing after this closure**: engine unit tests 49/49 (unchanged), pilot path tests 39/39 (unchanged in count, 1 test corrected), new progression-invariants suite 34/34, Stage 12A governance 105/105 (was 100, +5 new assertions) — **Stage 12A total: 227/227**.

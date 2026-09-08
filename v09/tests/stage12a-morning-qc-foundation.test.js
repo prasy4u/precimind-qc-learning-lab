@@ -529,6 +529,38 @@ async function main() {
     assert('57', validateCase(broken).valid === false, 'Validator rejects a dangling requiredEvidenceIdsForSupportedReasoning reference');
   }
 
+  console.log('\n=== 58. PROGRESSION-INVARIANT: global invariant — no state fact leapfrogs the frontier ===');
+  {
+    const { deriveUnlockedPhaseIndex: dupi } = await import('file://' + path.join(MQC, 'engine.js'));
+
+    // Exploit 1: REPEAT_QC from pristine BRIEFING.
+    const r1 = applyAction(pilots[0], createInitialState(pilots[0]), { type: 'REPEAT_QC', wasNecessary: true });
+    assert('58a', r1.error !== null, 'REPEAT_QC from pristine BRIEFING is rejected (Exploit 1 closed)');
+
+    // Exploit 2: REPEAT_CALIBRATION from pristine BRIEFING.
+    const r2 = applyAction(pilots[0], createInitialState(pilots[0]), { type: 'REPEAT_CALIBRATION', wasNecessary: true });
+    assert('58b', r2.error !== null, 'REPEAT_CALIBRATION from pristine BRIEFING is rejected (Exploit 2 closed)');
+
+    // Exploit 3: failed verification must not unlock VERIFICATION.
+    let s3 = createInitialState(pilots[0]);
+    let a1 = applyAction(pilots[0], s3, { type: 'ACKNOWLEDGE_SIGNAL' });
+    let a2 = applyAction(pilots[0], a1.state, { type: 'HOLD_RESULTS' });
+    let a3 = applyAction(pilots[0], a2.state, { type: 'VERIFY_RECOVERY' });
+    assert('58c', dupi(a3.state) < 9, `Failed verification does not unlock VERIFICATION (index 9) — found unlocked index ${dupi(a3.state)} (Exploit 3 closed)`);
+
+    // Exploit 4: BRIEFING panel inspection must not unlock CHARACTERISATION
+    // before signal acknowledgement.
+    const b1 = applyAction(pilots[1], createInitialState(pilots[1]), { type: 'INSPECT_PANEL', panelId: 'panel-pbrtqc' });
+    assert('58d', b1.error === null && dupi(b1.state) === 0, `BRIEFING panel inspection alone does not unlock CHARACTERISATION before signal acknowledgement (found unlocked index ${dupi(b1.state)}) (Exploit 4 closed)`);
+
+    // The exhaustive progression-invariant test layer (34 assertions,
+    // covering every state fact deriveUnlockedPhaseIndex consumes) passes
+    // as a subprocess.
+    let progOk = false, progOutput = '';
+    try { progOutput = execSync(`node ${path.join(V09, 'tests', 'morning-qc', 'progression-invariants.test.cjs')}`).toString(); progOk = true; } catch (e) { progOutput = (e.stdout || '').toString(); progOk = false; }
+    assert('58e', progOk && progOutput.includes('PROGRESSION-INVARIANT TESTS PASSED'), 'Exhaustive progression-invariant adversarial test layer passes (34 assertions covering every progression-driving state fact)');
+  }
+
   const total = passed + failed;
   console.log(`\n${'='.repeat(60)}`);
   console.log(`Stage 12A Morning QC Foundation Tests: ${passed}/${total} passed, ${failed} failed`);

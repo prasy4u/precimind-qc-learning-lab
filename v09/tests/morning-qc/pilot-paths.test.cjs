@@ -84,6 +84,7 @@ async function main() {
     const unsafeActions = [
       { type: 'ACKNOWLEDGE_SIGNAL' },
       { type: 'HOLD_RESULTS' },
+      { type: 'INSPECT_PANEL', panelId: 'panel-qc-history' }, // genuinely reach CHARACTERISATION before any investigative action
       { type: 'VERIFY_RECOVERY' }, // fails -> UNSAFE, stays HELD, phase -> INVESTIGATION
       { type: 'REPEAT_QC', wasNecessary: true },
       { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-old-lot-repeat' },
@@ -91,8 +92,8 @@ async function main() {
       { type: 'RESUME_SERVICE', decisionId: 'dec-disposition', optionId: 'opt-resume-no-pi-review' }, // patient impact never addressed
     ];
     const unsafeResult = replay(caseObj, unsafeActions);
-    assert('P1-UNSAFE-01', unsafeResult.trace.every(t => !t.error), 'Unsafe path is structurally legal throughout');
-    assert('P1-UNSAFE-02', unsafeResult.trace[2].severity === 'UNSAFE', `First verification attempt (premature) engine-recorded UNSAFE (found ${unsafeResult.trace[2].severity})`);
+    assert('P1-UNSAFE-01', unsafeResult.trace.every(t => !t.error), `Unsafe path is structurally legal throughout (errors: ${JSON.stringify(unsafeResult.trace.filter(t=>t.error).map(t=>t.error))})`);
+    assert('P1-UNSAFE-02', unsafeResult.trace[3].severity === 'UNSAFE', `First verification attempt (premature) engine-recorded UNSAFE (found ${unsafeResult.trace[3].severity})`);
     assert('P1-UNSAFE-03', unsafeResult.trace[unsafeResult.trace.length-1].severity === 'UNSAFE' && unsafeResult.trace[unsafeResult.trace.length-1].outcomeAppropriate === false,
       `Case-authored resume-without-patient-impact-review decision is engine-recorded UNSAFE with outcomeAppropriate=false (found severity=${unsafeResult.trace[unsafeResult.trace.length-1].severity})`);
 

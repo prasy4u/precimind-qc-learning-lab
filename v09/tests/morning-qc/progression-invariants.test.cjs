@@ -274,6 +274,68 @@ async function main() {
       'Escalation is genuinely recorded (serviceState, documentation.escalation, actionHistory) despite the information frontier remaining appropriately limited');
   }
 
+  /* ===================== Invariant C: documentation cannot forge decision credit ===================== */
+  console.log('\n=== Invariant C: learner documentation cannot forge decision/operational credit ===');
+  {
+    const { generateDebrief } = await import('file://' + path.join(APP, 'debrief-model.js'));
+    const { computeScoringProfile } = await import('file://' + path.join(APP, 'scoring-model.js'));
+    const { summarizeDecisions } = await import('file://' + path.join(APP, 'decision-model.js'));
+
+    // DTRUTH-01: the exact audit-demonstrated exploit.
+    let s1 = createInitialState(P1);
+    let a1 = applyAction(P1, s1, { type: 'ACKNOWLEDGE_SIGNAL' });
+    let a2 = applyAction(P1, a1.state, { type: 'DOCUMENT', fields: { finalDisposition: P1.groundTruth.appropriateDisposition } });
+    assert('DTRUTH-01a', a2.state.serviceState === 'RUNNING', 'serviceState remains RUNNING — no disposition action ever genuinely occurred');
+    assert('DTRUTH-01b', summarizeDecisions(a2.state.actionHistory).filter(d => d.category === 'DISPOSITION').length === 0, 'No actual DISPOSITION decision event exists in the trace');
+    assert('DTRUTH-01c', a2.state.documentation.finalDisposition === P1.groundTruth.appropriateDisposition, 'The documented final disposition IS retained as learner documentation (not erased)');
+    const debrief1 = generateDebrief(P1, a2.state);
+    assert('DTRUTH-01d', debrief1.disposition.executedDisposition === null && debrief1.disposition.plausiblyJustified === null, 'Debrief does NOT mark an actual executed disposition as justified — executedDisposition and plausiblyJustified are both null');
+    const profile1 = computeScoringProfile(P1, a2.state);
+    assert('DTRUTH-01e', profile1.DECISION_APPROPRIATENESS !== 'STRONG', `DECISION_APPROPRIATENESS is not STRONG for documentation-only disposition (found ${profile1.DECISION_APPROPRIATENESS})`);
+
+    // DTRUTH-02: generic DOCUMENT without decisionId/optionId is not summarized as DISPOSITION.
+    let s2 = createInitialState(P1);
+    let b1 = applyAction(P1, s2, { type: 'ACKNOWLEDGE_SIGNAL' });
+    let b2 = applyAction(P1, b1.state, { type: 'DOCUMENT', fields: { finalDisposition: 'anything' } });
+    const decisions2 = summarizeDecisions(b2.state.actionHistory);
+    assert('DTRUTH-02', decisions2.every(d => !(d.actionType === 'DOCUMENT' && d.decisionId === null)), 'Generic DOCUMENT (no decisionId/optionId) never appears as a summarized decision at all');
+
+    // DTRUTH-03: a genuine case-authored DOCUMENT-bound disposition option
+    // remains correctly summarized as DISPOSITION (Pilots 2/3 unaffected).
+    let s3 = createInitialState(P2);
+    let c1 = applyAction(P2, s3, { type: 'ACKNOWLEDGE_SIGNAL' });
+    let c2 = applyAction(P2, c1.state, { type: 'INSPECT_PANEL', panelId: 'panel-qc-history' });
+    let c3 = applyAction(P2, c2.state, { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-iqc-stable' });
+    let c4 = applyAction(P2, c3.state, { type: 'INSPECT_PANEL', panelId: 'panel-patient-distribution' });
+    let c5 = applyAction(P2, c4.state, { type: 'CHECK_PATIENT_DISTRIBUTION' });
+    let c6 = applyAction(P2, c5.state, { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-case-mix-decisive' });
+    let c7 = applyAction(P2, c6.state, { type: 'DOCUMENT', decisionId: 'dec-disposition', optionId: 'opt-continue-documented', fields: {} });
+    const decisions3 = summarizeDecisions(c7.state.actionHistory);
+    assert('DTRUTH-03', decisions3.some(d => d.category === 'DISPOSITION' && d.decisionId === 'dec-disposition'), 'Genuine case-authored DOCUMENT-bound disposition option (Pilot 2) remains correctly summarized as a DISPOSITION decision');
+
+    // DTRUTH-04: a learner may document one disposition but execute another
+    // — both facts preserved distinctly.
+    let d1 = applyAction(P2, c6.state, { type: 'DOCUMENT', decisionId: 'dec-disposition', optionId: 'opt-continue-documented', fields: { finalDisposition: 'A DIFFERENT WRITTEN CLAIM' } });
+    const debrief4 = generateDebrief(P2, d1.state);
+    assert('DTRUTH-04', debrief4.disposition.documentedFinalDisposition === 'A DIFFERENT WRITTEN CLAIM' && debrief4.disposition.executedDisposition !== null && debrief4.disposition.executedDisposition.decisionId === 'dec-disposition',
+      'Documented claim and genuinely-executed disposition are preserved as distinct facts, even when they differ in wording');
+
+    // CONF-DEBRIEF-01: decisionEventId survives into the debrief.
+    let e1 = applyAction(P2, c1.state, { type: 'INSPECT_PANEL', panelId: 'panel-pbrtqc' });
+    let e2 = applyAction(P2, e1.state, { type: 'FORM_HYPOTHESIS', hypothesisId: 'hyp-analytical', decisionId: 'dec-take-seriously', optionId: 'opt-investigate' });
+    let e3 = applyAction(P2, e2.state, { type: 'RECORD_CONFIDENCE', decisionEventId: e2.decisionEventId, confidence: 'HIGH' });
+    const debriefConf1 = generateDebrief(P2, e3.state);
+    assert('CONF-DEBRIEF-01', debriefConf1.confidenceCalibration.length === 1 && debriefConf1.confidenceCalibration[0].decisionEventId === 'dec-take-seriously#1', `The exact decisionEventId survives into the debrief (found ${JSON.stringify(debriefConf1.confidenceCalibration)})`);
+
+    // CONF-DEBRIEF-02: two revisions under the same decisionId produce two distinct events, not conflated.
+    let f1 = applyAction(P2, e2.state, { type: 'DOCUMENT', decisionId: 'dec-take-seriously', optionId: 'opt-dismiss', fields: {} });
+    let f2 = applyAction(P2, f1.state, { type: 'RECORD_CONFIDENCE', decisionEventId: e2.decisionEventId, confidence: 'HIGH' });
+    let f3 = applyAction(P2, f2.state, { type: 'RECORD_CONFIDENCE', decisionEventId: f1.decisionEventId, confidence: 'LOW' });
+    const debriefConf2 = generateDebrief(P2, f3.state);
+    const eventIds = debriefConf2.confidenceCalibration.map(c => c.decisionEventId).sort();
+    assert('CONF-DEBRIEF-02', eventIds.length === 2 && eventIds[0] === 'dec-take-seriously#1' && eventIds[1] === 'dec-take-seriously#2', `Two revisions under the same decisionId produce two DISTINCT decisionEventIds in the debrief, never conflated (found ${JSON.stringify(eventIds)})`);
+  }
+
   const total = passed + failed;
   console.log(`\n${'='.repeat(60)}`);
   console.log(`Progression-Invariant Tests: ${passed}/${total} passed, ${failed} failed`);

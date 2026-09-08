@@ -46,7 +46,20 @@ const ACTION_TYPE_TO_DECISION_CATEGORY = {
   REVIEW_PATIENT_IMPACT: 'PATIENT_IMPACT_REVIEW',
   RESUME_SERVICE: 'DISPOSITION',
   ESCALATE: 'DISPOSITION',
-  DOCUMENT: 'DISPOSITION',
+  // Stage 12A FINAL DEBRIEF/SCORING TRUTH closure: DOCUMENT is
+  // DELIBERATELY EXCLUDED from this fallback map. A generic DOCUMENT
+  // action (no case-authored decisionId/optionId) is a "limited
+  // administrative record" of learner-authored documentation — it is
+  // NOT itself a disposition decision, and must never be auto-classified
+  // as one merely because its action type happens to be DOCUMENT. A
+  // genuine case-authored DOCUMENT-bound disposition option (Pilot 2's
+  // opt-continue-documented, Pilot 3's opt-no-hold-document, etc.)
+  // ALREADY carries an engine-recorded `decisionCategory` (set at
+  // execution time from the case's decisionOpportunities — see
+  // engine.js), which evaluateDecision() below consults FIRST, before
+  // ever falling back to this map. Removing DOCUMENT here only affects
+  // non-case-authored DOCUMENT calls, which now correctly classify as
+  // category: null (no decision occurred) rather than a phantom DISPOSITION.
 };
 
 export function classifyDecision(actionType) {

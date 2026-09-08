@@ -538,13 +538,13 @@ export function applyAction(caseObj, state, action) {
           return { state, error: `Illegal service-state transition: ${next.serviceState} -> READY_FOR_VERIFICATION`, severity: null };
         }
         next.serviceState = 'READY_FOR_VERIFICATION';
-        if (!authoredOption) { severity = 'INFORMATIONAL'; outcomeAppropriate = true; }
+        if (!authoredOption) { severity = 'INFORMATIONAL'; outcomeAppropriate = true; reasoningSupported = true; }
         next.phase = deriveNarrativePhase(action.type, next.phase);
         next.maxPhaseIndexReached = deriveUnlockedPhaseIndex(next);
         next.actionHistory.push({ ...action, resultingSeverity: severity, outcomeAppropriate, reasoningSupported, note, decisionId: decisionRef?.decisionId || null, optionId: decisionRef?.optionId || null, decisionCategory, decisionEventId });
         return { state: next, error: null, severity, note, outcomeAppropriate, reasoningSupported, decisionEventId };
       } else {
-        if (!authoredOption) { severity = 'UNSAFE'; outcomeAppropriate = false; }
+        if (!authoredOption) { severity = 'UNSAFE'; outcomeAppropriate = false; reasoningSupported = false; }
         note = 'Verification attempted before required evidence was obtained; remaining in a held/investigative state.';
         const nominalPhase = deriveNarrativePhase(action.type, next.phase);
         const regressionTarget = 'INVESTIGATION';
@@ -641,6 +641,13 @@ export function applyAction(caseObj, state, action) {
       break;
   }
 
+  // Stage 12A FINAL DEBRIEF/SCORING TRUTH closure: for actions with no
+  // case-authored decision binding, reasoningSupported must still
+  // genuinely reflect the action's own resulting severity (a raw,
+  // non-case-authored RESUME_SERVICE/ESCALATE/APPLY_INTERVENTION/etc.
+  // that ends up UNSUPPORTED/UNSAFE/CRITICAL_UNSAFE must not silently
+  // report reasoningSupported=true via an untouched default).
+  if (!authoredOption) { reasoningSupported = !(severity === 'UNSUPPORTED' || severity === 'UNSAFE' || severity === 'CRITICAL_UNSAFE'); }
   next.phase = deriveNarrativePhase(action.type, next.phase);
   next.maxPhaseIndexReached = deriveUnlockedPhaseIndex(next);
   next.actionHistory.push({ ...action, resultingSeverity: severity, outcomeAppropriate, reasoningSupported, note, decisionId: decisionRef?.decisionId || null, optionId: decisionRef?.optionId || null, decisionCategory, decisionEventId });

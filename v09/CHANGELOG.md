@@ -340,3 +340,20 @@ Both verified against the exact audit-demonstrated scenarios: a single `DOCUMENT
 **Testing**: engine 49/49 (unchanged), pilot paths 39/39 (unchanged), progression-invariants 49/49 (was 34, +15: `DOC-01`–`DOC-05`, `ESC-01`–`ESC-04`), governance 111/111 (was 105, +6) — Stage 12A total 248/248. All regressions reconfirmed unchanged; all three frozen tree SHAs reconfirmed byte-identical. Case data, schema, validator, decision-model, scoring-model, and evidence-model required zero changes this cycle.
 
 Only 5 files changed, all within `v09/app/morning-qc/engine.js`, Morning QC documentation, and `v09/tests/morning-qc/**`.
+
+### Stage 12A — FINAL DEBRIEF/SCORING TRUTH Closure
+
+One tightly-scoped conceptual defect corrected, found by a seventh independent re-audit of commit acaa4d3: learner-authored documentation was still being interpreted by the debrief/scoring layer as if the corresponding operational decision had actually occurred, plus one stale debrief field from the `decisionEventId` refactor.
+
+1. **Generic DOCUMENT no longer auto-classifies as DISPOSITION**: removed `DOCUMENT` from `decision-model.js`'s fallback classification map. A generic `DOCUMENT` (no case-authored `decisionId`/`optionId`) now classifies as `category: null`, filtered out of `summarizeDecisions()`. Genuine case-authored `DOCUMENT`-bound disposition options (Pilots 2/3) are unaffected — they already carry an engine-recorded `decisionCategory`, consulted first.
+2. **Documented vs. executed disposition modeled separately (Invariant C)**: `debrief-model.js`'s disposition section rebuilt around `documentedFinalDisposition` (learner's claim, always preserved) and `executedDisposition` (genuine occurrence, `null` unless a real disposition decision event exists). `plausiblyJustified` derives from the executed event's own `outcomeAppropriate`/`reasoningSupported` — `null` when no disposition was ever executed.
+3. **Related latent gap fixed**: `reasoningSupported` for non-case-authored actions previously stayed at its untouched default of `true` regardless of severity — now genuinely derived from severity for any non-authored action.
+4. **confidenceCalibration field corrected**: was still outputting the obsolete `decisionId` field; now preserves `decisionEventId` as authoritative, with `decisionId` resolved as an additional display field.
+
+Verified against the exact audit-demonstrated exploit (`ACK` + `DOCUMENT(finalDisposition = groundTruth.appropriateDisposition)`, no actual disposition action ever occurring): `debrief.disposition.executedDisposition`/`.plausiblyJustified` both correctly `null`; `DECISION_APPROPRIATENESS` no longer `STRONG`.
+
+**Testing**: engine 49/49 (unchanged), pilot paths 39/39 (unchanged), progression-invariants 59/59 (was 49, +10: `DTRUTH-01`–`04`, `CONF-DEBRIEF-01`–`02`), governance 118/118 (was 111, +7) — Stage 12A total 265/265. All regressions reconfirmed unchanged; all three frozen tree SHAs reconfirmed byte-identical. Case data, schema, validator, scoring-model, and evidence-model required zero changes this cycle.
+
+A narrow documentation consistency correction was applied to one stale passage describing the pre-hardening unlock model, per audit request.
+
+Only 7 files changed, all within `v09/app/morning-qc/{debrief-model,decision-model,engine}.js`, Morning QC documentation, and `v09/tests/morning-qc/**`.

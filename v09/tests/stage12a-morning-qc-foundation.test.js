@@ -587,6 +587,35 @@ async function main() {
     assert('60c', stillBlocked.error !== null, 'CHARACTERISATION-gated panel remains locked after early escalation — no information leak');
   }
 
+  console.log('\n=== 61. FINAL DEBRIEF/SCORING TRUTH: Invariant C — the exact audit-demonstrated exploit ===');
+  {
+    const { generateDebrief } = await import('file://' + path.join(MQC, 'debrief-model.js'));
+    const { computeScoringProfile: csp2 } = await import('file://' + path.join(MQC, 'scoring-model.js'));
+
+    // Exact reproduction: ACKNOWLEDGE_SIGNAL, then generic DOCUMENT with
+    // finalDisposition = groundTruth.appropriateDisposition. No HOLD_RESULTS,
+    // investigation, intervention, VERIFY_RECOVERY, patient-impact review,
+    // RESUME_SERVICE, or ESCALATE ever occurs.
+    let s = createInitialState(pilots[0]);
+    let acked = applyAction(pilots[0], s, { type: 'ACKNOWLEDGE_SIGNAL' });
+    const documented = applyAction(pilots[0], acked.state, { type: 'DOCUMENT', fields: { finalDisposition: pilots[0].groundTruth.appropriateDisposition } });
+    assert('61a', documented.state.serviceState === 'RUNNING', 'Service state remains RUNNING — matches the audit\'s exact reproduction');
+    assert('61b', documented.state.actionHistory.length === 2 && documented.state.actionHistory.every(h => ['ACKNOWLEDGE_SIGNAL', 'DOCUMENT'].includes(h.type)), 'Action history contains only ACKNOWLEDGE_SIGNAL and DOCUMENT, exactly as the audit reproduced');
+    const debrief = generateDebrief(pilots[0], documented.state);
+    assert('61c', debrief.disposition.executedDisposition === null, 'debrief.disposition.executedDisposition is null — no disposition action genuinely occurred');
+    assert('61d', debrief.disposition.plausiblyJustified === null, 'debrief.disposition.plausiblyJustified is null, NOT true — this is the exact defect the audit demonstrated, now corrected');
+    assert('61e', debrief.disposition.documentedFinalDisposition === pilots[0].groundTruth.appropriateDisposition, 'The learner\'s documented claim is still preserved and retrievable as documentation');
+    const profile = csp2(pilots[0], documented.state);
+    assert('61f', profile.DECISION_APPROPRIATENESS !== 'STRONG', `DECISION_APPROPRIATENESS is not STRONG (found ${profile.DECISION_APPROPRIATENESS}) — the false-full-credit defect is closed`);
+  }
+
+  console.log('\n=== 62. Exhaustive progression-invariant suite (59 assertions) still passes ===');
+  {
+    let progOk2 = false, progOutput2 = '';
+    try { progOutput2 = execSync(`node ${path.join(V09, 'tests', 'morning-qc', 'progression-invariants.test.cjs')}`).toString(); progOk2 = true; } catch (e) { progOutput2 = (e.stdout || '').toString(); progOk2 = false; }
+    assert('62', progOk2 && progOutput2.includes('PROGRESSION-INVARIANT TESTS PASSED'), 'Full progression-invariant suite (including Invariants A, B, and C) passes as a subprocess');
+  }
+
   const total = passed + failed;
   console.log(`\n${'='.repeat(60)}`);
   console.log(`Stage 12A Morning QC Foundation Tests: ${passed}/${total} passed, ${failed} failed`);

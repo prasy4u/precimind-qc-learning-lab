@@ -197,3 +197,21 @@ A new engine-owned `state.systemEvents` object (`hypothesesFormed`, `investigati
 The existing `phase`-vs-`deriveUnlockedPhaseIndex()` separation (narrative descriptor vs. gating authority) already established in prior closures made this fix straightforward — `phase` may still show `ESCALATED`-oriented narrative state without that label ever feeding the unlock computation.
 
 The exhaustive progression-invariant test layer grew from 34 to 49 assertions, adding direct adversarial tests (`DOC-01`–`DOC-05`, `ESC-01`–`ESC-04`) for both invariants, including the exact combined-forgery scenario the audit demonstrated.
+
+---
+
+## 15. Stage 12A Independent-Audit FINAL DEBRIEF/SCORING TRUTH Closure
+
+A seventh independent re-audit found one tightly-scoped conceptual defect remaining after the progression-authority hardening: **learner-authored documentation was still being interpreted by the debrief/scoring layer as if the corresponding operational decision had actually occurred.**
+
+Specifically, generic `DOCUMENT` (no case-authored `decisionId`/`optionId`) fell back to a `DISPOSITION` category in `decision-model.js`'s classification map, with a default `outcomeAppropriate: true` — meaning a learner who executed only `ACKNOWLEDGE_SIGNAL` followed by `DOCUMENT` (writing the ground-truth `finalDisposition` text, with no `HOLD_RESULTS`, investigation, intervention, verification, patient-impact review, `RESUME_SERVICE`, or `ESCALATE` ever occurring) received `debrief.disposition.plausiblyJustified: true` and `DECISION_APPROPRIATENESS: STRONG`, purely from a string match between the documented text and the case's ground truth.
+
+**Fix**: `DOCUMENT` removed entirely from the fallback classification map — a generic `DOCUMENT` action (no case-authored binding) now classifies as `category: null` and is filtered out of `summarizeDecisions()` entirely, exactly like any other non-decision action. A genuine case-authored `DOCUMENT`-bound disposition option (Pilot 2's `opt-continue-documented`, Pilot 3's `opt-no-hold-document`, etc.) is unaffected — it already carries an engine-recorded `decisionCategory` (set at execution time from the case's `decisionOpportunities`), which `evaluateDecision()` consults *first*, before ever falling back to the action-type map.
+
+`debrief-model.js`'s disposition section was rebuilt around three explicitly separate facts — **Invariant C**: *"learner-authored documentation can describe or claim an action/conclusion, but it cannot rewrite the engine's record of what actually occurred and cannot receive operational/decision credit by itself."* `documentedFinalDisposition` (what the learner wrote, always preserved) and `executedDisposition` (what genuinely occurred — `null` unless a real `DISPOSITION`-category decision event exists in the trace) are now modeled as distinct fields; `plausiblyJustified` is derived directly from the executed event's own `outcomeAppropriate`/`reasoningSupported` (`null`, not `false`, when no disposition was ever executed — absence of a decision is not itself a poor decision).
+
+A related latent gap was found and fixed while implementing this: `reasoningSupported` for actions with **no** case-authored decision binding (e.g. a raw, non-case-authored `RESUME_SERVICE`/`ESCALATE`) previously stayed at its untouched default of `true` regardless of the action's own resulting severity. Now genuinely derived from severity for any non-authored action, so `executedDisposition.reasoningSupported` is trustworthy even for raw structural dispositions.
+
+`debrief-model.js`'s `confidenceCalibration` output — stale from the `decisionEventId` refactor in a prior closure — was corrected to preserve `decisionEventId` as the authoritative event identity (resolving the reusable `decisionId` from action history as an additional, non-authoritative display field). This matters specifically for revised decisions under the same `decisionId`: each revision's confidence now stays correctly attributed to its own distinct event.
+
+Together with the already-established Invariant A (documentation cannot forge progression) and Invariant B (operational disposition cannot forge information progression), Stage 12A now maintains three cleanly separated truth domains: **engine/domain events**, **learner documentation**, and **ground-truth/debrief reference** — none may impersonate another.

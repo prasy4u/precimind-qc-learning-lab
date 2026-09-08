@@ -40,11 +40,36 @@ export function generateDebrief(caseObj, finalState) {
   const patientImpactAddressed = finalState.patientImpactState !== 'NOT_INDICATED' ||
     caseObj.groundTruth?.patientImpactStatus === 'NOT_INDICATED';
 
-  const dispositionMatchesGroundTruth = finalState.documentation.finalDisposition &&
-    caseObj.groundTruth?.appropriateDisposition &&
-    finalState.documentation.finalDisposition.toUpperCase().includes(
-      String(caseObj.groundTruth.appropriateDisposition).toUpperCase().split(' ')[0]
-    );
+  const dispositionDecisions = decisions.filter(d => d.category === 'DISPOSITION');
+  // Stage 12A FINAL DEBRIEF/SCORING TRUTH closure: disposition
+  // justification must derive from what ACTUALLY OCCURRED in the trace
+  // (a genuine DISPOSITION-category decision event — either a
+  // case-authored decisionId/optionId execution, or a raw RESUME_SERVICE/
+  // ESCALATE), never from string-matching learner-authored
+  // documentation.finalDisposition against groundTruth.appropriateDisposition.
+  // documentedFinalDisposition (what the learner WROTE) and
+  // executedDisposition (what the learner actually DID) are modeled as
+  // explicitly separate facts — Invariant C: "learner-authored
+  // documentation can describe or claim an action/conclusion, but it
+  // cannot rewrite the engine's record of what actually occurred and
+  // cannot receive operational/decision credit by itself."
+  const executedDispositionEvent = dispositionDecisions.length > 0 ? dispositionDecisions[dispositionDecisions.length - 1] : null;
+  const executedDisposition = executedDispositionEvent ? {
+    actionType: executedDispositionEvent.actionType,
+    decisionId: executedDispositionEvent.decisionId,
+    optionId: executedDispositionEvent.optionId,
+    decisionEventId: executedDispositionEvent.decisionEventId,
+    outcomeAppropriate: executedDispositionEvent.outcomeAppropriate,
+    reasoningSupported: executedDispositionEvent.reasoningSupported,
+  } : null;
+  // plausiblyJustified: true only when a genuine disposition event
+  // actually occurred AND that event's own outcome was appropriate AND
+  // adequately evidence-supported. null (not false) when no disposition
+  // was ever executed — absence of a decision is not itself a poor
+  // decision; it is simply the absence of one.
+  const plausiblyJustified = executedDispositionEvent === null
+    ? null
+    : (executedDispositionEvent.outcomeAppropriate && executedDispositionEvent.reasoningSupported);
 
   return {
     noticed: {
@@ -73,7 +98,11 @@ export function generateDebrief(caseObj, finalState) {
         : 'Hypotheses were formed after at least some evidence gathering.',
     },
     intervention: {
-      applied: !!finalState.documentation.intervention,
+      // Stage 12A PROGRESSION-AUTHORITY-HARDENING closure: reads the
+      // engine-owned systemEvents authority, not the learner-facing
+      // documentation mirror, for the same reason deriveUnlockedPhaseIndex()
+      // does — genuine occurrence, never learner-editable text.
+      applied: finalState.systemEvents.interventionApplied === true,
       evidenceSupported: decisions.filter(d => d.category === 'INTERVENTION').every(d => d.reasoningSupported),
     },
     verification: {
@@ -88,13 +117,24 @@ export function generateDebrief(caseObj, finalState) {
       finalState: finalState.patientImpactState,
     },
     disposition: {
-      final: finalState.documentation.finalDisposition,
-      plausiblyJustified: !!dispositionMatchesGroundTruth,
+      documentedFinalDisposition: finalState.documentation.finalDisposition, // learner's CLAIM — may be null, may differ from what was executed
+      executedDisposition, // what genuinely occurred — null if no disposition decision was ever executed
+      plausiblyJustified,
       groundTruthDisposition: caseObj.groundTruth?.appropriateDisposition || null,
     },
-    confidenceCalibration: finalState.confidenceRecords.map(r => ({
-      decisionId: r.decisionId, confidence: r.confidence,
-    })),
+    confidenceCalibration: finalState.confidenceRecords.map(r => {
+      // Stage 12A FINAL DEBRIEF/SCORING TRUTH closure: decisionEventId is
+      // the authoritative event identity (supports revised decisions
+      // under the same reusable decisionId — see decisionEventId
+      // architecture). The reusable decisionId is resolved from action
+      // history as an additional, non-authoritative display convenience.
+      const matchingEntry = finalState.actionHistory.find(h => h.decisionEventId === r.decisionEventId);
+      return {
+        decisionEventId: r.decisionEventId,
+        decisionId: matchingEntry ? matchingEntry.decisionId : null,
+        confidence: r.confidence,
+      };
+    }),
     scoringProfile,
     commonMisconceptions: caseObj.debriefEvidence?.commonMisconceptions || [],
     strongPathDescription: caseObj.debriefEvidence?.strongPathDescription || null,

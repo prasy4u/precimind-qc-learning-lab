@@ -198,6 +198,126 @@ async function main() {
     assert('KBD-02', !m3.container.innerHTML.includes('Decision required'), 'Escape key closes the decision dialog');
   }
 
+  /* ===================== Drawer controls + mutual exclusion (Section 2/16) ===================== */
+  console.log('\n=== Drawer controls: toggle, mutual exclusion, backdrop close, Escape ===');
+  {
+    const m4 = mount();
+    await act(async () => { m4.root.render(React.createElement(MorningQCRoom, { key: 'p4', caseObj: pilot1ReagentLotShift })); });
+    const infoToggle = byTextIncludes(m4.container, 'Information');
+    const reasoningToggle = byTextIncludes(m4.container, 'Reasoning');
+    assert('DRAWER-01', !!infoToggle && !!reasoningToggle, 'Information/Reasoning drawer-toggle controls render in the header');
+    assert('DRAWER-02', infoToggle.getAttribute('aria-expanded') === 'false', 'Info drawer toggle starts collapsed (aria-expanded=false)');
+
+    await act(async () => { click(infoToggle); });
+    assert('DRAWER-03', m4.container.querySelector('.mqc-dock').getAttribute('data-open') === 'true', 'Clicking Information opens the info drawer (data-open=true)');
+    assert('DRAWER-04', infoToggle.getAttribute('aria-expanded') === 'true', 'aria-expanded reflects the open state');
+    assert('DRAWER-05', !!m4.container.querySelector('.mqc-drawer-backdrop'), 'A backdrop renders while the drawer is open');
+
+    // Mutual exclusion: opening reasoning closes info.
+    await act(async () => { click(reasoningToggle); });
+    assert('DRAWER-06', m4.container.querySelector('.mqc-dock').getAttribute('data-open') === 'false', 'Opening the reasoning drawer closes the info drawer (mutual exclusion)');
+    assert('DRAWER-07', m4.container.querySelector('.mqc-reasoning').getAttribute('data-open') === 'true', 'Reasoning drawer is now open');
+
+    // Backdrop click closes.
+    const backdrop = m4.container.querySelector('.mqc-drawer-backdrop');
+    await act(async () => { click(backdrop); });
+    assert('DRAWER-08', m4.container.querySelector('.mqc-reasoning').getAttribute('data-open') === 'false', 'Clicking the backdrop closes the open drawer');
+
+    // Escape closes an open drawer.
+    await act(async () => { click(infoToggle); });
+    assert('DRAWER-09', m4.container.querySelector('.mqc-dock').getAttribute('data-open') === 'true', 'Info drawer open again for the Escape test');
+    await act(async () => { keydown(document, 'Escape'); });
+    assert('DRAWER-10', m4.container.querySelector('.mqc-dock').getAttribute('data-open') === 'false', 'Escape closes the open info drawer');
+
+    // Selecting a panel closes the info drawer automatically (mobile UX).
+    await act(async () => { click(infoToggle); });
+    const panelBtn = byTextIncludes(m4.container, 'QC History');
+    await act(async () => { click(panelBtn); });
+    assert('DRAWER-11', m4.container.querySelector('.mqc-dock').getAttribute('data-open') === 'false', 'Selecting a panel closes the info drawer automatically');
+  }
+
+  /* ===================== Hypothesis composer no longer exposes full menu (Section 12) ===================== */
+  console.log('\n=== Hypothesis composer does not expose the complete authored hypothesis set ===');
+  {
+    const m5 = mount();
+    await act(async () => { m5.root.render(React.createElement(MorningQCRoom, { key: 'p5', caseObj: pilot1ReagentLotShift })); });
+    const ackBtn = byTextIncludes(m5.container, 'Acknowledge signal');
+    await act(async () => { click(ackBtn); });
+    const panelBtn = byTextIncludes(m5.container, 'QC History');
+    await act(async () => { click(panelBtn); });
+    const formBtn = byTextIncludes(m5.container, 'Form a hypothesis');
+    assert('HYPUX-01', !!formBtn, 'Form-a-hypothesis control is present');
+    await act(async () => { click(formBtn); });
+    const html = m5.container.innerHTML;
+    // Pilot 1's real hypothesis labels (from case data) must NOT appear as
+    // a menu before the learner has typed anything close to them.
+    assert('HYPUX-02', !html.includes('Reagent lot change caused'), 'The full authored hypothesis label is NOT shown as a pre-populated menu option');
+    assert('HYPUX-03', !!m5.container.querySelector('#mqc-hyp-draft'), 'A free-text composer input is offered instead of a menu');
+  }
+
+  /* ===================== RoomStatus not forgeable via documentation (Section 13) ===================== */
+  console.log('\n=== RoomStatus "concluding" stage is not advanced merely by documentation.finalDisposition ===');
+  {
+    const { createRoomController } = await import('file://' + path.join(APP, 'ui', 'ui-adapter.js'));
+    const ctrl = createRoomController(pilot1ReagentLotShift);
+    ctrl.dispatch({ type: 'ACKNOWLEDGE_SIGNAL' });
+    ctrl.dispatch({ type: 'DOCUMENT', fields: { finalDisposition: 'a written claim of conclusion' } });
+    const vm = ctrl.getViewModel();
+    assert('STATUS-01', vm.serviceState === 'RUNNING', 'serviceState remains RUNNING despite the documented claim (sanity)');
+    // The RoomStatus component's "concluding" dot must derive only from
+    // serviceState, never from documentation.finalDisposition — verified
+    // by rendering it directly and confirming the dot is NOT reached.
+    const { RoomStatus } = await import('file://' + process.cwd() + '/.mqc-ui-build/room-status.mjs');
+    const m6 = mount();
+    await act(async () => { m6.root.render(React.createElement(RoomStatus, { viewModel: vm })); });
+    const dots = m6.container.querySelectorAll('.mqc-room-status__dot');
+    assert('STATUS-02', dots.length === 3 && dots[2].getAttribute('data-reached') === 'false', 'The "concluding" status dot is NOT reached merely because documentation.finalDisposition was written');
+  }
+
+  /* ===================== Patient-impact targets derived from Stage 12A authority (Section 14) ===================== */
+  console.log('\n=== Patient-impact targets are derived from the real Stage 12A transition table ===');
+  {
+    const { PATIENT_IMPACT_TRANSITIONS } = await import('file://' + path.join(APP, 'states.js'));
+    const patientImpactSrc = require('fs').readFileSync(path.join(APP, 'ui', 'patient-impact-panel.jsx'), 'utf8');
+    assert('PI-SRC-01', patientImpactSrc.includes("from '../states.js'") && patientImpactSrc.includes('PATIENT_IMPACT_TRANSITIONS'), 'patient-impact-panel.jsx imports PATIENT_IMPACT_TRANSITIONS directly from Stage 12A states.js (no local duplicate table)');
+    assert('PI-SRC-02', !/const\s+REVIEWABLE_TARGETS\s*=/.test(patientImpactSrc), 'The previously-hardcoded local REVIEWABLE_TARGETS declaration has been removed (a comment may still reference the old name for context)');
+    assert('PI-SRC-03', Array.isArray(PATIENT_IMPACT_TRANSITIONS.AFFECTED_RESULT_SET_IDENTIFIED) && PATIENT_IMPACT_TRANSITIONS.AFFECTED_RESULT_SET_IDENTIFIED.includes('ESCALATION_REQUIRED'), 'The real Stage 12A table includes the ESCALATION_REQUIRED transition the old local duplicate had silently missed');
+  }
+
+  /* ===================== Documentation drawer focus trap (Section 15) ===================== */
+  console.log('\n=== Documentation drawer implements a genuine focus trap ===');
+  {
+    const m7 = mount();
+    await act(async () => { m7.root.render(React.createElement(MorningQCRoom, { key: 'p7', caseObj: pilot1ReagentLotShift })); });
+    const ackBtn = byTextIncludes(m7.container, 'Acknowledge signal');
+    await act(async () => { click(ackBtn); });
+    const docBtn = byTextIncludes(m7.container, 'Document');
+    await act(async () => { click(docBtn); });
+    assert('DOCTRAP-01', m7.container.innerHTML.includes('Documentation'), 'Documentation drawer is open');
+    const drawer = m7.container.querySelector('[role="dialog"][aria-label="Documentation"]');
+    assert('DOCTRAP-02', !!drawer, 'Drawer has role=dialog and aria-label');
+    const focusable = drawer.querySelectorAll('textarea, input, button');
+    const last = focusable[focusable.length - 1];
+    last.focus();
+    await act(async () => { keydown(drawer, 'Tab'); });
+    assert('DOCTRAP-03', document.activeElement === focusable[0], 'Tab from the last focusable element wraps to the first (focus trap active)');
+    await act(async () => { keydown(document, 'Escape'); });
+    assert('DOCTRAP-04', !m7.container.innerHTML.includes('Save documentation'), 'Escape closes the documentation drawer');
+  }
+
+  /* ===================== Case switch resets BOTH engine and presentation state (Section 16) ===================== */
+  console.log('\n=== Case switch resets engine state AND presentation state (drawers) ===');
+  {
+    const m8 = mount();
+    await act(async () => { m8.root.render(React.createElement(MorningQCRoom, { key: 'pA', caseObj: pilot1ReagentLotShift })); });
+    const infoToggle8 = byTextIncludes(m8.container, 'Information');
+    await act(async () => { click(infoToggle8); });
+    assert('SWITCH-01', m8.container.querySelector('.mqc-dock').getAttribute('data-open') === 'true', 'Info drawer opened on the first case');
+    // Remount with a different key (case switch), matching dev-launcher.jsx's pattern.
+    await act(async () => { m8.root.render(React.createElement(MorningQCRoom, { key: 'pB', caseObj: pilot2PbrtqcPopulationShift })); });
+    assert('SWITCH-02', m8.container.querySelector('.mqc-dock').getAttribute('data-open') === 'false', 'Drawer presentation state resets to closed on a genuine case switch (key change), not carried over');
+  }
+
   const total = passed + failed;
   console.log(`\n${'='.repeat(60)}`);
   console.log(`Morning QC UI Component Tests: ${passed}/${total} passed, ${failed} failed`);

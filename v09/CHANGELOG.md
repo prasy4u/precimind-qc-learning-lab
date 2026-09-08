@@ -373,3 +373,23 @@ Built the first learner-facing Morning QC Room interface under `v09/app/morning-
 **Testing**: UI component tests 35/35, Stage 12B governance 38/38 (freeze-check, no case-ID branching, no scientific-formula duplication, leakage audits, decisionEventId binding, documentation/event separation, keyboard semantics, responsive breakpoints, disclosed browser-evidence limitation). Stage 12A regression reconfirmed unchanged at 265/265 (engine 49/49, pilot paths 39/39, progression-invariants 59/59, governance 118/118). All historical baselines (Stage 11A/11B/11C1/11C2/v0.8) reconfirmed matching exactly; all three frozen tree SHAs reconfirmed byte-identical.
 
 **File scope**: new files entirely within `v09/app/morning-qc/ui/**`, `v09/tests/morning-qc/**` (including new test-support helpers), `v09/tests/stage12b-morning-qc-shell.test.js`, `v09/tests/browser/evidence/stage12b/`, and `v09/docs/**` (four new docs plus a narrow roadmap append). Only `.gitignore` (1 line, excluding the regenerable test-build artifact directory) and `V09_ROADMAP.md` were modified. Zero Stage 12A engine/domain files, zero Stage 11C2 modules, zero `package.json`/`package-lock.json`, zero `app-shell.jsx` changes.
+
+### Stage 12B Corrective Closure
+
+A subsequent independent audit found real defects and one major environment-capability correction, resolved as follows.
+
+**Real browser testing IS possible here**: discovered pre-staged Chromium binaries at `/opt/pw-browsers/` and `/opt/google/chrome/`; installing the exact-matching `playwright-core@1.56.0` (not npm's latest) unlocked genuine Playwright-driven browser automation. `tests/browser/v09-stage12b-morning-qc-shell.e2e.js` now drives a real Chromium instance against the deterministically-built `dist-morning-qc-dev/` artifact across all three real pilots and the full required viewport matrix — **25/25 assertions pass**, with checked-in screenshot evidence.
+
+**Four real bugs found and fixed by real browser testing** (none catchable by jsdom, which doesn't implement real CSS layout): a drawer-backdrop z-index bug making the toggle button unclickable; a classic CSS Grid `1fr`-doesn't-clamp overflow bug causing genuine horizontal overflow at 390px (fixed via `minmax(0, 1fr)`); a dev-launcher toolbar overflow bug; and a real production-code import-path bug in `morning-qc-room.jsx` that a test-harness rewrite had been silently papering over.
+
+**Responsive drawer architecture**: `infoDrawerOpen`/`reasoningDrawerOpen` are now genuine React state driving `data-open`-gated CSS transforms, with mutual exclusion, Escape-to-close, backdrop click-to-close, and auto-close on panel selection.
+
+**Truth-derivation fixes**: `RoomStatus` no longer treats `documentation.finalDisposition` (a learner claim) as evidence of concluding; `PatientImpactPanel` now imports `PATIENT_IMPACT_TRANSITIONS` directly from Stage 12A's `states.js` instead of a local duplicate that had already silently drifted (missing a transition); `DocumentationDrawer` now implements a genuine focus trap; `HypothesisWorkspace` replaced its full-menu-of-all-hypotheses pattern with a free-text composer.
+
+**Sanctioned Stage 12A case-data exception**: a semantic leakage review found two panels (Pilot 1's `panel-calibration`, Pilot 2's `panel-pbrtqc`) whose authored text embedded the conclusion the learner was meant to reach independently. Per the audit's explicit instruction, documented and fixed narrowly: an additive, optional `content.learnerNote` field added to `case-schema.js` and the two panels — `content.note` itself never altered. This is the only Stage 12A case/schema change this cycle, explicitly tracked in the freeze manifest's new `sanctionedExceptions` list and verified against a real `git diff`.
+
+**A Stage 11C2 regression was found and fixed during this closure**: a new dev entry point under `v09/app/**` broke Stage 11C2's frozen "exactly one `createRoot()`" invariant; fixed by relocating the entry point to `v09/dev/`, outside `app/**` entirely.
+
+**Test-dependency reproducibility**: `v09/tests/morning-qc/package.json` + lockfile now pin `jsdom`/`playwright-core@1.56.0` reproducibly, isolated from the frozen main `package.json` (an earlier attempt to add `jsdom` there broke Stage 12A's own byte-identity governance — caught and correctly reverted).
+
+**Testing**: UI component tests 60/60 (was 35, +25), Stage 12B governance 57/57 (was 38, +19), real browser E2E 25/25 (new). Stage 12A regression unchanged at 265/265. All historical baselines reconfirmed, including the Stage 11C2 regression restored to 49/49.

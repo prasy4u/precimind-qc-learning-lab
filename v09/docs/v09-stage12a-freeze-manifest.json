@@ -1,8 +1,16 @@
 {
   "description": "Stage 12A engine/domain file SHA-256 freeze manifest, captured at the accepted Stage 12A baseline commit 080649c6daa9abc8c17753ce77607d5bd3a95f0d. Stage 12B governance verifies these files remain byte-identical.",
   "baselineCommit": "080649c6daa9abc8c17753ce77607d5bd3a95f0d",
+  "sanctionedExceptions": {
+    "description": "During the Stage 12B corrective closure, a semantic panel-content leakage review (Section 11 of the corrective-closure audit) found that content.note text on two panels embedded author/debrief-level interpretive conclusions (e.g. Pilot 1's panel-calibration: 'does not itself explain a shift...') that leaked the learner's intended conclusion. Per the audit's explicit instruction ('STOP and report the precise case-data/interface issue before modifying it... a narrowly justified learner-facing projection field may be proposed if genuinely necessary, but Stage 12A case modifications require explicit listing in the final report'), this was documented and a narrow, additive fix applied: an OPTIONAL content.learnerNote field (the purely-factual projection) was added to case-schema.js's documentation and to the two affected panels. content.note itself was NEVER altered or removed anywhere — it remains the full authored text for audit/debrief purposes. These three files are the ONLY sanctioned exceptions to the Stage 12A freeze; all other files in this manifest, and all Stage 12A engine logic/behavior, remain completely unchanged.",
+    "files": [
+      "app/morning-qc/case-schema.js",
+      "app/morning-qc/cases/pilot-1-reagent-lot-shift.js",
+      "app/morning-qc/cases/pilot-2-pbrtqc-population-shift.js"
+    ]
+  },
   "files": {
-    "app/morning-qc/case-schema.js": "61f34e95c1f5a9020c5b1c5650d8e9d14c683b41826607a2772694537b52229e",
+    "app/morning-qc/case-schema.js": "5e90865f2652b20b7cb4bd32df156ebde15d76bd30310d28b99ee37fc0004134",
     "app/morning-qc/case-validator.js": "02e00cbd9491c151ecc7e2bee9f34c9acb2431ac87f905e2f604756686265380",
     "app/morning-qc/debrief-model.js": "4b56d1def5278957cf4622d38c32d913873c020f8681a3b24bc88bba48a1d6d4",
     "app/morning-qc/decision-model.js": "efb32f810ea9201c78c40db2dba299cf529f7c64841d57cfca36547f24567eee",
@@ -11,8 +19,8 @@
     "app/morning-qc/scoring-model.js": "9227e5a5a52190d8b81b82691eb40d4e9c3f4fe463f7574848f1cbf23b352c4e",
     "app/morning-qc/states.js": "6f2dcbfaa3ae69332b29fdbd567e3722f940d056cdcd40dcb5bdc52e2e1b955b",
     "app/morning-qc/types.js": "be435b7dc81cd8c67fa9715319b63fb8774e91893f9d48326c0a9eae928553c4",
-    "app/morning-qc/cases/pilot-1-reagent-lot-shift.js": "f37a4101d0db32d83a3ea72e45f18722dc0af775e086b3c3a89e4b767c9a0c8f",
-    "app/morning-qc/cases/pilot-2-pbrtqc-population-shift.js": "89749af4d858f1c6803b2e35b27d46291931b493b92395658ff7db5a6531c66d",
+    "app/morning-qc/cases/pilot-1-reagent-lot-shift.js": "e39d47c82593ada4aedf432a30ce1b7ec0bee5b6b440c4f9cca8b36d798d4335",
+    "app/morning-qc/cases/pilot-2-pbrtqc-population-shift.js": "ba69ea2915156636464fdf1b64f2f51fb39ac38b345dc4a397c6394e46eb398c",
     "app/morning-qc/cases/pilot-3-rcv-patient-impact.js": "c89b6b7506a4c978b3e5f28efe723b41c1070091f54a1215052397828df4d85a"
   }
 }

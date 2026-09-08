@@ -41,7 +41,7 @@ async function main() {
     assert('1b', baseAncestor === '0', `Accepted Stage 12A baseline ${BASE_REF} is an ancestor of HEAD`);
   }
 
-  console.log('\n=== 2. Stage 12A engine files byte-frozen ===');
+  console.log('\n=== 2. Stage 12A engine files byte-frozen (with documented sanctioned exceptions) ===');
   {
     const manifest = JSON.parse(fs.readFileSync(path.join(V09, 'docs', 'v09-stage12a-freeze-manifest.json'), 'utf8'));
     let allFrozen = true;
@@ -49,7 +49,23 @@ async function main() {
       const actual = sha256(path.join(V09, relPath));
       if (actual !== expectedHash) { allFrozen = false; console.error(`    MISMATCH: ${relPath}`); }
     }
-    assert('2', allFrozen, `All ${Object.keys(manifest.files).length} Stage 12A engine/domain files remain byte-identical to the frozen manifest`);
+    assert('2a', allFrozen, `All ${Object.keys(manifest.files).length} Stage 12A engine/domain files match the current manifest exactly`);
+    // The manifest itself must explicitly document WHICH files are
+    // sanctioned exceptions from the ORIGINAL Stage 12A baseline, and
+    // that list must be exactly the 3 files this closure's semantic
+    // leakage review (Section 11) justified changing — not a silent,
+    // undocumented drift.
+    const exceptions = manifest.sanctionedExceptions;
+    assert('2b', exceptions && Array.isArray(exceptions.files) && exceptions.files.length === 3, 'Manifest explicitly documents exactly 3 sanctioned exceptions from the original Stage 12A baseline');
+    assert('2c', exceptions.files.includes('app/morning-qc/case-schema.js') && exceptions.files.includes('app/morning-qc/cases/pilot-1-reagent-lot-shift.js') && exceptions.files.includes('app/morning-qc/cases/pilot-2-pbrtqc-population-shift.js'), 'The 3 documented exceptions are exactly case-schema.js, pilot-1, and pilot-2 (never engine.js, states.js, case-validator.js, decision-model.js, evidence-model.js, scoring-model.js, debrief-model.js, types.js, or pilot-3)');
+    // Verify the actual DIFF from the ORIGINAL Stage 12A baseline commit
+    // touches ONLY these 3 files among the 12 manifested — using git
+    // directly against the baseline commit, not just the manifest's own
+    // (self-reported) claim.
+    const gitDiffNames = execSync(`git diff ${BASE_REF} --name-only -- ${Object.keys(manifest.files).map(f => `v09/${f}`).join(' ')}`, { cwd: path.join(V09, '..') }).toString().trim().split('\n').filter(Boolean);
+    const expectedChanged = new Set(exceptions.files.map(f => `v09/${f}`));
+    const onlyExpectedChanged = gitDiffNames.every(f => expectedChanged.has(f));
+    assert('2d', onlyExpectedChanged, `git diff against the original baseline touches ONLY the documented sanctioned exceptions among the 12 manifested files (found: ${JSON.stringify(gitDiffNames)})`);
   }
 
   console.log('\n=== 3. Stage 12A tests unchanged and passing ===');
@@ -213,22 +229,62 @@ async function main() {
     assert('15c', cssSrc.includes('prefers-reduced-motion'), 'Reduced-motion accessibility rule present, consistent with Stage 11B doctrine');
   }
 
-  console.log('\n=== 16. Browser evidence — DISCLOSED LIMITATION ===');
+  console.log('\n=== 9. Test-dependency reproducibility (isolated from the frozen main package.json) ===');
   {
-    // HONEST DISCLOSURE: Playwright's Chromium binary cannot be downloaded
-    // in this sandbox (cdn.playwright.dev is not in the network egress
-    // allowlist — verified directly during Stage 12B by attempting
-    // `npx playwright install chromium`, which failed with HTTP 403
-    // "Host not in allowlist"). Real browser screenshots, pixel-level
-    // CSS overflow/clipping detection, and true visual layout QA
-    // (Sections 41-42) could NOT be produced. jsdom-based interactive
-    // DOM testing (ui-component.test.cjs) is used as the closest
-    // available substitute — it verifies real DOM structure, conditional
-    // rendering, and event-driven state transitions, but does NOT verify
-    // actual visual layout, paint, or box-model overflow.
+    const testPkgPath = path.join(V09, 'tests', 'morning-qc', 'package.json');
+    const testLockPath = path.join(V09, 'tests', 'morning-qc', 'package-lock.json');
+    assert('DEP-01', fs.existsSync(testPkgPath), 'Test-local package.json exists (v09/tests/morning-qc/package.json)');
+    assert('DEP-02', fs.existsSync(testLockPath), 'Test-local package-lock.json exists, enabling reproducible `npm ci`');
+    if (fs.existsSync(testPkgPath)) {
+      const testPkg = JSON.parse(fs.readFileSync(testPkgPath, 'utf8'));
+      assert('DEP-03', testPkg.devDependencies && testPkg.devDependencies.jsdom && testPkg.devDependencies['playwright-core'], 'Test-local manifest pins both jsdom and playwright-core');
+    }
+    const mainPkgDiff = execSync(`git diff ${BASE_REF} --name-only -- v09/package.json v09/package-lock.json`, { cwd: path.join(V09, '..') }).toString().trim();
+    assert('DEP-04', mainPkgDiff === '', 'The main v09/package.json and v09/package-lock.json remain completely untouched');
+  }
+
+  console.log('\n=== 16. Real browser evidence — treated as BLOCKED/FAIL unless genuinely PASS ===');
+  {
+    // CORRECTIVE-CLOSURE FIX: a limitation-disclosure file existing is NO
+    // LONGER treated as equivalent to completed browser QA. This section
+    // requires an ACTUAL result.json reporting status:"PASS" from a real
+    // Playwright/Chromium run, real desktop+mobile screenshots, and a
+    // deterministic developer-build tree hash — anything less is BLOCKED
+    // or FAIL, never silently accepted.
     const evidenceDir = path.join(V09, 'tests', 'browser', 'evidence', 'stage12b');
-    const disclosureFile = path.join(evidenceDir, 'LIMITATION.md');
-    assert('16', fs.existsSync(disclosureFile), 'Browser-evidence limitation is explicitly disclosed in a checked-in file rather than silently omitted or fabricated');
+    const resultPath = path.join(evidenceDir, 'result.json');
+    assert('16a', fs.existsSync(resultPath), 'A real browser-run result.json exists (not merely a limitation marker)');
+    if (fs.existsSync(resultPath)) {
+      const result = JSON.parse(fs.readFileSync(resultPath, 'utf8'));
+      assert('16b', result.status === 'PASS', `Browser E2E result status is genuinely PASS, not BLOCKED or FAIL (found: ${result.status}${result.reason ? ' — ' + result.reason : ''})`);
+      assert('16c', typeof result.passed === 'number' && typeof result.total === 'number' && result.passed === result.total && result.total > 0, `Result reports a genuine non-zero passed/total count with zero failures (found ${result.passed}/${result.total})`);
+      assert('16d', typeof result.browserExecutable === 'string' && result.browserExecutable.length > 0, 'Result records which real browser executable was used (not a fabricated claim)');
+    }
+    const requiredScreenshots = [
+      'p1-initial-1440x1000.png', 'p1-panel-open-1440x1000.png', 'p1-decision-dialog-1440x1000.png',
+      'p1-held-verification-1440x1000.png', 'p1-mobile-390x844.png', 'p1-drawer-open-390x844.png',
+    ];
+    const missingScreenshots = requiredScreenshots.filter(f => !fs.existsSync(path.join(evidenceDir, f)));
+    assert('16e', missingScreenshots.length === 0, `All required screenshot evidence exists (initial room, panel open, decision dialog, HELD/verification state, desktop + mobile) — missing: ${JSON.stringify(missingScreenshots)}`);
+
+    const distDir = path.join(V09, 'dist-morning-qc-dev');
+    assert('16f', fs.existsSync(distDir) && fs.existsSync(path.join(distDir, 'morning-qc-dev.html')), 'Deterministic developer build (dist-morning-qc-dev/) exists');
+    const treeHashPath = path.join(V09, 'dist-morning-qc-dev.tree-hash.json');
+    assert('16g', fs.existsSync(treeHashPath), 'A deterministic tree hash was computed and recorded for the developer build');
+
+    const e2eTestPath = path.join(V09, 'tests', 'browser', 'v09-stage12b-morning-qc-shell.e2e.js');
+    assert('16h', fs.existsSync(e2eTestPath), 'The real browser E2E test file exists (not replaced by a limitation marker, per the audit\'s explicit instruction)');
+    const e2eSrc = fs.readFileSync(e2eTestPath, 'utf8');
+    assert('16i', e2eSrc.includes('playwright-core') && e2eSrc.includes('CHROMIUM_PATH'), 'E2E test supports an already-installed system browser binary via executable-path override, rather than requiring its own download');
+  }
+
+  console.log('\n=== 16b. Responsive drawer / no-permanent-overlay CSS verification ===');
+  {
+    const cssSrc = fs.readFileSync(path.join(UI, 'morning-qc-room.css'), 'utf8');
+    assert('RESP-01', /\.mqc-dock\s*{[^}]*}/.test(cssSrc) && cssSrc.includes('data-open'), 'CSS drives drawer visibility via data-open (genuine React state), not a permanently-fixed rule');
+    assert('RESP-02', cssSrc.includes('transform: translateX(-100%)') && cssSrc.includes('transform: translateX(100%)'), 'Both side rails default OFF-SCREEN (translated fully out of view) below the tablet breakpoint, not merely hidden-but-present');
+    assert('RESP-03', cssSrc.includes('minmax(0, 1fr)'), 'Grid columns use minmax(0, 1fr), avoiding the classic bare-1fr overflow bug found and fixed by real browser testing during this closure');
+    assert('RESP-04', cssSrc.includes('mqc-drawer-backdrop'), 'A backdrop element exists for click-to-close drawer behavior');
   }
 
   console.log('\n=== 17. All Stage 12B UI tests pass ===');

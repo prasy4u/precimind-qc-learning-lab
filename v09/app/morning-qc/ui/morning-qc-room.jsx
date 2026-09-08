@@ -7,17 +7,25 @@
    The single stateful root. Holds ONE authoritative controller (created
    via ui-adapter.js's createRoomController) per mounted case — React
    state here is presentation-only (which panel/drawer is open, dialog
-   visibility), never a second copy of simulation truth (Section 7).
-   Re-render is driven by re-reading controller.getViewModel() after every
-   dispatch.
+   visibility, drawer open/closed), never a second copy of simulation
+   truth (Section 7). Re-render is driven by re-reading
+   controller.getViewModel() after every dispatch.
+
+   CORRECTIVE-CLOSURE ADDITION (Section 2): infoDrawerOpen/
+   reasoningDrawerOpen — legitimate presentation-only state controlling
+   the two side rails' mobile/tablet drawer behavior. Opening one closes
+   the other (only one overlay needs to be open at a time on narrow
+   screens, per the audit). Escape closes whichever is open.
 
    Section 35 (fresh state on case switch): callers MUST remount this
    component with a `key` derived from the case identity when switching
    cases (see dev-launcher.jsx) — remounting guarantees a brand-new
-   controller and zero carried-over local state, by construction.
+   controller and zero carried-over local OR presentation state, by
+   construction (this now includes the drawer-open state, verified in
+   ui-component.test.cjs's reset test).
    ========================================================================= */
-import React, { useMemo, useState, useCallback, useRef } from 'react';
-import { createRoomController } from '../ui-adapter.js';
+import React, { useMemo, useState, useCallback, useRef, useEffect } from 'react';
+import { createRoomController } from './ui-adapter.js';
 import { RoomLayout } from './room-layout.jsx';
 import { RoomHeader } from './room-header.jsx';
 import { PanelDock } from './panel-dock.jsx';
@@ -41,6 +49,8 @@ export function MorningQCRoom({ caseObj }) {
   const [activeDecision, setActiveDecision] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [lastDecisionEventId, setLastDecisionEventId] = useState(null);
+  const [infoDrawerOpen, setInfoDrawerOpen] = useState(false);
+  const [reasoningDrawerOpen, setReasoningDrawerOpen] = useState(false);
   const decisionInvokerRef = useRef(null);
   const documentationInvokerRef = useRef(null);
 
@@ -53,14 +63,37 @@ export function MorningQCRoom({ caseObj }) {
     return outcome;
   }, [controller, refresh]);
 
+  const toggleInfoDrawer = useCallback(() => {
+    setInfoDrawerOpen(prev => !prev);
+    setReasoningDrawerOpen(false); // mutual exclusion — only one overlay open at a time
+  }, []);
+  const toggleReasoningDrawer = useCallback(() => {
+    setReasoningDrawerOpen(prev => !prev);
+    setInfoDrawerOpen(false);
+  }, []);
+  const closeInfoDrawer = useCallback(() => setInfoDrawerOpen(false), []);
+  const closeReasoningDrawer = useCallback(() => setReasoningDrawerOpen(false), []);
+
+  // Escape closes whichever drawer is open (decision dialog / documentation
+  // drawer already implement their own Escape handling independently).
+  useEffect(() => {
+    if (!infoDrawerOpen && !reasoningDrawerOpen) return;
+    function handleKeyDown(e) {
+      if (e.key === 'Escape') { setInfoDrawerOpen(false); setReasoningDrawerOpen(false); }
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [infoDrawerOpen, reasoningDrawerOpen]);
+
   const openPanel = useCallback((panelId) => {
     setBriefingActive(false);
     const outcome = dispatch({ type: 'INSPECT_PANEL', panelId });
-    if (!outcome.error) setOpenPanelId(panelId);
-    else setOpenPanelId(panelId); // still show the (empty) viewer so the error is visible in context
+    setOpenPanelId(panelId);
+    setInfoDrawerOpen(false); // selecting a panel closes the mobile info drawer
+    return outcome;
   }, [dispatch]);
 
-  const openBriefing = useCallback(() => { setBriefingActive(true); setOpenPanelId(null); }, []);
+  const openBriefing = useCallback(() => { setBriefingActive(true); setOpenPanelId(null); setInfoDrawerOpen(false); }, []);
 
   const requestEvidence = useCallback((evidenceId) => { dispatch({ type: 'REQUEST_EVIDENCE', evidenceId }); }, [dispatch]);
 
@@ -101,7 +134,19 @@ export function MorningQCRoom({ caseObj }) {
     <div className="mqc-morning-qc-room" data-testid="morning-qc-room">
       {lastError && <div className="mqc-error-banner" role="alert">{lastError}</div>}
       <RoomLayout
-        header={<RoomHeader viewModel={viewModel} />}
+        header={
+          <RoomHeader
+            viewModel={viewModel}
+            infoDrawerOpen={infoDrawerOpen}
+            reasoningDrawerOpen={reasoningDrawerOpen}
+            onToggleInfoDrawer={toggleInfoDrawer}
+            onToggleReasoningDrawer={toggleReasoningDrawer}
+          />
+        }
+        infoDrawerOpen={infoDrawerOpen}
+        reasoningDrawerOpen={reasoningDrawerOpen}
+        onCloseInfoDrawer={closeInfoDrawer}
+        onCloseReasoningDrawer={closeReasoningDrawer}
         dock={
           <PanelDock
             viewModel={viewModel}

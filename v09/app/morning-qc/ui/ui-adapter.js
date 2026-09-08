@@ -135,7 +135,30 @@ function buildViewModel(caseObj, state) {
     // panel exists to deliver, so it must never leak ahead of the
     // learner's own INSPECT_PANEL dispatch. `relevance` and any other
     // case-authored answer-key field are never included here.
-    content: state.inspectedPanelIds.includes(p.id) ? (p.content || null) : null,
+    //
+    // Semantic leakage discipline (Stage 12B corrective closure): when a
+    // panel authors an optional `content.learnerNote` (the purely-
+    // factual, non-interpretive projection — see case-schema.js), ONLY
+    // that projection is exposed here — `content.note` (which may
+    // legitimately embed author/debrief-level interpretation not meant
+    // for the learner mid-case) is never sent to the client at all in
+    // that case, not merely "sent but unrendered". When no learnerNote
+    // is authored, `note` itself is exposed unchanged (fully
+    // backward-compatible with every panel that has no interpretation
+    // to strip).
+    content: state.inspectedPanelIds.includes(p.id)
+      ? (p.content ? {
+          note: p.content.learnerNote || p.content.note || null,
+          // Structured series data (points/series), when a future case
+          // provides it, is factual/numeric rather than interpretive
+          // prose — passed through unchanged for panel-renderers/index.js
+          // to route to a real chart primitive. No current pilot
+          // provides this (verified during Stage 12B); nothing is
+          // fabricated here.
+          points: Array.isArray(p.content.points) ? p.content.points : undefined,
+          series: Array.isArray(p.content.series) ? p.content.series : undefined,
+        } : null)
+      : null,
     provenance: state.inspectedPanelIds.includes(p.id) ? (p.provenance || null) : null,
   }));
 

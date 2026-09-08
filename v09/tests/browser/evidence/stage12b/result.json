@@ -1,0 +1,134 @@
+{
+  "status": "PASS",
+  "passed": 25,
+  "failed": 0,
+  "total": 25,
+  "browserExecutable": "/opt/pw-browsers/chromium-1194/chrome-linux/chrome",
+  "checkpoints": [
+    {
+      "id": "P1-01",
+      "status": "PASS",
+      "detail": "Briefing renders on launch"
+    },
+    {
+      "id": "OVERFLOW-p1-initial-1440",
+      "status": "PASS",
+      "detail": "No horizontal document overflow at p1-initial-1440 (scrollWidth=1440, clientWidth=1440)"
+    },
+    {
+      "id": "P1-02",
+      "status": "PASS",
+      "detail": "Signal acknowledgement is a deliberate available action, not automatic"
+    },
+    {
+      "id": "P1-03",
+      "status": "PASS",
+      "detail": "CHARACTERISATION-gated panel (Reagent Lot) is not yet visible — genuine panel gating"
+    },
+    {
+      "id": "P1-04",
+      "status": "PASS",
+      "detail": "Panel content genuinely renders after click-driven inspection"
+    },
+    {
+      "id": "P1-05",
+      "status": "PASS",
+      "detail": "Decision dialog opens for the case-authored containment decision"
+    },
+    {
+      "id": "P1-06",
+      "status": "PASS",
+      "detail": "Service state now reflects HELD"
+    },
+    {
+      "id": "P1-07",
+      "status": "PASS",
+      "detail": "Reagent Lot panel becomes visible after genuine progression"
+    },
+    {
+      "id": "P1-08",
+      "status": "PASS",
+      "detail": "Hypothesis composer input renders (not a full menu)"
+    },
+    {
+      "id": "P1-09",
+      "status": "PASS",
+      "detail": "Failed verification does not display a resumed/ready-for-verification state as if recovery were complete"
+    },
+    {
+      "id": "P2-01",
+      "status": "PASS",
+      "detail": "PBRTQC panel visible at BRIEFING (legitimate initial scan)"
+    },
+    {
+      "id": "P2-02",
+      "status": "PASS",
+      "detail": "A future panel gated behind CHARACTERISATION is not visible yet"
+    },
+    {
+      "id": "P3-01",
+      "status": "PASS",
+      "detail": "Patient-impact section renders distinctly"
+    },
+    {
+      "id": "OVERFLOW-1440x1000",
+      "status": "PASS",
+      "detail": "No horizontal document overflow at 1440x1000 (scrollWidth=1440, clientWidth=1440)"
+    },
+    {
+      "id": "THREECOL-1440x1000",
+      "status": "PASS",
+      "detail": "Three-column layout intact at 1440x1000"
+    },
+    {
+      "id": "OVERFLOW-1366x768",
+      "status": "PASS",
+      "detail": "No horizontal document overflow at 1366x768 (scrollWidth=1366, clientWidth=1366)"
+    },
+    {
+      "id": "THREECOL-1366x768",
+      "status": "PASS",
+      "detail": "Three-column layout intact at 1366x768"
+    },
+    {
+      "id": "OVERFLOW-1024x768",
+      "status": "PASS",
+      "detail": "No horizontal document overflow at 1024x768 (scrollWidth=1024, clientWidth=1024)"
+    },
+    {
+      "id": "NOOVERLAY-1024x768",
+      "status": "PASS",
+      "detail": "Info dock is off-screen by default at 1024x768 (no permanent overlay)"
+    },
+    {
+      "id": "CONTAIN-drawer-1024x768",
+      "status": "PASS",
+      "detail": ".mqc-dock stays within the 1024px viewport (x=0.0, width=320.0)"
+    },
+    {
+      "id": "OVERFLOW-390x844",
+      "status": "PASS",
+      "detail": "No horizontal document overflow at 390x844 (scrollWidth=390, clientWidth=390)"
+    },
+    {
+      "id": "NOOVERLAY-390x844",
+      "status": "PASS",
+      "detail": "Info dock is off-screen by default at 390x844 (no permanent overlay)"
+    },
+    {
+      "id": "CONTAIN-drawer-390x844",
+      "status": "PASS",
+      "detail": ".mqc-dock stays within the 390px viewport (x=0.0, width=320.0)"
+    },
+    {
+      "id": "TOUCH-panelcard-390x844",
+      "status": "PASS",
+      "detail": "All .mqc-panel-card controls meet the ~44px minimum touch-target height"
+    },
+    {
+      "id": "TOUCH-actionbtn-390x844",
+      "status": "PASS",
+      "detail": "All .mqc-btn controls meet the ~44px minimum touch-target height"
+    }
+  ]
+}

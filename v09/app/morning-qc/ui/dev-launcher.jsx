@@ -17,32 +17,48 @@
    of MorningQCRoom, guaranteeing a brand-new controller with zero
    carried-over state, rather than relying on manual reset logic that
    could be forgotten or buggy.
-   ========================================================================= */
+
+   CORRECTIVE-CLOSURE FIX: the full three-button pilot selector previously
+   remained permanently visible ABOVE the mounted room with no responsive
+   handling at all, causing real horizontal page overflow at narrow
+   viewports (confirmed via real Chromium testing — the selector's own
+   un-wrapped toolbar, not the Room shell itself, was the actual cause).
+   Now collapses to a single compact "Change pilot" control once a case
+   is selected, and the initial selector wraps properly when not. */
 import React, { useState } from 'react';
 import { MorningQCRoom } from './morning-qc-room.jsx';
 
 export function DevLauncher({ cases }) {
   const [selectedId, setSelectedId] = useState(null);
+  const [pickerOpen, setPickerOpen] = useState(true);
   const selected = cases.find(c => c.identity.id === selectedId) || null;
 
+  function choose(id) { setSelectedId(id); setPickerOpen(false); }
+
   return (
-    <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ padding: '10px 16px', borderBottom: '1px solid var(--border)', background: 'var(--warn-tint)', display: 'flex', gap: 12, alignItems: 'center' }}>
-        <strong style={{ fontSize: 13 }}>DEVELOPMENT / TEST LAUNCHER — not the production case-selection experience</strong>
-        {cases.map(c => (
-          <button
-            key={c.identity.id}
-            type="button"
-            className="mqc-btn"
-            data-variant={selectedId === c.identity.id ? 'primary' : undefined}
-            onClick={() => setSelectedId(c.identity.id)}
-          >
-            {c.identity.title.split(' —')[0].split(' (')[0]}
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+      <div style={{ padding: '10px 16px', borderBottom: '1px solid var(--border)', background: 'var(--warn-tint)', display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center', minWidth: 0 }}>
+        <strong style={{ fontSize: 13 }}>DEVELOPMENT / TEST LAUNCHER</strong>
+        {selected && !pickerOpen ? (
+          <button type="button" className="mqc-btn" onClick={() => setPickerOpen(true)}>
+            Change pilot ({selected.identity.title.split(' —')[0].split(' (')[0]})
           </button>
-        ))}
+        ) : (
+          cases.map(c => (
+            <button
+              key={c.identity.id}
+              type="button"
+              className="mqc-btn"
+              data-variant={selectedId === c.identity.id ? 'primary' : undefined}
+              onClick={() => choose(c.identity.id)}
+            >
+              {c.identity.title.split(' —')[0].split(' (')[0]}
+            </button>
+          ))
+        )}
       </div>
-      <div style={{ flex: 1, minHeight: 0 }}>
-        {selected
+      <div style={{ flex: 1, minHeight: 0, minWidth: 0, overflow: 'hidden' }}>
+        {selected && !pickerOpen
           ? <MorningQCRoom key={selected.identity.id} caseObj={selected} />
           : <div style={{ padding: 40, color: 'var(--text-muted)' }}>Choose a pilot case above to launch the Morning QC Room.</div>}
       </div>

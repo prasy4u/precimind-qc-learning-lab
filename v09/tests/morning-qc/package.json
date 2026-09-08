@@ -1,0 +1,9 @@
+{
+  "name": "morning-qc-test-dependencies",
+  "private": true,
+  "description": "Stage 12B TEST-ONLY dependency manifest, PROVENANCE: V09_TEST. Deliberately isolated from the frozen main v09/package.json / v09/package-lock.json (frozen since Stage 11C1 — see docs/v09-stage12a-freeze-manifest.json and V09_STAGE12B_REPORT.md for the exact conflict this separation resolves). Install with `npm ci` from this directory (v09/tests/morning-qc/) before running ui-component.test.cjs or the Stage 12B browser E2E suite. This manifest and its lockfile are the canonical, reproducible test-dependency procedure — do not rely on an unversioned ad-hoc `npm install --no-save`.",
+  "devDependencies": {
+    "jsdom": "26.0.0",
+    "playwright-core": "1.56.0"
+  }
+}

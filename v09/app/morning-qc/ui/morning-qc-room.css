@@ -16,18 +16,35 @@
    information-dense but legible, decision-oriented. No game-like,
    neon, or exam-style treatments; no green=correct/red=wrong signaling
    during active play (Section 31).
+
+   CORRECTIVE-CLOSURE NOTE: the prior version of this file rendered
+   .mqc-dock/.mqc-reasoning as PERMANENTLY fixed full-height overlays at
+   <=1024px with no open/closed state and no box-sizing border-box,
+   causing them to overlay the main workspace and compute wider than a
+   390px viewport — confirmed via real Chromium rendering during this
+   closure. Both are now controlled via a `data-open` attribute driven by
+   genuine React state (infoDrawerOpen/reasoningDrawerOpen in
+   morning-qc-room.jsx), default CLOSED off-screen, and every drawer/
+   dialog rule explicitly uses box-sizing: border-box.
    ========================================================================= */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+.mqc-morning-qc-room { height: 100%; display: flex; flex-direction: column; min-height: 0; }
 
 .mqc-room {
   display: grid;
   grid-template-rows: auto 1fr auto;
-  grid-template-columns: 260px 1fr 320px;
+  grid-template-columns: 260px minmax(0, 1fr) 320px;
   grid-template-areas:
     "header header header"
     "dock   main    reasoning"
     "actions actions actions";
-  height: 100%;
+  flex: 1 1 auto;
   min-height: 680px;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
   background: var(--bg);
   color: var(--text);
   font-family: var(--font);
@@ -45,12 +62,21 @@
   padding: 12px 20px;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
+  position: relative;
+  z-index: 45;
+  min-width: 0;
+  max-width: 100%;
+  flex-wrap: wrap;
 }
-.mqc-header__identity { display: flex; flex-direction: column; gap: 2px; }
+.mqc-header__identity { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1 1 auto; }
 .mqc-header__title { font-weight: 600; font-size: 17px; }
-.mqc-header__subtitle { color: var(--text-muted); font-size: 14px; }
-.mqc-header__meta { display: flex; align-items: center; gap: 14px; font-size: 14px; color: var(--text-muted); }
+.mqc-header__subtitle { color: var(--text-muted); font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mqc-header__meta { display: flex; align-items: center; gap: 14px; font-size: 14px; color: var(--text-muted); flex-wrap: wrap; }
 .mqc-header__elapsed { font-family: var(--font-mono); }
+
+/* Header drawer-toggle buttons — hidden on desktop (>1024px), shown at
+   or below the tablet breakpoint where the side rails become drawers. */
+.mqc-header__drawer-toggle { display: none; }
 
 /* ---- Service-state banner ---- */
 .mqc-service-banner {
@@ -68,13 +94,15 @@
 .mqc-service-banner[data-tone="neutral"] { background: var(--surface-2); color: var(--text); }
 .mqc-service-banner__dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
 
-/* ---- Panel dock (left rail) ---- */
+/* ---- Panel dock (left rail / drawer) ---- */
 .mqc-dock {
   grid-area: dock;
   overflow-y: auto;
   border-right: 1px solid var(--border);
   background: var(--surface);
   padding: 14px 10px;
+  width: 100%;
+  max-width: 100%;
 }
 .mqc-dock__heading { font-size: 13px; font-weight: 600; color: var(--text-muted); padding: 4px 8px 10px; }
 .mqc-panel-card {
@@ -82,6 +110,7 @@
   flex-direction: column;
   gap: 2px;
   width: 100%;
+  max-width: 100%;
   text-align: left;
   padding: 10px 12px;
   margin-bottom: 4px;
@@ -92,6 +121,7 @@
   font-family: inherit;
   font-size: 14.5px;
   cursor: pointer;
+  min-height: 44px;
 }
 .mqc-panel-card:hover { background: var(--surface-2); }
 .mqc-panel-card:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
@@ -105,16 +135,19 @@
 .mqc-main {
   grid-area: main;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 24px;
   background: var(--bg);
+  min-width: 0;
 }
 .mqc-panel-viewer { max-width: 760px; }
 .mqc-panel-viewer__title { font-size: 19px; font-weight: 600; margin-bottom: 4px; }
 .mqc-panel-viewer__provenance { color: var(--text-muted); font-size: 13.5px; margin-bottom: 16px; }
 .mqc-panel-viewer__body { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); }
+.mqc-panel-renderer__category { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-faint); margin-bottom: 8px; }
 .mqc-empty-state { color: var(--text-muted); font-size: 15px; padding: 40px 8px; max-width: 480px; }
 
-/* ---- Reasoning workspace (right rail) ---- */
+/* ---- Reasoning workspace (right rail / drawer) ---- */
 .mqc-reasoning {
   grid-area: reasoning;
   overflow-y: auto;
@@ -124,6 +157,8 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  width: 100%;
+  max-width: 100%;
 }
 .mqc-reasoning__section-title { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; }
 .mqc-hypothesis-chip, .mqc-evidence-item {
@@ -133,6 +168,8 @@
   margin-bottom: 8px;
   font-size: 14px;
   background: var(--surface-2);
+  max-width: 100%;
+  overflow-wrap: break-word;
 }
 .mqc-hypothesis-chip__state { font-size: 12.5px; color: var(--text-muted); margin-top: 2px; }
 .mqc-evidence-item__source { font-size: 12.5px; color: var(--text-muted); }
@@ -147,15 +184,18 @@
   padding: 12px 20px;
   border-top: 1px solid var(--border);
   background: var(--surface);
+  max-width: 100%;
+  min-width: 0;
 }
 .mqc-action-group { display: flex; align-items: center; gap: 8px; padding-right: 14px; border-right: 1px solid var(--border); }
 .mqc-action-group:last-child { border-right: none; }
-.mqc-action-group__label { font-size: 12px; color: var(--text-faint); margin-right: 4px; }
+.mqc-action-group__label { font-size: 12px; color: var(--text-faint); margin-right: 4px; white-space: nowrap; }
 .mqc-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 8px 14px;
+  min-height: 44px;
   border-radius: var(--radius);
   border: 1px solid var(--border);
   background: var(--surface);
@@ -164,6 +204,7 @@
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
+  white-space: nowrap;
 }
 .mqc-btn:hover { background: var(--surface-2); }
 .mqc-btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
@@ -175,10 +216,12 @@
 .mqc-dialog-overlay {
   position: fixed; inset: 0; background: rgba(15, 20, 25, 0.45);
   display: flex; align-items: center; justify-content: center; z-index: 50;
+  padding: 16px;
 }
 .mqc-dialog {
   background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border);
-  box-shadow: var(--shadow); max-width: 520px; width: 92%; padding: 24px;
+  box-shadow: var(--shadow); max-width: 520px; width: 100%; padding: 24px;
+  max-height: 90vh; overflow-y: auto;
 }
 .mqc-dialog__title { font-size: 18px; font-weight: 600; margin-bottom: 6px; }
 .mqc-dialog__body { color: var(--text-muted); font-size: 14.5px; margin-bottom: 18px; }
@@ -186,6 +229,7 @@
   display: block; width: 100%; text-align: left; padding: 12px 14px; margin-bottom: 8px;
   border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface);
   font-family: inherit; font-size: 14.5px; color: var(--text); cursor: pointer;
+  min-height: 44px;
 }
 .mqc-decision-option:hover { background: var(--surface-2); }
 .mqc-decision-option:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
@@ -197,12 +241,15 @@
 }
 
 /* ---- Confidence control ---- */
-.mqc-confidence { display: flex; gap: 8px; align-items: center; margin-top: 10px; }
+.mqc-confidence { display: flex; gap: 8px; align-items: center; margin-top: 10px; flex-wrap: wrap; }
 .mqc-confidence__label { font-size: 13px; color: var(--text-muted); }
 
 /* ---- Documentation drawer ---- */
+.mqc-drawer-overlay {
+  position: fixed; inset: 0; background: rgba(15, 20, 25, 0.45); z-index: 55;
+}
 .mqc-drawer {
-  position: fixed; top: 0; right: 0; bottom: 0; width: 380px; max-width: 92vw;
+  position: fixed; top: 0; right: 0; bottom: 0; width: 380px; max-width: 100vw;
   background: var(--surface); border-left: 1px solid var(--border); box-shadow: var(--shadow);
   padding: 20px; overflow-y: auto; z-index: 60;
 }
@@ -218,28 +265,70 @@
 .mqc-room-status__dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-faint); }
 .mqc-room-status__dot[data-reached="true"] { background: var(--brand); }
 
-/* ---- Responsive (Section 28) ---- */
+/* =========================================================================
+   RESPONSIVE SHELL (Section 2 corrective closure)
+
+   >1024px: dock | main | reasoning three-column command layout — the
+   drawer toggle buttons are hidden and .mqc-dock/.mqc-reasoning render
+   in-flow via the grid, exactly as on desktop.
+
+   <=1024px: main workspace becomes the ONLY grid-area content; .mqc-dock
+   and .mqc-reasoning become fixed-position, OFF-SCREEN BY DEFAULT
+   overlay drawers, shown only when their `data-open="true"` attribute is
+   set by genuine React state (infoDrawerOpen/reasoningDrawerOpen). A
+   `.mqc-drawer-backdrop` behind each provides click-to-close and visually
+   confirms the main workspace is not permanently obscured. Only one
+   drawer is intended open at a time (enforced in morning-qc-room.jsx).
+   ========================================================================= */
 @media (max-width: 1024px) {
   .mqc-room {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto 1fr auto;
     grid-template-areas:
       "header"
       "main"
       "actions";
   }
+  .mqc-header__drawer-toggle { display: inline-flex; }
+
   .mqc-dock, .mqc-reasoning {
-    position: fixed; top: 0; bottom: 0; width: 320px; max-width: 88vw; z-index: 40;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: min(320px, 88vw);
+    max-width: 88vw;
+    z-index: 40;
     box-shadow: var(--shadow);
+    transition: transform 0.15s ease;
   }
-  .mqc-dock { left: 0; }
-  .mqc-reasoning { right: 0; }
+  .mqc-dock {
+    left: 0;
+    transform: translateX(-100%);
+  }
+  .mqc-dock[data-open="true"] { transform: translateX(0); }
+  .mqc-reasoning {
+    right: 0;
+    transform: translateX(100%);
+  }
+  .mqc-reasoning[data-open="true"] { transform: translateX(0); }
+
+  .mqc-drawer-backdrop {
+    position: fixed; inset: 0; background: rgba(15, 20, 25, 0.45); z-index: 39;
+  }
+
+  /* Mobile action pattern (Section 3): horizontally scrollable groups
+     instead of an ever-taller vertical stack. */
+  .mqc-action-dock {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .mqc-action-group { flex: 0 0 auto; }
 }
+
 @media (max-width: 480px) {
   .mqc-room { font-size: 16px; }
-  .mqc-header { flex-wrap: wrap; }
-  .mqc-action-dock { flex-direction: column; align-items: stretch; }
-  .mqc-action-group { border-right: none; border-bottom: 1px solid var(--border); padding: 8px 0; }
-  .mqc-drawer, .mqc-dock, .mqc-reasoning { width: 100%; max-width: 100vw; }
+  .mqc-drawer { width: 100%; }
 }
 
 /* Respect reduced motion (Section 30 accessibility doctrine, inherited from Stage 11B) */

@@ -91,7 +91,17 @@ export const PANEL_REQUIRED_FIELDS = [
   'costTimeMinutes',     // number >= 0 — inspecting this panel consumes case-clock time
   'mayBeMisleading',     // boolean — true if legitimate-but-misleading (Section 9)
   'provenance',          // string — where this information "comes from" in the case narrative
-  'content',             // case-specific payload (free-form; validated structurally, not semantically)
+  'content',             // case-specific payload (free-form; validated structurally, not semantically).
+                         // `content.note` is the full authored text and MAY legitimately embed
+                         // author/debrief-level interpretation (e.g. explaining to a reviewer
+                         // WHY a panel is included). Stage 12B's semantic leakage review (see
+                         // V09_STAGE12B_REPORT.md) found this can leak the learner-facing
+                         // conclusion the learner is meant to reach themselves. An OPTIONAL
+                         // `content.learnerNote` (string) may additionally be authored as the
+                         // purely-factual, non-interpretive projection actually shown to the
+                         // learner during active play; `content.note` remains authoritative for
+                         // audit/debrief purposes and is never removed. When absent, the UI falls
+                         // back to `content.note` unchanged (fully backward-compatible).
 ];
 
 /* -----------------------------------------------------------------------

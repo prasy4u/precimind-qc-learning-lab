@@ -57,6 +57,7 @@ export const PATIENT_IMPACT_LABELS = {
   PENDING: 'Review pending',
   COMPLETED_NO_AFFECTED_RESULTS: 'Reviewed — no affected results identified',
   AFFECTED_RESULT_SET_IDENTIFIED: 'Affected result set identified',
+  ESCALATION_REQUIRED: 'Escalation required',
 };
 
 export const ACTION_TYPE_LABELS = {

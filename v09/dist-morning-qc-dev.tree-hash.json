@@ -1,0 +1,22 @@
+{
+  "target": "dist-morning-qc-dev",
+  "file_count": 3,
+  "files": [
+    {
+      "path": "assets/morning-qc-dev-CQrc0Zts.css",
+      "sha256": "a55446b0481cfbad9b6bf6be0babd6699e76e0eeb1229fb4f60e37a6bfd67440",
+      "bytes": 39866
+    },
+    {
+      "path": "assets/morning-qc-dev-qJ_Ad84K.js",
+      "sha256": "53a8dc2b207d640c40e7ac5c4a69f51e223f0e85b55d65648db3043e0b223afe",
+      "bytes": 270516
+    },
+    {
+      "path": "morning-qc-dev.html",
+      "sha256": "3d87f25c02351d0fe034277940bfff7c256c785e1c7b701e33b9aa7f8ada9139",
+      "bytes": 861
+    }
+  ],
+  "tree_hash_sha256": "3978d264ef98321e4e890aae84e1666bcc1f5576b6f34b9ec1ad3a9953a94dcd"
+}

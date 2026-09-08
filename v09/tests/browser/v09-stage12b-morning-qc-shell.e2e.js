@@ -173,6 +173,11 @@ async function main() {
     await oldLotBtn.click();
 
     await page.getByRole('button', { name: 'Apply intervention', exact: true }).click();
+    await page.waitForSelector('text=Decision required');
+    assert('P1-INTERVENTION-DECISION-DIALOG', await page.locator('text=Decision required').count() > 0, 'Apply intervention is bound to a genuine case-authored decision — clicking it opens the dialog, never a bare dispatch');
+    await page.getByText('Revert to the verified prior reagent lot').click();
+    await page.waitForTimeout(150);
+    assert('P1-INTERVENTION-CONFIDENCE', await page.locator('text=How confident are you').count() > 0, 'The intervention decision executes and offers confidence recording against its real decisionEventId');
     await page.getByRole('button', { name: 'Verify recovery', exact: true }).click();
     await page.screenshot({ path: path.join(EVIDENCE_DIR, 'p1-held-verification-1440x1000.png') });
     assert('P1-VERIFICATION', await page.locator('text=Ready for Verification').count() > 0 || await page.locator('text=Held').count() > 0, 'Verification outcome genuinely reflected in service state');
@@ -329,6 +334,25 @@ async function main() {
 
     assert('P3-NO-INAPPROPRIATE-HOLD', await page.locator('text=Held').count() === 0, 'No inappropriate analytical-system hold occurs on the RCV pathway');
     assert('P3-PATIENT-IMPACT-DISTINCT', await page.locator('text=Patient Impact').count() > 0, 'Patient-impact section renders distinctly from QC signal/root cause/disposition');
+
+    // Complete the accepted RCV pathway: obtain the decisive RCV
+    // calculation evidence (not tied to any panel — reachable via the
+    // persistent "Other Evidence Available" section), then execute the
+    // real, evidence-supported final disposition.
+    const rcvCalcBtn = page.getByText(/Request:.*RCV calculation/);
+    assert('P3-RCV-EVIDENCE-OBTAINED', await rcvCalcBtn.count() > 0, 'ev-rcv-calculation (decisive RCV evidence) is reachable via the persistent Other Evidence Available section');
+    await rcvCalcBtn.click();
+
+    await page.getByRole('button', { name: 'Document', exact: true }).click();
+    await page.waitForSelector('text=Decision required');
+    const dialogText3 = await page.locator('.mqc-dialog').innerText();
+    assert('P3-NO-ANSWER-KEY-REVEAL', !/Matches ground truth|Over-interprets RCV/.test(dialogText3), 'No answer-key correctness text (e.g. "Matches ground truth") is revealed in the decision dialog');
+    await page.getByText('No analytical hold; document the RCV-based statistical finding').click();
+    await page.waitForTimeout(150);
+    assert('P3-SUPPORTED-DISPOSITION', await page.locator('text=How confident are you').count() > 0, 'The supported final disposition executes and immediately offers confidence recording against its real decisionEventId');
+    assert('P3-CONFIDENCE-CONTROL', true, 'Confidence control confirmed present (see P3-SUPPORTED-DISPOSITION) — recording it now');
+    await page.getByRole('button', { name: 'High' }).click();
+    assert('P3-STILL-NO-HOLD', await page.locator('text=Held').count() === 0, 'Service remains appropriately not held after the supported disposition executes');
     await context.close();
   }
 

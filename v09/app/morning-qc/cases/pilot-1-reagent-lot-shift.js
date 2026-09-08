@@ -108,6 +108,9 @@ export const pilot1ReagentLotShift = {
       { id: 'opt-resume-verified', label: 'Resume after verified correction and patient-impact review', consequenceSummary: 'Correct disposition.', severity: 'INFORMATIONAL', outcomeAppropriate: true, actionType: 'RESUME_SERVICE', requiredEvidenceIdsForSupportedReasoning: [] },
       { id: 'opt-resume-no-pi-review', label: 'Resume immediately after verified correction, without addressing patient-impact review', consequenceSummary: 'Verification succeeded, but resuming before patient-impact review is addressed is unsafe given an established disturbance with a likely-affected result set.', severity: 'UNSAFE', outcomeAppropriate: false, actionType: 'RESUME_SERVICE', requiredEvidenceIdsForSupportedReasoning: [] },
     ]},
+    { id: 'dec-intervention', category: 'INTERVENTION', availableFromPhase: 'HYPOTHESIS_GENERATION', options: [
+      { id: 'opt-revert-lot', label: 'Revert to the verified prior reagent lot', consequenceSummary: 'Correct corrective action for a confirmed reagent-lot-driven shift.', severity: 'INFORMATIONAL', outcomeAppropriate: true, actionType: 'APPLY_INTERVENTION', requiredEvidenceIdsForSupportedReasoning: ['ev-old-lot-repeat'] },
+    ]},
   ],
   verificationCriteria: {
     requiredEvidenceIds: ['ev-old-lot-repeat'],

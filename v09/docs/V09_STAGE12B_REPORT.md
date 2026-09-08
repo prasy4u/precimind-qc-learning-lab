@@ -466,3 +466,50 @@ Each of these was caught by genuinely running the full canonical paths through a
 - Stage 12A regression: unchanged, **265/265**
 - All historical baselines: unchanged and reconfirmed
 - Frozen manifest sanctioned exceptions: **4 files** (case-schema.js + all 3 pilot cases)
+
+---
+
+## Stage 12B FINAL INTERVENTION-SEMANTICS ACCEPTANCE Closure
+
+A fourth independent audit found exactly one material product defect remaining: generic bare-dispatched `APPLY_INTERVENTION` could receive full positive semantic credit without any case-authored evidentiary backing. This closure resolves it, adds the required Pilot 1 case-authored intervention decision, completes the Pilot 3 browser path, and re-verifies the entire system end to end.
+
+### 1. Generic APPLY_INTERVENTION removal
+
+Reproduced exactly as reported: in Pilot 2, after signal recognition, characterisation, and analytical hypothesis formation, bare `APPLY_INTERVENTION` returned `outcomeAppropriate=true`, `reasoningSupported=true`, `severity=INFORMATIONAL`, and `debrief.intervention.evidenceSupported=true` — despite Pilot 2's accepted ground truth being a population/case-mix explanation, not an analytical disturbance. `action-dock.jsx` now gates `APPLY_INTERVENTION` identically to `FORM_HYPOTHESIS`: it renders only when bound to a genuine available case-authored decision. No case-ID branching; the absence in Pilots 2/3 follows structurally from decision non-availability.
+
+### 2. Pilot 1 case-authored intervention decision
+
+Added `dec-intervention`/`opt-revert-lot` (category `INTERVENTION`, `availableFromPhase: 'HYPOTHESIS_GENERATION'`, `actionType: 'APPLY_INTERVENTION'`, `requiredEvidenceIdsForSupportedReasoning: ['ev-old-lot-repeat']`) using only the existing, unmodified Stage 12A decision-authoring machinery (the same `authoredOption`/evidence-prerequisite mechanism `dec-containment` and `dec-disposition` already use). **Zero engine.js or decision-model.js changes were needed or made** — the dynamic pre/post-evidence severity computation the audit requested is already fully general Stage 12A behavior.
+
+### 3. Pre-evidence vs. post-evidence behavior — verified exact match
+
+- Before `ev-old-lot-repeat`: `outcomeAppropriate=true, reasoningSupported=false, severity=UNSUPPORTED`
+- After `ev-old-lot-repeat`: `outcomeAppropriate=true, reasoningSupported=true, severity=INFORMATIONAL`
+
+Both verified directly against the running engine, matching the audit's exact specification.
+
+### 4/5. Pilot 2 and Pilot 3 intervention absence
+
+Verified directly: neither case has any decision opportunity with an `APPLY_INTERVENTION`-actionType option, so the control is structurally absent from both rooms — confirmed via both adapter-level checks and full interactive UI rendering.
+
+### 6. Revised Pilot 1 path
+
+`tests/morning-qc/pilot-paths.test.cjs`'s expert path — explicitly sanctioned by the audit for this change — now executes the intervention via `{decisionId: 'dec-intervention', optionId: 'opt-revert-lot'}` instead of a caller-supplied `evidenceSupported: true` flag. Still passes 39/39 unchanged; no additional assertions were required since the existing assertions already validate outcome/safety generically.
+
+### 7/8. Completed Pilot 3 Chromium path and new checkpoints
+
+Extended the real browser E2E suite: Pilot 3 now obtains `ev-rcv-calculation` (reachable via the persistent "Other Evidence Available" section, confirming the prior closure's fix generalizes), executes `dec-disposition`/`opt-no-hold-document`, confirms a real `decisionEventId`, records confidence against it, and confirms the service remains appropriately un-held with zero answer-key leakage. New named checkpoints: `P3-RCV-EVIDENCE-OBTAINED`, `P3-NO-ANSWER-KEY-REVEAL`, `P3-SUPPORTED-DISPOSITION`, `P3-CONFIDENCE-CONTROL`, `P3-STILL-NO-HOLD`. Pilot 1's section was also updated: "Apply intervention" now correctly routes through the decision dialog (`P1-INTERVENTION-DECISION-DIALOG`) with confidence recording (`P1-INTERVENTION-CONFIDENCE`).
+
+### 9. Broader UI contract documented
+
+Added Section 9 to `V09_MORNING_QC_UI_ARCHITECTURE.md`: the "no-caller-adjudication" invariant — the UI must never bare-dispatch an action whose semantic correctness depends on a caller-supplied adjudication flag. Scoped narrowly to `APPLY_INTERVENTION` per the audit's explicit instruction; `REPEAT_QC`/`REPEAT_CALIBRATION` deliberately left untouched since no failing invariant implicates them.
+
+### Updated test totals
+
+- UI component tests: **105/105** (was 95, +10 new: `INT-01` through `INT-07`, plus sub-assertions)
+- Stage 12B governance: **65/65** (was 59, +6 new: dedicated Section 18 verifying the intervention fix structurally and via new named checkpoints)
+- Real browser E2E: **47/47** (was 40, +7 new checkpoints)
+- Stage 12A regression: unchanged, **265/265** (engine 49/49, pilot paths 39/39 — same count, revised content per Section 6 above — progression-invariants 59/59, governance 118/118)
+- All historical baselines: unchanged and reconfirmed
+- Frozen manifest sanctioned exceptions: still **4 files**, with `pilot-1-reagent-lot-shift.js`'s hash updated and the exceptions description expanded to transparently cover this new kind of change (a new decisionOpportunity, not merely a `learnerNote` projection)
+- Isolated dev-build tree hash: `de533550074cc91bf13c177713d42fc7a081cbd5b13fb6fcfb72222ac8158cb0` (reconfirmed reproducible across 3 rebuilds)

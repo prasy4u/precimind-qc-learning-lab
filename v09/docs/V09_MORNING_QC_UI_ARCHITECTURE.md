@@ -123,3 +123,34 @@ No file in `v09/app/morning-qc/ui/` branches on a case identity
 supported through the same adapter and components, driven entirely by
 case data and engine state — verified directly in governance (Section 6
 of `stage12b-morning-qc-shell.test.js`).
+
+## 9. The no-caller-adjudication UI invariant (Stage 12B FINAL INTERVENTION-SEMANTICS ACCEPTANCE closure)
+
+**Invariant**: the UI must never bare-dispatch an action whose semantic
+correctness depends on a caller-supplied adjudication flag (e.g. an
+`evidenceSupported` boolean, or any other flag the case data itself does
+not derive from genuine evidence prerequisites). At minimum this applies
+to `APPLY_INTERVENTION`: Stage 12A's generic (non-case-authored) code
+path for this action treats an absent adjudication flag as effectively
+"supported," so a bare UI dispatch received full positive credit
+(`outcomeAppropriate=true`, `reasoningSupported=true`,
+`debrief.intervention.evidenceSupported=true`) with zero case-authored
+evidentiary backing — confirmed reproducible in both Pilot 2 and Pilot 3,
+neither of which has a scientifically justified intervention.
+
+The fix is structural, not case-specific: `APPLY_INTERVENTION` now
+receives the same treatment `FORM_HYPOTHESIS` already received in the
+prior closure — it renders in `ActionDock` only when bound to a genuine
+available case-authored decision (`{decisionId, optionId}`), whose
+`reasoningSupported` the engine then derives from that decision's own
+`requiredEvidenceIdsForSupportedReasoning`, never from an absent flag.
+Where no such decision exists (Pilots 2 and 3), the control is simply
+absent — a consequence of decision non-availability, never of the UI
+checking a case ID or answer key.
+
+This invariant is scoped narrowly to `APPLY_INTERVENTION` for this
+closure; `REPEAT_QC`/`REPEAT_CALIBRATION` were deliberately left
+unchanged since no failing invariant currently implicates them (their
+own `wasNecessary` flag, when supplied, only ever downgrades severity to
+`INEFFICIENT` — it can never manufacture false positive evidentiary
+credit the way an absent `evidenceSupported` could for intervention).

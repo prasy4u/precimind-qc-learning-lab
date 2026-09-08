@@ -45,7 +45,7 @@ async function main() {
       { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-cal-timing' },
       { type: 'REPEAT_QC', wasNecessary: true },
       { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-old-lot-repeat' },
-      { type: 'APPLY_INTERVENTION', description: 'Reverted to verified reagent lot.', evidenceSupported: true },
+      { type: 'APPLY_INTERVENTION', decisionId: 'dec-intervention', optionId: 'opt-revert-lot' },
       { type: 'VERIFY_RECOVERY' },
       { type: 'CHECK_PATIENT_DISTRIBUTION' },
       { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-affected-window' },

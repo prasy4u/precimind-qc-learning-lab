@@ -266,9 +266,11 @@ async function main() {
       // which could theoretically be satisfied by a shallow test.
       const REQUIRED_CHECKPOINT_IDS = [
         'P1-HYP1-RECORDED', 'P1-HYP2-RECORDED', 'P1-OTHER-EVIDENCE-SURFACED', 'P1-VERIFICATION',
+        'P1-INTERVENTION-DECISION-DIALOG', 'P1-INTERVENTION-CONFIDENCE',
         'P2-DECISION-HYP-COMPOSER', 'P2-HYP-EVENT-GENUINE', 'P2-CONFIDENCE-CONTROL',
         'P2-NO-ANSWER-KEY-REVEAL', 'P2-DECISIVE-EVIDENCE-REACHABLE', 'P2-LATER-DISPOSITION-CONFIDENCE',
         'P3-NO-INAPPROPRIATE-HOLD', 'P3-PATIENT-IMPACT-DISTINCT',
+        'P3-RCV-EVIDENCE-OBTAINED', 'P3-SUPPORTED-DISPOSITION', 'P3-CONFIDENCE-CONTROL', 'P3-STILL-NO-HOLD',
         'MOBILE-HELD-STATE-390x844', 'DIALOG-CONTAIN-390x844',
       ];
       const byId = new Map((result.checkpoints || []).map(c => [c.id, c.status]));
@@ -303,6 +305,43 @@ async function main() {
     assert('RESP-02', cssSrc.includes('transform: translateX(-100%)') && cssSrc.includes('transform: translateX(100%)'), 'Both side rails default OFF-SCREEN (translated fully out of view) below the tablet breakpoint, not merely hidden-but-present');
     assert('RESP-03', cssSrc.includes('minmax(0, 1fr)'), 'Grid columns use minmax(0, 1fr), avoiding the classic bare-1fr overflow bug found and fixed by real browser testing during this closure');
     assert('RESP-04', cssSrc.includes('mqc-drawer-backdrop'), 'A backdrop element exists for click-to-close drawer behavior');
+  }
+
+  console.log('\n=== 18. APPLY_INTERVENTION bound to case-authored decisions only (FINAL INTERVENTION-SEMANTICS ACCEPTANCE closure) ===');
+  {
+    const actionDockSrc = fs.readFileSync(path.join(UI, 'action-dock.jsx'), 'utf8');
+    assert('18a', /t !== 'FORM_HYPOTHESIS' && t !== 'APPLY_INTERVENTION'/.test(actionDockSrc.replace(/\s+/g, ' ')), 'action-dock.jsx gates APPLY_INTERVENTION behind a matching case-authored decision, identically to FORM_HYPOTHESIS');
+
+    const { pilot1ReagentLotShift, pilot2PbrtqcPopulationShift, pilot3RcvPatientImpact } = await import('file://' + path.join(MQC, 'cases', 'index.js'));
+    const { createRoomController } = await import('file://' + path.join(UI, 'ui-adapter.js'));
+
+    const ctrl1 = createRoomController(pilot1ReagentLotShift);
+    ctrl1.dispatch({ type: 'ACKNOWLEDGE_SIGNAL' });
+    ctrl1.dispatch({ type: 'HOLD_RESULTS', decisionId: 'dec-containment', optionId: 'opt-hold' });
+    ctrl1.dispatch({ type: 'INSPECT_PANEL', panelId: 'panel-qc-history' });
+    ctrl1.dispatch({ type: 'FORM_HYPOTHESIS', hypothesisId: 'hyp-lot' });
+    const vm1 = ctrl1.getViewModel();
+    assert('18b', vm1.availableDecisions.some(d => d.options.some(o => o.actionType === 'APPLY_INTERVENTION')), 'Pilot 1 has a genuine case-authored APPLY_INTERVENTION decision available');
+
+    const outBefore = createRoomController(pilot1ReagentLotShift);
+    outBefore.dispatch({ type: 'ACKNOWLEDGE_SIGNAL' });
+    outBefore.dispatch({ type: 'HOLD_RESULTS', decisionId: 'dec-containment', optionId: 'opt-hold' });
+    outBefore.dispatch({ type: 'INSPECT_PANEL', panelId: 'panel-qc-history' });
+    outBefore.dispatch({ type: 'FORM_HYPOTHESIS', hypothesisId: 'hyp-lot' });
+    const beforeResult = outBefore.dispatch({ type: 'APPLY_INTERVENTION', decisionId: 'dec-intervention', optionId: 'opt-revert-lot', fields: {} });
+    assert('18c', beforeResult.outcomeAppropriate === true && beforeResult.reasoningSupported === false && beforeResult.severity === 'UNSUPPORTED', `Pilot 1 intervention before required evidence: outcomeAppropriate=true, reasoningSupported=false, severity=UNSUPPORTED (found ${beforeResult.outcomeAppropriate}/${beforeResult.reasoningSupported}/${beforeResult.severity})`);
+
+    for (const [c, label] of [[pilot2PbrtqcPopulationShift, 'Pilot 2'], [pilot3RcvPatientImpact, 'Pilot 3']]) {
+      const ctrl = createRoomController(c);
+      ctrl.dispatch({ type: 'ACKNOWLEDGE_SIGNAL' });
+      const vm = ctrl.getViewModel();
+      assert(`18d-${label}`, !vm.availableDecisions.some(d => d.options.some(o => o.actionType === 'APPLY_INTERVENTION')), `${label} has no case-authored APPLY_INTERVENTION decision (no scientifically justified intervention exists for this case)`);
+    }
+
+    let intOk = false, intOut = '';
+    try { intOut = execSync(`node ${path.join(V09, 'tests', 'morning-qc', 'ui-component.test.cjs')}`).toString(); intOk = intOut.includes('INT-07b') && intOut.includes('UI COMPONENT TESTS PASSED'); }
+    catch (e) { intOut = (e.stdout || '').toString(); }
+    assert('18e', intOk, 'The full INT-01..INT-07 adversarial test set (ui-component.test.cjs) passes');
   }
 
   console.log('\n=== 17. All Stage 12B UI tests pass ===');

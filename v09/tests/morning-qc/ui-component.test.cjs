@@ -456,6 +456,91 @@ async function main() {
     assert('DRAWERA11Y-07', m11.container.querySelector('.mqc-dock').getAttribute('data-open') === 'false' && m11.container.querySelector('.mqc-reasoning').getAttribute('data-open') === 'true', 'Mutual exclusion between Information and Reasoning drawers is retained');
   }
 
+  /* ===================== APPLY_INTERVENTION bound to case-authored decisions only (Section 1/2) ===================== */
+  console.log('\n=== APPLY_INTERVENTION: no generic bare-dispatch control; Pilot 1 case-authored intervention correctness ===');
+  {
+    const { createRoomController: crcInt } = await import('file://' + path.join(APP, 'ui', 'ui-adapter.js'));
+
+    // INT-01: Pilot 2 after analytical hypothesis — generic "Apply intervention" is absent.
+    const m12 = mount();
+    await act(async () => { m12.root.render(React.createElement(MorningQCRoom, { key: 'int-p2', caseObj: pilot2PbrtqcPopulationShift })); });
+    await act(async () => { click(byTextIncludes(m12.container, 'Acknowledge signal')); });
+    await act(async () => { click(byTextIncludes(m12.container, 'Patient-Based Real-Time QC')); });
+    const formHypBtn12 = byTextIncludes(m12.container, 'Form hypothesis');
+    if (formHypBtn12) {
+      await act(async () => { click(formHypBtn12); });
+      const investigateOpt = byTextIncludes(m12.container, 'Investigate the PBRTQC alert');
+      if (investigateOpt) await act(async () => { click(investigateOpt); });
+    }
+    assert('INT-01', !byTextIncludes(m12.container, 'Apply intervention'), 'Pilot 2: no generic "Apply intervention" control appears anywhere in the room, even after analytical hypothesis engagement');
+
+    // INT-02: Pilot 3 after hypothesis — generic "Apply intervention" is absent.
+    const m13 = mount();
+    await act(async () => { m13.root.render(React.createElement(MorningQCRoom, { key: 'int-p3', caseObj: pilot3RcvPatientImpact })); });
+    await act(async () => { click(byTextIncludes(m13.container, 'Acknowledge signal')); });
+    const panelBtn13 = m13.container.querySelector('.mqc-panel-card');
+    if (panelBtn13) await act(async () => { click(panelBtn13); });
+    const formHypBtn13 = byTextIncludes(m13.container, 'Form a hypothesis');
+    if (formHypBtn13) {
+      await act(async () => { click(formHypBtn13); });
+      const draft13 = m13.container.querySelector('#mqc-hyp-draft');
+      if (draft13) {
+        const setter = Object.getOwnPropertyDescriptor(global.window.HTMLInputElement.prototype, 'value').set;
+        await act(async () => { setter.call(draft13, 'analytical error'); draft13.dispatchEvent(new global.window.Event('input', { bubbles: true })); });
+        const recordBtn13 = byTextIncludes(m13.container, 'Record this hypothesis');
+        if (recordBtn13) await act(async () => { click(recordBtn13); });
+      }
+    }
+    assert('INT-02', !byTextIncludes(m13.container, 'Apply intervention'), 'Pilot 3: no generic "Apply intervention" control appears anywhere in the room, even after hypothesis engagement');
+
+    // INT-03: sweep ALL 3 pilots and confirm that wherever "Apply
+    // intervention" IS visible (only Pilot 1, once bound to a real
+    // decision), clicking it opens the decision dialog rather than
+    // silently firing a bare dispatch — and where it is NOT visible
+    // (Pilots 2/3), no equivalent control exists to reach it at all.
+    const m14 = mount();
+    await act(async () => { m14.root.render(React.createElement(MorningQCRoom, { key: 'int-p1-sweep', caseObj: pilot1ReagentLotShift })); });
+    await act(async () => { click(byTextIncludes(m14.container, 'Acknowledge signal')); });
+    await act(async () => { click(byTextIncludes(m14.container, 'Hold results')); });
+    await act(async () => { click(byTextIncludes(m14.container, 'Hold results pending investigation')); });
+    await act(async () => { click(byTextIncludes(m14.container, 'QC History')); });
+    await act(async () => { click(byTextIncludes(m14.container, 'Form a hypothesis')); });
+    const draft14 = m14.container.querySelector('#mqc-hyp-draft');
+    const setter14 = Object.getOwnPropertyDescriptor(global.window.HTMLInputElement.prototype, 'value').set;
+    await act(async () => { setter14.call(draft14, 'reagent lot'); draft14.dispatchEvent(new global.window.Event('input', { bubbles: true })); });
+    await act(async () => { click(byTextIncludes(m14.container, 'Record this hypothesis')); });
+    const applyInterventionBtn14 = byTextIncludes(m14.container, 'Apply intervention');
+    assert('INT-03a', !!applyInterventionBtn14, 'Pilot 1: "Apply intervention" IS visible once bound to the real dec-intervention decision');
+    await act(async () => { click(applyInterventionBtn14); });
+    assert('INT-03b', m14.container.innerHTML.includes('Decision required'), 'Clicking "Apply intervention" opens the decision dialog — it never bare-dispatches directly');
+    assert('INT-03c', m14.container.querySelector('.mqc-dialog').innerHTML.includes('Revert to the verified prior reagent lot'), 'The dialog presents the real case-authored option, not a generic confirmation');
+
+    // INT-04/05/06/07: Pilot 1's case-authored intervention decision.
+    const ctrlBefore = crcInt(pilot1ReagentLotShift);
+    ctrlBefore.dispatch({ type: 'ACKNOWLEDGE_SIGNAL' });
+    ctrlBefore.dispatch({ type: 'HOLD_RESULTS', decisionId: 'dec-containment', optionId: 'opt-hold' });
+    ctrlBefore.dispatch({ type: 'INSPECT_PANEL', panelId: 'panel-qc-history' });
+    ctrlBefore.dispatch({ type: 'FORM_HYPOTHESIS', hypothesisId: 'hyp-lot' });
+    const outBefore = ctrlBefore.dispatch({ type: 'APPLY_INTERVENTION', decisionId: 'dec-intervention', optionId: 'opt-revert-lot', fields: {} });
+    assert('INT-04', outBefore.error === null && !!outBefore.decisionEventId, `Pilot 1's case-authored intervention executes cleanly with a real decisionEventId (found ${outBefore.decisionEventId})`);
+    assert('INT-05', outBefore.outcomeAppropriate === true && outBefore.reasoningSupported === false && outBefore.severity === 'UNSUPPORTED', `Before required evidence: outcomeAppropriate=true, reasoningSupported=false, severity=UNSUPPORTED (found ${outBefore.outcomeAppropriate}/${outBefore.reasoningSupported}/${outBefore.severity})`);
+
+    const ctrlAfter = crcInt(pilot1ReagentLotShift);
+    ctrlAfter.dispatch({ type: 'ACKNOWLEDGE_SIGNAL' });
+    ctrlAfter.dispatch({ type: 'HOLD_RESULTS', decisionId: 'dec-containment', optionId: 'opt-hold' });
+    ctrlAfter.dispatch({ type: 'INSPECT_PANEL', panelId: 'panel-qc-history' });
+    ctrlAfter.dispatch({ type: 'FORM_HYPOTHESIS', hypothesisId: 'hyp-lot' });
+    ctrlAfter.dispatch({ type: 'REPEAT_QC' });
+    ctrlAfter.dispatch({ type: 'REQUEST_EVIDENCE', evidenceId: 'ev-old-lot-repeat' });
+    const outAfter = ctrlAfter.dispatch({ type: 'APPLY_INTERVENTION', decisionId: 'dec-intervention', optionId: 'opt-revert-lot', fields: {} });
+    assert('INT-06', outAfter.outcomeAppropriate === true && outAfter.reasoningSupported === true && outAfter.severity === 'INFORMATIONAL', `After ev-old-lot-repeat: outcomeAppropriate=true, reasoningSupported=true, severity=INFORMATIONAL (found ${outAfter.outcomeAppropriate}/${outAfter.reasoningSupported}/${outAfter.severity})`);
+
+    const vmAfter = ctrlAfter.getViewModel();
+    assert('INT-07a', vmAfter.eventTimeline.some(e => e.type === 'APPLY_INTERVENTION' && e.decisionId === 'dec-intervention'), 'The intervention event appears correctly in the real event timeline');
+    const debriefAfter = ctrlAfter.getDeveloperDebriefPreview();
+    assert('INT-07b', debriefAfter.intervention.applied === true, 'The intervention correctly appears as applied in the debrief');
+  }
+
   const total = passed + failed;
   console.log(`\n${'='.repeat(60)}`);
   console.log(`Morning QC UI Component Tests: ${passed}/${total} passed, ${failed} failed`);

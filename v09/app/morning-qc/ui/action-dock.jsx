@@ -18,10 +18,27 @@
    ACTION_GROUPS entirely (ui-model.js) — their dedicated, payload-aware
    surfaces are PanelViewer's per-panel evidence buttons and
    PatientImpactPanel's transition-specific buttons, respectively.
-   FORM_HYPOTHESIS now renders here ONLY when it is bound to a genuine
-   available case-authored decision (real hypothesisId via
-   {decisionId, optionId}); with no such decision, generic hypothesis
-   formation belongs exclusively to HypothesisWorkspace's composer. */
+
+   FINAL-INTERVENTION-SEMANTICS-ACCEPTANCE-CLOSURE FIX: bare-dispatched
+   APPLY_INTERVENTION is structurally VALID (unlike the above three, it
+   needs no ID payload and the engine accepts it without error) but was
+   found to be SEMANTICALLY unsafe — Stage 12A's generic-path fallback
+   treats an absent `evidenceSupported` flag as effectively supported/
+   appropriate, so a bare click received full positive credit
+   (outcomeAppropriate=true, reasoningSupported=true,
+   debrief.intervention.evidenceSupported=true) with ZERO case-authored
+   evidentiary backing — reproduced directly in both Pilot 2 and Pilot 3,
+   neither of which has any scientifically appropriate analytical
+   intervention. APPLY_INTERVENTION now receives the SAME treatment as
+   FORM_HYPOTHESIS: it renders here ONLY when bound to a genuine
+   available case-authored decision (a real {decisionId, optionId}
+   execution, whose reasoningSupported the engine then genuinely derives
+   from that decision's own requiredEvidenceIdsForSupportedReasoning —
+   never from an absent flag defaulting to "supported"). With no such
+   decision (Pilots 2 and 3, both without a scientifically justified
+   intervention), the "Apply intervention" control is simply absent —
+   this follows generically from decision availability, never from UI
+   knowledge of the case ID or answer key. */
 import React from 'react';
 import { ACTION_GROUPS, actionTypeLabel } from './ui-model.js';
 import { SIMULATION_PHASES } from '../states.js';
@@ -40,7 +57,7 @@ function isPlausible(actionType, viewModel) {
     case 'REPEAT_QC': case 'REPEAT_CALIBRATION':
       return viewModel.signalAcknowledged;
     case 'FORM_HYPOTHESIS': return true; // gated separately below (must ALSO match a real decision)
-    case 'APPLY_INTERVENTION': return viewModel.signalAcknowledged;
+    case 'APPLY_INTERVENTION': return true; // gated separately below (must ALSO match a real decision)
     case 'DOCUMENT': return viewModel.signalAcknowledged;
     default: return true;
   }
@@ -74,15 +91,16 @@ export function ActionDock({ viewModel, onDispatch, onOpenDecision, onOpenDocume
       {ACTION_GROUPS.map(group => {
         const visibleActions = group.actionTypes
           .filter(t => isPlausible(t, viewModel))
-          // FORM_HYPOTHESIS renders here ONLY when it is the actionType
-          // of a currently-available case-authored decision option — a
-          // real dialog with a real, engine-recognized hypothesisId
-          // bound to it via {decisionId, optionId}. With no matching
-          // decision, generic hypothesis formation belongs exclusively
-          // to HypothesisWorkspace's free-text composer; showing a
-          // second, payload-less button here would only ever produce
-          // "Unknown hypothesisId: undefined" on click.
-          .filter(t => t !== 'FORM_HYPOTHESIS' || findMatchingDecision(t, viewModel.availableDecisions) !== null);
+          // FORM_HYPOTHESIS and APPLY_INTERVENTION render here ONLY when
+          // bound to a genuine available case-authored decision — a real
+          // dialog whose execution carries a real {decisionId, optionId}
+          // (and, for FORM_HYPOTHESIS, a resolved hypothesisId via the
+          // composer). With no matching decision, generic hypothesis
+          // formation belongs exclusively to HypothesisWorkspace's
+          // composer, and no intervention control is shown at all —
+          // Stage 12A's generic-path fallback cannot be trusted to award
+          // correct evidentiary credit for either action type.
+          .filter(t => (t !== 'FORM_HYPOTHESIS' && t !== 'APPLY_INTERVENTION') || findMatchingDecision(t, viewModel.availableDecisions) !== null);
         if (visibleActions.length === 0) return null;
         return (
           <div key={group.id} className="mqc-action-group">

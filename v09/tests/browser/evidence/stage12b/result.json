@@ -1,8 +1,8 @@
 {
   "status": "PASS",
-  "passed": 40,
+  "passed": 47,
   "failed": 0,
-  "total": 40,
+  "total": 47,
   "browserExecutable": "/opt/pw-browsers/chromium-1194/chrome-linux/chrome",
   "checkpoints": [
     {
@@ -49,6 +49,16 @@
       "id": "P1-OTHER-EVIDENCE-SURFACED",
       "status": "PASS",
       "detail": "Evidence not tied to any panel (ev-old-lot-repeat) is reachable via the persistent \"Other Evidence Available\" section"
+    },
+    {
+      "id": "P1-INTERVENTION-DECISION-DIALOG",
+      "status": "PASS",
+      "detail": "Apply intervention is bound to a genuine case-authored decision — clicking it opens the dialog, never a bare dispatch"
+    },
+    {
+      "id": "P1-INTERVENTION-CONFIDENCE",
+      "status": "PASS",
+      "detail": "The intervention decision executes and offers confidence recording against its real decisionEventId"
     },
     {
       "id": "P1-VERIFICATION",
@@ -119,6 +129,31 @@
       "id": "P3-PATIENT-IMPACT-DISTINCT",
       "status": "PASS",
       "detail": "Patient-impact section renders distinctly from QC signal/root cause/disposition"
+    },
+    {
+      "id": "P3-RCV-EVIDENCE-OBTAINED",
+      "status": "PASS",
+      "detail": "ev-rcv-calculation (decisive RCV evidence) is reachable via the persistent Other Evidence Available section"
+    },
+    {
+      "id": "P3-NO-ANSWER-KEY-REVEAL",
+      "status": "PASS",
+      "detail": "No answer-key correctness text (e.g. \"Matches ground truth\") is revealed in the decision dialog"
+    },
+    {
+      "id": "P3-SUPPORTED-DISPOSITION",
+      "status": "PASS",
+      "detail": "The supported final disposition executes and immediately offers confidence recording against its real decisionEventId"
+    },
+    {
+      "id": "P3-CONFIDENCE-CONTROL",
+      "status": "PASS",
+      "detail": "Confidence control confirmed present (see P3-SUPPORTED-DISPOSITION) — recording it now"
+    },
+    {
+      "id": "P3-STILL-NO-HOLD",
+      "status": "PASS",
+      "detail": "Service remains appropriately not held after the supported disposition executes"
     },
     {
       "id": "OVERFLOW-1440x1000",

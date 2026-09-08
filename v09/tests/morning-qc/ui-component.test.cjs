@@ -48,7 +48,7 @@ async function main() {
   const { act } = React;
 
   const APP = path.join(__dirname, '..', '..', 'app', 'morning-qc');
-  const { pilot1ReagentLotShift, pilot2PbrtqcPopulationShift } = await import('file://' + path.join(APP, 'cases', 'index.js'));
+  const { pilot1ReagentLotShift, pilot2PbrtqcPopulationShift, pilot3RcvPatientImpact } = await import('file://' + path.join(APP, 'cases', 'index.js'));
   const { MorningQCRoom } = await import('file://' + process.cwd() + '/.mqc-ui-build/morning-qc-room.mjs');
   const { createRoomController, replayToViewModel } = await import('file://' + path.join(APP, 'ui', 'ui-adapter.js'));
 
@@ -316,6 +316,144 @@ async function main() {
     // Remount with a different key (case switch), matching dev-launcher.jsx's pattern.
     await act(async () => { m8.root.render(React.createElement(MorningQCRoom, { key: 'pB', caseObj: pilot2PbrtqcPopulationShift })); });
     assert('SWITCH-02', m8.container.querySelector('.mqc-dock').getAttribute('data-open') === 'false', 'Drawer presentation state resets to closed on a genuine case switch (key change), not carried over');
+  }
+
+  /* ===================== ActionDock never bare-dispatches payload-requiring actions (Section 1) ===================== */
+  console.log('\n=== ActionDock cannot produce Unknown evidenceId/hypothesisId or "-> undefined" ===');
+  {
+    for (const [caseObj, label] of [[pilot1ReagentLotShift, 'Pilot 1'], [pilot2PbrtqcPopulationShift, 'Pilot 2'], [pilot3RcvPatientImpact, 'Pilot 3']]) {
+      const m9 = mount();
+      await act(async () => { m9.root.render(React.createElement(MorningQCRoom, { key: 'act-' + caseObj.identity.id, caseObj })); });
+      const ackBtn9 = byTextIncludes(m9.container, 'Acknowledge signal');
+      await act(async () => { click(ackBtn9); });
+      // Reach CHARACTERISATION by inspecting the first available panel, if any.
+      const firstPanelBtn = m9.container.querySelector('.mqc-panel-card');
+      if (firstPanelBtn) await act(async () => { click(firstPanelBtn); });
+      // Click every remaining visible action-dock button and confirm none
+      // ever produces the exact error strings the audit reproduced.
+      const actionButtons = Array.from(m9.container.querySelectorAll('.mqc-action-dock button'));
+      let sawForbiddenError = false;
+      for (const btn of actionButtons) {
+        await act(async () => { click(btn); });
+        const errHtml = m9.container.querySelector('.mqc-error-banner')?.textContent || '';
+        if (/Unknown evidenceId: undefined|Unknown hypothesisId: undefined|-> undefined/.test(errHtml)) {
+          sawForbiddenError = true;
+          console.error(`    forbidden error from button "${btn.textContent}": ${errHtml}`);
+        }
+        // Close any dialog that may have opened, to keep clicking through the rest.
+        const cancelBtn = byTextIncludes(m9.container, 'Cancel');
+        if (cancelBtn) await act(async () => { click(cancelBtn); });
+      }
+      assert(`ACTIONDOCK-SAFE-${label}`, !sawForbiddenError, `${label}: no ActionDock button ever produces "Unknown evidenceId/hypothesisId: undefined" or "-> undefined"`);
+      // Directly confirm the specific action types are absent as bare buttons.
+      const html9 = m9.container.innerHTML;
+      const hasBareRequestEvidence = actionButtons.some(b => b.textContent === 'Request evidence');
+      const hasBareReviewPatientImpact = actionButtons.some(b => b.textContent === 'Review patient impact');
+      assert(`ACTIONDOCK-NOREQUESTEVIDENCE-${label}`, !hasBareRequestEvidence, `${label}: generic "Request evidence" is not offered as a bare ActionDock button (dedicated PanelViewer surface used instead)`);
+      assert(`ACTIONDOCK-NOREVIEWPI-${label}`, !hasBareReviewPatientImpact, `${label}: generic "Review patient impact" is not offered as a bare ActionDock button (dedicated PatientImpactPanel surface used instead)`);
+    }
+  }
+
+  /* ===================== Hypothesis matcher fix (Section 2) ===================== */
+  console.log('\n=== Hypothesis free-text matcher: fixed, no stopword-based false positives ===');
+  {
+    const { findUniqueHypothesisMatch } = await import('file://' + path.join(APP, 'ui', 'hypothesis-matcher.js'));
+    const p1h = pilot1ReagentLotShift.hypotheses;
+    const p2h = pilot2PbrtqcPopulationShift.hypotheses;
+    const p3h = pilot3RcvPatientImpact.hypotheses;
+    const cases = [
+      [p1h, 'lot change', 'hyp-lot'],
+      [p1h, 'reagent lot', 'hyp-lot'],
+      [p2h, 'case mix', 'hyp-population'],
+      [p2h, 'population shift', 'hyp-population'],
+      [p2h, 'calibration problem', 'hyp-calibration'],
+      [p3h, 'preanalytical factor', 'hyp-preanalytical-factor'],
+      [p3h, 'sample handling issue', 'hyp-preanalytical-factor'],
+      [p1h, 'a', null],
+      [p1h, 'the', null],
+      [p1h, 'xyz totally unrelated gibberish', null],
+    ];
+    for (const [hyps, query, expected] of cases) {
+      const result = findUniqueHypothesisMatch(query, hyps);
+      const got = result ? result.id : null;
+      assert(`HYPMATCH-${query}`, got === expected, `"${query}" -> ${got} (expected ${expected})`);
+    }
+  }
+
+  /* ===================== Pilot 3 semantic leakage fix (Section 3) ===================== */
+  console.log('\n=== Pilot 3 panel-eqa / panel-specimen-context no longer leak interpretive text ===');
+  {
+    const { createRoomController: crc3 } = await import('file://' + path.join(APP, 'ui', 'ui-adapter.js'));
+    const ctrl3 = crc3(pilot3RcvPatientImpact);
+    ctrl3.dispatch({ type: 'ACKNOWLEDGE_SIGNAL' });
+    ctrl3.dispatch({ type: 'INSPECT_PANEL', panelId: 'panel-qc-history' });
+    ctrl3.dispatch({ type: 'INSPECT_PANEL', panelId: 'panel-eqa' });
+    ctrl3.dispatch({ type: 'INSPECT_PANEL', panelId: 'panel-specimen-context' });
+    const vm3 = ctrl3.getViewModel();
+    const json3 = JSON.stringify(vm3);
+    assert('P3LEAK-01', !json3.includes('supportive, not decisive'), 'panel-specimen-context: "supportive, not decisive" does not leak into the view model');
+    assert('P3LEAK-02', !json3.includes('does not exhaustively rule out'), 'panel-specimen-context: "does not exhaustively rule out" does not leak into the view model');
+    assert('P3LEAK-03', !json3.includes('IMPORTANT INTERPRETATION LIMIT'), 'panel-eqa: "IMPORTANT INTERPRETATION LIMIT" does not leak into the view model');
+    assert('P3LEAK-04', vm3.panels.find(p => p.id === 'panel-eqa').content.note === 'Most recent EQA round passed.', 'panel-eqa exposes exactly the factual learnerNote');
+    assert('P3LEAK-05', vm3.panels.find(p => p.id === 'panel-specimen-context').content.note.startsWith('No documented preanalytical error'), 'panel-specimen-context exposes exactly the factual learnerNote');
+  }
+
+  /* ===================== Documentation escalation field (Section 6) ===================== */
+  console.log('\n=== Documentation drawer exposes the escalation field, distinct from real ESCALATE events ===');
+  {
+    const m10 = mount();
+    await act(async () => { m10.root.render(React.createElement(MorningQCRoom, { key: 'esc', caseObj: pilot1ReagentLotShift })); });
+    const ackBtn10 = byTextIncludes(m10.container, 'Acknowledge signal');
+    await act(async () => { click(ackBtn10); });
+    const docBtn10 = byTextIncludes(m10.container, 'Document');
+    await act(async () => { click(docBtn10); });
+    const escField = m10.container.querySelector('#mqc-doc-escalation');
+    assert('DOCESC-01', !!escField, 'Documentation drawer now exposes an escalation field');
+    await act(async () => {
+      escField.value = 'I believe this should be escalated to the lab director';
+      escField.dispatchEvent(new global.window.Event('input', { bubbles: true }));
+    });
+    const saveBtn10 = byTextIncludes(m10.container, 'Save documentation');
+    await act(async () => { click(saveBtn10); });
+    // Verify via the adapter directly that documenting escalation text
+    // never rewrites serviceState or forges an ESCALATE event.
+    const { createRoomController: crc10 } = await import('file://' + path.join(APP, 'ui', 'ui-adapter.js'));
+    const ctrl10 = crc10(pilot1ReagentLotShift);
+    ctrl10.dispatch({ type: 'ACKNOWLEDGE_SIGNAL' });
+    ctrl10.dispatch({ type: 'DOCUMENT', fields: { escalation: 'documented escalation claim, no real ESCALATE occurred' } });
+    const vm10 = ctrl10.getViewModel();
+    assert('DOCESC-02', vm10.documentation.escalation === 'documented escalation claim, no real ESCALATE occurred', 'Documented escalation text is preserved as a learner claim');
+    assert('DOCESC-03', vm10.serviceState === 'RUNNING', 'serviceState remains RUNNING — documenting escalation text never derives a real ESCALATE event');
+    assert('DOCESC-04', vm10.eventTimeline.every(e => e.type !== 'ESCALATE'), 'No ESCALATE event appears in the real event timeline from documentation text alone');
+  }
+
+  /* ===================== Narrow-screen drawer accessibility (Section 7) ===================== */
+  console.log('\n=== Information/Reasoning drawers: visible Close control, focus trap, focus return ===');
+  {
+    const m11 = mount();
+    await act(async () => { m11.root.render(React.createElement(MorningQCRoom, { key: 'drawer-a11y', caseObj: pilot1ReagentLotShift })); });
+    const infoToggle11 = byTextIncludes(m11.container, 'Information');
+    await act(async () => { click(infoToggle11); });
+    const region = m11.container.querySelector('#mqc-info-drawer-region');
+    assert('DRAWERA11Y-01', region.getAttribute('role') === 'dialog' && region.getAttribute('aria-modal') === 'true', 'Open info drawer carries role=dialog and aria-modal=true');
+    const closeBtn = byTextIncludes(region, 'Close');
+    assert('DRAWERA11Y-02', !!closeBtn, 'A visible Close control renders inside the open drawer');
+    assert('DRAWERA11Y-03', document.activeElement === closeBtn, 'Focus enters the drawer (lands on the first focusable control, the Close button) when opened');
+    // Tab confinement: focus the LAST focusable element in the region, Tab should wrap to the first (the Close button).
+    const focusable11 = Array.from(region.querySelectorAll('button, a, input, textarea, [tabindex]:not([tabindex="-1"])'));
+    focusable11[focusable11.length - 1].focus();
+    await act(async () => { keydown(region, 'Tab'); });
+    assert('DRAWERA11Y-04', document.activeElement === focusable11[0], 'Tab from the last focusable control wraps to the first — genuine focus trap while the drawer is open');
+    // Close via the visible Close control returns focus to the invoking toggle.
+    await act(async () => { click(closeBtn); });
+    assert('DRAWERA11Y-05', m11.container.querySelector('.mqc-dock').getAttribute('data-open') === 'false', 'Close control closes the drawer');
+    assert('DRAWERA11Y-06', document.activeElement === infoToggle11, 'Focus returns to the invoking Information toggle button after closing');
+
+    // Mutual exclusion retained.
+    await act(async () => { click(infoToggle11); });
+    const reasoningToggle11 = byTextIncludes(m11.container, 'Reasoning');
+    await act(async () => { click(reasoningToggle11); });
+    assert('DRAWERA11Y-07', m11.container.querySelector('.mqc-dock').getAttribute('data-open') === 'false' && m11.container.querySelector('.mqc-reasoning').getAttribute('data-open') === 'true', 'Mutual exclusion between Information and Reasoning drawers is retained');
   }
 
   const total = passed + failed;

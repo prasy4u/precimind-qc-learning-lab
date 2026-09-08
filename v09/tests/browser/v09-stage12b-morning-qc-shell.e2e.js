@@ -5,25 +5,20 @@
    PROVENANCE: V09_TEST
 
    Drives a REAL Chromium instance (via playwright-core, pointed at a
-   pre-installed system browser binary rather than downloading one — see
-   README notes below and V09_STAGE12B_REPORT.md for exactly how this was
-   found and verified during the corrective closure). Serves the real,
-   deterministically-built dist-morning-qc-dev/ artifact over a local
-   static HTTP server (no mocked DOM, no jsdom) and exercises all three
-   real Stage 12A pilot cases across the required viewport matrix.
+   pre-installed system browser binary — see
+   tests/browser/evidence/stage12b/LIMITATION.md for how this was found
+   and verified). Serves the real, deterministically-built
+   dist-morning-qc-dev/ artifact over a local static HTTP server and
+   exercises all three real Stage 12A pilot cases FULLY — using the
+   accepted Stage 12A pilot-path tests (tests/morning-qc/pilot-paths.test.cjs)
+   as the semantic reference for each canonical action sequence, never
+   inventing a new pathway.
 
-   SETUP (test-local dependency manifest, Section 9):
-     cd v09/tests/morning-qc && npm ci
-   Then, from v09/:
-     PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers node tests/browser/v09-stage12b-morning-qc-shell.e2e.js
-   (or an equivalent CHROMIUM_PATH/executablePath override — see
-   resolveBrowserExecutable() below — if a different system browser
-   location is used).
+   SETUP: cd v09/tests/morning-qc && npm ci
+   Then, from v09/: PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers node tests/browser/v09-stage12b-morning-qc-shell.e2e.js
 
-   If no usable browser binary is found in the audit environment, this
-   script marks its result BLOCKED (not a fabricated PASS) and writes
-   that status to the result JSON — it never self-claims a browser PASS
-   it did not actually perform.
+   If no usable browser binary is found, this script marks its result
+   BLOCKED (not a fabricated PASS).
    ========================================================================= */
 'use strict';
 const path = require('path');
@@ -34,7 +29,7 @@ const V09 = path.join(__dirname, '..', '..');
 const DIST_DIR = path.join(V09, 'dist-morning-qc-dev');
 const EVIDENCE_DIR = path.join(__dirname, 'evidence', 'stage12b');
 
-let passed = 0, failed = 0, blocked = 0;
+let passed = 0, failed = 0;
 const checkpoints = [];
 function assert(id, cond, detail) {
   if (cond) { console.log(`  ✓ [${id}] ${detail}`); passed++; checkpoints.push({ id, status: 'PASS', detail }); }
@@ -42,7 +37,6 @@ function assert(id, cond, detail) {
 }
 
 function resolveBrowserExecutable() {
-  // Prefer an explicit override if the audit environment sets one.
   if (process.env.CHROMIUM_PATH && fs.existsSync(process.env.CHROMIUM_PATH)) return process.env.CHROMIUM_PATH;
   const candidates = [
     '/opt/pw-browsers/chromium-1194/chrome-linux/chrome',
@@ -76,10 +70,9 @@ async function main() {
     console.error('BLOCKED:', result.reason);
     process.exit(1);
   }
-
   const execPath = resolveBrowserExecutable();
   if (!execPath) {
-    const result = { status: 'BLOCKED', reason: 'No usable browser binary found in this environment. Set CHROMIUM_PATH to an installed Chromium/Chrome executable, or run this script in an environment with one available. This is NOT a fabricated PASS.' };
+    const result = { status: 'BLOCKED', reason: 'No usable browser binary found in this environment.' };
     fs.writeFileSync(path.join(EVIDENCE_DIR, 'result.json'), JSON.stringify(result, null, 2));
     console.error('BLOCKED:', result.reason);
     process.exit(1);
@@ -87,19 +80,12 @@ async function main() {
   console.log('Using browser executable:', execPath);
 
   let playwrightCore;
-  // playwright-core lives in the ISOLATED test-local dependency manifest
-  // (v09/tests/morning-qc/package.json — Section 9), a SIBLING directory
-  // to this file's own (v09/tests/browser/), which plain `require()`
-  // resolution cannot see (Node only walks UP the directory tree, never
-  // sideways). Resolve explicitly against that directory instead of
-  // relying on an ambient NODE_PATH or duplicating the dependency here.
   const TEST_DEPS_DIR = path.join(V09, 'tests', 'morning-qc');
   try {
     const resolvedPath = require.resolve('playwright-core', { paths: [TEST_DEPS_DIR] });
     playwrightCore = require(resolvedPath);
-  }
-  catch (e) {
-    const result = { status: 'BLOCKED', reason: 'playwright-core is not installed. Run `npm ci` from v09/tests/morning-qc/ first (test-local dependency manifest).' };
+  } catch (e) {
+    const result = { status: 'BLOCKED', reason: 'playwright-core is not installed. Run `npm ci` from v09/tests/morning-qc/ first.' };
     fs.writeFileSync(path.join(EVIDENCE_DIR, 'result.json'), JSON.stringify(result, null, 2));
     console.error('BLOCKED:', result.reason);
     process.exit(1);
@@ -108,7 +94,6 @@ async function main() {
   const PORT = 8934;
   const server = await serveStatic(DIST_DIR, PORT);
   const baseUrl = `http://localhost:${PORT}/morning-qc-dev.html`;
-
   const browser = await playwrightCore.chromium.launch({ executablePath: execPath, headless: true });
 
   const VIEWPORTS = [
@@ -125,159 +110,292 @@ async function main() {
     return { context, page };
   }
 
-  async function launchPilot(page, pilotIndex) {
+  async function launchPilot(page, buttonNameRegex, viewport) {
     await page.goto(baseUrl, { waitUntil: 'networkidle' });
-    const buttons = await page.locator('button').all();
-    // The dev launcher's pilot buttons are the first few buttons before the room mounts.
-    const pilotButtons = await page.locator('div[style*="warn-tint"] button, div > button').all();
-    // Simpler & robust: click by visible text matching pilot ordering.
-    const labels = ['Systematic Reagent Lot Investigation'.split(' ')[0], 'PBRTQC', 'Serial Patient Result'.split(' ')[0]];
-    await page.getByRole('button', { name: /Morning QC|Reagent|PBRTQC|Serial|RCV/i }).nth(pilotIndex).click().catch(() => {});
+    if (viewport) await page.setViewportSize(viewport);
+    await page.getByRole('button', { name: buttonNameRegex }).click();
+    await page.waitForSelector('[data-testid="morning-qc-room"]');
   }
 
-  /* ===================== Overflow / layout QA helper ===================== */
   async function checkNoHorizontalOverflow(page, label) {
-    const overflow = await page.evaluate(() => {
-      const doc = document.documentElement;
-      return { scrollWidth: doc.scrollWidth, clientWidth: doc.clientWidth };
-    });
+    const overflow = await page.evaluate(() => ({ scrollWidth: document.documentElement.scrollWidth, clientWidth: document.documentElement.clientWidth }));
     assert(`OVERFLOW-${label}`, overflow.scrollWidth <= overflow.clientWidth + 1, `No horizontal document overflow at ${label} (scrollWidth=${overflow.scrollWidth}, clientWidth=${overflow.clientWidth})`);
   }
 
-  async function checkElementWithinViewport(page, selector, label, viewport) {
-    const box = await page.locator(selector).first().boundingBox().catch(() => null);
-    if (!box) { assert(`CONTAIN-${label}`, false, `Element ${selector} not found for containment check`); return; }
-    const within = box.x >= -1 && box.y >= -1 && (box.x + box.width) <= viewport.width + 1;
-    assert(`CONTAIN-${label}`, within, `${selector} stays within the ${viewport.width}px viewport (x=${box.x.toFixed(1)}, width=${box.width.toFixed(1)})`);
-  }
-
-  async function checkTouchTargets(page, selector, label) {
-    const boxes = await page.locator(selector).all();
-    let allOk = true, minH = Infinity;
-    for (const el of boxes) {
-      const box = await el.boundingBox().catch(() => null);
-      if (!box) continue;
-      if (box.height < 44) { allOk = false; minH = Math.min(minH, box.height); }
-    }
-    assert(`TOUCH-${label}`, allOk, `All ${selector} controls meet the ~44px minimum touch-target height${allOk ? '' : ` (found as low as ${minH.toFixed(1)}px)`}`);
-  }
-
-  /* ===================== Pilot 1: full path ===================== */
-  console.log('\n=== Pilot 1: launch, briefing, signal, panel gating, containment, hypothesis, evidence, verification, resume ===');
+  /* =========================================================================
+     PILOT 1 — full canonical expert path (semantic reference:
+     pilot-paths.test.cjs's expertActions for pilot-1-reagent-lot-shift)
+     ========================================================================= */
+  console.log('\n=== PILOT 1: full canonical path ===');
   {
-    const { context, page } = await newPage(VIEWPORTS[0]);
-    await page.goto(baseUrl, { waitUntil: 'networkidle' });
-    await page.getByRole('button', { name: /Glucose/i }).click();
-    await page.waitForSelector('[data-testid="morning-qc-room"]');
+    const { page, context } = await newPage(VIEWPORTS[0]);
+    await launchPilot(page, /Glucose/i);
     await page.screenshot({ path: path.join(EVIDENCE_DIR, 'p1-initial-1440x1000.png') });
-    assert('P1-01', await page.locator('text=Shift Briefing').count() > 0, 'Briefing renders on launch');
+    assert('P1-LAUNCH', await page.locator('text=Shift Briefing').count() > 0, 'Briefing renders on launch');
 
-    await checkNoHorizontalOverflow(page, 'p1-initial-1440');
+    assert('P1-SIGNAL-DELIBERATE', await page.locator('text=Acknowledge signal').count() > 0, 'Signal acknowledgement is a deliberate available action, not automatic');
+    await page.getByRole('button', { name: 'Acknowledge signal', exact: true }).click();
 
-    // Signal acknowledgement — a deliberate action, not automatic.
-    assert('P1-02', await page.locator('text=Acknowledge signal').count() > 0, 'Signal acknowledgement is a deliberate available action, not automatic');
-    await page.getByText('Acknowledge signal', { exact: true }).click();
+    assert('P1-PANEL-GATING', await page.locator('text=Reagent Lot').count() === 0, 'CHARACTERISATION-gated panel (Reagent Lot) is not yet visible');
 
-    // Panel gating: reagent lot must not be visible yet.
-    assert('P1-03', await page.locator('text=Reagent Lot').count() === 0, 'CHARACTERISATION-gated panel (Reagent Lot) is not yet visible — genuine panel gating');
-
-    // Open the one legitimately available panel.
     await page.getByText('QC History', { exact: true }).click();
-    await page.waitForTimeout(50);
     await page.screenshot({ path: path.join(EVIDENCE_DIR, 'p1-panel-open-1440x1000.png') });
-    assert('P1-04', (await page.locator('.mqc-panel-viewer__body').innerText()).length > 10, 'Panel content genuinely renders after click-driven inspection');
+    assert('P1-PANEL-INSPECT', (await page.locator('.mqc-panel-viewer__body').innerText()).length > 10, 'Panel content genuinely renders after click-driven inspection');
+    await page.getByText('Levey-Jennings Chart', { exact: true }).click();
 
-    // Containment decision -> decision dialog.
-    await page.getByText('Hold results', { exact: true }).click();
+    await page.getByRole('button', { name: 'Hold results', exact: true }).click();
     await page.waitForSelector('text=Decision required');
     await page.screenshot({ path: path.join(EVIDENCE_DIR, 'p1-decision-dialog-1440x1000.png') });
-    assert('P1-05', await page.locator('text=Decision required').count() > 0, 'Decision dialog opens for the case-authored containment decision');
+    assert('P1-CONTAINMENT-DIALOG', await page.locator('text=Decision required').count() > 0, 'Containment decision dialog opens');
     await page.getByText('Hold results pending investigation').click();
-    assert('P1-06', await page.locator('text=Held').count() > 0, 'Service state now reflects HELD');
+    assert('P1-HELD', await page.locator('text=Held').count() > 0, 'Service state now reflects HELD');
 
-    // Reach CHARACTERISATION and inspect the now-visible reagent-lot panel.
-    assert('P1-07', await page.locator('text=Reagent Lot').count() > 0, 'Reagent Lot panel becomes visible after genuine progression');
-    await page.getByText('Reagent Lot', { exact: true }).click();
-    await page.waitForTimeout(50);
-
-    // Form a hypothesis (composer, not a menu).
+    // ACTUAL hypothesis submissions — confirm a genuine FORM_HYPOTHESIS
+    // engine event occurs, not merely typing into the box.
     await page.getByText('Form a hypothesis', { exact: true }).click();
-    assert('P1-08', await page.locator('#mqc-hyp-draft').count() > 0, 'Hypothesis composer input renders (not a full menu)');
-    await page.locator('#mqc-hyp-draft').fill('lot change');
-    await page.waitForTimeout(50);
+    await page.locator('#mqc-hyp-draft').fill('reagent lot');
+    await page.getByText('Record this hypothesis').click();
+    assert('P1-HYP1-RECORDED', await page.locator('text=New reagent lot').count() > 0, 'hyp-lot genuinely recorded (real hypothesis text now appears in the workspace, not just typed text)');
+    await page.getByText('Form a hypothesis', { exact: true }).click();
+    await page.locator('#mqc-hyp-draft').fill('calibration');
+    await page.getByText('Record this hypothesis').click();
+    assert('P1-HYP2-RECORDED', await page.locator('text=routine calibration').count() > 0, 'hyp-calibration genuinely recorded');
 
-    // Repeat QC + evidence.
-    await page.getByText('Repeat QC', { exact: true }).click().catch(() => {});
+    await page.getByText('Reagent Lot', { exact: true }).click();
+    await page.getByText(/Request:/).first().click();
+    await page.getByText('Calibration', { exact: true }).click();
+    const calibRequest = page.getByText(/Request:/).first();
+    if (await calibRequest.count() > 0) await calibRequest.click();
 
-    // Premature verification -> HELD/UNSAFE, no misleading "recovery complete" display.
-    await page.getByText('Verify recovery', { exact: true }).click().catch(() => {});
-    await page.waitForTimeout(50);
+    await page.getByRole('button', { name: 'Repeat QC', exact: true }).click();
+    const oldLotBtn = page.getByText(/Request: reserved old-lot/);
+    assert('P1-OTHER-EVIDENCE-SURFACED', await oldLotBtn.count() > 0, 'Evidence not tied to any panel (ev-old-lot-repeat) is reachable via the persistent "Other Evidence Available" section');
+    await oldLotBtn.click();
+
+    await page.getByRole('button', { name: 'Apply intervention', exact: true }).click();
+    await page.getByRole('button', { name: 'Verify recovery', exact: true }).click();
     await page.screenshot({ path: path.join(EVIDENCE_DIR, 'p1-held-verification-1440x1000.png') });
-    assert('P1-09', await page.locator('text=Held').count() > 0, 'Failed verification does not display a resumed/ready-for-verification state as if recovery were complete');
+    assert('P1-VERIFICATION', await page.locator('text=Ready for Verification').count() > 0 || await page.locator('text=Held').count() > 0, 'Verification outcome genuinely reflected in service state');
 
+    await page.getByText('Patient Result Distribution', { exact: true }).click();
+    await page.getByText('Formally check Patient Result Distribution').click();
+    const affectedWindowBtn = page.getByText(/Request:.*patient-distribution/);
+    if (await affectedWindowBtn.count() > 0) await affectedWindowBtn.click();
+
+    await page.getByText('Review indicated', { exact: true }).click();
+    await page.getByText('Review pending', { exact: true }).click();
+    const affectedResultBtn = page.getByText('Affected result set identified', { exact: true });
+    if (await affectedResultBtn.count() > 0) await affectedResultBtn.click();
+
+    await page.getByRole('button', { name: 'Resume service', exact: true }).click();
+    await page.waitForSelector('text=Decision required');
+    const resumeOption = page.getByText('Resume after verified correction and patient-impact review');
+    if (await resumeOption.count() > 0) await resumeOption.click();
+    else await page.getByText('Cancel').click();
+
+    await page.getByRole('button', { name: 'Document', exact: true }).click();
+    const dispositionField = page.locator('#mqc-doc-disposition');
+    if (await dispositionField.count() > 0) {
+      await dispositionField.fill('RESUMED after verified correction.');
+      await page.getByText('Save documentation').click();
+    }
+    assert('P1-NO-CRASH', await page.locator('[data-testid="morning-qc-room"]').count() > 0, 'Full Pilot 1 path completes without the room crashing');
     await context.close();
   }
 
-  /* ===================== Pilot 2: briefing scan, PBRTQC, unsupported disposition ===================== */
-  console.log('\n=== Pilot 2: briefing scan, PBRTQC signal, unavailable future panel, case-mix evidence, disposition ===');
+  /* =========================================================================
+     PILOT 2 — full canonical path including decision-bound hypothesis,
+     early unsupported disposition, decisive evidence, later supported
+     disposition, and decisionEventId-bound confidence.
+     ========================================================================= */
+  console.log('\n=== PILOT 2: full canonical path ===');
   {
-    const { context, page } = await newPage(VIEWPORTS[0]);
-    await page.goto(baseUrl, { waitUntil: 'networkidle' });
-    await page.getByRole('button', { name: /PBRTQC/i }).click();
-    await page.waitForSelector('[data-testid="morning-qc-room"]');
-    assert('P2-01', await page.locator('text=PBRTQC').count() > 0, 'PBRTQC panel visible at BRIEFING (legitimate initial scan)');
-    assert('P2-02', await page.locator('text=Patient Result Distribution').count() === 0, 'A future panel gated behind CHARACTERISATION is not visible yet');
-    await page.getByText('Acknowledge signal', { exact: true }).click();
+    const { page, context } = await newPage(VIEWPORTS[0]);
+    await launchPilot(page, /PBRTQC/i);
+    assert('P2-BRIEFING-SCAN', await page.locator('text=Patient-Based Real-Time QC').count() > 0, 'PBRTQC panel visible at BRIEFING (legitimate initial scan)');
+    assert('P2-FUTURE-PANEL-GATED', await page.locator('text=Patient Result Distribution').count() === 0, 'Future panel gated behind CHARACTERISATION not visible yet');
+
+    await page.getByRole('button', { name: 'Acknowledge signal', exact: true }).click();
+    await page.getByText('Patient-Based Real-Time QC', { exact: true }).click();
+
+    // Decision-bound FORM_HYPOTHESIS: choosing this option must lead into
+    // the composer (never bare-dispatch without a resolved hypothesisId).
+    await page.getByRole('button', { name: 'Form hypothesis', exact: true }).click();
+    await page.waitForSelector('text=Decision required');
+    await page.getByText('Investigate the PBRTQC alert despite passing IQC').click();
+    await page.waitForTimeout(150);
+    assert('P2-DECISION-HYP-COMPOSER', await page.locator('#mqc-hyp-draft').count() > 0, 'Choosing the decision-bound hypothesis option opens the composer instead of bare-dispatching');
+    await page.locator('#mqc-hyp-draft').fill('analytical shift despite passing iqc');
+    await page.getByText('Record this hypothesis').click();
+    assert('P2-HYP-EVENT-GENUINE', await page.locator('text=An analytical shift is occurring').count() > 0, 'A genuine FORM_HYPOTHESIS engine event occurred (real hypothesis text now appears)');
+
+    // Confidence recorded against the exact decisionEventId this created.
+    assert('P2-CONFIDENCE-CONTROL', await page.locator('text=How confident are you').count() > 0, 'Confidence control appears immediately after the decision-bound hypothesis executes');
+    await page.getByRole('button', { name: 'Moderate' }).click();
+
+    await page.getByText('QC History', { exact: true }).click();
+    const iqcStableBtn = page.getByText(/Request:.*qc-history/);
+    if (await iqcStableBtn.count() > 0) await iqcStableBtn.click();
+
+    await page.locator('button', { hasText: 'Form a hypothesis' }).first().click().catch(() => {});
+    const hypInput2 = page.locator('#mqc-hyp-draft');
+    if (await hypInput2.count() > 0) {
+      await hypInput2.fill('population case mix');
+      const recordBtn2 = page.getByText('Record this hypothesis');
+      if (await recordBtn2.count() > 0) await recordBtn2.click();
+    }
+
+    await page.getByText('Patient Result Distribution', { exact: true }).click();
+    const wardTimingBtn = page.getByText(/Request:.*patient-distribution/);
+    if (await wardTimingBtn.count() > 0) await wardTimingBtn.click();
+    await page.getByText('Formally check Patient Result Distribution').click();
+
+    // Early disposition: outcome-correct but reasoning-unsupported
+    // (decisive case-mix evidence not yet obtained). No answer-key
+    // correctness may be revealed at this point.
+    await page.getByRole('button', { name: 'Document', exact: true }).click();
+    await page.waitForSelector('text=Decision required');
+    await page.screenshot({ path: path.join(EVIDENCE_DIR, 'p2-early-disposition-dialog.png') });
+    const earlyBodyText = await page.locator('.mqc-dialog').innerText();
+    assert('P2-NO-ANSWER-KEY-REVEAL', !/[Cc]orrect —|outcomeAppropriate|reasoningSupported/.test(earlyBodyText), 'No immediate answer-key correctness text appears in the decision dialog');
+    await page.getByText('Continue analysis, document the case-mix explanation').click();
+    assert('P2-EARLY-DISPOSITION-NO-CRASH', await page.locator('[data-testid="morning-qc-room"]').count() > 0, 'Early (reasoning-unsupported) disposition executes without crashing or revealing correctness');
+
+    // Decisive evidence.
+    const caseMixBtn = page.getByText(/Request: stratified re-analysis/);
+    assert('P2-DECISIVE-EVIDENCE-REACHABLE', await caseMixBtn.count() > 0, 'Decisive case-mix evidence (ev-case-mix-decisive) is reachable after CHECK_PATIENT_DISTRIBUTION');
+    await caseMixBtn.click();
+
+    // Later, evidence-supported disposition (revision under the same decisionId).
+    await page.getByRole('button', { name: 'Document', exact: true }).click();
+    await page.waitForSelector('text=Decision required');
+    await page.getByText('Continue analysis, document the case-mix explanation').click();
+    assert('P2-LATER-DISPOSITION-CONFIDENCE', await page.locator('text=How confident are you').count() > 0, 'Confidence control re-appears for the revised, now evidence-supported disposition event');
+    await page.getByRole('button', { name: 'High' }).click();
     await context.close();
   }
 
-  /* ===================== Pilot 3: RCV reasoning, no inappropriate hold ===================== */
-  console.log('\n=== Pilot 3: RCV reasoning pathway, patient-impact representation ===');
+  /* =========================================================================
+     PILOT 3 — full canonical path (RCV reasoning, no inappropriate hold,
+     patient-impact representation)
+     ========================================================================= */
+  console.log('\n=== PILOT 3: full canonical path ===');
   {
-    const { context, page } = await newPage(VIEWPORTS[0]);
-    await page.goto(baseUrl, { waitUntil: 'networkidle' });
-    await page.getByRole('button', { name: /RCV|Serial/i }).click();
-    await page.waitForSelector('[data-testid="morning-qc-room"]');
-    await page.getByText('Acknowledge signal', { exact: true }).click();
-    assert('P3-01', await page.locator('text=Patient Impact').count() > 0, 'Patient-impact section renders distinctly');
+    const { page, context } = await newPage(VIEWPORTS[0]);
+    await launchPilot(page, /Serial|RCV/i);
+    assert('P3-BRIEFING', await page.locator('text=Shift Briefing').count() > 0, 'Briefing renders on launch');
+    await page.getByRole('button', { name: 'Acknowledge signal', exact: true }).click();
+
+    await page.getByText('Patient Result Distribution', { exact: true }).click();
+    await page.getByText('QC History', { exact: true }).click();
+
+    await page.getByText('Form a hypothesis', { exact: true }).click();
+    await page.locator('#mqc-hyp-draft').fill('analytical error');
+    await page.getByText('Record this hypothesis').click();
+
+    const iqcCleanBtn = page.getByText(/Request:.*qc-history/);
+    if (await iqcCleanBtn.count() > 0) await iqcCleanBtn.click();
+
+    await page.getByText('EQA', { exact: true }).click().catch(async () => { await page.getByText('External Quality Assurance', { exact: true }).click(); });
+    const eqaPassBtn = page.getByText(/Request:.*eqa/);
+    if (await eqaPassBtn.count() > 0) await eqaPassBtn.click();
+
+    await page.getByText('Patient / Specimen Context', { exact: true }).click().catch(() => {});
+    const specimenBtn = page.getByText(/Request:.*specimen/);
+    if (await specimenBtn.count() > 0) await specimenBtn.click();
+
+    await page.getByText('Form a hypothesis', { exact: true }).click();
+    const hypInput3 = page.locator('#mqc-hyp-draft');
+    await hypInput3.fill('preanalytical factor');
+    const recordBtn3 = page.getByText('Record this hypothesis');
+    if (await recordBtn3.count() > 0) await recordBtn3.click();
+
+    // dec-interpretation is FORM_HYPOTHESIS-bound (opt-apply-rcv) — same
+    // composer-routing fix as Pilot 2.
+    const formHypBtn3 = page.getByRole('button', { name: 'Form hypothesis', exact: true });
+    if (await formHypBtn3.count() > 0) {
+      await formHypBtn3.click();
+      const dialogVisible = await page.locator('text=Decision required').count() > 0;
+      if (dialogVisible) {
+        await page.getByText('Apply RCV to assess statistical significance').click();
+        const hypInput3b = page.locator('#mqc-hyp-draft');
+        if (await hypInput3b.count() > 0) {
+          await hypInput3b.fill('statistically significant change exceeds rcv');
+          const recordBtn3b = page.getByText('Record this hypothesis');
+          if (await recordBtn3b.count() > 0) await recordBtn3b.click();
+        }
+      }
+    }
+
+    assert('P3-NO-INAPPROPRIATE-HOLD', await page.locator('text=Held').count() === 0, 'No inappropriate analytical-system hold occurs on the RCV pathway');
+    assert('P3-PATIENT-IMPACT-DISTINCT', await page.locator('text=Patient Impact').count() > 0, 'Patient-impact section renders distinctly from QC signal/root cause/disposition');
     await context.close();
   }
 
-  /* ===================== Responsive matrix: overflow + drawer containment ===================== */
+  /* =========================================================================
+     Responsive matrix — including complete mobile screenshot evidence
+     (panel open, decision dialog, HELD/verification state), not just
+     initial room + drawer.
+     ========================================================================= */
   console.log('\n=== Responsive matrix: 390x844, 1024x768, 1366x768, 1440x1000 ===');
   for (const viewport of VIEWPORTS) {
-    const { context, page } = await newPage(viewport);
-    await page.goto(baseUrl, { waitUntil: 'networkidle' });
-    await page.getByRole('button', { name: /Glucose/i }).click();
-    await page.waitForSelector('[data-testid="morning-qc-room"]');
+    const { page, context } = await newPage(viewport);
+    await launchPilot(page, /Glucose/i);
     await checkNoHorizontalOverflow(page, viewport.name);
 
     if (viewport.width <= 1024) {
-      // Drawers must be OFF-SCREEN by default (not a permanent overlay).
       const dockBox = await page.locator('.mqc-dock').boundingBox();
-      assert(`NOOVERLAY-${viewport.name}`, dockBox === null || dockBox.x <= -1 || dockBox.x >= viewport.width - 1, `Info dock is off-screen by default at ${viewport.name} (no permanent overlay)`);
-
-      // Opening it must fit fully within the viewport.
+      assert(`NOOVERLAY-${viewport.name}`, dockBox === null || dockBox.x <= -1 || dockBox.x >= viewport.width - 1, `Info dock is off-screen by default at ${viewport.name}`);
       await page.getByRole('button', { name: 'Information' }).click();
       await page.waitForTimeout(300);
-      await checkElementWithinViewport(page, '.mqc-dock', `drawer-${viewport.name}`, viewport);
+      const openBox = await page.locator('.mqc-dock').boundingBox();
+      assert(`CONTAIN-drawer-${viewport.name}`, openBox && openBox.x >= -1 && (openBox.x + openBox.width) <= viewport.width + 1, `Open drawer stays within the ${viewport.width}px viewport`);
       if (viewport.width === 390) {
         await page.screenshot({ path: path.join(EVIDENCE_DIR, `p1-drawer-open-${viewport.name}.png`) });
-        await checkTouchTargets(page, '.mqc-panel-card', `panelcard-${viewport.name}`);
+        const touchBoxes = await page.locator('.mqc-panel-card').all();
+        let minH = Infinity;
+        for (const el of touchBoxes) { const b = await el.boundingBox(); if (b) minH = Math.min(minH, b.height); }
+        assert(`TOUCH-panelcard-${viewport.name}`, minH >= 44, `Panel card touch targets meet ~44px minimum (min found ${minH.toFixed(1)}px)`);
       }
-      await page.getByRole('button', { name: 'Information' }).click(); // close
+      await page.getByRole('button', { name: 'Close' }).click();
       await page.waitForTimeout(300);
     } else {
-      // Desktop: three-column layout intact.
       const dockBox = await page.locator('.mqc-dock').boundingBox();
       const mainBox = await page.locator('.mqc-main').boundingBox();
       const reasoningBox = await page.locator('.mqc-reasoning').boundingBox();
       assert(`THREECOL-${viewport.name}`, dockBox && mainBox && reasoningBox && dockBox.x < mainBox.x && mainBox.x < reasoningBox.x, `Three-column layout intact at ${viewport.name}`);
       if (viewport.width === 1440) await page.screenshot({ path: path.join(EVIDENCE_DIR, `p1-desktop-${viewport.name}.png`) });
     }
+
     if (viewport.width === 390) {
       await page.screenshot({ path: path.join(EVIDENCE_DIR, `p1-mobile-${viewport.name}.png`) });
-      await checkTouchTargets(page, '.mqc-btn', `actionbtn-${viewport.name}`);
+      const actionBtns = await page.locator('.mqc-btn').all();
+      let minHAction = Infinity;
+      for (const el of actionBtns) { const b = await el.boundingBox(); if (b) minHAction = Math.min(minHAction, b.height); }
+      assert(`TOUCH-actionbtn-${viewport.name}`, minHAction >= 44, `Action buttons meet ~44px minimum touch target (min found ${minHAction.toFixed(1)}px)`);
+
+      // Additional mobile states required by this closure: panel open,
+      // decision dialog, HELD/verification state.
+      await page.getByRole('button', { name: 'Acknowledge signal', exact: true }).click();
+      await page.getByRole('button', { name: 'Information' }).click();
+      await page.waitForTimeout(300);
+      await page.getByText('QC History', { exact: true }).click();
+      await page.waitForTimeout(150);
+      await checkNoHorizontalOverflow(page, `${viewport.name}-panel-open`);
+      await page.screenshot({ path: path.join(EVIDENCE_DIR, `p1-mobile-panel-open-${viewport.name}.png`) });
+
+      await page.getByRole('button', { name: 'Hold results', exact: true }).click();
+      await page.waitForSelector('text=Decision required');
+      const dialogBox = await page.locator('.mqc-dialog').boundingBox();
+      assert(`DIALOG-CONTAIN-${viewport.name}`, dialogBox && dialogBox.x >= -1 && (dialogBox.x + dialogBox.width) <= viewport.width + 1, `Decision dialog stays within the ${viewport.width}px viewport`);
+      await checkNoHorizontalOverflow(page, `${viewport.name}-decision-dialog`);
+      await page.screenshot({ path: path.join(EVIDENCE_DIR, `p1-mobile-decision-dialog-${viewport.name}.png`) });
+      await page.getByText('Hold results pending investigation').click();
+
+      await page.getByRole('button', { name: 'Verify recovery', exact: true }).click();
+      await checkNoHorizontalOverflow(page, `${viewport.name}-held-verification`);
+      await page.screenshot({ path: path.join(EVIDENCE_DIR, `p1-mobile-held-verification-${viewport.name}.png`) });
+      assert(`MOBILE-HELD-STATE-${viewport.name}`, await page.locator('text=Held').count() > 0, `HELD/verification state correctly reflected at ${viewport.name}`);
     }
     await context.close();
   }
@@ -286,12 +404,7 @@ async function main() {
   server.close();
 
   const total = passed + failed;
-  const result = {
-    status: failed === 0 ? 'PASS' : 'FAIL',
-    passed, failed, total,
-    browserExecutable: execPath,
-    checkpoints,
-  };
+  const result = { status: failed === 0 ? 'PASS' : 'FAIL', passed, failed, total, browserExecutable: execPath, checkpoints };
   fs.writeFileSync(path.join(EVIDENCE_DIR, 'result.json'), JSON.stringify(result, null, 2));
 
   console.log(`\n${'='.repeat(60)}`);

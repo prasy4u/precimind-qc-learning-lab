@@ -56,8 +56,8 @@ async function main() {
     // leakage review (Section 11) justified changing — not a silent,
     // undocumented drift.
     const exceptions = manifest.sanctionedExceptions;
-    assert('2b', exceptions && Array.isArray(exceptions.files) && exceptions.files.length === 3, 'Manifest explicitly documents exactly 3 sanctioned exceptions from the original Stage 12A baseline');
-    assert('2c', exceptions.files.includes('app/morning-qc/case-schema.js') && exceptions.files.includes('app/morning-qc/cases/pilot-1-reagent-lot-shift.js') && exceptions.files.includes('app/morning-qc/cases/pilot-2-pbrtqc-population-shift.js'), 'The 3 documented exceptions are exactly case-schema.js, pilot-1, and pilot-2 (never engine.js, states.js, case-validator.js, decision-model.js, evidence-model.js, scoring-model.js, debrief-model.js, types.js, or pilot-3)');
+    assert('2b', exceptions && Array.isArray(exceptions.files) && exceptions.files.length === 4, 'Manifest explicitly documents exactly 4 sanctioned exceptions from the original Stage 12A baseline (case-schema.js + all 3 pilot cases)');
+    assert('2c', exceptions.files.includes('app/morning-qc/case-schema.js') && exceptions.files.includes('app/morning-qc/cases/pilot-1-reagent-lot-shift.js') && exceptions.files.includes('app/morning-qc/cases/pilot-2-pbrtqc-population-shift.js') && exceptions.files.includes('app/morning-qc/cases/pilot-3-rcv-patient-impact.js'), 'The 4 documented exceptions are exactly case-schema.js and all 3 pilot cases (never engine.js, states.js, case-validator.js, decision-model.js, evidence-model.js, scoring-model.js, or debrief-model.js)');
     // Verify the actual DIFF from the ORIGINAL Stage 12A baseline commit
     // touches ONLY these 3 files among the 12 manifested — using git
     // directly against the baseline commit, not just the manifest's own
@@ -259,10 +259,28 @@ async function main() {
       assert('16b', result.status === 'PASS', `Browser E2E result status is genuinely PASS, not BLOCKED or FAIL (found: ${result.status}${result.reason ? ' — ' + result.reason : ''})`);
       assert('16c', typeof result.passed === 'number' && typeof result.total === 'number' && result.passed === result.total && result.total > 0, `Result reports a genuine non-zero passed/total count with zero failures (found ${result.passed}/${result.total})`);
       assert('16d', typeof result.browserExecutable === 'string' && result.browserExecutable.length > 0, 'Result records which real browser executable was used (not a fabricated claim)');
+
+      // FINAL-UI-INTEGRATION-CLOSURE STRENGTHENING: verify the presence
+      // AND pass status of specific, named checkpoint IDs proving genuine
+      // three-pilot coverage — not merely aggregate total>0/passed===total,
+      // which could theoretically be satisfied by a shallow test.
+      const REQUIRED_CHECKPOINT_IDS = [
+        'P1-HYP1-RECORDED', 'P1-HYP2-RECORDED', 'P1-OTHER-EVIDENCE-SURFACED', 'P1-VERIFICATION',
+        'P2-DECISION-HYP-COMPOSER', 'P2-HYP-EVENT-GENUINE', 'P2-CONFIDENCE-CONTROL',
+        'P2-NO-ANSWER-KEY-REVEAL', 'P2-DECISIVE-EVIDENCE-REACHABLE', 'P2-LATER-DISPOSITION-CONFIDENCE',
+        'P3-NO-INAPPROPRIATE-HOLD', 'P3-PATIENT-IMPACT-DISTINCT',
+        'MOBILE-HELD-STATE-390x844', 'DIALOG-CONTAIN-390x844',
+      ];
+      const byId = new Map((result.checkpoints || []).map(c => [c.id, c.status]));
+      const missing = REQUIRED_CHECKPOINT_IDS.filter(id => !byId.has(id));
+      const failedNamed = REQUIRED_CHECKPOINT_IDS.filter(id => byId.get(id) === 'FAIL');
+      assert('16j', missing.length === 0, `All ${REQUIRED_CHECKPOINT_IDS.length} required named checkpoints are present in the result (missing: ${JSON.stringify(missing)})`);
+      assert('16k', failedNamed.length === 0, `All required named checkpoints report PASS, not merely present (failed: ${JSON.stringify(failedNamed)})`);
     }
     const requiredScreenshots = [
       'p1-initial-1440x1000.png', 'p1-panel-open-1440x1000.png', 'p1-decision-dialog-1440x1000.png',
       'p1-held-verification-1440x1000.png', 'p1-mobile-390x844.png', 'p1-drawer-open-390x844.png',
+      'p1-mobile-panel-open-390x844.png', 'p1-mobile-decision-dialog-390x844.png', 'p1-mobile-held-verification-390x844.png',
     ];
     const missingScreenshots = requiredScreenshots.filter(f => !fs.existsSync(path.join(evidenceDir, f)));
     assert('16e', missingScreenshots.length === 0, `All required screenshot evidence exists (initial room, panel open, decision dialog, HELD/verification state, desktop + mobile) — missing: ${JSON.stringify(missingScreenshots)}`);

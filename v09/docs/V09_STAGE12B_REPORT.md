@@ -411,3 +411,58 @@ limitation.
 - All historical baselines (Stage 11A/11B/11C1/11C2/v0.8): unchanged and
   reconfirmed, **including the Stage 11C2 regression found and fixed
   during this closure** (49/49, restored from a 48/49 break)
+
+---
+
+## Stage 12B FINAL UI INTEGRATION / LEAKAGE Closure
+
+A third independent audit found genuine defects in the interaction shell's integration correctness, plus additional semantic leakage. This closure resolves all of them, and — critically — found and fixed **five further real bugs** while building the deeper verification the audit required, none of which had been flagged explicitly but which surfaced the moment genuine end-to-end interaction was exercised.
+
+### 1. ActionDock bare-dispatch removal (confirmed exactly as reported)
+
+Reproduced the exact errors independently: `REQUEST_EVIDENCE`/`FORM_HYPOTHESIS`/`REVIEW_PATIENT_IMPACT` bare-dispatched from `ActionDock` without their required ID/target payload produced `Unknown evidenceId: undefined`, `Unknown hypothesisId: undefined`, and `Illegal patient-impact transition: NOT_INDICATED -> undefined`. Fixed: `REQUEST_EVIDENCE` and `REVIEW_PATIENT_IMPACT` removed from `ACTION_GROUPS` entirely (their dedicated surfaces — `PanelViewer`'s per-panel evidence buttons, `PatientImpactPanel`'s transition-specific buttons — already existed); `FORM_HYPOTHESIS` now renders in `ActionDock` **only** when bound to a genuine available case-authored decision. 12 new tests across all 3 pilots prove no visible control can produce these errors.
+
+### 2. Hypothesis free-text matcher replaced
+
+The naive `includes()`/first-word matcher matched on stopwords ("a", "an", "the"), producing the exact wrong matches the audit reproduced ("calibration problem" → hyp-population; "sample handling issue"/"preanalytical factor" → hyp-analytical-error). Replaced with `hypothesis-matcher.js`: stopword removal, general (non-case-specific) domain-synonym normalization, and IDF-style token weighting to resolve genuine ties (e.g. distinguishing "lot change" from "population shift" correctly). Verified against every exact case the audit specified, plus stress tests (pure stopwords and gibberish correctly return no match, never a silent guess).
+
+### 3. Pilot 3 panel leakage closed
+
+Added `content.learnerNote` to `panel-eqa` and `panel-specimen-context`, exactly as suggested, without touching `content.note`. The freeze manifest's `sanctionedExceptions` now lists **4** files (adding `pilot-3-rcv-patient-impact.js`), verified against a real `git diff`.
+
+### 4. Real three-pilot browser paths — now genuinely comprehensive (40/40)
+
+The browser E2E suite was extended to exercise the **complete** canonical action sequence for each pilot, using `tests/morning-qc/pilot-paths.test.cjs`'s accepted `expertActions` arrays as the literal semantic reference (no invented pathway). Pilot 1's full path (containment → both hypotheses → both evidence chains → REPEAT_QC → intervention → verification → patient-impact escalation sequence → resume → document) now passes end-to-end through real clicks. Pilot 2's path proves a genuine `FORM_HYPOTHESIS` engine event (not just typed text), a decisionEventId-bound confidence control, zero answer-key reveal, and the full early-unsupported → decisive-evidence → later-supported disposition revision cycle. Pilot 3 confirms no inappropriate analytical hold and distinct patient-impact representation. Governance now verifies the **presence and PASS status of 14 specific named checkpoint IDs**, not merely aggregate `total>0`/`passed===total` (Section 4's explicit requirement).
+
+### 5. Complete mobile screenshot evidence
+
+Added panel-open, decision-dialog, and HELD/verification-state screenshots at 390×844 (previously only initial room + drawer existed), each with real overflow/containment checks.
+
+### 6. Escalation documentation field added
+
+`DocumentationDrawer` now exposes all three Stage-12A-allowlisted fields (`finalDisposition`, `establishedCause`, `escalation`). Verified: documenting escalation text never derives `serviceState` or forges a real `ESCALATE` event in the timeline.
+
+### 7. Narrow-screen drawer accessibility hardened
+
+Built a shared `DrawerRegion` component: genuine focus trap, visible Close control, `role="dialog"`/`aria-modal` applied **only** while open (never affecting desktop's permanent three-column behavior, verified directly). Mutual exclusion retained.
+
+### Five further real bugs found and fixed while building genuine end-to-end verification
+
+None of these were explicitly named by the audit; each surfaced only once the full canonical paths were actually driven through a real browser, confirming the value of the deeper testing the audit required:
+
+1. **`CHECK_PATIENT_DISTRIBUTION`/`CHECK_EQA`/`CHECK_PBRTQC` had no UI control at all.** These are engine actions *distinct* from merely inspecting the corresponding panel — some decisive evidence (Pilot 1's `ev-affected-window`, Pilot 2's `ev-case-mix-decisive`) is gated specifically behind them via `availableOnlyAfterActionType`, not by panel inspection alone. Without a control for this, those evidence items were structurally unreachable through the interface. Fixed: a "Formally check [panel type]" button now appears in `PanelViewer` for these three panel types.
+2. **Evidence with `sourcePanelId: null` had no UI surface anywhere.** `PanelViewer`'s per-panel evidence buttons are filtered to the currently-open panel; Briefing (shown when no panel is open) never rendered evidence buttons either. Fixed: `EvidenceTray` now shows a persistent "Other Evidence Available" section for this category, reachable regardless of which panel is open.
+3. **A second, subtler instance of the audit's own Section-1 defect class**: `Pilot 2`'s `dec-take-seriously`/`opt-investigate` decision option carries `actionType: FORM_HYPOTHESIS` but — like all such options — does **not** embed its own `hypothesisId`; Stage 12A's own accepted pilot-path tests supply it as a separate, explicit argument alongside `decisionId`/`optionId`. Choosing this option through the decision dialog was bare-dispatching `FORM_HYPOTHESIS` with no `hypothesisId`, reproducing the exact `Unknown hypothesisId: undefined` error the audit's Section 1 targeted — just via the decision-dialog path rather than the plain ActionDock fallback. Fixed: `HypothesisWorkspace` now accepts an optional `pendingDecision`; choosing such an option opens the composer (auto-triggered), and only once the learner's own wording resolves a unique hypothesis match does the combined `{decisionId, optionId, hypothesisId}` action dispatch.
+4. **`findMatchingDecision` picked the wrong decision when multiple decisions shared an actionType.** Pilot 2's `dec-take-seriously` has a `DOCUMENT`-actionType "Dismiss" option; `dec-disposition` *also* has a `DOCUMENT`-actionType option. Clicking the generic "Document" button opened `dec-take-seriously`'s dialog instead of `dec-disposition`'s — confirmed by direct browser reproduction. Fixed with a general (non-case-ID) tie-break: prefer the decision whose `availableFromPhase` unlocks *latest*, read directly from Stage 12A's own `SIMULATION_PHASES` ordering.
+5. **The prior closure's header z-index fix (raising `.mqc-header` above the drawer backdrop) created a new bug**: the header's height is dynamic (wraps at narrow widths), so a drawer starting at `top: 0` could end up rendering *underneath* an unexpectedly-tall header, blocking drawer content. Fixed more surgically: only the toggle buttons themselves are elevated (`z-index: 45`), not the whole header — robust regardless of header height.
+
+Each of these was caught by genuinely running the full canonical paths through a real browser and debugging actual failures — not assumed away or left implicit.
+
+### Updated test totals
+
+- UI component tests: **95/95** (was 60, +35)
+- Stage 12B governance: **59/59** (was 57, +2)
+- Real browser E2E: **40/40** (was 25, fully rewritten with genuine 3-pilot depth)
+- Stage 12A regression: unchanged, **265/265**
+- All historical baselines: unchanged and reconfirmed
+- Frozen manifest sanctioned exceptions: **4 files** (case-schema.js + all 3 pilot cases)

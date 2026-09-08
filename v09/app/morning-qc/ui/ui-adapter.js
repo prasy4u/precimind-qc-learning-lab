@@ -214,6 +214,7 @@ function buildViewModel(caseObj, state) {
     .map(d => ({
       id: d.id,
       category: d.category,
+      availableFromPhase: d.availableFromPhase,
       options: (d.options || []).map(o => ({ id: o.id, label: o.label, actionType: o.actionType })),
     }));
 

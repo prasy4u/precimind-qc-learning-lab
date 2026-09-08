@@ -62,8 +62,6 @@
   padding: 12px 20px;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
-  position: relative;
-  z-index: 45;
   min-width: 0;
   max-width: 100%;
   flex-wrap: wrap;
@@ -75,8 +73,14 @@
 .mqc-header__elapsed { font-family: var(--font-mono); }
 
 /* Header drawer-toggle buttons — hidden on desktop (>1024px), shown at
-   or below the tablet breakpoint where the side rails become drawers. */
-.mqc-header__drawer-toggle { display: none; }
+   or below the tablet breakpoint where the side rails become drawers.
+   Elevated above the drawer/backdrop z-index stack (see below) so they
+   remain clickable to CLOSE an open drawer even though the drawer's
+   fixed overlay visually extends over the rest of the header at narrow
+   viewports (the header's own height is dynamic/wraps, so offsetting
+   the drawer below a hardcoded header height would be fragile; elevating
+   just the toggle button is robust regardless of header height). */
+.mqc-header__drawer-toggle { display: none; position: relative; z-index: 45; }
 
 /* ---- Service-state banner ---- */
 .mqc-service-banner {
@@ -105,6 +109,7 @@
   max-width: 100%;
 }
 .mqc-dock__heading { font-size: 13px; font-weight: 600; color: var(--text-muted); padding: 4px 8px 10px; }
+.mqc-drawer-close { margin-bottom: 10px; }
 .mqc-panel-card {
   display: flex;
   flex-direction: column;

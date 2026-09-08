@@ -6,18 +6,20 @@
    is a UX courtesy, not the actual security boundary. No unrestricted
    object editor is offered.
 
-   CORRECTIVE-CLOSURE FIX: previously declared aria-modal="true" without
-   actually trapping focus (Tab could escape to the rest of the page
-   behind it). Now traps focus identically in rigor to decision-dialog.jsx:
-   Tab/Shift+Tab cycle confined to the drawer's own controls, Escape
-   closes, focus returns to the invoking control, and a backdrop is
-   rendered behind the drawer (click-to-close, and visually confirms the
-   rest of the page is inert while the drawer is open). */
+   FINAL-UI-INTEGRATION-CLOSURE FIX: added the previously-missing
+   `escalation` field (Stage 12A allowlists finalDisposition, escalation,
+   AND establishedCause — this drawer had only exposed the first and
+   third). Documented escalation remains, per the Stage 12A truth
+   doctrine, a learner CLAIM only — writing it here never derives
+   serviceState or rewrites event history; a real ESCALATE action is a
+   completely separate engine event (verified in ui-component.test.cjs's
+   DOC-ESCALATION test). */
 import React, { useState, useEffect, useRef } from 'react';
 
 export function DocumentationDrawer({ open, documentation, onClose, onSubmit, returnFocusRef }) {
   const [finalDisposition, setFinalDisposition] = useState(documentation?.finalDisposition || '');
   const [establishedCause, setEstablishedCause] = useState(documentation?.establishedCause || '');
+  const [escalation, setEscalation] = useState(documentation?.escalation || '');
   const drawerRef = useRef(null);
 
   useEffect(() => {
@@ -56,7 +58,11 @@ export function DocumentationDrawer({ open, documentation, onClose, onSubmit, re
           <label htmlFor="mqc-doc-cause">Established cause (your written record)</label>
           <textarea id="mqc-doc-cause" rows={3} value={establishedCause} onChange={e => setEstablishedCause(e.target.value)} />
         </div>
-        <button type="button" className="mqc-btn" data-variant="primary" onClick={() => onSubmit({ finalDisposition, establishedCause })}>
+        <div className="mqc-drawer__field">
+          <label htmlFor="mqc-doc-escalation">Escalation (your written record)</label>
+          <textarea id="mqc-doc-escalation" rows={3} value={escalation} onChange={e => setEscalation(e.target.value)} />
+        </div>
+        <button type="button" className="mqc-btn" data-variant="primary" onClick={() => onSubmit({ finalDisposition, establishedCause, escalation })}>
           Save documentation
         </button>
         <button type="button" className="mqc-btn" style={{ marginLeft: 8 }} onClick={onClose}>Close</button>

@@ -86,9 +86,24 @@ export const ACTION_TYPE_LABELS = {
 // Action groups for the action dock (Section 16) — purely organizational.
 export const ACTION_GROUPS = [
   { id: 'signal', label: 'Signal / Immediate Action', actionTypes: ['ACKNOWLEDGE_SIGNAL', 'HOLD_RESULTS', 'CONTINUE_ANALYSIS', 'ESCALATE'] },
-  { id: 'investigation', label: 'Investigation', actionTypes: ['REPEAT_QC', 'REPEAT_CALIBRATION', 'REQUEST_EVIDENCE'] },
+  { id: 'investigation', label: 'Investigation', actionTypes: ['REPEAT_QC', 'REPEAT_CALIBRATION'] },
+  // FORM_HYPOTHESIS is retained here ONLY as a route to a genuine
+  // case-authored decision dialog (see action-dock.jsx's rendering
+  // logic) — it is NEVER bare-dispatched without a hypothesisId. Generic
+  // hypothesis formation lives exclusively in HypothesisWorkspace's
+  // free-text composer.
   { id: 'reasoning', label: 'Reasoning', actionTypes: ['FORM_HYPOTHESIS'] },
-  { id: 'intervention', label: 'Intervention / Verification', actionTypes: ['APPLY_INTERVENTION', 'VERIFY_RECOVERY', 'REVIEW_PATIENT_IMPACT', 'RESUME_SERVICE'] },
+  // REQUEST_EVIDENCE and REVIEW_PATIENT_IMPACT are deliberately absent
+  // here — each requires a specific target payload (evidenceId /
+  // targetState) that ActionDock cannot supply generically without
+  // silently guessing. Both already have dedicated, payload-aware UI
+  // surfaces (PanelViewer's per-panel evidence-request buttons;
+  // PatientImpactPanel's transition-specific buttons) — surfacing a
+  // second, payload-less control here would only produce a guaranteed
+  // engine rejection ("Unknown evidenceId: undefined", "Illegal
+  // patient-impact transition: ... -> undefined"), confirmed by direct
+  // reproduction during the Stage 12B FINAL UI INTEGRATION closure.
+  { id: 'intervention', label: 'Intervention / Verification', actionTypes: ['APPLY_INTERVENTION', 'VERIFY_RECOVERY', 'RESUME_SERVICE'] },
   { id: 'documentation', label: 'Documentation', actionTypes: ['DOCUMENT'] },
 ];
 

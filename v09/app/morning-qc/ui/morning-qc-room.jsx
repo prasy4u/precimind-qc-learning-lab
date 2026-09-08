@@ -53,6 +53,9 @@ export function MorningQCRoom({ caseObj }) {
   const [reasoningDrawerOpen, setReasoningDrawerOpen] = useState(false);
   const decisionInvokerRef = useRef(null);
   const documentationInvokerRef = useRef(null);
+  const infoToggleRef = useRef(null);
+  const reasoningToggleRef = useRef(null);
+  const [pendingHypothesisDecision, setPendingHypothesisDecision] = useState(null);
 
   const refresh = useCallback(() => setViewModel(controller.getViewModel()), [controller]);
 
@@ -97,7 +100,18 @@ export function MorningQCRoom({ caseObj }) {
 
   const requestEvidence = useCallback((evidenceId) => { dispatch({ type: 'REQUEST_EVIDENCE', evidenceId }); }, [dispatch]);
 
-  const formHypothesis = useCallback((hypothesisId) => { dispatch({ type: 'FORM_HYPOTHESIS', hypothesisId }); }, [dispatch]);
+  const checkPanelType = useCallback((actionType) => { dispatch({ type: actionType }); }, [dispatch]);
+
+  const formHypothesis = useCallback((hypothesisId, pendingDecision) => {
+    const action = pendingDecision
+      ? { type: 'FORM_HYPOTHESIS', hypothesisId, decisionId: pendingDecision.decisionId, optionId: pendingDecision.optionId, fields: {} }
+      : { type: 'FORM_HYPOTHESIS', hypothesisId };
+    const outcome = dispatch(action);
+    if (pendingDecision) {
+      setPendingHypothesisDecision(null);
+      if (!outcome.error && outcome.decisionEventId) setLastDecisionEventId(outcome.decisionEventId);
+    }
+  }, [dispatch]);
 
   const reviewPatientImpact = useCallback((targetState) => { dispatch({ type: 'REVIEW_PATIENT_IMPACT', targetState }); }, [dispatch]);
 
@@ -107,8 +121,18 @@ export function MorningQCRoom({ caseObj }) {
   }, []);
 
   const chooseDecisionOption = useCallback((decisionId, option) => {
-    const outcome = dispatch({ type: option.actionType, decisionId, optionId: option.id, fields: {} });
     setActiveDecision(null);
+    // FORM_HYPOTHESIS options never carry their own hypothesisId in the
+    // case data (Stage 12A's own accepted pilot-path tests supply it as
+    // a separate, explicit argument) — never bare-dispatch this without
+    // one. Instead route into the hypothesis composer, pre-bound to this
+    // decision, so the learner's own wording resolves which hypothesis
+    // is meant before anything is dispatched.
+    if (option.actionType === 'FORM_HYPOTHESIS') {
+      setPendingHypothesisDecision({ decisionId, optionId: option.id });
+      return;
+    }
+    const outcome = dispatch({ type: option.actionType, decisionId, optionId: option.id, fields: {} });
     if (!outcome.error && outcome.decisionEventId) setLastDecisionEventId(outcome.decisionEventId);
   }, [dispatch]);
 
@@ -126,6 +150,14 @@ export function MorningQCRoom({ caseObj }) {
     const evDef = (caseObj.evidence || []).find(e => e.id === ev.id);
     return evDef && evDef.sourcePanelId === openPanelId;
   });
+  // Evidence not tied to any specific panel (sourcePanelId === null) has
+  // no natural home in PanelViewer — surfaced persistently in
+  // EvidenceTray instead so it remains reachable regardless of which
+  // panel is open or whether Briefing is showing.
+  const otherRequestableEvidence = viewModel.requestableEvidence.filter(ev => {
+    const evDef = (caseObj.evidence || []).find(e => e.id === ev.id);
+    return evDef && evDef.sourcePanelId == null;
+  });
   const existingConfidenceForLast = lastDecisionEventId
     ? (viewModel.confidenceRecords.find(c => c.decisionEventId === lastDecisionEventId)?.confidence || null)
     : null;
@@ -141,12 +173,16 @@ export function MorningQCRoom({ caseObj }) {
             reasoningDrawerOpen={reasoningDrawerOpen}
             onToggleInfoDrawer={toggleInfoDrawer}
             onToggleReasoningDrawer={toggleReasoningDrawer}
+            infoToggleRef={infoToggleRef}
+            reasoningToggleRef={reasoningToggleRef}
           />
         }
         infoDrawerOpen={infoDrawerOpen}
         reasoningDrawerOpen={reasoningDrawerOpen}
         onCloseInfoDrawer={closeInfoDrawer}
         onCloseReasoningDrawer={closeReasoningDrawer}
+        infoToggleRef={infoToggleRef}
+        reasoningToggleRef={reasoningToggleRef}
         dock={
           <PanelDock
             viewModel={viewModel}
@@ -159,12 +195,12 @@ export function MorningQCRoom({ caseObj }) {
         main={
           briefingActive
             ? <CaseBriefing viewModel={viewModel} />
-            : <PanelViewer panel={openPanelObj} onRequestEvidence={requestEvidence} requestableForThisPanel={requestableForOpenPanel} />
+            : <PanelViewer panel={openPanelObj} onRequestEvidence={requestEvidence} requestableForThisPanel={requestableForOpenPanel} onCheckPanelType={checkPanelType} />
         }
         reasoning={
           <>
-            <HypothesisWorkspace viewModel={viewModel} onFormHypothesis={formHypothesis} />
-            <EvidenceTray viewModel={viewModel} />
+            <HypothesisWorkspace viewModel={viewModel} onFormHypothesis={formHypothesis} pendingDecision={pendingHypothesisDecision} />
+            <EvidenceTray viewModel={viewModel} otherRequestableEvidence={otherRequestableEvidence} onRequestEvidence={requestEvidence} />
             <PatientImpactPanel viewModel={viewModel} onReview={reviewPatientImpact} />
             {lastDecisionEventId && (
               <ConfidenceControl

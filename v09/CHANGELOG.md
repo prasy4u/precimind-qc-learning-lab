@@ -393,3 +393,21 @@ A subsequent independent audit found real defects and one major environment-capa
 **Test-dependency reproducibility**: `v09/tests/morning-qc/package.json` + lockfile now pin `jsdom`/`playwright-core@1.56.0` reproducibly, isolated from the frozen main `package.json` (an earlier attempt to add `jsdom` there broke Stage 12A's own byte-identity governance — caught and correctly reverted).
 
 **Testing**: UI component tests 60/60 (was 35, +25), Stage 12B governance 57/57 (was 38, +19), real browser E2E 25/25 (new). Stage 12A regression unchanged at 265/265. All historical baselines reconfirmed, including the Stage 11C2 regression restored to 49/49.
+
+### Stage 12B FINAL UI INTEGRATION / LEAKAGE Closure
+
+A third independent audit found integration defects and further semantic leakage. Fixed, with five additional real bugs found and resolved while building the required deeper verification.
+
+**ActionDock bare-dispatch removal**: reproduced the exact reported errors (`Unknown evidenceId: undefined`, `Unknown hypothesisId: undefined`, illegal patient-impact transitions), then removed `REQUEST_EVIDENCE`/`REVIEW_PATIENT_IMPACT` from the generic action dock (dedicated payload-aware surfaces already existed) and restricted `FORM_HYPOTHESIS` to only render when bound to a genuine decision.
+
+**Hypothesis matcher rewritten**: new stopword-aware, synonym-normalized, IDF-weighted matcher (`hypothesis-matcher.js`) resolves every case the audit specified correctly, including previously-wrong matches, and never silently guesses on ties or gibberish.
+
+**Pilot 3 leakage closed**: `learnerNote` added to two more panels; freeze manifest now documents 4 sanctioned exceptions.
+
+**Real browser E2E now genuinely comprehensive**: rewrote the suite to exercise the complete canonical action sequence for all three pilots (using the accepted `pilot-paths.test.cjs` sequences as the literal reference), including a genuine `FORM_HYPOTHESIS` engine event, decisionEventId-bound confidence across an early-unsupported → decisive-evidence → later-supported disposition revision cycle, zero answer-key leakage, and complete mobile screenshot evidence (panel open, decision dialog, HELD state). **40/40 passing**, with governance now verifying 14 named checkpoint IDs individually, not just aggregate pass counts.
+
+**Escalation documentation field** added; **narrow-screen drawer accessibility** hardened with a genuine focus trap and visible Close control via a new `DrawerRegion` component, verified not to affect desktop.
+
+**Five further real bugs found and fixed** while building this verification (none explicitly flagged by the audit, each found only once genuine end-to-end interaction was exercised): `CHECK_PATIENT_DISTRIBUTION`/`CHECK_EQA`/`CHECK_PBRTQC` had no UI control at all, making some decisive evidence structurally unreachable; evidence with no `sourcePanelId` had no UI surface anywhere; a second instance of the audit's own bare-dispatch defect class, hidden inside a decision dialog (`dec-take-seriously`'s `FORM_HYPOTHESIS`-typed option lacked a `hypothesisId`); `findMatchingDecision` picked the wrong decision when two shared an actionType (fixed with a general, phase-order-based tie-break); and the prior closure's header z-index fix could be blocked by the header's own dynamic height on narrow screens (fixed by elevating only the toggle buttons).
+
+**Testing**: UI component tests 95/95 (was 60, +35), Stage 12B governance 59/59 (was 57, +2), real browser E2E 40/40 (was 25, fully rewritten). Stage 12A regression unchanged at 265/265. All historical baselines reconfirmed unchanged; all three frozen tree SHAs reconfirmed byte-identical.

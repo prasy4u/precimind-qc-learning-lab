@@ -1,74 +1,124 @@
 {
   "status": "PASS",
-  "passed": 25,
+  "passed": 40,
   "failed": 0,
-  "total": 25,
+  "total": 40,
   "browserExecutable": "/opt/pw-browsers/chromium-1194/chrome-linux/chrome",
   "checkpoints": [
     {
-      "id": "P1-01",
+      "id": "P1-LAUNCH",
       "status": "PASS",
       "detail": "Briefing renders on launch"
     },
     {
-      "id": "OVERFLOW-p1-initial-1440",
-      "status": "PASS",
-      "detail": "No horizontal document overflow at p1-initial-1440 (scrollWidth=1440, clientWidth=1440)"
-    },
-    {
-      "id": "P1-02",
+      "id": "P1-SIGNAL-DELIBERATE",
       "status": "PASS",
       "detail": "Signal acknowledgement is a deliberate available action, not automatic"
     },
     {
-      "id": "P1-03",
+      "id": "P1-PANEL-GATING",
       "status": "PASS",
-      "detail": "CHARACTERISATION-gated panel (Reagent Lot) is not yet visible — genuine panel gating"
+      "detail": "CHARACTERISATION-gated panel (Reagent Lot) is not yet visible"
     },
     {
-      "id": "P1-04",
+      "id": "P1-PANEL-INSPECT",
       "status": "PASS",
       "detail": "Panel content genuinely renders after click-driven inspection"
     },
     {
-      "id": "P1-05",
+      "id": "P1-CONTAINMENT-DIALOG",
       "status": "PASS",
-      "detail": "Decision dialog opens for the case-authored containment decision"
+      "detail": "Containment decision dialog opens"
     },
     {
-      "id": "P1-06",
+      "id": "P1-HELD",
       "status": "PASS",
       "detail": "Service state now reflects HELD"
     },
     {
-      "id": "P1-07",
+      "id": "P1-HYP1-RECORDED",
       "status": "PASS",
-      "detail": "Reagent Lot panel becomes visible after genuine progression"
+      "detail": "hyp-lot genuinely recorded (real hypothesis text now appears in the workspace, not just typed text)"
     },
     {
-      "id": "P1-08",
+      "id": "P1-HYP2-RECORDED",
       "status": "PASS",
-      "detail": "Hypothesis composer input renders (not a full menu)"
+      "detail": "hyp-calibration genuinely recorded"
     },
     {
-      "id": "P1-09",
+      "id": "P1-OTHER-EVIDENCE-SURFACED",
       "status": "PASS",
-      "detail": "Failed verification does not display a resumed/ready-for-verification state as if recovery were complete"
+      "detail": "Evidence not tied to any panel (ev-old-lot-repeat) is reachable via the persistent \"Other Evidence Available\" section"
     },
     {
-      "id": "P2-01",
+      "id": "P1-VERIFICATION",
+      "status": "PASS",
+      "detail": "Verification outcome genuinely reflected in service state"
+    },
+    {
+      "id": "P1-NO-CRASH",
+      "status": "PASS",
+      "detail": "Full Pilot 1 path completes without the room crashing"
+    },
+    {
+      "id": "P2-BRIEFING-SCAN",
       "status": "PASS",
       "detail": "PBRTQC panel visible at BRIEFING (legitimate initial scan)"
     },
     {
-      "id": "P2-02",
+      "id": "P2-FUTURE-PANEL-GATED",
       "status": "PASS",
-      "detail": "A future panel gated behind CHARACTERISATION is not visible yet"
+      "detail": "Future panel gated behind CHARACTERISATION not visible yet"
     },
     {
-      "id": "P3-01",
+      "id": "P2-DECISION-HYP-COMPOSER",
       "status": "PASS",
-      "detail": "Patient-impact section renders distinctly"
+      "detail": "Choosing the decision-bound hypothesis option opens the composer instead of bare-dispatching"
+    },
+    {
+      "id": "P2-HYP-EVENT-GENUINE",
+      "status": "PASS",
+      "detail": "A genuine FORM_HYPOTHESIS engine event occurred (real hypothesis text now appears)"
+    },
+    {
+      "id": "P2-CONFIDENCE-CONTROL",
+      "status": "PASS",
+      "detail": "Confidence control appears immediately after the decision-bound hypothesis executes"
+    },
+    {
+      "id": "P2-NO-ANSWER-KEY-REVEAL",
+      "status": "PASS",
+      "detail": "No immediate answer-key correctness text appears in the decision dialog"
+    },
+    {
+      "id": "P2-EARLY-DISPOSITION-NO-CRASH",
+      "status": "PASS",
+      "detail": "Early (reasoning-unsupported) disposition executes without crashing or revealing correctness"
+    },
+    {
+      "id": "P2-DECISIVE-EVIDENCE-REACHABLE",
+      "status": "PASS",
+      "detail": "Decisive case-mix evidence (ev-case-mix-decisive) is reachable after CHECK_PATIENT_DISTRIBUTION"
+    },
+    {
+      "id": "P2-LATER-DISPOSITION-CONFIDENCE",
+      "status": "PASS",
+      "detail": "Confidence control re-appears for the revised, now evidence-supported disposition event"
+    },
+    {
+      "id": "P3-BRIEFING",
+      "status": "PASS",
+      "detail": "Briefing renders on launch"
+    },
+    {
+      "id": "P3-NO-INAPPROPRIATE-HOLD",
+      "status": "PASS",
+      "detail": "No inappropriate analytical-system hold occurs on the RCV pathway"
+    },
+    {
+      "id": "P3-PATIENT-IMPACT-DISTINCT",
+      "status": "PASS",
+      "detail": "Patient-impact section renders distinctly from QC signal/root cause/disposition"
     },
     {
       "id": "OVERFLOW-1440x1000",
@@ -98,12 +148,12 @@
     {
       "id": "NOOVERLAY-1024x768",
       "status": "PASS",
-      "detail": "Info dock is off-screen by default at 1024x768 (no permanent overlay)"
+      "detail": "Info dock is off-screen by default at 1024x768"
     },
     {
       "id": "CONTAIN-drawer-1024x768",
       "status": "PASS",
-      "detail": ".mqc-dock stays within the 1024px viewport (x=0.0, width=320.0)"
+      "detail": "Open drawer stays within the 1024px viewport"
     },
     {
       "id": "OVERFLOW-390x844",
@@ -113,22 +163,47 @@
     {
       "id": "NOOVERLAY-390x844",
       "status": "PASS",
-      "detail": "Info dock is off-screen by default at 390x844 (no permanent overlay)"
+      "detail": "Info dock is off-screen by default at 390x844"
     },
     {
       "id": "CONTAIN-drawer-390x844",
       "status": "PASS",
-      "detail": ".mqc-dock stays within the 390px viewport (x=0.0, width=320.0)"
+      "detail": "Open drawer stays within the 390px viewport"
     },
     {
       "id": "TOUCH-panelcard-390x844",
       "status": "PASS",
-      "detail": "All .mqc-panel-card controls meet the ~44px minimum touch-target height"
+      "detail": "Panel card touch targets meet ~44px minimum (min found 44.0px)"
     },
     {
       "id": "TOUCH-actionbtn-390x844",
       "status": "PASS",
-      "detail": "All .mqc-btn controls meet the ~44px minimum touch-target height"
+      "detail": "Action buttons meet ~44px minimum touch target (min found 44.0px)"
+    },
+    {
+      "id": "OVERFLOW-390x844-panel-open",
+      "status": "PASS",
+      "detail": "No horizontal document overflow at 390x844-panel-open (scrollWidth=390, clientWidth=390)"
+    },
+    {
+      "id": "DIALOG-CONTAIN-390x844",
+      "status": "PASS",
+      "detail": "Decision dialog stays within the 390px viewport"
+    },
+    {
+      "id": "OVERFLOW-390x844-decision-dialog",
+      "status": "PASS",
+      "detail": "No horizontal document overflow at 390x844-decision-dialog (scrollWidth=390, clientWidth=390)"
+    },
+    {
+      "id": "OVERFLOW-390x844-held-verification",
+      "status": "PASS",
+      "detail": "No horizontal document overflow at 390x844-held-verification (scrollWidth=390, clientWidth=390)"
+    },
+    {
+      "id": "MOBILE-HELD-STATE-390x844",
+      "status": "PASS",
+      "detail": "HELD/verification state correctly reflected at 390x844"
     }
   ]
 }

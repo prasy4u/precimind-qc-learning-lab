@@ -11,7 +11,7 @@ import React from 'react';
 import { ServiceStateBanner } from './service-state-banner.jsx';
 import { RoomStatus } from './room-status.jsx';
 
-export function RoomHeader({ viewModel, infoDrawerOpen, reasoningDrawerOpen, onToggleInfoDrawer, onToggleReasoningDrawer }) {
+export function RoomHeader({ viewModel, infoDrawerOpen, reasoningDrawerOpen, onToggleInfoDrawer, onToggleReasoningDrawer, infoToggleRef, reasoningToggleRef }) {
   const { caseIdentity, labContext } = viewModel;
   return (
     <header className="mqc-header">
@@ -26,6 +26,7 @@ export function RoomHeader({ viewModel, infoDrawerOpen, reasoningDrawerOpen, onT
           aria-expanded={infoDrawerOpen}
           aria-controls="mqc-info-drawer-region"
           onClick={onToggleInfoDrawer}
+          ref={infoToggleRef}
         >
           Information
         </button>
@@ -38,6 +39,7 @@ export function RoomHeader({ viewModel, infoDrawerOpen, reasoningDrawerOpen, onT
           aria-expanded={reasoningDrawerOpen}
           aria-controls="mqc-reasoning-drawer-region"
           onClick={onToggleReasoningDrawer}
+          ref={reasoningToggleRef}
         >
           Reasoning
         </button>

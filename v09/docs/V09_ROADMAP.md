@@ -83,3 +83,30 @@ Establish `v0.9-development` branch, `v09/` tree, baseline copy map, product cha
 ## Sequencing Notes
 
 Stage 11C2 has now implemented the unified Vite/React active architecture (ES modules, single React root) that ADR-001 targeted, and passed independent audit. This roadmap's remaining stages (12A onward, Morning QC Room) build on the active `v09/app/**` application and are no longer conditional on an architecture decision — that decision has been made and executed. Stage 12A (foundation/engine) is now complete. Stage 12B onward remain gated on independent audit acceptance of the preceding stage before proceeding, not self-authorized.
+
+---
+
+## Stage 12B (current) — Morning QC Room Interaction Shell + Panel Architecture
+
+Completed: the learner-facing interaction shell (`v09/app/morning-qc/ui/**`)
+consuming the Stage 12A engine — panel dock/viewer, action dock, decision
+dialog, hypothesis workspace, evidence tray, patient-impact panel,
+confidence control (decisionEventId-bound), documentation drawer (event/
+documentation separation), and a Stage-12B-only developer pilot-case
+launcher. Full details in `V09_STAGE12B_REPORT.md`,
+`V09_MORNING_QC_UI_ARCHITECTURE.md`, and `V09_STAGE12B_INTERACTION_MODEL.md`.
+
+*(Note: the "Stage 13A/13B/13C" entries above predate the renumbering that
+occurred once Stage 12A/12B were actually executed under those names; they
+describe materially the same scope as what is now Stage 12B [completed]
+and the still-unimplemented Stage 12C below. Left as historical record
+rather than rewritten, per this update's narrow-scope instruction.)*
+
+### Suggested next stage
+
+**Stage 12C — Learner-facing debrief + competency feedback + production
+integration.** Stage 12B deliberately built only a minimal
+developer-facing debrief preview; the polished, learner-facing debrief
+(multi-dimensional, non-single-score, confidence-calibration-aware, per
+the Product Charter) and production-navigation integration remain
+Stage 12C's scope. Not implemented in Stage 12B.

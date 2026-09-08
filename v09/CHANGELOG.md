@@ -327,3 +327,16 @@ One existing pilot-path test needed a fix (added a missing `INSPECT_PANEL` step)
 **Testing**: engine 49/49 (unchanged), pilot paths 39/39 (unchanged in count, 1 corrected), new progression-invariants suite 34/34, governance 105/105 (was 100, +5) — Stage 12A total 227/227. All regressions reconfirmed unchanged; all three frozen tree SHAs reconfirmed byte-identical. Case data, schema, validator, decision-model, and scoring-model required zero changes this cycle.
 
 Only 6 files changed, all within `v09/app/morning-qc/engine.js`, Morning QC documentation, and `v09/tests/morning-qc/**`.
+
+### Stage 12A — FINAL PROGRESSION-AUTHORITY HARDENING
+
+Root defect corrected, found by a sixth independent re-audit of commit cb55f18: some progression facts were still forgeable through generic `DOCUMENT`, and an early operational `ESCALATE` was treated as completing the entire reasoning progression.
+
+1. **Event/documentation separation (Invariant A)**: new engine-owned `state.systemEvents` object (`hypothesesFormed`, `investigativeActionsPerformed`, `interventionApplied`), populated only by their corresponding validated action handlers — never by `DOCUMENT`. `deriveUnlockedPhaseIndex()` now consults `systemEvents` exclusively for these tiers. `DOCUMENT` additionally restricted to an explicit allowlist (`finalDisposition`, `escalation`, `establishedCause`); any attempt to write a system-maintained field is silently stripped, never applied even to the display-only `documentation` object.
+2. **Operational disposition vs. reasoning progression (Invariant B)**: removed the `ESCALATED` branch from the `RESUME_OR_HOLD` unlock check (kept only `RESUMED`, already gated by `RESUME_SERVICE`'s successful-verification requirement). Early escalation remains operationally valid and correctly recorded, but no longer unlocks unearned information tiers.
+
+Both verified against the exact audit-demonstrated scenarios: a single `DOCUMENT` combining all three forgery attempts still only reaches `CHARACTERISATION`; `ACK → HOLD → ESCALATE` remains operationally valid but no longer unlocks `RESUME_OR_HOLD`, and a `CHARACTERISATION`-gated panel remains locked afterward.
+
+**Testing**: engine 49/49 (unchanged), pilot paths 39/39 (unchanged), progression-invariants 49/49 (was 34, +15: `DOC-01`–`DOC-05`, `ESC-01`–`ESC-04`), governance 111/111 (was 105, +6) — Stage 12A total 248/248. All regressions reconfirmed unchanged; all three frozen tree SHAs reconfirmed byte-identical. Case data, schema, validator, decision-model, scoring-model, and evidence-model required zero changes this cycle.
+
+Only 5 files changed, all within `v09/app/morning-qc/engine.js`, Morning QC documentation, and `v09/tests/morning-qc/**`.

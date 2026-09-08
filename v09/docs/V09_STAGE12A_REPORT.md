@@ -188,3 +188,17 @@ A fifth independent re-audit identified the root architectural defect underlying
 **One existing test needed a fix, traced honestly**: Pilot 1's unsafe-path test (in `pilot-paths.test.cjs`) called `REPEAT_QC` without ever having inspected a panel first — this had been unwittingly relying on the exact bug just fixed (previously, `REPEAT_QC` had no prerequisite at all). Fixed by adding a genuine `INSPECT_PANEL` step, matching the same honest-tracing pattern established in the prior closure (where a governance assertion was found to rely on the pre-seeded-plausibility bug).
 
 **Testing after this closure**: engine unit tests 49/49 (unchanged), pilot path tests 39/39 (unchanged in count, 1 test corrected), new progression-invariants suite 34/34, Stage 12A governance 105/105 (was 100, +5 new assertions) — **Stage 12A total: 227/227**.
+
+---
+
+## Independent-Audit FINAL PROGRESSION-AUTHORITY HARDENING
+
+A sixth independent re-audit found one remaining root defect: some progression facts were still forgeable through generic `DOCUMENT` (writing directly to `documentation.hypothesesConsidered`/`investigationPerformed`/`intervention`, which `deriveUnlockedPhaseIndex()` consulted directly), and an early operational `ESCALATE` was treated as completing the entire reasoning progression (unlocking `RESUME_OR_HOLD` merely via a legal `HELD → ESCALATED` service-state transition, with zero intermediate reasoning).
+
+**Fix 1 — event/documentation separation**: introduced engine-owned `state.systemEvents` (`hypothesesFormed`, `investigativeActionsPerformed`, `interventionApplied`), populated only by their corresponding validated action handlers, never by `DOCUMENT`. `deriveUnlockedPhaseIndex()` now consults `systemEvents` exclusively for these tiers. `DOCUMENT` additionally restricted to an explicit field allowlist (`finalDisposition`, `escalation`, `establishedCause`); any attempt to write a system-maintained field is silently stripped, never applied even to the display-only `documentation` object. Verified against the exact audit-demonstrated combined-forgery scenario (writing `hypothesesConsidered`, `investigationPerformed`, AND `intervention` simultaneously via one `DOCUMENT` call): frontier correctly remains at `CHARACTERISATION`, not `INTERVENTION`.
+
+**Fix 2 — operational disposition vs. reasoning progression separation**: removed the `ESCALATED` branch from the `RESUME_OR_HOLD` unlock check (kept only `RESUMED`, which is legitimately gated by `RESUME_SERVICE`'s existing successful-verification requirement). Verified: `ACK → HOLD → ESCALATE` remains operationally valid (service state genuinely becomes `ESCALATED`, correctly recorded) but no longer unlocks `RESUME_OR_HOLD`; a `CHARACTERISATION`-gated panel remains locked afterward.
+
+**Exhaustive test layer extended**: `progression-invariants.test.cjs` grew from 34 to 49 assertions (`DOC-01`–`DOC-05`, `ESC-01`–`ESC-04`). Governance gained 6 new direct-adversarial-replay assertions (59a–c, 60a–c) independently re-proving both invariants, plus a corrected reference to the updated assertion count in the existing subprocess check.
+
+**Testing after this closure**: engine 49/49 (unchanged), pilot paths 39/39 (unchanged), progression-invariants 49/49 (was 34, +15), governance 111/111 (was 105, +6) — **Stage 12A total: 248/248**.

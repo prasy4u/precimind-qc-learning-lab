@@ -211,6 +211,69 @@ async function main() {
     assert('UNCHANGED-02', deriveUnlockedPhaseIndex(s) === before, 'Original state is never mutated by rejected attempts (pure function contract preserved)');
   }
 
+  /* ===================== DOCUMENT cannot forge progression (Invariant A) ===================== */
+  console.log('\n=== Invariant A: DOCUMENT cannot forge system-owned progression milestones ===');
+  {
+    // DOC-01: DOCUMENT attempts to write hypothesesConsidered.
+    let s = createInitialState(P2);
+    let acked = applyAction(P2, s, { type: 'ACKNOWLEDGE_SIGNAL' });
+    let panel = applyAction(P2, acked.state, { type: 'INSPECT_PANEL', panelId: 'panel-pbrtqc' });
+    assert('DOC-00', deriveUnlockedPhaseIndex(panel.state) === IDX.CHARACTERISATION, 'Sanity: genuine ACK + panel reaches CHARACTERISATION only');
+    const forgeHyp = applyAction(P2, panel.state, { type: 'DOCUMENT', fields: { hypothesesConsidered: ['hyp-population'] } });
+    assert('DOC-01', forgeHyp.error === null && deriveUnlockedPhaseIndex(forgeHyp.state) === IDX.CHARACTERISATION, 'DOCUMENT writing hypothesesConsidered directly does NOT advance progression to HYPOTHESIS_GENERATION (real FORM_HYPOTHESIS never occurred)');
+    assert('DOC-01b', forgeHyp.state.documentation.hypothesesConsidered.length === 0, 'The forged field is not even applied to the learner-facing documentation object (system-maintained field protected)');
+
+    // DOC-02: DOCUMENT attempts to write investigationPerformed.
+    const forgeInvest = applyAction(P2, panel.state, { type: 'DOCUMENT', fields: { investigationPerformed: ['REPEAT_QC'] } });
+    assert('DOC-02', forgeInvest.error === null && deriveUnlockedPhaseIndex(forgeInvest.state) === IDX.CHARACTERISATION, 'DOCUMENT writing investigationPerformed directly does NOT advance progression to INVESTIGATION (real REPEAT_QC never occurred)');
+    assert('DOC-02b', forgeInvest.state.documentation.investigationPerformed.length === 0, 'The forged field is not applied to learner-facing documentation either');
+
+    // DOC-03: DOCUMENT attempts to write intervention.
+    const forgeInterv = applyAction(P2, panel.state, { type: 'DOCUMENT', fields: { intervention: 'forged intervention text' } });
+    assert('DOC-03', forgeInterv.error === null && deriveUnlockedPhaseIndex(forgeInterv.state) === IDX.CHARACTERISATION, 'DOCUMENT writing intervention directly does NOT advance progression to INTERVENTION (real APPLY_INTERVENTION never occurred)');
+    assert('DOC-03b', forgeInterv.state.documentation.intervention === null, 'The forged intervention text is not applied to learner-facing documentation either');
+
+    // DOC-04: a single DOCUMENT combining ALL forgery attempts simultaneously
+    // (the exact scenario the audit demonstrated) still only reaches CHARACTERISATION.
+    const forgeAll = applyAction(P2, panel.state, { type: 'DOCUMENT', fields: {
+      hypothesesConsidered: ['hyp-population'], investigationPerformed: ['REPEAT_QC'], intervention: 'forged',
+      signal: 'forged signal', containment: 'forged containment', evidenceReviewed: ['fake-ev'],
+      verification: 'forged verification', patientImpactAssessment: 'forged pi',
+    }});
+    assert('DOC-04', forgeAll.error === null && deriveUnlockedPhaseIndex(forgeAll.state) === IDX.CHARACTERISATION, 'A single DOCUMENT combining every forgery attempt (the exact audit-demonstrated scenario) still only reaches CHARACTERISATION — genuine unlock frontier cannot be rewritten by learner-editable documentation');
+    assert('DOC-04b', forgeAll.state.documentation.signal === 'PBRTQC moving-mean statistic crosses alert threshold at t=720.', 'System-maintained documentation.signal retains its genuine engine-set value, unaffected by the forgery attempt (not overwritten with "forged signal")');
+    assert('DOC-04c', forgeAll.state.documentation.containment === null && forgeAll.state.documentation.verification === null && forgeAll.state.documentation.patientImpactAssessment === null, 'Other system-maintained fields (containment/verification/patientImpactAssessment) similarly remain unaffected by the combined forgery attempt');
+
+    // Confirm the allowlisted fields (finalDisposition, escalation,
+    // establishedCause) STILL work normally — DOCUMENT is not disabled,
+    // only the system-owned subset is protected.
+    const legitDoc = applyAction(P2, panel.state, { type: 'DOCUMENT', fields: { finalDisposition: 'CONTINUE_ANALYSIS_DOCUMENTED', escalation: null, establishedCause: 'Population shift.' } });
+    assert('DOC-05', legitDoc.error === null && legitDoc.state.documentation.finalDisposition === 'CONTINUE_ANALYSIS_DOCUMENTED' && legitDoc.state.documentation.establishedCause === 'Population shift.', 'Genuinely learner-authored fields (finalDisposition, establishedCause) remain fully writable by DOCUMENT');
+  }
+
+  /* ===================== Early ESCALATE cannot unlock reasoning frontier (Invariant B) ===================== */
+  console.log('\n=== Invariant B: early operational ESCALATE cannot unlock the reasoning frontier ===');
+  {
+    let s = createInitialState(P1);
+    let acked = applyAction(P1, s, { type: 'ACKNOWLEDGE_SIGNAL' });
+    let held = applyAction(P1, acked.state, { type: 'HOLD_RESULTS' });
+    // ESC-01: ACK + HOLD + ESCALATE is operationally valid (structurally legal).
+    const escalated = applyAction(P1, held.state, { type: 'ESCALATE' });
+    assert('ESC-01', escalated.error === null && escalated.state.serviceState === 'ESCALATED', 'ACK + HOLD + ESCALATE is operationally valid — service-state transition succeeds');
+
+    // ESC-02: the same early ESCALATE must NOT unlock RESUME_OR_HOLD.
+    assert('ESC-02', deriveUnlockedPhaseIndex(escalated.state) === IDX.IMMEDIATE_CONTAINMENT, `Early ESCALATE does not unlock RESUME_OR_HOLD — genuine frontier remains at IMMEDIATE_CONTAINMENT (found ${deriveUnlockedPhaseIndex(escalated.state)})`);
+
+    // ESC-03: a CHARACTERISATION-gated panel remains locked after early escalation.
+    const stillBlocked = applyAction(P1, escalated.state, { type: 'INSPECT_PANEL', panelId: 'panel-reagent-lot' });
+    assert('ESC-03', stillBlocked.error !== null, 'CHARACTERISATION-gated panel-reagent-lot remains locked after early escalation');
+
+    // ESC-04: escalation history/service-state remains correctly recorded
+    // despite the information frontier remaining limited.
+    assert('ESC-04', escalated.state.documentation.escalation === 'Escalated.' && escalated.state.serviceState === 'ESCALATED' && escalated.state.actionHistory.some(h => h.type === 'ESCALATE'),
+      'Escalation is genuinely recorded (serviceState, documentation.escalation, actionHistory) despite the information frontier remaining appropriately limited');
+  }
+
   const total = passed + failed;
   console.log(`\n${'='.repeat(60)}`);
   console.log(`Progression-Invariant Tests: ${passed}/${total} passed, ${failed} failed`);

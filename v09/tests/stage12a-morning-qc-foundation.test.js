@@ -558,7 +558,33 @@ async function main() {
     // as a subprocess.
     let progOk = false, progOutput = '';
     try { progOutput = execSync(`node ${path.join(V09, 'tests', 'morning-qc', 'progression-invariants.test.cjs')}`).toString(); progOk = true; } catch (e) { progOutput = (e.stdout || '').toString(); progOk = false; }
-    assert('58e', progOk && progOutput.includes('PROGRESSION-INVARIANT TESTS PASSED'), 'Exhaustive progression-invariant adversarial test layer passes (34 assertions covering every progression-driving state fact)');
+    assert('58e', progOk && progOutput.includes('PROGRESSION-INVARIANT TESTS PASSED'), 'Exhaustive progression-invariant adversarial test layer passes (49 assertions covering every progression-driving state fact, including Invariants A and B below)');
+  }
+
+  console.log('\n=== 59. PROGRESSION-AUTHORITY HARDENING: Invariant A — DOCUMENT cannot forge progression (direct adversarial replay) ===');
+  {
+    let acked = applyAction(pilots[1], createInitialState(pilots[1]), { type: 'ACKNOWLEDGE_SIGNAL' });
+    let panel = applyAction(pilots[1], acked.state, { type: 'INSPECT_PANEL', panelId: 'panel-pbrtqc' });
+    const forgeAll = applyAction(pilots[1], panel.state, { type: 'DOCUMENT', fields: {
+      hypothesesConsidered: ['hyp-population'], investigationPerformed: ['REPEAT_QC'], intervention: 'forged',
+    }});
+    assert('59a', forgeAll.error === null, 'The DOCUMENT forgery attempt itself is not rejected (it is a legitimate action type)');
+    assert('59b', deriveUnlockedPhaseIndex(forgeAll.state) === states.SIMULATION_PHASES.indexOf('CHARACTERISATION'),
+      `A single DOCUMENT forging hypothesesConsidered/investigationPerformed/intervention simultaneously still only reaches CHARACTERISATION — the genuinely earned tier (found unlocked index ${deriveUnlockedPhaseIndex(forgeAll.state)})`);
+    assert('59c', forgeAll.state.documentation.hypothesesConsidered.length === 0 && forgeAll.state.documentation.investigationPerformed.length === 0 && forgeAll.state.documentation.intervention === null,
+      'None of the forged fields are even applied to the learner-facing documentation object — system-maintained fields are structurally protected, not merely ignored for progression purposes');
+  }
+
+  console.log('\n=== 60. PROGRESSION-AUTHORITY HARDENING: Invariant B — early ESCALATE cannot unlock reasoning frontier (direct adversarial replay) ===');
+  {
+    let acked = applyAction(pilots[0], createInitialState(pilots[0]), { type: 'ACKNOWLEDGE_SIGNAL' });
+    let held = applyAction(pilots[0], acked.state, { type: 'HOLD_RESULTS' });
+    const escalated = applyAction(pilots[0], held.state, { type: 'ESCALATE' });
+    assert('60a', escalated.error === null && escalated.state.serviceState === 'ESCALATED', 'ACK + HOLD + ESCALATE remains operationally valid (structurally legal service-state transition)');
+    assert('60b', deriveUnlockedPhaseIndex(escalated.state) === states.SIMULATION_PHASES.indexOf('IMMEDIATE_CONTAINMENT'),
+      `Early ESCALATE does not unlock RESUME_OR_HOLD — genuine frontier remains at IMMEDIATE_CONTAINMENT (found unlocked index ${deriveUnlockedPhaseIndex(escalated.state)})`);
+    const stillBlocked = applyAction(pilots[0], escalated.state, { type: 'INSPECT_PANEL', panelId: 'panel-reagent-lot' });
+    assert('60c', stillBlocked.error !== null, 'CHARACTERISATION-gated panel remains locked after early escalation — no information leak');
   }
 
   const total = passed + failed;

@@ -179,3 +179,21 @@ A fifth independent re-audit identified the ROOT architectural defect underlying
 An **exhaustive progression-invariant adversarial test layer** (`tests/morning-qc/progression-invariants.test.cjs`, 34 assertions) now directly exercises this chain — for every state fact the function consumes, demonstrating how it is legitimately earned, what its lower-level prerequisites are, and that it cannot be generated prematurely. This is deliberately broader than the four named exploits, testing the architecture itself rather than only the examples the audit demonstrated.
 
 All existing pilot expert/safe-inefficient paths continued to pass after adding a single missing `INSPECT_PANEL` step to one unsafe-path test that had (like a prior test in an earlier closure) unwittingly relied on the exact bug just fixed.
+
+---
+
+## 14. Stage 12A Independent-Audit FINAL PROGRESSION-AUTHORITY HARDENING
+
+A sixth independent re-audit found one root architectural defect remaining after the prerequisite-qualified progression redesign: **some progression facts were still forgeable through generic `DOCUMENT`, and an early operational `ESCALATE` was still treated as completing the entire reasoning progression.**
+
+### Event-vs-documentation separation (Invariant A)
+
+A new engine-owned `state.systemEvents` object (`hypothesesFormed`, `investigativeActionsPerformed`, `interventionApplied`) is now the **sole authority** `deriveUnlockedPhaseIndex()` consults for the `HYPOTHESIS_GENERATION`/`INVESTIGATION`/`INTERVENTION` tiers — structurally separate from the learner-facing `documentation` object. Only the specific action handlers (`FORM_HYPOTHESIS`, `REPEAT_QC`/`REPEAT_CALIBRATION`, `APPLY_INTERVENTION`) ever mutate `systemEvents`; `DOCUMENT` never touches it, by construction. As defense-in-depth, `DOCUMENT` is additionally restricted to an explicit allowlist of genuinely learner-authored fields (`finalDisposition`, `escalation`, `establishedCause`) — any attempt to write a system-maintained field (`signal`, `containment`, `evidenceReviewed`, `hypothesesConsidered`, `investigationPerformed`, `intervention`, `verification`, `patientImpactAssessment`) is silently stripped before the merge, never applied even to the display-only `documentation` object. **Invariant A**: no learner-editable documentation field can create a progression milestone that did not occur as a genuine engine/domain event.
+
+### Operational disposition vs information-unlock progression (Invariant B)
+
+`RESUME_OR_HOLD` previously unlocked on either `serviceState === 'RESUMED'` OR `'ESCALATED'`. Since `RESUME_SERVICE` already structurally requires a genuinely successful verification, `RESUMED` remains a legitimately-earned milestone — but `ESCALATE` requires none of the intermediate reasoning tiers at all (only a legal `HELD → ESCALATED` service-state transition), making it an **operational safety disposition**, not a reasoning achievement. The `ESCALATED` branch was removed from the unlock check entirely: an early, clinically appropriate escalation remains fully possible and is correctly recorded (`serviceState`, `documentation.escalation`, action history), but no longer unlocks any information tier the learner has not independently earned. **Invariant B**: no operational disposition action can unlock intermediate reasoning/information tiers merely because its narrative phase occurs later in the conceptual sequence.
+
+The existing `phase`-vs-`deriveUnlockedPhaseIndex()` separation (narrative descriptor vs. gating authority) already established in prior closures made this fix straightforward — `phase` may still show `ESCALATED`-oriented narrative state without that label ever feeding the unlock computation.
+
+The exhaustive progression-invariant test layer grew from 34 to 49 assertions, adding direct adversarial tests (`DOC-01`–`DOC-05`, `ESC-01`–`ESC-04`) for both invariants, including the exact combined-forgery scenario the audit demonstrated.

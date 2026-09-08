@@ -79,6 +79,21 @@ export function createInitialState(caseObj) {
     actionHistory: [],
     elapsedMinutes: 0,
     confidenceRecords: [],
+    // Stage 12A PROGRESSION-AUTHORITY-HARDENING closure: systemEvents is
+    // an ENGINE-OWNED record of genuine domain events, structurally
+    // separate from `documentation` (which the generic DOCUMENT action
+    // may write to). Only the specific action handlers below (FORM_HYPOTHESIS,
+    // REPEAT_QC/REPEAT_CALIBRATION, APPLY_INTERVENTION) ever mutate this
+    // object — DOCUMENT never touches it, by construction (it only merges
+    // into `next.documentation`). deriveUnlockedPhaseIndex() consults ONLY
+    // these fields for the corresponding tiers, never the parallel
+    // `documentation` fields, so writing free-text documentation can never
+    // forge a progression milestone that did not genuinely occur.
+    systemEvents: {
+      hypothesesFormed: [],           // hypothesis IDs genuinely FORM_HYPOTHESIS'd
+      investigativeActionsPerformed: [], // action types genuinely REPEAT_QC/REPEAT_CALIBRATION'd
+      interventionApplied: false,      // true only after a genuine APPLY_INTERVENTION execution
+    },
     documentation: {
       signal: null, containment: null, evidenceReviewed: [], hypothesesConsidered: [],
       investigationPerformed: [], establishedCause: null, intervention: null,
@@ -150,7 +165,7 @@ export function deriveUnlockedPhaseIndex(state) {
   // "a hypothesis exists" — see the prior closure's plausibleFromStart
   // fix, still in effect via hypothesesConsidered) PLUS learner-performed
   // consideration.
-  const hypothesisGenReached = characterisationReached && state.documentation.hypothesesConsidered.length > 0;
+  const hypothesisGenReached = characterisationReached && state.systemEvents.hypothesesFormed.length > 0;
   if (hypothesisGenReached) idx = Math.max(idx, phaseIndex('HYPOTHESIS_GENERATION'));
 
   // EVIDENCE_SELECTION requires genuine CHARACTERISATION plus evidence
@@ -165,13 +180,13 @@ export function deriveUnlockedPhaseIndex(state) {
   // EXECUTION_PREREQUISITES below — so this fact can never be recorded
   // before CHARACTERISATION is genuinely reached in the first place;
   // the check is retained here too for defense-in-depth / clarity).
-  const investigationReached = characterisationReached && state.documentation.investigationPerformed.length > 0;
+  const investigationReached = characterisationReached && state.systemEvents.investigativeActionsPerformed.length > 0;
   if (investigationReached) idx = Math.max(idx, phaseIndex('INVESTIGATION'));
 
   // INTERVENTION requires genuine HYPOTHESIS_GENERATION plus a documented
   // intervention (APPLY_INTERVENTION already carries its own execution-time
   // HYPOTHESIS_GENERATION prerequisite; retained here for clarity/defense).
-  const interventionReached = hypothesisGenReached && state.documentation.intervention != null;
+  const interventionReached = hypothesisGenReached && state.systemEvents.interventionApplied === true;
   if (interventionReached) idx = Math.max(idx, phaseIndex('INTERVENTION'));
 
   // VERIFICATION requires genuine IMMEDIATE_CONTAINMENT plus a
@@ -186,11 +201,23 @@ export function deriveUnlockedPhaseIndex(state) {
   const verificationReached = containmentReached && state.verificationAttempts.some(v => v.criteriaWereMet === true);
   if (verificationReached) idx = Math.max(idx, phaseIndex('VERIFICATION'));
 
-  // RESUME_OR_HOLD remains dependent on the service-state machine's own
-  // structural transition rules (RESUME_SERVICE/ESCALATE already require
-  // a genuinely successful verification and/or valid prior state via
-  // SERVICE_STATE_TRANSITIONS elsewhere in this file).
-  if (state.serviceState === 'RESUMED' || state.serviceState === 'ESCALATED') idx = Math.max(idx, phaseIndex('RESUME_OR_HOLD'));
+  // RESUME_OR_HOLD (PROGRESSION-AUTHORITY-HARDENING closure): only a
+  // genuine RESUMED service state contributes to the information-unlock
+  // frontier — RESUME_SERVICE already structurally requires a genuinely
+  // successful verification (see SERVICE_STATE_TRANSITIONS and the
+  // RESUME_SERVICE handler), making RESUMED a legitimately-earned
+  // reasoning milestone. ESCALATED is deliberately EXCLUDED here: ESCALATE
+  // is an OPERATIONAL SAFETY DISPOSITION, reachable from HELD via the
+  // service-state machine alone, with no requirement that the learner
+  // has genuinely characterised, hypothesised, gathered evidence,
+  // investigated, intervened, or verified anything. An early, appropriate
+  // safety escalation must remain fully possible (and correctly recorded
+  // in serviceState/documentation.escalation), but must NEVER unlock
+  // reasoning/information tiers the learner has not independently earned
+  // — operational disposition and information-unlock progression are
+  // deliberately modeled as SEPARATE concepts (see the ESC-* tests in
+  // progression-invariants.test.cjs and the architecture doc's Invariant B).
+  if (state.serviceState === 'RESUMED') idx = Math.max(idx, phaseIndex('RESUME_OR_HOLD'));
 
   // DOCUMENTATION / DEBRIEF are never auto-unlocked — Stage 12A Section 13 deferral.
   return idx;
@@ -419,6 +446,10 @@ export function applyAction(caseObj, state, action) {
     case 'REPEAT_QC':
     case 'REPEAT_CALIBRATION': {
       next.elapsedMinutes += action.costTimeMinutes || 10;
+      // PROGRESSION-AUTHORITY-HARDENING closure: recorded in the
+      // engine-owned systemEvents (authoritative for progression gating)
+      // AND the learner-facing documentation object (display mirror only).
+      next.systemEvents.investigativeActionsPerformed.push(action.type);
       next.documentation.investigationPerformed.push(action.type);
       if (!authoredOption) {
         severity = action.wasNecessary === false ? 'INEFFICIENT' : 'INFORMATIONAL';
@@ -441,8 +472,14 @@ export function applyAction(caseObj, state, action) {
       // a hypothesis that started plausibleFromStart:true still requires
       // the LEARNER to genuinely call this action for it to count as
       // learner-performed consideration (the case-authored initial
-      // plausibility describes the scenario, not learner progress; see
-      // deriveUnlockedPhaseIndex()). Only recorded once per hypothesis.
+      // plausibility describes the scenario, not learner progress).
+      // PROGRESSION-AUTHORITY-HARDENING closure: recorded in BOTH the
+      // engine-owned systemEvents (authoritative for progression gating,
+      // never touched by DOCUMENT) and the learner-facing documentation
+      // object (display/educational mirror only).
+      if (!next.systemEvents.hypothesesFormed.includes(hid)) {
+        next.systemEvents.hypothesesFormed.push(hid);
+      }
       if (!next.documentation.hypothesesConsidered.includes(hid)) {
         next.documentation.hypothesesConsidered.push(hid);
       }
@@ -478,6 +515,10 @@ export function applyAction(caseObj, state, action) {
       break;
     }
     case 'APPLY_INTERVENTION': {
+      // PROGRESSION-AUTHORITY-HARDENING closure: recorded in the
+      // engine-owned systemEvents (authoritative for progression gating)
+      // AND the learner-facing documentation object (display mirror only).
+      next.systemEvents.interventionApplied = true;
       next.documentation.intervention = action.description || null;
       if (!authoredOption) {
         severity = action.evidenceSupported === false ? 'UNSUPPORTED' : 'INFORMATIONAL';
@@ -563,10 +604,24 @@ export function applyAction(caseObj, state, action) {
       break;
     }
     case 'DOCUMENT': {
-      // Acceptance-closure: a "limited administrative record" — never
-      // feeds deriveUnlockedPhaseIndex, so it can never unlock later
-      // panels merely by being called, however early.
-      next.documentation = { ...next.documentation, ...(action.fields || {}) };
+      // PROGRESSION-AUTHORITY-HARDENING closure: DOCUMENT is a "limited
+      // administrative record" — it must NEVER be able to forge a
+      // system-maintained progression fact. Explicitly restricted to a
+      // safe allowlist of genuinely learner-authored fields; any attempt
+      // to write a system-maintained field (signal, containment,
+      // evidenceReviewed, hypothesesConsidered, investigationPerformed,
+      // intervention, verification, patientImpactAssessment — all of
+      // which are set ONLY by their own dedicated, validated action
+      // handlers above) is silently stripped, not merged. This protects
+      // debrief/replay truth: what the learner DOCUMENTED can never
+      // overwrite what the learner (or the case) actually DID.
+      const DOCUMENT_ALLOWED_FIELDS = new Set(['finalDisposition', 'escalation', 'establishedCause']);
+      const suppliedFields = action.fields || {};
+      const safeFields = {};
+      for (const key of Object.keys(suppliedFields)) {
+        if (DOCUMENT_ALLOWED_FIELDS.has(key)) safeFields[key] = suppliedFields[key];
+      }
+      next.documentation = { ...next.documentation, ...safeFields };
       break;
     }
     case 'RECORD_CONFIDENCE': {

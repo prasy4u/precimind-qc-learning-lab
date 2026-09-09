@@ -49,7 +49,7 @@ async function main() {
 
   const APP = path.join(__dirname, '..', '..', 'app', 'morning-qc');
   const { pilot1ReagentLotShift, pilot2PbrtqcPopulationShift, pilot3RcvPatientImpact } = await import('file://' + path.join(APP, 'cases', 'index.js'));
-  const { MorningQCRoom } = await import('file://' + process.cwd() + '/.mqc-ui-build/morning-qc-room.mjs');
+  const { MorningQCRoom } = await import('file://' + process.cwd() + '/.mqc-ui-build/ui/morning-qc-room.mjs');
   const { createRoomController, replayToViewModel } = await import('file://' + path.join(APP, 'ui', 'ui-adapter.js'));
 
   function mount(caseObj) {
@@ -267,7 +267,7 @@ async function main() {
     // The RoomStatus component's "concluding" dot must derive only from
     // serviceState, never from documentation.finalDisposition — verified
     // by rendering it directly and confirming the dot is NOT reached.
-    const { RoomStatus } = await import('file://' + process.cwd() + '/.mqc-ui-build/room-status.mjs');
+    const { RoomStatus } = await import('file://' + process.cwd() + '/.mqc-ui-build/ui/room-status.mjs');
     const m6 = mount();
     await act(async () => { m6.root.render(React.createElement(RoomStatus, { viewModel: vm })); });
     const dots = m6.container.querySelectorAll('.mqc-room-status__dot');

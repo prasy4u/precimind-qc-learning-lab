@@ -202,7 +202,12 @@ async function main() {
   console.log('\n=== 13. Developer selector isolated from production navigation ===');
   {
     const appShellSrc = readIfExists(path.join(V09, 'app', 'ui', 'app-shell.jsx')) || '';
-    assert('13a', !appShellSrc.includes('morning-qc') && !appShellSrc.includes('DevLauncher'), 'app-shell.jsx (production navigation) does not reference the Morning QC dev launcher');
+    // Stage 12C's explicit, sanctioned production integration means
+    // app-shell.jsx NOW legitimately references "morning-qc" (as a
+    // controlled internal screen, never one of the 14 primary
+    // NAV_ITEMS) — the actual invariant this check protects is that the
+    // DEV LAUNCHER specifically is never wired in, which remains true.
+    assert('13a', !appShellSrc.includes('DevLauncher') && !appShellSrc.includes('dev-launcher'), 'app-shell.jsx (production navigation) does not reference the Morning QC DEV LAUNCHER specifically (Stage 12C\'s sanctioned production case-selector is a separate, non-dev component — see stage12c-debrief-integration.test.js for the full production-integration check)');
     assert('13b', fs.existsSync(path.join(UI, 'dev-launcher.jsx')), 'dev-launcher.jsx exists as an isolated file');
     const devSrc = fs.readFileSync(path.join(UI, 'dev-launcher.jsx'), 'utf8');
     assert('13c', /DEVELOPMENT.*TEST LAUNCHER|not the production/i.test(devSrc), 'Dev launcher is explicitly labeled as non-production');

@@ -1,0 +1,95 @@
+/* =========================================================================
+   v09/app/morning-qc/debrief/morning-qc-debrief.css
+
+   Morning QC Room — Stage 12C Debrief Visual System
+   PROVENANCE: V09_NEW
+
+   Reuses the same v0.9 design tokens and Stage 12B visual language
+   (app/ui/original-v0.8.css + app/morning-qc/ui/morning-qc-room.css's
+   .mqc-header/.mqc-btn classes) rather than a parallel system. Section
+   28: visually distinct from active-case state via a reflective, calm
+   treatment (--surface-2 background, no operational status chrome).
+   ========================================================================= */
+
+.mqcd-root { min-height: 100%; background: var(--bg); color: var(--text); font-family: var(--font); }
+.mqcd-header { background: var(--surface-2); }
+.mqcd-header__badge { font-size: 12px; font-weight: 600; color: var(--text-muted); padding: 6px 12px; border: 1px solid var(--border); border-radius: var(--radius); }
+
+.mqcd-body { max-width: 860px; margin: 0 auto; padding: 24px 20px 60px; }
+.mqcd-body:focus { outline: none; }
+
+.mqcd-section { margin-bottom: 28px; }
+.mqcd-section__title { font-size: 18px; font-weight: 600; margin-bottom: 12px; }
+.mqcd-empty { color: var(--text-faint); font-size: 14px; }
+
+.mqcd-resolution-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); }
+.mqcd-resolution-card p { margin-bottom: 10px; }
+.mqcd-resolution-facts { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; margin-top: 14px; font-size: 14px; }
+.mqcd-resolution-facts dt { color: var(--text-muted); }
+.mqcd-resolution-facts dd { font-weight: 500; }
+
+.mqcd-strength { background: var(--ok-tint); border: 1px solid var(--ok); color: var(--ok); border-radius: var(--radius); padding: 10px 14px; margin-bottom: 12px; font-size: 14px; }
+.mqcd-priorities-list { list-style: disc; padding-left: 22px; }
+.mqcd-priorities-list li { margin-bottom: 8px; }
+.mqcd-recommended-labs { margin-top: 14px; font-size: 14px; }
+.mqcd-recommended-labs ul { list-style: none; padding: 0; display: flex; gap: 8px; flex-wrap: wrap; }
+.mqcd-recommended-labs li { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); padding: 6px 12px; }
+
+.mqcd-competency-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.mqcd-competency-card { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface); }
+.mqcd-competency-card[data-tone="ok"] { border-left: 4px solid var(--ok); }
+.mqcd-competency-card[data-tone="attention"] { border-left: 4px solid var(--warn); }
+.mqcd-competency-card[data-tone="neutral"] { border-left: 4px solid var(--brand); }
+.mqcd-competency-card[data-tone="unassessed"] { opacity: 0.6; border-left: 4px solid var(--text-faint); }
+.mqcd-competency-card__rating { font-weight: 600; font-size: 13.5px; }
+
+.mqcd-disclosure { border-top: 1px solid var(--border); padding-top: 8px; margin-top: 8px; }
+.mqcd-disclosure__toggle { width: 100%; text-align: left; background: none; border: none; font-size: 16px; font-weight: 600; padding: 10px 0; cursor: pointer; color: var(--text); font-family: inherit; }
+.mqcd-disclosure__toggle:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+.mqcd-decision-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.mqcd-decision-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; background: var(--surface); }
+.mqcd-decision-card[data-quadrant="CORRECT_SUPPORTED"] { border-left: 4px solid var(--ok); }
+.mqcd-decision-card[data-quadrant="CORRECT_UNSUPPORTED"] { border-left: 4px solid var(--warn); }
+.mqcd-decision-card[data-quadrant="INCORRECT_SUPPORTED"] { border-left: 4px solid var(--warn); }
+.mqcd-decision-card[data-quadrant="INCORRECT_UNSUPPORTED"] { border-left: 4px solid var(--danger); }
+.mqcd-decision-card__choice { font-weight: 600; margin-bottom: 4px; }
+.mqcd-decision-card__quadrant { font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
+.mqcd-decision-card__explanation { font-size: 14px; margin-bottom: 6px; }
+.mqcd-decision-card__confidence { font-size: 13px; color: var(--text-faint); }
+
+.mqcd-calibration-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.mqcd-calibration-item { display: flex; gap: 10px; align-items: center; font-size: 14px; }
+.mqcd-calibration-item__category { color: var(--text-muted); }
+.mqcd-calibration-item__revised { font-size: 12px; background: var(--brand-tint); color: var(--brand); border-radius: var(--radius); padding: 2px 8px; }
+.mqcd-revised-decisions { margin-top: 14px; }
+.mqcd-revised-sequence { padding-left: 20px; margin-bottom: 8px; }
+
+.mqcd-evidence-missed { color: var(--warn); font-size: 14px; }
+
+.mqcd-safety-facts { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; font-size: 14px; margin-bottom: 10px; }
+.mqcd-safety-facts dt { color: var(--text-muted); }
+
+.mqcd-doc-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.mqcd-doc-compare h3 { font-size: 14px; margin-bottom: 8px; }
+.mqcd-doc-mismatch { background: var(--warn-tint); border: 1px solid var(--warn); color: var(--warn); border-radius: var(--radius); padding: 10px 14px; margin-top: 12px; font-size: 14px; }
+
+.mqcd-hypothesis-review-list { list-style: none; padding: 0; }
+.mqcd-hypothesis-review-list li { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.mqcd-hypothesis-review-list__state { color: var(--text-muted); font-size: 13px; }
+
+.mqcd-timeline { list-style: none; padding: 0; }
+.mqcd-timeline__item { padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+
+.mqcd-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--border); }
+
+@media (max-width: 1024px) {
+  .mqcd-doc-compare { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+  .mqcd-body { padding: 16px 14px 40px; }
+  .mqcd-actions { flex-direction: column; }
+  .mqcd-actions .mqc-btn { width: 100%; }
+  .mqcd-competency-card { flex-direction: column; align-items: flex-start; gap: 4px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }

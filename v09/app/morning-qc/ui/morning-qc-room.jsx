@@ -39,8 +39,9 @@ import { DecisionDialog } from './decision-dialog.jsx';
 import { ConfidenceControl } from './confidence-control.jsx';
 import { DocumentationDrawer } from './documentation-drawer.jsx';
 import { EventTimeline } from './event-timeline.jsx';
+import { MorningQCDebrief, isDebriefable, getDebriefProjection } from '../debrief/index.js';
 
-export function MorningQCRoom({ caseObj }) {
+export function MorningQCRoom({ caseObj, onAnotherCase, onReturn }) {
   const controller = useMemo(() => createRoomController(caseObj), [caseObj]);
   const [viewModel, setViewModel] = useState(() => controller.getViewModel());
   const [lastError, setLastError] = useState(null);
@@ -56,6 +57,13 @@ export function MorningQCRoom({ caseObj }) {
   const infoToggleRef = useRef(null);
   const reasoningToggleRef = useRef(null);
   const [pendingHypothesisDecision, setPendingHypothesisDecision] = useState(null);
+  // Section 8: debrief entry gate. learnerRequestedFinish is
+  // presentation-only state (like drawer-open) — never simulation
+  // truth. debriefOpen additionally requires the adapter's own
+  // isDebriefable() check to genuinely hold; a stray state flip alone
+  // can never expose the debrief (see the "refresh" callback below).
+  const [learnerRequestedFinish, setLearnerRequestedFinish] = useState(false);
+  const [debriefOpen, setDebriefOpen] = useState(false);
 
   const refresh = useCallback(() => setViewModel(controller.getViewModel()), [controller]);
 
@@ -145,6 +153,41 @@ export function MorningQCRoom({ caseObj }) {
     setDrawerOpen(false);
   }, [dispatch]);
 
+  // Section 8: the ONLY way debriefOpen can ever become true is via this
+  // explicit learner action (or the room detecting a genuine terminal
+  // service state) — never a bare state flip, and the projection itself
+  // is only ever computed through getDebriefProjection(), which THROWS
+  // if the gate is not genuinely satisfied (defense in depth beyond this
+  // button's own gating).
+  const finishCaseAndReview = useCallback(() => {
+    setLearnerRequestedFinish(true);
+    setDebriefOpen(true);
+  }, []);
+
+  const debriefProjection = useMemo(() => {
+    if (!debriefOpen) return null;
+    try {
+      return getDebriefProjection(caseObj, controller.getRawState(), { learnerRequestedFinish });
+    } catch {
+      return null; // gate not genuinely satisfied — never render a partial/fallback projection
+    }
+  }, [debriefOpen, learnerRequestedFinish, caseObj, controller, viewModel]);
+
+  const repeatCase = useCallback(() => {
+    controller.reset();
+    setLearnerRequestedFinish(false);
+    setDebriefOpen(false);
+    setOpenPanelId(null);
+    setBriefingActive(true);
+    setActiveDecision(null);
+    setDrawerOpen(false);
+    setLastDecisionEventId(null);
+    setInfoDrawerOpen(false);
+    setReasoningDrawerOpen(false);
+    setPendingHypothesisDecision(null);
+    refresh();
+  }, [controller, refresh]);
+
   const openPanelObj = viewModel.panels.find(p => p.id === openPanelId) || null;
   const requestableForOpenPanel = viewModel.requestableEvidence.filter(ev => {
     const evDef = (caseObj.evidence || []).find(e => e.id === ev.id);
@@ -162,6 +205,17 @@ export function MorningQCRoom({ caseObj }) {
     ? (viewModel.confidenceRecords.find(c => c.decisionEventId === lastDecisionEventId)?.confidence || null)
     : null;
 
+  if (debriefProjection) {
+    return (
+      <MorningQCDebrief
+        projection={debriefProjection}
+        onRepeat={repeatCase}
+        onAnotherCase={onAnotherCase || repeatCase}
+        onReturn={onReturn || (() => {})}
+      />
+    );
+  }
+
   return (
     <div className="mqc-morning-qc-room" data-testid="morning-qc-room">
       {lastError && <div className="mqc-error-banner" role="alert">{lastError}</div>}
@@ -175,6 +229,7 @@ export function MorningQCRoom({ caseObj }) {
             onToggleReasoningDrawer={toggleReasoningDrawer}
             infoToggleRef={infoToggleRef}
             reasoningToggleRef={reasoningToggleRef}
+            onFinishCase={finishCaseAndReview}
           />
         }
         infoDrawerOpen={infoDrawerOpen}

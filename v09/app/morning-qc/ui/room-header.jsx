@@ -11,7 +11,7 @@ import React from 'react';
 import { ServiceStateBanner } from './service-state-banner.jsx';
 import { RoomStatus } from './room-status.jsx';
 
-export function RoomHeader({ viewModel, infoDrawerOpen, reasoningDrawerOpen, onToggleInfoDrawer, onToggleReasoningDrawer, infoToggleRef, reasoningToggleRef }) {
+export function RoomHeader({ viewModel, infoDrawerOpen, reasoningDrawerOpen, onToggleInfoDrawer, onToggleReasoningDrawer, infoToggleRef, reasoningToggleRef, onFinishCase }) {
   const { caseIdentity, labContext } = viewModel;
   return (
     <header className="mqc-header">
@@ -43,6 +43,11 @@ export function RoomHeader({ viewModel, infoDrawerOpen, reasoningDrawerOpen, onT
         >
           Reasoning
         </button>
+        {viewModel.signalAcknowledged && (
+          <button type="button" className="mqc-btn" data-variant="primary" onClick={onFinishCase}>
+            Finish case and review
+          </button>
+        )}
       </div>
     </header>
   );

@@ -18,6 +18,14 @@
 import { createRoot } from "react-dom/client";
 import { App } from "./ui/app-shell.jsx";
 import "./ui/original-v0.8.css";
+// Stage 12C controlled production integration (Section 24-25): Morning
+// QC Room's own stylesheets, loaded globally alongside the existing v0.9
+// token sheet. Narrow, additive-only change to this file — no new
+// createRoot() call is introduced (Stage 11C2's single-active-root
+// invariant, verified by tests/stage11c2-esm-single-root.test.js,
+// remains satisfied).
+import "./morning-qc/ui/morning-qc-room.css";
+import "./morning-qc/debrief/morning-qc-debrief.css";
 
 const rootEl = document.getElementById("root");
 if (!rootEl) {

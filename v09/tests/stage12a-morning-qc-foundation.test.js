@@ -39,14 +39,28 @@ async function main() {
   assert('1b', tagCommit === '1352dba', `v0.8 tag unchanged (found "${tagCommit}")`);
 
   /* --- 2. Stage 11C2 architecture frozen --- */
-  console.log('\n=== 2. Stage 11C2 architecture frozen ===');
-  assert('2a', unchangedSince('v09/app/core', BASE_REF) && unchangedSince('v09/app/ui', BASE_REF) &&
-    unchangedSince('v09/app/rules', BASE_REF) && unchangedSince('v09/app/strategy', BASE_REF) &&
-    unchangedSince('v09/app/risk', BASE_REF) && unchangedSince('v09/app/investigation', BASE_REF) &&
-    unchangedSince('v09/app/eqa', BASE_REF) && unchangedSince('v09/app/bv', BASE_REF) &&
-    unchangedSince('v09/app/pbrtqc', BASE_REF) && unchangedSince('v09/app/opchar', BASE_REF) &&
-    unchangedSince('v09/app/main.jsx', BASE_REF),
-    'All 34 inherited active modules + main.jsx unchanged since Stage 11C2');
+  console.log('\n=== 2. Stage 11C2 architecture frozen (except Stage-12C-sanctioned production integration points) ===');
+  // Stage 12C's explicit, audited mandate (Section 24-25) requires controlled
+  // production integration: app-shell.jsx (new "morning-qc" screen branch,
+  // isolated from the 14 primary NAV_ITEMS), core-screens.jsx (Home capstone
+  // card + Competency Map capstone entry), and main.jsx (two additional CSS
+  // imports, no new createRoot call) are the ONLY sanctioned exceptions.
+  // Verified via a precise diff-subset check, not a blanket "unchanged"
+  // claim — anything OUTSIDE this exact sanctioned set still fails.
+  {
+    const STAGE12C_SANCTIONED = new Set(['v09/app/ui/app-shell.jsx', 'v09/app/ui/core-screens.jsx', 'v09/app/main.jsx']);
+    const uiDiff = (() => { try { return execSync(`git diff ${BASE_REF} --name-only -- v09/app/ui`, { cwd: ROOT }).toString().trim().split('\n').filter(Boolean); } catch { return null; } })();
+    const mainDiff = (() => { try { return execSync(`git diff ${BASE_REF} --name-only -- v09/app/main.jsx`, { cwd: ROOT }).toString().trim().split('\n').filter(Boolean); } catch { return null; } })();
+    const allDiffs = [...(uiDiff || []), ...(mainDiff || [])];
+    const unauthorized = allDiffs.filter(f => !STAGE12C_SANCTIONED.has(f));
+    assert('2a-other34', unchangedSince('v09/app/core', BASE_REF) && unchangedSince('v09/app/rules', BASE_REF) &&
+      unchangedSince('v09/app/strategy', BASE_REF) && unchangedSince('v09/app/risk', BASE_REF) &&
+      unchangedSince('v09/app/investigation', BASE_REF) && unchangedSince('v09/app/eqa', BASE_REF) &&
+      unchangedSince('v09/app/bv', BASE_REF) && unchangedSince('v09/app/pbrtqc', BASE_REF) &&
+      unchangedSince('v09/app/opchar', BASE_REF),
+      'All other 9 inherited module directories remain completely unchanged since Stage 11C2');
+    assert('2a-ui-scoped', unauthorized.length === 0, `Only the 3 Stage-12C-sanctioned files (app-shell.jsx, core-screens.jsx, main.jsx) differ within app/ui/+main.jsx — found unauthorized: ${JSON.stringify(unauthorized)}`);
+  }
   assert('2b', unchangedSince('v09/src', BASE_REF), 'Frozen v09/src/** unchanged');
   assert('2c', unchangedSince('v09/dist-vite-bridge', BASE_REF), 'Frozen Stage 11C1 bridge unchanged');
 
@@ -152,10 +166,14 @@ async function main() {
     assert('15', out.state.hypothesisStates['hyp-lot'] !== 'ESTABLISHED', 'Forming a hypothesis alone (no evidence) never auto-establishes it as root cause');
   }
 
-  console.log('\n=== 16. No production Morning QC nav destination yet ===');
+  console.log('\n=== 16. Morning QC production integration is controlled (Stage 12C) — internal screen only, never a 15th nav destination ===');
   {
     const appShellSrc = fs.readFileSync(path.join(V09, 'app', 'ui', 'app-shell.jsx'), 'utf8');
-    assert('16', !/morning.?qc/i.test(appShellSrc), 'Active app-shell.jsx contains no Morning QC Room reference (not wired into navigation)');
+    const navMatch = appShellSrc.match(/export const NAV_ITEMS = \[([\s\S]*?)\];/);
+    const navItems = navMatch ? (navMatch[1].match(/key:\s*['"][a-z0-9-]+['"]/g) || []) : [];
+    assert('16a', navItems.length === 14, `Production navigation remains exactly 14 destinations (found ${navItems.length})`);
+    assert('16b', !navItems.some(i => i.includes('morning-qc')), 'Morning QC is never one of the 14 primary NAV_ITEMS');
+    assert('16c', /"morning-qc"/.test(appShellSrc), 'Morning QC IS reachable as a controlled internal screen (Stage 12C Section 24-25 — this reference is expected and sanctioned, not a regression)');
   }
 
   console.log('\n=== 17. No inherited scientific formulas duplicated unnecessarily ===');

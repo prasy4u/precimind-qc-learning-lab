@@ -340,3 +340,19 @@
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+
+/* ---- Production case selection (Section 26/27) ---- */
+.mqc-case-select { max-width: 760px; margin: 0 auto; padding: 40px 20px; }
+.mqc-case-select__title { font-size: 24px; font-weight: 600; margin-bottom: 8px; }
+.mqc-case-select__intro { color: var(--text-muted); margin-bottom: 28px; }
+.mqc-case-select__grid { display: flex; flex-direction: column; gap: 14px; }
+.mqc-case-select__card {
+  display: flex; flex-direction: column; gap: 4px; text-align: left; padding: 18px 20px;
+  border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface);
+  cursor: pointer; font-family: inherit; box-shadow: var(--shadow);
+}
+.mqc-case-select__card:hover { background: var(--surface-2); }
+.mqc-case-select__card:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.mqc-case-select__card-title { font-weight: 600; font-size: 16px; }
+.mqc-case-select__card-focus { color: var(--text-muted); font-size: 14px; }
+.mqc-case-select__card-difficulty { font-size: 12px; color: var(--text-faint); text-transform: capitalize; }

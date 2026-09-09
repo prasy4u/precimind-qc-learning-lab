@@ -110,3 +110,24 @@ developer-facing debrief preview; the polished, learner-facing debrief
 (multi-dimensional, non-single-score, confidence-calibration-aware, per
 the Product Charter) and production-navigation integration remain
 Stage 12C's scope. Not implemented in Stage 12B.
+
+---
+
+## Stage 12C (current) — Debrief, Competency Feedback, Calibration + Controlled Production Integration
+
+Completed: learner-facing debrief (`v09/app/morning-qc/debrief/**`)
+consuming Stage 12A's scoring/debrief models directly — case resolution,
+12-dimension competency profile, four-quadrant decision review,
+decisionEventId-preserving confidence calibration, documentation-vs-
+executed comparison, patient-safety review, targeted learning
+priorities/lab recommendations — plus controlled production integration
+(Home capstone card, Competency Map `CAPSTONE` entry, a new deterministic
+`dist-vite-production/` build) preserving the 14-primary-destination
+doctrine and the frozen Stage 11C2 `dist-vite/` tree hash exactly. Full
+details in `V09_STAGE12C_REPORT.md`, `V09_STAGE12C_DEBRIEF_ARCHITECTURE.md`,
+`V09_STAGE12C_COMPETENCY_MODEL.md`, and `V09_STAGE12C_PRODUCTION_INTEGRATION.md`.
+
+### Suggested next stage
+
+**Stage 12D — Morning QC case expansion + adaptive sequencing +
+instructor analytics foundation.** Not implemented in Stage 12C.

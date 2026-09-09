@@ -34,6 +34,21 @@ export function HomeScreen({ level, setLevel, goto, openDiagnostic }) {
       </section>
       <Disclaimer />
 
+      <section className="pathway-section" aria-labelledby="morning-qc-capstone-heading">
+        <h2 id="morning-qc-capstone-heading" className="section-title">Capstone</h2>
+        <button
+          type="button"
+          className="pathway-step"
+          style={{ display: 'block', width: '100%', textAlign: 'left', padding: '16px 20px', height: 'auto' }}
+          onClick={() => goto("morning-qc")}
+        >
+          <strong>Morning QC Room</strong>
+          <div className="muted" style={{ marginTop: 4 }}>
+            Integrated decision simulation across QC, investigation, patient risk and release.
+          </div>
+        </button>
+      </section>
+
       <section className="pathway-section">
         <h2 className="section-title">Learning pathway</h2>
         {PATHWAY_PHASES.map(group => (
@@ -199,6 +214,19 @@ export function CompetencyMapScreen({ level, goto, progress }) {
             </div>
           );
         })}
+      </div>
+      <div className="module-grid" style={{ marginTop: 24 }} aria-label="Capstone">
+        <div className="module-card">
+          <div className="module-head">
+            <span className="module-id">CAPSTONE</span>
+            <Badge tone="available">Available</Badge>
+          </div>
+          <div className="module-title">Morning QC Room</div>
+          <div className="module-stage">Integrates QC-01 through QC-12 into a single decision simulation</div>
+          <div className="module-actions">
+            <button className="btn-link" onClick={() => goto("morning-qc")}>Open Morning QC Room</button>
+          </div>
+        </div>
       </div>
     </div>
   );

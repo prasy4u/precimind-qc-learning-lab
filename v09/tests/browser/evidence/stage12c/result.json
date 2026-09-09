@@ -1,0 +1,89 @@
+{
+  "status": "PASS",
+  "passed": 16,
+  "failed": 0,
+  "total": 16,
+  "browserExecutable": "/opt/pw-browsers/chromium-1194/chrome-linux/chrome",
+  "checkpoints": [
+    {
+      "id": "NAV-COUNT-14",
+      "status": "PASS",
+      "detail": "Rendered primary navigation has exactly 14 destinations (found 14)"
+    },
+    {
+      "id": "NAV-NO-15TH",
+      "status": "PASS",
+      "detail": "Sanity: page loaded"
+    },
+    {
+      "id": "HOME-CAPSTONE-CARD",
+      "status": "PASS",
+      "detail": "Home shows the Morning QC Room capstone card"
+    },
+    {
+      "id": "LANDING-NO-PILOT-LABEL",
+      "status": "PASS",
+      "detail": "Production landing never shows \"Pilot 1\" style labels"
+    },
+    {
+      "id": "LANDING-CASE-CARD",
+      "status": "PASS",
+      "detail": "A case card is present"
+    },
+    {
+      "id": "ROOM-MOUNTED",
+      "status": "PASS",
+      "detail": "Morning QC Room mounts from production entry"
+    },
+    {
+      "id": "DEBRIEF-MOUNTED",
+      "status": "PASS",
+      "detail": "Debrief mounts after Finish case and review"
+    },
+    {
+      "id": "DEBRIEF-COMPETENCY",
+      "status": "PASS",
+      "detail": "Competency profile shows all 12 dimensions"
+    },
+    {
+      "id": "REPEAT-WORKS",
+      "status": "PASS",
+      "detail": "Repeat produces a genuinely fresh room state"
+    },
+    {
+      "id": "MAP-CAPSTONE-LABEL",
+      "status": "PASS",
+      "detail": "Competency Map shows a CAPSTONE entry, not QC-13"
+    },
+    {
+      "id": "MAP-NOT-QC13",
+      "status": "PASS",
+      "detail": "Morning QC is never labeled QC-13"
+    },
+    {
+      "id": "MAP-TO-ROOM",
+      "status": "PASS",
+      "detail": "Competency Map capstone entry reaches the Morning QC landing"
+    },
+    {
+      "id": "OVERFLOW-390x844-home",
+      "status": "PASS",
+      "detail": "No horizontal overflow at 390x844-home (scrollWidth=390, clientWidth=390)"
+    },
+    {
+      "id": "OVERFLOW-390x844-landing",
+      "status": "PASS",
+      "detail": "No horizontal overflow at 390x844-landing (scrollWidth=390, clientWidth=390)"
+    },
+    {
+      "id": "OVERFLOW-390x844-debrief",
+      "status": "PASS",
+      "detail": "No horizontal overflow at 390x844-debrief (scrollWidth=390, clientWidth=390)"
+    },
+    {
+      "id": "MOBILE-COMPETENCY-STACK",
+      "status": "PASS",
+      "detail": "Competency profile stacks and renders fully on mobile"
+    }
+  ]
+}

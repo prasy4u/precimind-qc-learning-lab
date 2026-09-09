@@ -8,6 +8,11 @@ import { QCStrategyLabScreen } from "../strategy/screens.jsx";
 import { LEVELS, LEVEL_LABELS } from "./app-data.js";
 import { AboutModal, CompetencyMapScreen, DiagnosticModal, EvidenceScreen, GlossaryModal, HomeScreen, LJLabScreen, PatternChallengeScreen, SigmaSandboxScreen, StatsPlaygroundScreen } from "./core-screens.jsx";
 import { useState, useMemo, useRef, useEffect } from "react";
+// Stage 12C controlled production integration (Section 24-25): Morning
+// QC Room is mounted as an internal screen/subview, NOT a 15th primary
+// nav destination (it is deliberately absent from NAV_ITEMS below).
+import { ProductionCaseSelect } from "../morning-qc/ui/production-case-select.jsx";
+import { pilot1ReagentLotShift, pilot2PbrtqcPopulationShift, pilot3RcvPatientImpact } from "../morning-qc/cases/index.js";
 
 /* =========================================================================
    Application shell
@@ -62,6 +67,12 @@ export function App() {
   else if (screen === "bv-rcv") body = <BvRcvLabScreen level={level} markProgress={markProgress} goto={goto} />;
   else if (screen === "pbrtqc") body = <PatientSurveillanceLabScreen level={level} markProgress={markProgress} goto={goto} />;
   else if (screen === "evidence") body = <EvidenceScreen />;
+  else if (screen === "morning-qc") body = (
+    <ProductionCaseSelect
+      cases={[pilot1ReagentLotShift, pilot2PbrtqcPopulationShift, pilot3RcvPatientImpact]}
+      onReturn={() => goto("home")}
+    />
+  );
 
   return (
     <div className="app-shell">

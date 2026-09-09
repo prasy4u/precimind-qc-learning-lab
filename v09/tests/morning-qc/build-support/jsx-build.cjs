@@ -1,93 +1,110 @@
 /* =========================================================================
    v09/tests/morning-qc/build-support/jsx-build.cjs
 
-   Stage 12B TEST-ONLY build helper. PROVENANCE: V09_TEST.
+   Stage 12B/12C TEST-ONLY build helper. PROVENANCE: V09_TEST.
 
-   Transforms the Morning QC Room .jsx components into plain ESM .mjs
-   files (via Vite's bundled OXC transform — no new project dependency
-   added; vite is already a committed devDependency) so they can be
-   rendered with react-dom/server in plain Node for SSR-based
-   verification (leakage audits, conditional-rendering checks) in an
-   environment where a real browser binary cannot be downloaded
-   (see V09_STAGE12B_REPORT.md for the exact network-sandboxing
-   constraint). This script is NEVER imported by production code.
+   Transforms the Morning QC Room .jsx components (both app/morning-qc/ui/
+   and app/morning-qc/debrief/) into plain ESM .mjs files (via Vite's
+   bundled OXC transform — no new project dependency added; vite is
+   already a committed devDependency) so they can be rendered with
+   react-dom/client in plain Node + jsdom for interactive verification in
+   an environment where a real browser binary cannot always be relied
+   upon. This script is NEVER imported by production code.
+
+   Mirrors the REAL source tree's sibling structure
+   (app/morning-qc/{ui,debrief}) under OUT_ROOT/{ui,debrief} so that
+   cross-directory relative imports (morning-qc-room.jsx's
+   '../debrief/index.js'; reasoning-timeline.jsx's '../ui/ui-model.js')
+   resolve correctly without rewriting — only imports reaching OUTSIDE
+   both directories (into the frozen Stage 12A engine modules one level
+   further up) are rewritten to absolute file:// URLs pointing at the
+   real, unmodified source.
    ========================================================================= */
 'use strict';
 const fs = require('fs');
 const path = require('path');
 
-const SRC_DIR = path.join(__dirname, '..', '..', '..', 'app', 'morning-qc', 'ui');
-const OUT_DIR = path.join(__dirname, '..', '..', '..', '.mqc-ui-build');
+const MQC_DIR = path.join(__dirname, '..', '..', '..', 'app', 'morning-qc');
+const OUT_ROOT = path.join(__dirname, '..', '..', '..', '.mqc-ui-build');
+const SUBDIRS = ['ui', 'debrief'];
+
+// Files that must be copied verbatim (never JSX-transformed) but whose
+// relative imports still need adjusting to the mirrored output tree.
+const PASSTHROUGH_JS = new Set(['ui-adapter.js', 'index.js', 'dev-launcher.jsx', 'debrief-adapter.js']);
+
+function walk(dir, relBase) {
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  const files = [];
+  for (const entry of entries) {
+    const abs = path.join(dir, entry.name);
+    const rel = path.join(relBase, entry.name);
+    if (entry.isDirectory()) files.push(...walk(abs, rel));
+    else files.push(rel);
+  }
+  return files;
+}
 
 async function buildAll() {
   const vite = await import('vite');
-  fs.rmSync(OUT_DIR, { recursive: true, force: true });
-  fs.mkdirSync(OUT_DIR, { recursive: true });
+  fs.rmSync(OUT_ROOT, { recursive: true, force: true });
+  fs.mkdirSync(OUT_ROOT, { recursive: true });
 
-  // Recursively walk SRC_DIR, preserving relative subdirectory structure
-  // (needed for panel-renderers/index.js, imported by panel-viewer.jsx).
-  function walk(dir, relBase) {
-    const entries = fs.readdirSync(dir, { withFileTypes: true });
-    const files = [];
-    for (const entry of entries) {
-      const abs = path.join(dir, entry.name);
-      const rel = path.join(relBase, entry.name);
-      if (entry.isDirectory()) files.push(...walk(abs, rel));
-      else files.push(rel);
+  for (const subdir of SUBDIRS) {
+    const srcDir = path.join(MQC_DIR, subdir);
+    const outDir = path.join(OUT_ROOT, subdir);
+    const allFiles = walk(srcDir, '');
+    const jsxFiles = allFiles.filter(f => f.endsWith('.jsx') && !PASSTHROUGH_JS.has(path.basename(f)));
+    const plainFiles = allFiles.filter(f => !jsxFiles.includes(f));
+
+    for (const relFile of jsxFiles) {
+      const src = fs.readFileSync(path.join(srcDir, relFile), 'utf8');
+      const result = await vite.transformWithOxc(src, relFile, {});
+      let code = result.code;
+      // Same-subdir or cross-subdir relative imports (./x.jsx, ../ui/x.jsx,
+      // ../debrief/x.jsx) — just fix the extension; the mirrored tree
+      // structure means the relative PATH itself needs no rewriting.
+      code = code.replace(/from\s+(['"])(\.{1,2}\/[^'"]+)\.jsx\1/g, "from $1$2.mjs$1");
+      // Imports reaching past BOTH subdirs into the real Stage 12A engine
+      // directory (e.g. '../states.js', '../engine.js', '../debrief-model.js')
+      // are rewritten to absolute file:// URLs pointing at the real,
+      // unmodified source — never copied or duplicated.
+      code = code.replace(/from\s+(['"])\.\.\/([a-zA-Z0-9_-]+\.js)\1/g, (m, q, filename) => {
+        if (fs.existsSync(path.join(MQC_DIR, filename))) {
+          return `from ${q}${'file://' + path.join(MQC_DIR, filename)}${q}`;
+        }
+        return m; // not a top-level engine file — leave as-is (shouldn't occur)
+      });
+      const outPath = path.join(outDir, relFile.replace(/\.jsx$/, '.mjs'));
+      fs.mkdirSync(path.dirname(outPath), { recursive: true });
+      fs.writeFileSync(outPath, code);
     }
-    return files;
-  }
-  const allFiles = walk(SRC_DIR, '');
-  const jsxFiles = allFiles.filter(f => f.endsWith('.jsx'));
-  const plainJsFiles = allFiles.filter(f => f.endsWith('.js') && f !== 'ui-adapter.js' && f !== 'index.js' && f !== 'dev-launcher.jsx');
 
-  for (const relFile of jsxFiles) {
-    const src = fs.readFileSync(path.join(SRC_DIR, relFile), 'utf8');
-    const result = await vite.transformWithOxc(src, relFile, {});
-    let code = result.code;
-    // Rewrite relative .jsx import specifiers to .mjs (matching this
-    // script's output filenames); plain .js imports (ui-adapter.js,
-    // ui-model.js, engine.js, etc.) are left untouched and resolved
-    // directly against the real source tree.
-    code = code.replace(/from\s+(['"])(\.{1,2}\/[^'"]+)\.jsx\1/g, "from $1$2.mjs$1");
-    // morning-qc-room.jsx imports ui-adapter.js as '../ui-adapter.js'
-    // (one level up from ui/); since this build flattens everything
-    // into a single OUT_DIR alongside a copy of ui-adapter.js, rewrite
-    // that one specifier to a same-directory reference.
-    code = code.replace(/from\s+(['"])\.\.\/ui-adapter\.js\1/g, "from $1./ui-adapter.js$1");
-    // Any component importing directly from the real Stage 12A engine
-    // directory one level up (e.g. patient-impact-panel.jsx importing
-    // PATIENT_IMPACT_TRANSITIONS from '../states.js') is rewritten to an
-    // absolute file:// URL pointing at the REAL source file — never a
-    // copy — so no engine/domain module is duplicated by this test build.
-    code = code.replace(/from\s+(['"])\.\.\/([a-zA-Z0-9_-]+\.js)\1/g, (m, q, filename) => {
-      return `from ${q}${'file://' + path.join(SRC_DIR, '..', filename)}${q}`;
-    });
-    const outPath = path.join(OUT_DIR, relFile.replace(/\.jsx$/, '.mjs'));
-    fs.mkdirSync(path.dirname(outPath), { recursive: true });
-    fs.writeFileSync(outPath, code);
+    for (const relFile of plainFiles) {
+      const outPath = path.join(outDir, relFile);
+      fs.mkdirSync(path.dirname(outPath), { recursive: true });
+      if (PASSTHROUGH_JS.has(path.basename(relFile))) {
+        // Rewrite '../engine.js' style imports to absolute file:// URLs
+        // pointing at the real Stage 12A source, and '.jsx' extensions to
+        // '.mjs' (matching this script's own transformed output
+        // filenames) — everything else (including './foo.js',
+        // '../ui/x.js', '../debrief/x.js') is left untouched, resolving
+        // naturally against the mirrored output tree.
+        let src = fs.readFileSync(path.join(srcDir, relFile), 'utf8');
+        src = src.replace(/from\s+(['"])\.\.\/([a-zA-Z0-9_-]+\.js)\1/g, (m, q, filename) => {
+          if (fs.existsSync(path.join(MQC_DIR, filename))) {
+            return `from ${q}${'file://' + path.join(MQC_DIR, filename)}${q}`;
+          }
+          return m;
+        });
+        src = src.replace(/from\s+(['"])(\.{1,2}\/[^'"]+)\.jsx\1/g, "from $1$2.mjs$1");
+        fs.writeFileSync(outPath, src);
+      } else {
+        fs.copyFileSync(path.join(srcDir, relFile), outPath);
+      }
+    }
   }
-  // Plain .js files elsewhere in the tree (e.g. ui-model.js) are already
-  // ESM — copy verbatim, preserving their relative path, so relative
-  // imports from the transformed .mjs files resolve correctly.
-  for (const relFile of plainJsFiles) {
-    const outPath = path.join(OUT_DIR, relFile);
-    fs.mkdirSync(path.dirname(outPath), { recursive: true });
-    fs.copyFileSync(path.join(SRC_DIR, relFile), outPath);
-  }
-  // ui-adapter.js imports from '../engine.js' etc. (one level up) —
-  // copy it with the relative path adjusted to point at the real
-  // Stage 12A engine modules (absolute file:// URL), so no engine
-  // source is copied or duplicated.
-  const adapterSrc = fs.readFileSync(path.join(SRC_DIR, 'ui-adapter.js'), 'utf8');
-  const engineDir = path.join(SRC_DIR, '..'); // v09/app/morning-qc
-  const adapterOut = adapterSrc
-    .replace("from '../engine.js'", `from ${JSON.stringify('file://' + path.join(engineDir, 'engine.js'))}`)
-    .replace("from '../states.js'", `from ${JSON.stringify('file://' + path.join(engineDir, 'states.js'))}`)
-    .replace("from '../debrief-model.js'", `from ${JSON.stringify('file://' + path.join(engineDir, 'debrief-model.js'))}`);
-  fs.writeFileSync(path.join(OUT_DIR, 'ui-adapter.js'), adapterOut);
 
-  return OUT_DIR;
+  return OUT_ROOT;
 }
 
-module.exports = { buildAll, OUT_DIR };
+module.exports = { buildAll, OUT_DIR: path.join(OUT_ROOT, 'ui') };

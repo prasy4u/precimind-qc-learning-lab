@@ -35,20 +35,63 @@ export const NAV_ITEMS = [
   { key: "evidence", label: "Evidence" }
 ];
 
+// Stage 12C FINAL CALIBRATION + PRODUCTION-ROUTING ACCEPTANCE closure:
+// a small, deterministic, dependency-free hash router (Section 3). The
+// browser hash (#/home, #/map, #/morning-qc, ...) is the SINGLE source
+// of truth for which screen is visible — goto() only ever navigates by
+// setting the hash; screen state itself is updated exclusively by the
+// hashchange listener (see App(), below), so there is never a moment
+// where the hash and the rendered screen can drift apart. This is
+// intentionally NOT a general-purpose routing library — it owns only
+// WHICH SCREEN IS VISIBLE, nothing about Morning QC's own simulation
+// state (Section 4): Stage 12A's engine remains simulation authority,
+// Stage 12B's controller remains active-case authority, and no
+// case/evidence/decision/confidence/ground-truth data is ever encoded
+// in the hash or read from it.
+const ALL_SCREEN_KEYS = new Set([...NAV_ITEMS.map(i => i.key), "morning-qc"]);
+
+function screenFromHash() {
+  const raw = (typeof window !== "undefined" ? window.location.hash : "") || "";
+  const key = raw.replace(/^#\/?/, "");
+  return ALL_SCREEN_KEYS.has(key) ? key : "home";
+}
+
+function setHashForScreen(key) {
+  if (typeof window === "undefined") return;
+  const target = "#/" + key;
+  if (window.location.hash !== target) window.location.hash = target;
+}
+
 export function App() {
   const [level, setLevel] = useState("beginner");
-  const [screen, setScreen] = useState("home");
+  const [screen, setScreen] = useState(() => screenFromHash());
   const [showDiagnostic, setShowDiagnostic] = useState(false);
   const [showGlossary, setShowGlossary] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const [progress, setProgress] = useState({ stats: false, lj: false, pattern: false, rules: false, strategy: false, sigma: false, risk: false, investigation: false, "external-assurance": false, "bv-rcv": false, pbrtqc: false });
+
+  // The hash is authoritative: on mount (direct open / refresh) and on
+  // every browser Back/Forward (hashchange), re-derive the visible
+  // screen from the CURRENT hash. This is the only place screen state
+  // is ever set from routing — goto() below never calls setScreen
+  // directly, avoiding any dual-authority drift between the hash and
+  // the rendered screen.
+  useEffect(() => {
+    setHashForScreen(screenFromHash()); // normalize an empty/invalid initial hash to a real route
+    function handleHashChange() { setScreen(screenFromHash()); }
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, []);
 
   function markProgress(key) {
     setProgress(p => (p[key] ? p : { ...p, [key]: true }));
   }
 
   function goto(key) {
-    setScreen(key);
+    // Navigate via the hash ONLY — the hashchange listener above is the
+    // sole place setScreen is called, keeping the hash and the rendered
+    // screen always in sync (Section 3/4).
+    setHashForScreen(key);
     window.scrollTo({ top: 0, behavior: "instant" in window ? "instant" : "auto" });
   }
 

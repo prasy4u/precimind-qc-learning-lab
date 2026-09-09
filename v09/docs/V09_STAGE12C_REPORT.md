@@ -183,3 +183,92 @@ interaction-shell file beyond the two listed integration points, `dist-vite/`,
 See the delivery message accompanying this report for the final commit
 SHA/count, both deterministic build tree hashes, and the ZIP SHA-256/
 integrity result.
+
+---
+
+## Stage 12C FINAL CALIBRATION + PRODUCTION-ROUTING ACCEPTANCE Closure
+
+A second independent audit found two material defects. Both are resolved.
+
+### 1. Evidence-aware confidence calibration — fixed at the source
+
+Reproduced exactly as reported: Pilot 2's early disposition (before
+`ev-case-mix-decisive` was obtained) has `outcomeAppropriate=true`,
+`reasoningSupported=false`; recording HIGH confidence previously scored
+`CORRECT_CALIBRATED`/"Well calibrated" and could drive
+`METACOGNITIVE_CALIBRATION` to `STRONG` — directly contradicting Stage
+12A/12C's own doctrine that correct outcome ≠ adequately supported
+reasoning.
+
+Fixed in Stage 12A's `scoring-model.js` (the audit's explicitly sanctioned
+narrow correction): `computeCalibration()` now requires **both**
+`outcomeAppropriate` and `reasoningSupported` for high-confidence
+calibration credit (and, symmetrically, LOW confidence on a genuinely
+fully-supported-and-correct decision is now itself flagged as
+underconfidence, not miscounted as appropriate caution). A new
+`classifyDecisionCalibration(confidence, outcomeAppropriate, reasoningSupported)`
+implements the exact matrix the audit specified; the legacy
+`classifyCalibrationCategory(confidence, outcomeAppropriate)` is retained
+unmodified for any single-axis caller. `debrief-adapter.js` now calls the
+evidence-aware function exclusively. Verified directly against the exact
+reproduction: now correctly yields `OVERCONFIDENT_WITH_INSUFFICIENT_EVIDENCE`
+and `METACOGNITIVE_CALIBRATION: NEEDS_IMPROVEMENT`.
+
+### 2. Real production routing implemented
+
+A small, dependency-free hash router was added to `app-shell.jsx`. The
+browser hash (`#/home`, `#/map`, `#/morning-qc`, ...) is the single
+source of truth for which screen is visible: `goto()` only ever
+navigates by setting the hash; `screen` state is updated exclusively by
+a `hashchange` listener, so the hash and the rendered screen can never
+drift apart. Verified directly with real Chromium against the rebuilt
+production artifact: Home→Morning QC and Competency Map→Morning QC both
+change the route to `#/morning-qc`; browser Back correctly returns to
+the preceding screen; direct loading of `#/morning-qc` works; refresh on
+that route stays on the Morning QC landing (never mid-case or debrief
+state, since the hash never encodes simulation state at all — verified
+structurally: the routing implementation contains none of
+`decisionEventId`, `confidenceRecords`, `hypothesisStates`,
+`obtainedEvidenceIds`, `groundTruth`, or `serviceState`).
+
+### 3. Three-case real Chromium debrief matrix completed
+
+`v09-stage12c-debrief-production.e2e.js` was rewritten to drive the
+complete accepted Stage 12A expert path for all three pilots (using
+`pilot-paths.test.cjs`'s `expertActions` as the literal semantic
+reference), plus the full routing contract. **25/25 passing**, including
+the pedagogically central Pilot 2 sequence: an early, reasoning-
+unsupported disposition with HIGH confidence is shown as
+`CORRECT_UNSUPPORTED` and explicitly NOT "well calibrated"; a later,
+evidence-supported disposition with HIGH confidence IS well calibrated;
+both preserve distinct `decisionEventId`s, confirmed via direct DOM
+inspection of the rendered decision cards' `data-quadrant` attributes.
+
+Three genuine test-authoring bugs were found and fixed while building
+this matrix (each caught by actually running the test against a real
+browser, not assumed away): a disclosure-toggle bug where clicking an
+already-`defaultOpen` "Decisions" section closed it instead of opening
+it; a mobile-navigation bug where panel/confidence controls live inside
+drawers that must be explicitly opened (and *closed again*, since their
+backdrop otherwise intercepts subsequent clicks on non-elevated header
+buttons) at narrow viewports; and a false-positive text check that
+flagged Pilot 3's *correct*, appropriately-limited RCV interpretation
+text ("does NOT establish a specific biological cause") as an overclaim,
+when it is in fact the exact opposite.
+
+### Updated test totals
+
+- `debrief-ui.test.cjs`: **44/44** (was 37, +7: `CALIB-01`–`07`)
+- `stage12c-debrief-integration.test.js`: **48/48** (was 29, +19: evidence-
+  aware calibration verification, named-checkpoint verification for
+  routing/debrief, structural routing checks)
+- Real browser E2E: **25/25** (was 16, fully extended with the complete
+  3-pilot debrief matrix and routing contract)
+- Stage 12A regression: unchanged at the test-count level
+  (49/39/59/121), with `scoring-model.js` now a fifth sanctioned freeze
+  exception (documented and git-diff-verified)
+- Stage 12B regression: unchanged (105/105, 47/47, 65/65 — two assertions
+  updated in place for the new exception count, not weakened)
+- Deterministic build hashes (both reconfirmed reproducible):
+  `dist-morning-qc-dev/` → `88607ce4f6f35617ae5f47188b68ea0b4c10ef8101f6e4ce13d0794d20b31cba`;
+  `dist-vite-production/` → `04c506c35407b910c61d7dea4d6ffe385cb5aa45c4bad7280694752eb5288a89`

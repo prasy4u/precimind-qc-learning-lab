@@ -121,6 +121,30 @@ export function computeScoringProfile(caseObj, finalState) {
  * the exact revised event, never an earlier occurrence of the same
  * decision definition.
  */
+/**
+ * Confidence calibration (Section 18, ACCEPTANCE-closure fix, FINAL
+ * CALIBRATION + PRODUCTION-ROUTING ACCEPTANCE closure): calibration now
+ * requires BOTH outcomeAppropriate AND reasoningSupported for a
+ * high-confidence decision to count as genuinely well-calibrated —
+ * previously only outcomeAppropriate was checked, meaning a learner who
+ * reached a correct disposition PREMATURELY (before decisive evidence
+ * was obtained) and recorded HIGH confidence was scored as "well
+ * calibrated" and could drive METACOGNITIVE_CALIBRATION to STRONG —
+ * directly contradicting Stage 12A/12C's own central pedagogic doctrine
+ * that correct outcome != adequately supported reasoning. Reproduced
+ * directly: Pilot 2's early disposition (outcomeAppropriate=true,
+ * reasoningSupported=false) + HIGH confidence previously scored
+ * CORRECT_CALIBRATED / STRONG; now correctly scored as overconfident
+ * relative to the evidence actually available at decision time.
+ *
+ * highQualityDecision = outcomeAppropriate && reasoningSupported. HIGH
+ * confidence is well-calibrated ONLY against a highQualityDecision; LOW
+ * confidence is well-calibrated ONLY against a NON-highQualityDecision
+ * (recording LOW confidence on a genuinely fully-supported-and-correct
+ * decision is itself a miscalibration — underconfidence — not
+ * well-calibrated caution). MODERATE remains neutral/appropriately
+ * measured regardless, consistent with the existing doctrine.
+ */
 function computeCalibration(finalState) {
   if (!finalState.confidenceRecords || finalState.confidenceRecords.length === 0) return null;
   const decisions = summarizeDecisions(finalState.actionHistory).filter(d => d.decisionEventId);
@@ -129,18 +153,55 @@ function computeCalibration(finalState) {
     const matchingDecision = decisions.find(d => d.decisionEventId === rec.decisionEventId);
     if (!matchingDecision) continue; // defensive; engine.js already prevents this case
     total++;
-    const highConfidenceCorrect = rec.confidence === 'HIGH' && matchingDecision.outcomeAppropriate;
-    const lowConfidenceIncorrect = rec.confidence === 'LOW' && !matchingDecision.outcomeAppropriate;
+    const highQualityDecision = matchingDecision.outcomeAppropriate === true && matchingDecision.reasoningSupported === true;
+    const highConfidenceWellCalibrated = rec.confidence === 'HIGH' && highQualityDecision;
+    const lowConfidenceWellCalibrated = rec.confidence === 'LOW' && !highQualityDecision;
     const moderateEither = rec.confidence === 'MODERATE';
-    if (highConfidenceCorrect || lowConfidenceIncorrect || moderateEither) calibrated++;
+    if (highConfidenceWellCalibrated || lowConfidenceWellCalibrated || moderateEither) calibrated++;
   }
   return total > 0 ? rate(calibrated / total) : null;
 }
 
+/**
+ * LEGACY helper — retained for any existing caller that only has
+ * outcomeAppropriate available (no reasoningSupported). Prefer
+ * classifyDecisionCalibration() below for any new/updated caller, since
+ * this legacy version cannot distinguish "correct for the right
+ * reasons" from "correct despite insufficient evidence."
+ */
 export function classifyCalibrationCategory(confidence, wasCorrect) {
   if (wasCorrect && confidence === 'HIGH') return 'CORRECT_CALIBRATED';
   if (wasCorrect && confidence === 'LOW') return 'CORRECT_UNDERCONFIDENT';
   if (!wasCorrect && confidence === 'HIGH') return 'INCORRECT_OVERCONFIDENT';
   if (!wasCorrect && confidence === 'LOW') return 'INCORRECT_APPROPRIATELY_UNCERTAIN';
   return wasCorrect ? 'CORRECT_MODERATE' : 'INCORRECT_MODERATE';
+}
+
+/**
+ * Evidence-aware per-event calibration categorizer (FINAL CALIBRATION +
+ * PRODUCTION-ROUTING ACCEPTANCE closure). Considers BOTH
+ * outcomeAppropriate AND reasoningSupported — the correct semantics for
+ * any caller that has both axes available (Stage 12C's debrief-adapter
+ * always does, via summarizeDecisions()). See computeCalibration()
+ * above for the identical highQualityDecision logic this mirrors.
+ */
+export function classifyDecisionCalibration(confidence, outcomeAppropriate, reasoningSupported) {
+  const highQualityDecision = outcomeAppropriate === true && reasoningSupported === true;
+  if (outcomeAppropriate === true) {
+    if (!reasoningSupported) {
+      // Correct outcome, but not yet adequately evidence-supported at
+      // decision time — the exact case this closure targets.
+      if (confidence === 'HIGH') return 'OVERCONFIDENT_WITH_INSUFFICIENT_EVIDENCE';
+      if (confidence === 'LOW') return 'APPROPRIATELY_CAUTIOUS';
+      return 'CORRECT_MODERATE';
+    }
+    // Fully justified: correct outcome AND adequately supported reasoning.
+    if (confidence === 'HIGH') return 'CORRECT_CALIBRATED';
+    if (confidence === 'LOW') return 'CORRECT_UNDERCONFIDENT';
+    return 'CORRECT_MODERATE';
+  }
+  // Inappropriate outcome.
+  if (confidence === 'HIGH') return 'INCORRECT_OVERCONFIDENT';
+  if (confidence === 'LOW') return 'INCORRECT_APPROPRIATELY_UNCERTAIN';
+  return 'INCORRECT_MODERATE';
 }

@@ -133,6 +133,51 @@ async function main() {
     assert('6b', projection.confidenceCalibration[0].decisionEventId === out.decisionEventId, 'Confidence calibration keyed by decisionEventId, not decisionId');
   }
 
+  console.log('\n=== 6b. Evidence-aware confidence calibration (FINAL CALIBRATION + PRODUCTION-ROUTING ACCEPTANCE closure) ===');
+  {
+    const { createInitialState, applyAction } = await import('file://' + path.join(MQC, 'engine.js'));
+    const { getDebriefProjection } = await import('file://' + path.join(DEBRIEF, 'debrief-adapter.js'));
+    const { computeScoringProfile, classifyDecisionCalibration } = await import('file://' + path.join(MQC, 'scoring-model.js'));
+    const { pilot2PbrtqcPopulationShift } = await import('file://' + path.join(MQC, 'cases', 'index.js'));
+
+    assert('6b-1', classifyDecisionCalibration('HIGH', true, false) === 'OVERCONFIDENT_WITH_INSUFFICIENT_EVIDENCE', 'classifyDecisionCalibration(HIGH, correct, unsupported) = OVERCONFIDENT_WITH_INSUFFICIENT_EVIDENCE');
+    assert('6b-2', classifyDecisionCalibration('LOW', true, false) === 'APPROPRIATELY_CAUTIOUS', 'classifyDecisionCalibration(LOW, correct, unsupported) = APPROPRIATELY_CAUTIOUS');
+    assert('6b-3', classifyDecisionCalibration('HIGH', true, true) === 'CORRECT_CALIBRATED', 'classifyDecisionCalibration(HIGH, correct, supported) = CORRECT_CALIBRATED');
+    assert('6b-4', classifyDecisionCalibration('LOW', true, true) === 'CORRECT_UNDERCONFIDENT', 'classifyDecisionCalibration(LOW, correct, supported) = CORRECT_UNDERCONFIDENT (LOW confidence on a genuinely high-quality decision is itself a miscalibration)');
+    assert('6b-5', classifyDecisionCalibration('HIGH', false, false) === 'INCORRECT_OVERCONFIDENT', 'classifyDecisionCalibration(HIGH, incorrect, unsupported) = INCORRECT_OVERCONFIDENT');
+    assert('6b-6', classifyDecisionCalibration('LOW', false, false) === 'INCORRECT_APPROPRIATELY_UNCERTAIN', 'classifyDecisionCalibration(LOW, incorrect, unsupported) = INCORRECT_APPROPRIATELY_UNCERTAIN');
+
+    // The exact reproduction the audit specified: early disposition
+    // before decisive evidence, HIGH confidence.
+    let state = createInitialState(pilot2PbrtqcPopulationShift);
+    state = applyAction(pilot2PbrtqcPopulationShift, state, { type: 'ACKNOWLEDGE_SIGNAL' }).state;
+    state = applyAction(pilot2PbrtqcPopulationShift, state, { type: 'INSPECT_PANEL', panelId: 'panel-qc-history' }).state;
+    state = applyAction(pilot2PbrtqcPopulationShift, state, { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-iqc-stable' }).state;
+    const early = applyAction(pilot2PbrtqcPopulationShift, state, { type: 'DOCUMENT', decisionId: 'dec-disposition', optionId: 'opt-continue-documented', fields: {} });
+    state = early.state;
+    state = applyAction(pilot2PbrtqcPopulationShift, state, { type: 'RECORD_CONFIDENCE', decisionEventId: early.decisionEventId, confidence: 'HIGH' }).state;
+    const earlyProjection = getDebriefProjection(pilot2PbrtqcPopulationShift, state, { learnerRequestedFinish: true });
+    assert('6b-7', earlyProjection.decisionReview[0].quadrant === 'CORRECT_UNSUPPORTED', 'Decision Review correctly shows CORRECT_UNSUPPORTED for the early disposition');
+    assert('6b-8', earlyProjection.confidenceCalibration[0].category === 'OVERCONFIDENT_WITH_INSUFFICIENT_EVIDENCE', 'Confidence feedback is explicitly NOT "well calibrated" — flagged as overconfident relative to the evidence');
+    const earlyProfile = computeScoringProfile(pilot2PbrtqcPopulationShift, state);
+    assert('6b-9', earlyProfile.METACOGNITIVE_CALIBRATION !== 'STRONG', `METACOGNITIVE_CALIBRATION does not score STRONG from the early unsupported event alone (found ${earlyProfile.METACOGNITIVE_CALIBRATION})`);
+
+    // Now obtain decisive evidence and make the later, supported disposition.
+    state = applyAction(pilot2PbrtqcPopulationShift, state, { type: 'INSPECT_PANEL', panelId: 'panel-patient-distribution' }).state;
+    state = applyAction(pilot2PbrtqcPopulationShift, state, { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-ward-timing' }).state;
+    state = applyAction(pilot2PbrtqcPopulationShift, state, { type: 'CHECK_PATIENT_DISTRIBUTION' }).state;
+    state = applyAction(pilot2PbrtqcPopulationShift, state, { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-case-mix-decisive' }).state;
+    const later = applyAction(pilot2PbrtqcPopulationShift, state, { type: 'DOCUMENT', decisionId: 'dec-disposition', optionId: 'opt-continue-documented', fields: {} });
+    state = later.state;
+    state = applyAction(pilot2PbrtqcPopulationShift, state, { type: 'RECORD_CONFIDENCE', decisionEventId: later.decisionEventId, confidence: 'HIGH' }).state;
+    const laterProjection = getDebriefProjection(pilot2PbrtqcPopulationShift, state, { learnerRequestedFinish: true });
+    assert('6b-10', laterProjection.decisionReview.length === 2 && laterProjection.decisionReview[0].decisionEventId !== laterProjection.decisionReview[1].decisionEventId, 'Both events preserve distinct decisionEventIds');
+    const laterEvent = laterProjection.decisionReview.find(d => d.decisionEventId === later.decisionEventId);
+    assert('6b-11', laterEvent.quadrant === 'CORRECT_SUPPORTED', 'The later, evidence-supported disposition is correctly CORRECT_SUPPORTED');
+    const laterCalibration = laterProjection.confidenceCalibration.find(c => c.decisionEventId === later.decisionEventId);
+    assert('6b-12', laterCalibration.category === 'CORRECT_CALIBRATED', 'The later HIGH-confidence entry IS well calibrated — confidence now matches genuinely supported reasoning');
+  }
+
   console.log('\n=== 7. Documentation distinct from action history ===');
   {
     const { createInitialState, applyAction } = await import('file://' + path.join(MQC, 'engine.js'));
@@ -183,6 +228,39 @@ async function main() {
       const recorded = JSON.parse(fs.readFileSync(frozenHashPath, 'utf8')).tree_hash_sha256;
       assert('11c', recorded === '4614aca944cedfa650b0533280b2923e6f13c2b9f25e7c208501a3fcc477c2a5', 'Frozen Stage 11C2 dist-vite/ tree hash remains exactly the accepted value — never rebuilt or disturbed');
     }
+  }
+
+  console.log('\n=== 12b. Real browser E2E: required named checkpoints present AND PASS ===');
+  {
+    const evidenceDir = path.join(V09, 'tests', 'browser', 'evidence', 'stage12c');
+    const resultPath = path.join(evidenceDir, 'result.json');
+    assert('12b-a', fs.existsSync(resultPath), 'A real browser-run result.json exists for Stage 12C');
+    if (fs.existsSync(resultPath)) {
+      const result = JSON.parse(fs.readFileSync(resultPath, 'utf8'));
+      assert('12b-b', result.status === 'PASS', `Stage 12C browser E2E result is genuinely PASS (found ${result.status}${result.reason ? ' — ' + result.reason : ''})`);
+      const REQUIRED_IDS = [
+        'ROUTE-HOME-TO-MQC', 'ROUTE-MAP-TO-MQC', 'ROUTE-DIRECT-MQC', 'ROUTE-REFRESH-MQC', 'ROUTE-BACK-FROM-MQC', 'NAV-COUNT-14',
+        'P1-DEBRIEF-EXPERT-RESUMED', 'P1-DEBRIEF-VERIFICATION-ADEQUATE',
+        'P2-EARLY-CORRECT-UNSUPPORTED', 'P2-EARLY-HIGH-CONFIDENCE-NOT-CALIBRATED', 'P2-LATER-SUPPORTED', 'P2-LATER-HIGH-CONFIDENCE-CALIBRATED', 'P2-REVISED-EVENTS-DISTINCT',
+        'P3-RCV-DEBRIEF', 'P3-NO-ANALYTICAL-HOLD', 'P3-SUPPORTED-DISPOSITION',
+      ];
+      const byId = new Map((result.checkpoints || []).map(c => [c.id, c.status]));
+      const missing = REQUIRED_IDS.filter(id => !byId.has(id));
+      const failedNamed = REQUIRED_IDS.filter(id => byId.get(id) === 'FAIL');
+      assert('12b-c', missing.length === 0, `All ${REQUIRED_IDS.length} required named checkpoints are present (missing: ${JSON.stringify(missing)})`);
+      assert('12b-d', failedNamed.length === 0, `All required named checkpoints report PASS (failed: ${JSON.stringify(failedNamed)})`);
+    }
+  }
+
+  console.log('\n=== 13. Production routing implementation (structural) ===');
+  {
+    const appShellSrc = fs.readFileSync(path.join(V09, 'app', 'ui', 'app-shell.jsx'), 'utf8');
+    assert('13a', /window\.location\.hash/.test(appShellSrc), 'app-shell.jsx implements real hash-based routing, not merely useState alone');
+    assert('13b', /addEventListener\(.hashchange./.test(appShellSrc), 'A hashchange listener is registered (browser Back/Forward support)');
+    // Section 4: the route must not encode or own simulation state.
+    const FORBIDDEN_ROUTE_TERMS = ['decisionEventId', 'confidenceRecords', 'hypothesisStates', 'obtainedEvidenceIds', 'groundTruth', 'serviceState'];
+    const hasForbidden = FORBIDDEN_ROUTE_TERMS.some(t => appShellSrc.includes(t));
+    assert('13c', !hasForbidden, 'The routing implementation never encodes or reads simulation-state fields — Stage 12A/12B remain the sole authority');
   }
 
   console.log('\n=== 12. All Stage 12B/12C UI test suites pass ===');

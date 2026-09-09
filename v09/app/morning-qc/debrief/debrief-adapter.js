@@ -22,7 +22,7 @@
 
 import { generateDebrief } from '../debrief-model.js';
 import { summarizeDecisions, classifyDecision } from '../decision-model.js';
-import { computeScoringProfile, classifyCalibrationCategory } from '../scoring-model.js';
+import { computeScoringProfile, classifyDecisionCalibration } from '../scoring-model.js';
 import { SCORING_DIMENSIONS } from '../states.js';
 
 /**
@@ -98,7 +98,7 @@ export function getDebriefProjection(caseObj, state, options) {
       decisionEventId: d.decisionEventId,
       decisionId: d.decisionId,
       confidence: d.confidence,
-      category: classifyCalibrationCategory(d.confidence, d.outcomeAppropriate),
+      category: classifyDecisionCalibration(d.confidence, d.outcomeAppropriate, d.reasoningSupported),
     }));
 
   // ---- Revised decisions (Section 13): group by reusable decisionId, preserving each event separately ----

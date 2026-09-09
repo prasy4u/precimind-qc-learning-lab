@@ -1,69 +1,109 @@
 {
   "status": "PASS",
-  "passed": 16,
+  "passed": 25,
   "failed": 0,
-  "total": 16,
+  "total": 25,
   "browserExecutable": "/opt/pw-browsers/chromium-1194/chrome-linux/chrome",
   "checkpoints": [
     {
       "id": "NAV-COUNT-14",
       "status": "PASS",
-      "detail": "Rendered primary navigation has exactly 14 destinations (found 14)"
+      "detail": "Rendered navigation has exactly 14 destinations (found 14)"
     },
     {
-      "id": "NAV-NO-15TH",
+      "id": "ROUTE-HOME-TO-MQC",
       "status": "PASS",
-      "detail": "Sanity: page loaded"
+      "detail": "Home -> Morning QC changes the browser route to #/morning-qc"
     },
     {
-      "id": "HOME-CAPSTONE-CARD",
+      "id": "ROUTE-BACK-FROM-MQC",
       "status": "PASS",
-      "detail": "Home shows the Morning QC Room capstone card"
+      "detail": "Browser Back from Morning QC returns to the preceding PreciMind screen (Home)"
     },
     {
-      "id": "LANDING-NO-PILOT-LABEL",
+      "id": "ROUTE-MAP-TO-MQC",
       "status": "PASS",
-      "detail": "Production landing never shows \"Pilot 1\" style labels"
+      "detail": "Competency Map -> Morning QC changes the route consistently to #/morning-qc"
     },
     {
-      "id": "LANDING-CASE-CARD",
+      "id": "ROUTE-DIRECT-MQC",
       "status": "PASS",
-      "detail": "A case card is present"
+      "detail": "Direct opening of the Morning QC route loads the production landing"
     },
     {
-      "id": "ROOM-MOUNTED",
+      "id": "ROUTE-REFRESH-MQC",
       "status": "PASS",
-      "detail": "Morning QC Room mounts from production entry"
+      "detail": "Refresh on the Morning QC route remains on Morning QC (landing, never mid-case or debrief state)"
     },
     {
-      "id": "DEBRIEF-MOUNTED",
+      "id": "P1-DEBRIEF-EXPERT-RESUMED",
       "status": "PASS",
-      "detail": "Debrief mounts after Finish case and review"
+      "detail": "Debrief case-resolution shows the actual final service state (RESUMED)"
     },
     {
-      "id": "DEBRIEF-COMPETENCY",
+      "id": "P1-DEBRIEF-VERIFICATION-ADEQUATE",
       "status": "PASS",
-      "detail": "Competency profile shows all 12 dimensions"
+      "detail": "Debrief patient-safety review shows verification as attempted and adequate"
     },
     {
-      "id": "REPEAT-WORKS",
+      "id": "P1-RESOLUTION-POST-GATE-ONLY",
       "status": "PASS",
-      "detail": "Repeat produces a genuinely fresh room state"
+      "detail": "Reagent-lot resolution text appears in the debrief (post-gate, as expected)"
     },
     {
-      "id": "MAP-CAPSTONE-LABEL",
+      "id": "P2-EARLY-CORRECT-UNSUPPORTED",
       "status": "PASS",
-      "detail": "Competency Map shows a CAPSTONE entry, not QC-13"
+      "detail": "Early disposition executes and offers confidence recording"
     },
     {
-      "id": "MAP-NOT-QC13",
+      "id": "P2-LATER-SUPPORTED",
       "status": "PASS",
-      "detail": "Morning QC is never labeled QC-13"
+      "detail": "Later, evidence-supported disposition executes and offers confidence recording"
     },
     {
-      "id": "MAP-TO-ROOM",
+      "id": "P2-REVISED-EVENTS-DISTINCT",
       "status": "PASS",
-      "detail": "Competency Map capstone entry reaches the Morning QC landing"
+      "detail": "Debrief shows two distinct decision events for the revised disposition (found 2)"
+    },
+    {
+      "id": "P2-EARLY-QUADRANT-UNSUPPORTED",
+      "status": "PASS",
+      "detail": "First (early) decision event is CORRECT_UNSUPPORTED (found CORRECT_UNSUPPORTED)"
+    },
+    {
+      "id": "P2-LATER-QUADRANT-SUPPORTED",
+      "status": "PASS",
+      "detail": "Second (later) decision event is CORRECT_SUPPORTED (found CORRECT_SUPPORTED)"
+    },
+    {
+      "id": "P2-EARLY-HIGH-CONFIDENCE-NOT-CALIBRATED",
+      "status": "PASS",
+      "detail": "The early HIGH-confidence entry is NOT labeled well calibrated — it is explicitly flagged as overconfident relative to the evidence available at the time"
+    },
+    {
+      "id": "P2-LATER-HIGH-CONFIDENCE-CALIBRATED",
+      "status": "PASS",
+      "detail": "The later, evidence-supported HIGH-confidence entry IS labeled well calibrated"
+    },
+    {
+      "id": "P3-NO-ANALYTICAL-HOLD",
+      "status": "PASS",
+      "detail": "No inappropriate analytical hold occurred on the RCV pathway"
+    },
+    {
+      "id": "P3-RCV-DEBRIEF",
+      "status": "PASS",
+      "detail": "Debrief shows the RCV/statistical interpretation, never an overclaimed biological-etiology statement"
+    },
+    {
+      "id": "P3-NO-BIOLOGICAL-OVERCLAIM",
+      "status": "PASS",
+      "detail": "Debrief preserves the appropriately-limited RCV interpretation (explicitly denies establishing a specific biological cause), never overclaiming one"
+    },
+    {
+      "id": "P3-SUPPORTED-DISPOSITION",
+      "status": "PASS",
+      "detail": "Final disposition shown as CORRECT_SUPPORTED in the debrief"
     },
     {
       "id": "OVERFLOW-390x844-home",
@@ -83,7 +123,12 @@
     {
       "id": "MOBILE-COMPETENCY-STACK",
       "status": "PASS",
-      "detail": "Competency profile stacks and renders fully on mobile"
+      "detail": "Competency profile renders fully on mobile"
+    },
+    {
+      "id": "OVERFLOW-390x844-decisions",
+      "status": "PASS",
+      "detail": "No horizontal overflow at 390x844-decisions (scrollWidth=390, clientWidth=390)"
     }
   ]
 }

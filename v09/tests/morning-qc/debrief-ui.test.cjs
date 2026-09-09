@@ -162,6 +162,30 @@ async function main() {
     assert('CYCLE-08', !m2.container.innerHTML.includes('Held'), 'No leaked service state from the finished case after Repeat');
   }
 
+  /* ===================== Evidence-aware confidence calibration (FINAL CALIBRATION + PRODUCTION-ROUTING closure) ===================== */
+  console.log('\n=== Evidence-aware confidence calibration: correct outcome != adequately supported reasoning ===');
+  {
+    const { classifyDecisionCalibration, computeScoringProfile } = await import('file://' + path.join(APP, 'scoring-model.js'));
+    assert('CALIB-01', classifyDecisionCalibration('HIGH', true, false) === 'OVERCONFIDENT_WITH_INSUFFICIENT_EVIDENCE', 'HIGH + correct-but-unsupported = OVERCONFIDENT_WITH_INSUFFICIENT_EVIDENCE, never well-calibrated');
+    assert('CALIB-02', classifyDecisionCalibration('LOW', true, false) === 'APPROPRIATELY_CAUTIOUS', 'LOW + correct-but-unsupported = APPROPRIATELY_CAUTIOUS');
+    assert('CALIB-03', classifyDecisionCalibration('HIGH', true, true) === 'CORRECT_CALIBRATED', 'HIGH + fully supported correct decision = CORRECT_CALIBRATED');
+    assert('CALIB-04', classifyDecisionCalibration('LOW', true, true) === 'CORRECT_UNDERCONFIDENT', 'LOW confidence on a genuinely high-quality decision is itself flagged as underconfidence, not well-calibrated caution');
+
+    // The exact audit reproduction: Pilot 2 early disposition before decisive evidence.
+    let state = createInitialState(pilot2PbrtqcPopulationShift);
+    state = applyAction(pilot2PbrtqcPopulationShift, state, { type: 'ACKNOWLEDGE_SIGNAL' }).state;
+    state = applyAction(pilot2PbrtqcPopulationShift, state, { type: 'INSPECT_PANEL', panelId: 'panel-qc-history' }).state;
+    state = applyAction(pilot2PbrtqcPopulationShift, state, { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-iqc-stable' }).state;
+    const early = applyAction(pilot2PbrtqcPopulationShift, state, { type: 'DOCUMENT', decisionId: 'dec-disposition', optionId: 'opt-continue-documented', fields: {} });
+    state = early.state;
+    state = applyAction(pilot2PbrtqcPopulationShift, state, { type: 'RECORD_CONFIDENCE', decisionEventId: early.decisionEventId, confidence: 'HIGH' }).state;
+    const earlyProjection = getDebriefProjection(pilot2PbrtqcPopulationShift, state, { learnerRequestedFinish: true });
+    assert('CALIB-05', earlyProjection.decisionReview[0].quadrant === 'CORRECT_UNSUPPORTED', 'Decision Review quadrant is CORRECT_UNSUPPORTED for the early disposition');
+    assert('CALIB-06', earlyProjection.confidenceCalibration[0].category !== 'CORRECT_CALIBRATED', 'Confidence category is explicitly NOT "well calibrated" for HIGH confidence on unsupported reasoning');
+    const earlyProfile = computeScoringProfile(pilot2PbrtqcPopulationShift, state);
+    assert('CALIB-07', earlyProfile.METACOGNITIVE_CALIBRATION !== 'STRONG', `METACOGNITIVE_CALIBRATION does not reach STRONG from this single overconfident event (found ${earlyProfile.METACOGNITIVE_CALIBRATION})`);
+  }
+
   const total = passed + failed;
   console.log(`\n${'='.repeat(60)}`);
   console.log(`Morning QC Debrief UI Tests: ${passed}/${total} passed, ${failed} failed`);

@@ -49,6 +49,12 @@ export const CALIBRATION_CATEGORY_LABELS = {
   INCORRECT_OVERCONFIDENT: 'Overconfident and incorrect',
   INCORRECT_APPROPRIATELY_UNCERTAIN: 'Appropriately cautious',
   INCORRECT_MODERATE: 'Moderate confidence, incorrect outcome',
+  // FINAL CALIBRATION + PRODUCTION-ROUTING ACCEPTANCE closure: the
+  // evidence-aware categories, only reachable via
+  // classifyDecisionCalibration() (never the legacy
+  // classifyCalibrationCategory(), which cannot distinguish these).
+  OVERCONFIDENT_WITH_INSUFFICIENT_EVIDENCE: 'Overconfident relative to the evidence available at the time',
+  APPROPRIATELY_CAUTIOUS: 'Appropriately cautious — the outcome was correct, but the reasoning was not yet fully supported',
 };
 
 export const PATIENT_IMPACT_STATUS_LABELS = {

@@ -41,7 +41,7 @@ import { DocumentationDrawer } from './documentation-drawer.jsx';
 import { EventTimeline } from './event-timeline.jsx';
 import { MorningQCDebrief, isDebriefable, getDebriefProjection } from '../debrief/index.js';
 
-export function MorningQCRoom({ caseObj, onAnotherCase, onReturn }) {
+export function MorningQCRoom({ caseObj, onAnotherCase, onReturn, onCaseCompleted }) {
   const controller = useMemo(() => createRoomController(caseObj), [caseObj]);
   const [viewModel, setViewModel] = useState(() => controller.getViewModel());
   const [lastError, setLastError] = useState(null);
@@ -172,6 +172,20 @@ export function MorningQCRoom({ caseObj, onAnotherCase, onReturn }) {
       return null; // gate not genuinely satisfied — never render a partial/fallback projection
     }
   }, [debriefOpen, learnerRequestedFinish, caseObj, controller, viewModel]);
+
+  // Stage 12D: report a completed attempt exactly once per genuine
+  // debrief reveal (DEBRIEF_VIEWED), using only the same safe,
+  // already-gated projection — never raw case/groundTruth data. Guarded
+  // by a ref so repeated re-renders while the debrief is showing never
+  // report duplicate attempts.
+  const reportedAttemptRef = useRef(false);
+  useEffect(() => {
+    if (debriefProjection && !reportedAttemptRef.current && onCaseCompleted) {
+      reportedAttemptRef.current = true;
+      onCaseCompleted(caseObj.identity.id, debriefProjection);
+    }
+    if (!debriefProjection) reportedAttemptRef.current = false;
+  }, [debriefProjection, caseObj, onCaseCompleted]);
 
   const repeatCase = useCallback(() => {
     controller.reset();

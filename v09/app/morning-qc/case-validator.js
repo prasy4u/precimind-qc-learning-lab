@@ -37,8 +37,9 @@ import {
   DEBRIEF_EVIDENCE_REQUIRED_FIELDS, HYPOTHESIS_REQUIRED_FIELDS,
   EVIDENCE_REQUIRED_FIELDS, CASE_TOP_LEVEL_REQUIRED_FIELDS,
   V09_PROVENANCE_CLASSES, CASE_PROVENANCE_REQUIRED_FIELDS,
+  CURRICULUM_METADATA_REQUIRED_FIELDS,
 } from './case-schema.js';
-import { SIMULATION_PHASES, DECISION_CATEGORIES, SEVERITY_LEVELS, PATIENT_IMPACT_STATES, ACTION_TYPES } from './states.js';
+import { SIMULATION_PHASES, DECISION_CATEGORIES, SEVERITY_LEVELS, PATIENT_IMPACT_STATES, ACTION_TYPES, SCORING_DIMENSIONS } from './states.js';
 
 function hasAllFields(obj, fields, errors, context) {
   for (const f of fields) {
@@ -81,6 +82,29 @@ export function validateCase(caseObj) {
     } else if (identity.intendedLearnerLevel !== undefined) {
       errors.push('identity.intendedLearnerLevel: must be an array');
     }
+    // Stage 12D Section 9: curriculum metadata is OPTIONAL, validated
+    // only when present — the Stage 12A/12B/12C pilot cases remain
+    // valid without it.
+    if (identity.curriculum !== undefined) {
+      hasAllFields(identity.curriculum, CURRICULUM_METADATA_REQUIRED_FIELDS, errors, 'identity.curriculum');
+      if (identity.curriculum) {
+        if (typeof identity.curriculum.estimatedMinutes !== 'number' || identity.curriculum.estimatedMinutes <= 0) {
+          errors.push('identity.curriculum.estimatedMinutes: must be a positive number');
+        }
+        if (!Array.isArray(identity.curriculum.tags)) errors.push('identity.curriculum.tags: must be an array');
+        if (!Array.isArray(identity.curriculum.prerequisiteCompetencies)) {
+          errors.push('identity.curriculum.prerequisiteCompetencies: must be an array');
+        } else {
+          for (const dim of identity.curriculum.prerequisiteCompetencies) {
+            if (!SCORING_DIMENSIONS.includes(dim)) errors.push(`identity.curriculum.prerequisiteCompetencies: "${dim}" is not a recognized SCORING_DIMENSIONS entry`);
+          }
+        }
+      }
+    }
+    // Instructor metadata (Section 9): OPTIONAL, no structural validation
+    // required beyond existing as a plain object — its entire purpose is
+    // to be excluded from learner projection, verified elsewhere
+    // (stage12d-casebank-adaptive.test.js), not validated here.
   }
 
   // Lab context

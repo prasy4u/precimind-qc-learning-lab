@@ -190,7 +190,10 @@ export function getDebriefProjection(caseObj, state, options) {
   const recommendedLabs = [...new Set(weakDimensions.map(c => DIMENSION_TO_LAB[c.dimension]).filter(Boolean))].slice(0, 3);
 
   return {
-    caseIdentity: caseObj.identity,
+    // Only a minimal, safe subset of identity — never the whole object,
+    // which (as of Stage 12D) may carry an instructor-only field that
+    // must never reach the learner projection.
+    caseIdentity: { id: caseObj.identity.id, title: caseObj.identity.title },
     caseResolution,
     decisionReview,
     confidenceCalibration,

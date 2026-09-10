@@ -56,8 +56,8 @@ async function main() {
     // leakage review (Section 11) justified changing — not a silent,
     // undocumented drift.
     const exceptions = manifest.sanctionedExceptions;
-    assert('2b', exceptions && Array.isArray(exceptions.files) && exceptions.files.length === 5, 'Manifest explicitly documents exactly 5 sanctioned exceptions from the original Stage 12A baseline (case-schema.js + all 3 pilot cases + scoring-model.js)');
-    assert('2c', exceptions.files.includes('app/morning-qc/case-schema.js') && exceptions.files.includes('app/morning-qc/cases/pilot-1-reagent-lot-shift.js') && exceptions.files.includes('app/morning-qc/cases/pilot-2-pbrtqc-population-shift.js') && exceptions.files.includes('app/morning-qc/cases/pilot-3-rcv-patient-impact.js') && exceptions.files.includes('app/morning-qc/scoring-model.js'), 'The 5 documented exceptions are exactly case-schema.js, all 3 pilot cases, and scoring-model.js (never engine.js, states.js, case-validator.js, decision-model.js, evidence-model.js, or debrief-model.js)');
+    assert('2b', exceptions && Array.isArray(exceptions.files) && exceptions.files.length === 6, 'Manifest explicitly documents exactly 6 sanctioned exceptions from the original Stage 12A baseline (case-schema.js + all 3 pilot cases + scoring-model.js + case-validator.js)');
+    assert('2c', exceptions.files.includes('app/morning-qc/case-schema.js') && exceptions.files.includes('app/morning-qc/cases/pilot-1-reagent-lot-shift.js') && exceptions.files.includes('app/morning-qc/cases/pilot-2-pbrtqc-population-shift.js') && exceptions.files.includes('app/morning-qc/cases/pilot-3-rcv-patient-impact.js') && exceptions.files.includes('app/morning-qc/scoring-model.js') && exceptions.files.includes('app/morning-qc/case-validator.js'), 'The 6 documented exceptions are exactly case-schema.js, all 3 pilot cases, scoring-model.js, and case-validator.js (never engine.js, states.js, decision-model.js, or debrief-model.js)');
     // Verify the actual DIFF from the ORIGINAL Stage 12A baseline commit
     // touches ONLY these 3 files among the 12 manifested — using git
     // directly against the baseline commit, not just the manifest's own

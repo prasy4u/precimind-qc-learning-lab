@@ -1,0 +1,94 @@
+{
+  "status": "PASS",
+  "passed": 17,
+  "failed": 0,
+  "total": 17,
+  "browserExecutable": "/opt/pw-browsers/chromium-1194/chrome-linux/chrome",
+  "checkpoints": [
+    {
+      "id": "BANK-CARDS-12",
+      "status": "PASS",
+      "detail": "All 12 case cards render in the browse-all grid (found 12)"
+    },
+    {
+      "id": "COLDSTART-RECOMMENDED",
+      "status": "PASS",
+      "detail": "A single recommended-case card renders on cold start"
+    },
+    {
+      "id": "COLDSTART-FOUNDATION",
+      "status": "PASS",
+      "detail": "Cold-start recommendation is the FOUNDATION case (found \"Morning QC Room — Single Out-of-Range QC Point\")"
+    },
+    {
+      "id": "NO-PROGRESS-DASHBOARD-COLDSTART",
+      "status": "PASS",
+      "detail": "No progress dashboard shown before any attempt exists"
+    },
+    {
+      "id": "DASHBOARD-AFTER-COMPLETION",
+      "status": "PASS",
+      "detail": "Progress dashboard appears after completing one case"
+    },
+    {
+      "id": "COMPLETION-STATUS-UPDATED",
+      "status": "PASS",
+      "detail": "The completed case shows an updated status badge (found \"Completed\")"
+    },
+    {
+      "id": "RECOMMENDATION-TARGETS-WEAK-DIM",
+      "status": "PASS",
+      "detail": "Recommendation explanation names the weak competency (found \"Recommended because your previous debrief identified evidence selection as a development priority.\")"
+    },
+    {
+      "id": "DASHBOARD-SHOWS-PRIORITY",
+      "status": "PASS",
+      "detail": "Progress dashboard shows the development priority"
+    },
+    {
+      "id": "OVERRIDE-OPENS-NORMALLY",
+      "status": "PASS",
+      "detail": "A non-recommended case, chosen directly by the learner, opens normally"
+    },
+    {
+      "id": "RESET-CLEARS-DASHBOARD",
+      "status": "PASS",
+      "detail": "Progress dashboard disappears after reset"
+    },
+    {
+      "id": "RESET-RESTORES-COLDSTART",
+      "status": "PASS",
+      "detail": "Cold-start recommendation is restored after reset"
+    },
+    {
+      "id": "INTERMEDIATE-CASE-DEBRIEFS",
+      "status": "PASS",
+      "detail": "The INTERMEDIATE case (calibration shift) completes and debriefs"
+    },
+    {
+      "id": "ADVANCED-CASE-DEBRIEFS",
+      "status": "PASS",
+      "detail": "The ADVANCED case (concurrent triage) completes and debriefs"
+    },
+    {
+      "id": "OVERFLOW-390x844-casebank",
+      "status": "PASS",
+      "detail": "No horizontal overflow at 390x844-casebank"
+    },
+    {
+      "id": "MOBILE-RECOMMENDED-VISIBLE",
+      "status": "PASS",
+      "detail": "Recommended case is visible on mobile"
+    },
+    {
+      "id": "OVERFLOW-390x844-completion",
+      "status": "PASS",
+      "detail": "No horizontal overflow at 390x844-completion"
+    },
+    {
+      "id": "MOBILE-DASHBOARD-READABLE",
+      "status": "PASS",
+      "detail": "Progress dashboard renders and is readable on mobile"
+    }
+  ]
+}

@@ -131,3 +131,24 @@ details in `V09_STAGE12C_REPORT.md`, `V09_STAGE12C_DEBRIEF_ARCHITECTURE.md`,
 
 **Stage 12D — Morning QC case expansion + adaptive sequencing +
 instructor analytics foundation.** Not implemented in Stage 12C.
+
+---
+
+## Stage 12D (current) — Morning QC Case Expansion + Adaptive Sequencing + Instructor Analytics Foundation
+
+Completed: expanded the production case bank from 3 to 12 cases across
+11 distinct reasoning families, each with a genuine expert path plus 2
+adversarial paths verified through the real engine; a deterministic,
+transparent, explainable adaptive-sequencing engine
+(`v09/app/morning-qc/adaptive/**`) recommending a next case from local
+attempt history only (never hidden ground truth); and an instructor
+analytics foundation (`v09/app/morning-qc/analytics/**`) with a
+versioned event schema and a development-only summary view (never a
+production navigation destination). Full details in
+`V09_STAGE12D_REPORT.md`, `V09_STAGE12D_CASE_SCIENTIFIC_REVIEW.md`,
+`V09_STAGE12D_ADAPTIVE_SEQUENCING.md`, and `V09_STAGE12D_ANALYTICS_SCHEMA.md`.
+
+### Suggested next stage
+
+**Stage 12E — Instructor workflow + educational research instrumentation
++ release candidate hardening.** Not implemented in Stage 12D.

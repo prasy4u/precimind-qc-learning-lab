@@ -135,7 +135,7 @@ async function main() {
   {
     const { context, page } = await newPage();
     await page.goto(baseUrl + '#/morning-qc', { waitUntil: 'networkidle' });
-    await page.locator('.mqc-case-select__card').first().click();
+    await page.locator('.mqc-case-select__grid .mqc-case-select__card').first().click();
     await page.waitForSelector('[data-testid="morning-qc-room"]');
 
     await page.getByText('Acknowledge signal', { exact: true }).click();
@@ -204,7 +204,7 @@ async function main() {
   {
     const { context, page } = await newPage();
     await page.goto(baseUrl + '#/morning-qc', { waitUntil: 'networkidle' });
-    const cards = page.locator('.mqc-case-select__card');
+    const cards = page.locator('.mqc-case-select__grid .mqc-case-select__card');
     await cards.nth(1).click();
     await page.waitForSelector('[data-testid="morning-qc-room"]');
 
@@ -266,7 +266,7 @@ async function main() {
   {
     const { context, page } = await newPage();
     await page.goto(baseUrl + '#/morning-qc', { waitUntil: 'networkidle' });
-    await page.locator('.mqc-case-select__card').nth(2).click();
+    await page.locator('.mqc-case-select__grid .mqc-case-select__card').nth(2).click();
     await page.waitForSelector('[data-testid="morning-qc-room"]');
 
     await page.getByRole('button', { name: 'Acknowledge signal', exact: true }).click();
@@ -344,7 +344,7 @@ async function main() {
     await checkNoOverflow(page, '390x844-landing');
     await page.screenshot({ path: path.join(EVIDENCE_DIR, 'mobile-landing-390x844.png') });
 
-    await page.locator('.mqc-case-select__card').nth(1).click();
+    await page.locator('.mqc-case-select__grid .mqc-case-select__card').nth(1).click();
     await page.waitForSelector('[data-testid="morning-qc-room"]');
     await page.getByRole('button', { name: 'Acknowledge signal', exact: true }).click();
     // On mobile, panels live inside the Information drawer — must open it first.

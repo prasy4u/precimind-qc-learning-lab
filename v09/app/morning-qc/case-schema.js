@@ -248,6 +248,31 @@ export const CASE_TOP_LEVEL_REQUIRED_FIELDS = [
 ];
 
 /* -----------------------------------------------------------------------
+   CURRICULUM METADATA (Stage 12D Section 9 — narrowly additive)
+
+   OPTIONAL. Validated ONLY when present (case-validator.js) — the three
+   Stage 12A/12B/12C pilot cases remain valid without it; every Stage 12D
+   case includes it. Deliberately does NOT duplicate identity.caseFamily,
+   identity.difficulty, or identity.competencyMapping (all already exist
+   and are reused directly by the adaptive-sequencing engine) — this
+   object adds only the genuinely new fields Stage 12D's case bank and
+   recommender need.
+   ----------------------------------------------------------------------- */
+export const CURRICULUM_METADATA_REQUIRED_FIELDS = [
+  'estimatedMinutes',            // number > 0
+  'tags',                        // array of strings
+  'sequencingGroup',             // string — a coarse grouping the recommender uses to avoid
+                                  // immediately repeating the same reasoning pattern (Rule B)
+  'prerequisiteCompetencies',    // array of SCORING_DIMENSIONS strings (states.js), may be empty
+];
+
+// Instructor-only metadata (Stage 12D Section 9). OPTIONAL. Never read by
+// any learner-facing component — verified structurally by
+// stage12d-casebank-adaptive.test.js ("no hidden instructor data in
+// learner projection").
+export const INSTRUCTOR_METADATA_FIELDS = ['teachingPoints', 'commonFailureModes'];
+
+/* -----------------------------------------------------------------------
    PROVENANCE (Stage 12A Section 32 — every new artifact must declare
    its v0.9 development provenance class, and cases must additionally
    identify the scientific modules/doctrine they depend on.)

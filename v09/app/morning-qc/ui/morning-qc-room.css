@@ -356,3 +356,23 @@
 .mqc-case-select__card-title { font-weight: 600; font-size: 16px; }
 .mqc-case-select__card-focus { color: var(--text-muted); font-size: 14px; }
 .mqc-case-select__card-difficulty { font-size: 12px; color: var(--text-faint); text-transform: capitalize; }
+
+/* ---- Stage 12D: progress dashboard, recommendation, status badges ---- */
+.mqc-progress-dashboard { border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 24px; background: var(--surface-2); }
+.mqc-progress-dashboard__title { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+.mqc-progress-dashboard__stat { font-size: 14px; margin-bottom: 4px; }
+.mqc-progress-dashboard__strength { font-size: 13px; color: var(--ok); margin-bottom: 4px; }
+.mqc-progress-dashboard__priorities { font-size: 13px; color: var(--text-muted); }
+
+.mqc-recommended-case { margin-bottom: 24px; }
+.mqc-recommended-case__label { display: block; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); margin-bottom: 8px; }
+.mqc-case-select__card--recommended { border: 2px solid var(--brand); }
+.mqc-case-select__card-reason { font-size: 13px; color: var(--text-muted); font-style: italic; }
+
+.mqc-case-select__browse-title { font-size: 16px; font-weight: 600; margin-bottom: 12px; }
+.mqc-case-select__card-meta-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 4px; }
+.mqc-case-select__card-time { font-size: 12px; color: var(--text-faint); }
+.mqc-case-select__card-status { font-size: 11px; padding: 2px 8px; border-radius: var(--radius); border: 1px solid var(--border); }
+.mqc-case-select__card-status--completed { color: var(--ok); border-color: var(--ok); }
+.mqc-case-select__card-status--repeat-recommended { color: var(--brand); border-color: var(--brand); }
+.mqc-case-select__card-status--not-attempted { color: var(--text-faint); }

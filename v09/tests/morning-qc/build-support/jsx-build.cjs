@@ -26,7 +26,7 @@ const path = require('path');
 
 const MQC_DIR = path.join(__dirname, '..', '..', '..', 'app', 'morning-qc');
 const OUT_ROOT = path.join(__dirname, '..', '..', '..', '.mqc-ui-build');
-const SUBDIRS = ['ui', 'debrief'];
+const SUBDIRS = ['ui', 'debrief', 'adaptive', 'analytics'];
 
 // Files that must be copied verbatim (never JSX-transformed) but whose
 // relative imports still need adjusting to the mirrored output tree.
@@ -82,25 +82,22 @@ async function buildAll() {
     for (const relFile of plainFiles) {
       const outPath = path.join(outDir, relFile);
       fs.mkdirSync(path.dirname(outPath), { recursive: true });
-      if (PASSTHROUGH_JS.has(path.basename(relFile))) {
-        // Rewrite '../engine.js' style imports to absolute file:// URLs
-        // pointing at the real Stage 12A source, and '.jsx' extensions to
-        // '.mjs' (matching this script's own transformed output
-        // filenames) — everything else (including './foo.js',
-        // '../ui/x.js', '../debrief/x.js') is left untouched, resolving
-        // naturally against the mirrored output tree.
-        let src = fs.readFileSync(path.join(srcDir, relFile), 'utf8');
-        src = src.replace(/from\s+(['"])\.\.\/([a-zA-Z0-9_-]+\.js)\1/g, (m, q, filename) => {
-          if (fs.existsSync(path.join(MQC_DIR, filename))) {
-            return `from ${q}${'file://' + path.join(MQC_DIR, filename)}${q}`;
-          }
-          return m;
-        });
-        src = src.replace(/from\s+(['"])(\.{1,2}\/[^'"]+)\.jsx\1/g, "from $1$2.mjs$1");
-        fs.writeFileSync(outPath, src);
-      } else {
-        fs.copyFileSync(path.join(srcDir, relFile), outPath);
-      }
+      // Rewrite '../engine.js' style imports (reaching past this
+      // mirrored subdir into the real Stage 12A engine source) to
+      // absolute file:// URLs, and '.jsx' extensions to '.mjs' —
+      // applied to EVERY plain .js file copied, not just a specific
+      // named list, since new modules (adaptive/, analytics/) keep
+      // being added and each may need either rewrite. Harmless no-op
+      // for files with neither pattern.
+      let src = fs.readFileSync(path.join(srcDir, relFile), 'utf8');
+      src = src.replace(/from\s+(['"])\.\.\/([a-zA-Z0-9_-]+\.js)\1/g, (m, q, filename) => {
+        if (fs.existsSync(path.join(MQC_DIR, filename))) {
+          return `from ${q}${'file://' + path.join(MQC_DIR, filename)}${q}`;
+        }
+        return m;
+      });
+      src = src.replace(/from\s+(['"])(\.{1,2}\/[^'"]+)\.jsx\1/g, "from $1$2.mjs$1");
+      fs.writeFileSync(outPath, src);
     }
   }
 

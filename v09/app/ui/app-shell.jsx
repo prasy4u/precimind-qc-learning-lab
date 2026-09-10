@@ -12,7 +12,7 @@ import { useState, useMemo, useRef, useEffect } from "react";
 // QC Room is mounted as an internal screen/subview, NOT a 15th primary
 // nav destination (it is deliberately absent from NAV_ITEMS below).
 import { ProductionCaseSelect } from "../morning-qc/ui/production-case-select.jsx";
-import { pilot1ReagentLotShift, pilot2PbrtqcPopulationShift, pilot3RcvPatientImpact } from "../morning-qc/cases/index.js";
+import { ALL_CASES } from "../morning-qc/cases/index.js";
 
 /* =========================================================================
    Application shell
@@ -112,7 +112,7 @@ export function App() {
   else if (screen === "evidence") body = <EvidenceScreen />;
   else if (screen === "morning-qc") body = (
     <ProductionCaseSelect
-      cases={[pilot1ReagentLotShift, pilot2PbrtqcPopulationShift, pilot3RcvPatientImpact]}
+      cases={ALL_CASES}
       onReturn={() => goto("home")}
     />
   );

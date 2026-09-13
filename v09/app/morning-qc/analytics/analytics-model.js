@@ -10,6 +10,8 @@
    collapses them.
    ========================================================================= */
 import { EVENT_TYPES, EVENT_FIELD_SCHEMA, ANALYTICS_SCHEMA_VERSION } from './analytics-types.js';
+import { SCORING_DIMENSIONS } from '../states.js';
+import { CASE_DIFFICULTY_LEVELS } from '../case-schema.js';
 
 const QUADRANTS = ['CORRECT_SUPPORTED', 'CORRECT_UNSUPPORTED', 'INCORRECT_SUPPORTED', 'INCORRECT_UNSUPPORTED'];
 const CONFIDENCE_LEVELS = ['HIGH', 'MODERATE', 'LOW'];
@@ -54,17 +56,22 @@ function validateScalarField(field, value, errors, eventType) {
       if (!SERVICE_STATES.includes(value)) errors.push(`${eventType}: "finalServiceState" is not a recognized service state ("${JSON.stringify(value)}")`);
       break;
     case 'caseFamily':
+      // Section 5 (FINAL ACCEPTANCE closure): caseFamily has no
+      // authoritative enum in the current schema (case families are an
+      // open, growing single-letter/short-code set defined per case, not
+      // a fixed list) — kept as a documented string contract rather than
+      // inventing a duplicate enum that would itself drift.
       if (typeof value !== 'string') errors.push(`${eventType}: "caseFamily" must be a string`);
       break;
     case 'difficulty':
-      if (typeof value !== 'string') errors.push(`${eventType}: "difficulty" must be a string`);
+      if (!CASE_DIFFICULTY_LEVELS.includes(value)) errors.push(`${eventType}: "difficulty" is not a recognized CASE_DIFFICULTY_LEVELS entry ("${JSON.stringify(value)}")`);
       break;
     case 'competencyProfile':
       if (!Array.isArray(value)) { errors.push(`${eventType}: "competencyProfile" must be an array`); break; }
       value.forEach((entry, i) => {
         if (!onlyKeys(entry, ['dimension', 'rating'])) errors.push(`${eventType}: competencyProfile[${i}] must contain ONLY {dimension, rating}`);
         else {
-          if (typeof entry.dimension !== 'string') errors.push(`${eventType}: competencyProfile[${i}].dimension must be a string`);
+          if (!SCORING_DIMENSIONS.includes(entry.dimension)) errors.push(`${eventType}: competencyProfile[${i}].dimension is not a recognized SCORING_DIMENSIONS entry ("${entry.dimension}")`);
           if (!RATINGS.includes(entry.rating)) errors.push(`${eventType}: competencyProfile[${i}].rating is not a recognized rating`);
         }
       });
@@ -150,15 +157,22 @@ export function aggregateAttempts(attempts) {
   // Section 10 corrective closure: safe, aggregate verification-behavior
   // analytics — never claims individual competence or staff performance,
   // only counts across the (already-anonymised) attempt set.
-  let noVerificationAttemptedCount = 0, failedVerificationCount = 0, successfulVerificationCount = 0, failedBeforeSuccessCount = 0;
+  // Section 6 (FINAL ACCEPTANCE closure): independently reproduced the
+  // exact bug — a case with attemptCount=2, failedAttemptCount=1,
+  // adequate=true previously reported "Failed verification attempts: 0"
+  // (since only the FINAL adequate value was checked, never the actual
+  // per-attempt failure count). Labels are now explicit about whether a
+  // count is CASES or ATTEMPTS, and totalFailedVerificationAttempts is a
+  // genuine sum of each record's own verificationSummary.failedAttemptCount.
+  let casesWithNoVerificationAttempted = 0, totalFailedVerificationAttempts = 0, casesSuccessfullyVerified = 0, casesWithFailedBeforeSuccessfulPattern = 0;
   for (const a of attempts) {
     const vs = a.verificationSummary;
     if (!vs) continue;
-    if (vs.attempted === false) noVerificationAttemptedCount += 1;
+    if (vs.attempted === false) casesWithNoVerificationAttempted += 1;
     else if (vs.attempted === true) {
-      if (vs.adequate === true) successfulVerificationCount += 1;
-      else if (vs.adequate === false) failedVerificationCount += 1;
-      if (vs.hadPrematureOrFailedAttemptBeforeSuccess === true) failedBeforeSuccessCount += 1;
+      totalFailedVerificationAttempts += (vs.failedAttemptCount || 0);
+      if (vs.adequate === true) casesSuccessfullyVerified += 1;
+      if (vs.hadPrematureOrFailedAttemptBeforeSuccess === true) casesWithFailedBeforeSuccessfulPattern += 1;
     }
   }
 
@@ -171,10 +185,10 @@ export function aggregateAttempts(attempts) {
     unsupportedDecisionCount: unsupportedDecisionRate,
     confidenceCalibrationCounts: calibrationCounts,
     verificationBehavior: {
-      noVerificationAttemptedCount,
-      failedVerificationCount,
-      successfulVerificationCount,
-      failedBeforeSuccessCount,
+      casesWithNoVerificationAttempted,
+      totalFailedVerificationAttempts,
+      casesSuccessfullyVerified,
+      casesWithFailedBeforeSuccessfulPattern,
     },
   };
 }

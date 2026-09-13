@@ -64,6 +64,30 @@ function caseTargetsDimension(c, dim) {
 export { caseTargetsDimension };
 
 /**
+ * Section 1 (FINAL ACCEPTANCE closure): genuine repeated-strong-
+ * performance gate for Rule D. Independently reproduced: two attempts
+ * with EMPTY or ALL-NULL competencyProfile previously satisfied
+ * `attempts.length >= MIN_ATTEMPTS_FOR_STRONG_PROGRESSION` and
+ * triggered a false "following consistently strong recent performance"
+ * claim. This helper requires that the most recent
+ * MIN_ATTEMPTS_FOR_STRONG_PROGRESSION attempts each contain at least
+ * one genuinely evaluated (non-null-rating) competency, and that every
+ * evaluated rating across those attempts is PROFICIENT or STRONG — an
+ * empty/all-null profile, or any NEEDS_IMPROVEMENT/DEVELOPING
+ * observation, never counts as strong performance.
+ */
+export function hasRepeatedStrongPerformance(attempts) {
+  if (!attempts || attempts.length < MIN_ATTEMPTS_FOR_STRONG_PROGRESSION) return false;
+  const recent = attempts.slice(-MIN_ATTEMPTS_FOR_STRONG_PROGRESSION);
+  for (const attempt of recent) {
+    const evaluated = (attempt.competencyProfile || []).filter(p => p.rating != null);
+    if (evaluated.length === 0) return false; // empty or all-null — never counts
+    if (!evaluated.every(p => p.rating === 'PROFICIENT' || p.rating === 'STRONG')) return false;
+  }
+  return true;
+}
+
+/**
  * Returns { case, reason } for the single recommended next case, or
  * null if the case bank is empty. `reason` is always a single short,
  * non-punitive, explainable sentence — never exposes raw scoring
@@ -145,10 +169,10 @@ export function recommendNextCase(allCases, attempts) {
   }
 
   // Rule D: genuinely no weak dimension is currently active. Requires
-  // REPEATED strong performance (a transparent, documented threshold —
-  // MIN_ATTEMPTS_FOR_STRONG_PROGRESSION), never a single attempt, before
-  // automatically progressing difficulty.
-  if (attempts.length >= MIN_ATTEMPTS_FOR_STRONG_PROGRESSION) {
+  // REPEATED, genuinely-evaluated strong performance (never merely
+  // `attempts.length >= threshold` — empty/all-null profiles must
+  // never satisfy this).
+  if (hasRepeatedStrongPerformance(attempts)) {
     const harderUnattempted = allCases
       .filter(c => !attemptedCaseIds.has(c.identity.id))
       .filter(c => difficultyRank(c.identity.difficulty) > lastDifficultyRank)
@@ -158,8 +182,15 @@ export function recommendNextCase(allCases, attempts) {
     }
   }
 
-  // Fallback: any unattempted case from a different family than last time
-  // (never claims strong performance — this is a neutral broadening pick).
+  // Fallback: any unattempted case from a different family than last
+  // time (never claims strong performance — this is a neutral
+  // broadening pick). Prefers a same-or-lower-difficulty case first —
+  // only genuine repeated strong performance (Rule D, above) may
+  // automatically progress difficulty; an unproven performance record
+  // (neither weak nor confirmed strong) must not incidentally spike
+  // difficulty through this neutral path either.
+  const unattemptedNotHarder = allCases.filter(c => !attemptedCaseIds.has(c.identity.id) && c.identity.caseFamily !== lastFamily && difficultyRank(c.identity.difficulty) <= lastDifficultyRank);
+  if (unattemptedNotHarder.length > 0) return { case: unattemptedNotHarder[0], reason: 'Recommended to broaden your experience across a different case pattern.' };
   const unattempted = allCases.filter(c => !attemptedCaseIds.has(c.identity.id) && c.identity.caseFamily !== lastFamily);
   if (unattempted.length > 0) return { case: unattempted[0], reason: 'Recommended to broaden your experience across a different case pattern.' };
 

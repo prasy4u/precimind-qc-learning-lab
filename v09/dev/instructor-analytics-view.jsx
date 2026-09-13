@@ -69,10 +69,10 @@ export function InstructorAnalyticsView({ attemptsByLearner }) {
       <section aria-labelledby="iav-verification-heading">
         <h2 id="iav-verification-heading">Verification Behavior</h2>
         <ul>
-          <li>No verification attempted: {aggregate.verificationBehavior.noVerificationAttemptedCount}</li>
-          <li>Failed verification attempts: {aggregate.verificationBehavior.failedVerificationCount}</li>
-          <li>Successful verification: {aggregate.verificationBehavior.successfulVerificationCount}</li>
-          <li>Failed-before-successful pattern: {aggregate.verificationBehavior.failedBeforeSuccessCount}</li>
+          <li>Cases with no verification attempted: {aggregate.verificationBehavior.casesWithNoVerificationAttempted}</li>
+          <li>Total failed verification attempts (across all cases): {aggregate.verificationBehavior.totalFailedVerificationAttempts}</li>
+          <li>Cases ultimately successfully verified: {aggregate.verificationBehavior.casesSuccessfullyVerified}</li>
+          <li>Cases with a failed-before-successful pattern: {aggregate.verificationBehavior.casesWithFailedBeforeSuccessfulPattern}</li>
         </ul>
       </section>
 

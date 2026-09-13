@@ -341,3 +341,42 @@ Fixing Rule C changed genuine, correct behavior for weak-dimension-with-only-har
 
 ### Updated test totals
 `case-bank.test.cjs` **221/221**, `expanded-case-paths.test.cjs` **27/27**, `adaptive-sequencing.test.cjs` **41/41** (was 33, +8), `analytics.test.cjs` **47/47** (was 44, +3), `scientific-numeric-audit.test.cjs` **29/29**, `stage12d-casebank-adaptive.test.js` **48/48** (was 47, +1), real browser E2E **21/21** (was 17, +4, including the new populated-instructor-view checkpoint).
+
+---
+
+## Stage 12D FINAL ACCEPTANCE Integrity Closure
+
+A fourth independent audit found 9 remaining integrity defects in the adaptive/privacy/analytics layer. All resolved, each independently reproduced before being fixed and reconfirmed after.
+
+### 1. Rule D genuinely requires repeated PROFICIENT/STRONG performance
+Independently reproduced: two attempts with empty `competencyProfile: []` previously satisfied the naive `attempts.length >= 2` check and triggered the false "following consistently strong recent performance" claim. Implemented `hasRepeatedStrongPerformance()`: requires the most recent 2 attempts to each contain at least one genuinely evaluated (non-null) competency, all rated PROFICIENT/STRONG. Verified all 4 required scenarios (two empty, two null-only, and one-strong-plus-one-unevaluated all correctly do NOT progress; two genuinely strong attempts correctly do). Also fixed the neutral fallback path, which had not respected any difficulty cap at all — only genuine repeated strong performance may now increase difficulty through any path.
+
+### 2. Canonical attempt schema
+`{attemptId, caseId}` previously validated successfully even though `projectEventsFromAttempt()` then failed on missing fields. All 16 fields `buildAttemptRecord()` genuinely always produces (including `caseFamily`/`difficulty`, since production always supplies them) are now required; `executedFinalDisposition` may still legitimately be `null`. Verified a real `buildAttemptRecord()` output passes and all three incompleteness scenarios fail.
+
+### 3. Nested disposition privacy escape closed
+Independently reproduced `executedFinalDisposition: { decisionEventId: { email: ... } }` validating successfully — traced to `decisionEventId` having been omitted entirely from the per-field type checks (unlike `decisionId`/`optionId`, which were already checked). Fixed and reconfirmed closed.
+
+### 4. Cross-field verification consistency
+Added all four required invariants (attempted↔attemptCount, failedAttemptCount≤attemptCount, adequate⇒attempted, hadPremature⇒attempted+failedCount>0+adequate). The audit's exact contradictory example is now rejected.
+
+### 5. Analytics enum validation deepened
+`competencyProfile[].dimension` and `difficulty` now validate against the authoritative `SCORING_DIMENSIONS`/`CASE_DIFFICULTY_LEVELS` imports rather than accepting any string. Both exact reproductions confirmed closed.
+
+### 6. Instructor verification aggregation corrected
+Independently reproduced the exact contradictory output (`attemptCount=2, failedAttemptCount=1, adequate=true` reporting "Failed verification attempts: 0"). Rewrote with explicit, unambiguous labels distinguishing attempt-counts from case-counts (`totalFailedVerificationAttempts` is a genuine sum, never confused with `casesSuccessfullyVerified`). Verified the exact reproduction case now gives correct numbers; updated the instructor view labels to match.
+
+### 7. Evidence metric cross-consistency
+Added a check that `evidenceSummary.efficiencyRatio`, when present alongside the raw counts, is arithmetically consistent with them (same rounding tolerance `buildAttemptRecord()` itself uses).
+
+### 8. Tautological test removed
+Deleted `NUM-C5-07`'s `... || true` (Option B) — the adjacent source-level check already independently verifies Case 5 makes no rule-violation claim.
+
+### 9. Stale Level-5 test enums removed
+Both remaining local `DIFFICULTY_RANK` copies (which still used the obsolete `LEVEL_5_EXPERT_AMBIGUOUS` label) were replaced with a shared helper built directly on the authoritative `CASE_DIFFICULTY_LEVELS` array.
+
+### Regression note
+Fixing the canonical-schema requirement (Item 2) broke three of the browser E2E test's own synthetic localStorage injections, which had used minimal, now-incomplete records — silently filtered out by the new read-time validation, causing cold-start behavior instead of the intended test scenario. Found via a real, permanent browser test failure (not assumed), fixed by making all injected fixtures genuinely canonical.
+
+### Updated test totals
+`case-bank.test.cjs` **221/221**, `expanded-case-paths.test.cjs` **27/27**, `adaptive-sequencing.test.cjs` **41/41**, `analytics.test.cjs` **47/47**, `scientific-numeric-audit.test.cjs` **28/28** (was 29, −1: removed tautology), `stage12d-casebank-adaptive.test.js` **48/48**, real browser E2E **21/21**.

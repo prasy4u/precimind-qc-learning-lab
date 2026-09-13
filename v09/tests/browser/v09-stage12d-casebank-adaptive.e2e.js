@@ -139,10 +139,12 @@ async function main() {
     // history end-to-end, using the same safe shape the app itself writes).
     await page.evaluate(() => {
       const record = {
-        attemptId: 'synthetic-1', caseId: 'case-04-isolated-excursion', startedAt: Date.now(), completedAt: Date.now(),
+        attemptId: 'synthetic-1', caseId: 'case-04-isolated-excursion', caseFamily: 'A', difficulty: 'LEVEL_1_CLEAR_SIGNAL', caseSchemaVersion: '1.1.0', startedAt: Date.now(), completedAt: Date.now(),
         competencyProfile: [{ dimension: 'EVIDENCE_SELECTION', rating: 'NEEDS_IMPROVEMENT' }],
         decisionSummary: [], confidenceSummary: [], evidenceSummary: { highValueObtainedCount: 0, lowValueObtainedCount: 0 },
-        finalServiceState: 'RESUMED', recommendedLearningPriorities: ['EVIDENCE_SELECTION'],
+        panelSummary: { inspectedCount: 0 },
+        verificationSummary: { attempted: false, adequate: false, attemptCount: 0, failedAttemptCount: 0, hadPrematureOrFailedAttemptBeforeSuccess: false },
+        finalServiceState: 'RESUMED', executedFinalDisposition: null, recommendedLearningPriorities: ['EVIDENCE_SELECTION'],
       };
       localStorage.setItem('precimind-morningqc-attempts-v1', JSON.stringify([record]));
     });
@@ -172,7 +174,12 @@ async function main() {
     const { context, page } = await newPage();
     await gotoMorningQC(page);
     await page.evaluate(() => {
-      localStorage.setItem('precimind-morningqc-attempts-v1', JSON.stringify([{ attemptId: 'x', caseId: 'case-04-isolated-excursion', competencyProfile: [] }]));
+      localStorage.setItem('precimind-morningqc-attempts-v1', JSON.stringify([{
+        attemptId: 'x', caseId: 'case-04-isolated-excursion', caseFamily: 'A', difficulty: 'LEVEL_1_CLEAR_SIGNAL', caseSchemaVersion: '1.1.0', startedAt: 1, completedAt: 2,
+        competencyProfile: [], decisionSummary: [], confidenceSummary: [], evidenceSummary: { highValueObtainedCount: 0, lowValueObtainedCount: 0 },
+        panelSummary: { inspectedCount: 0 }, verificationSummary: { attempted: false, adequate: false, attemptCount: 0, failedAttemptCount: 0, hadPrematureOrFailedAttemptBeforeSuccess: false },
+        finalServiceState: 'RESUMED', executedFinalDisposition: null, recommendedLearningPriorities: [],
+      }]));
     });
     await page.reload({ waitUntil: 'networkidle' });
     page.on('dialog', d => d.accept());

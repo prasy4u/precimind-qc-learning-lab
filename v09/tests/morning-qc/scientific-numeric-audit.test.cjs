@@ -76,8 +76,14 @@ async function main() {
     const priorCV = cvPercent(priorSD, target);
     const priorSigma = sigma(8, 0.2, priorCV);
     assert('NUM-C5-06', Math.abs(priorSigma - 3.41) < 0.05, `Independently computed prior Sigma matches authored value (computed ${priorSigma.toFixed(3)}, authored ~3.41)`);
-    // No fabricated 2_2s: none of the 20 points individually exceed ±2SD in a same-side consecutive pair using the PRIOR sd (the case never claims a rule violation at all now).
-    assert('NUM-C5-07', !detects2_2s(values.slice(0, 4), target, priorSD) || true, 'Case 5 makes no narrative claim of a specific Westgard rule violation (verified by source inspection below)');
+    // Section 8 (FINAL ACCEPTANCE closure): the prior NUM-C5-07 assertion
+    // contained `... || true`, an unconditional tautology that could
+    // never fail inside a scientific governance suite. Removed per
+    // Option B — the source-level check below (NUM-C5-08) already
+    // independently verifies Case 5 makes no narrative rule-violation
+    // claim; no further numerical assertion is needed here since this
+    // case's design deliberately does not rely on any single-rule
+    // detection at all (it is a rolling-window Sigma/CV case).
     const fs = require('fs');
     const caseSrc = fs.readFileSync(path.join(MQC, 'cases', 'case-05-increased-imprecision.js'), 'utf8');
     const caseSrcCodeOnly = caseSrc.replace(/\/\*[\s\S]*?\*\//g, '');

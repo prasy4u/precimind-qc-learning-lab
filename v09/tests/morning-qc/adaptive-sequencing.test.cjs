@@ -24,9 +24,34 @@ function makeStorage() {
   return { getItem: k => data[k] || null, setItem: (k, v) => { data[k] = v; }, removeItem: k => { delete data[k]; } };
 }
 
+/** A minimal but fully CANONICAL attempt record (Section 2 FINAL closure) — every field buildAttemptRecord() genuinely always produces. */
+function makeCanonicalAttempt(overrides = {}) {
+  return {
+    attemptId: 'a-' + Math.random().toString(36).slice(2),
+    caseId: 'case-04-isolated-excursion', caseFamily: 'A', difficulty: 'LEVEL_1_CLEAR_SIGNAL', caseSchemaVersion: '1.1.0',
+    startedAt: 1, completedAt: 2,
+    competencyProfile: [], decisionSummary: [], confidenceSummary: [],
+    evidenceSummary: { highValueObtainedCount: 0, lowValueObtainedCount: 0 },
+    panelSummary: { inspectedCount: 0 },
+    verificationSummary: { attempted: false, adequate: false, attemptCount: 0, failedAttemptCount: 0, hadPrematureOrFailedAttemptBeforeSuccess: false },
+    finalServiceState: 'RESUMED', executedFinalDisposition: null, recommendedLearningPriorities: [],
+    ...overrides,
+  };
+}
+
 async function main() {
   const MQC = path.join(__dirname, '..', '..', 'app', 'morning-qc');
   const { ALL_CASES } = await import('file://' + path.join(MQC, 'cases', 'index.js'));
+  // Section 9 (FINAL ACCEPTANCE closure): use the single authoritative
+  // CASE_DIFFICULTY_LEVELS array rather than a second, hand-copied
+  // DIFFICULTY_RANK map — two such local copies had drifted to the
+  // obsolete "LEVEL_5_EXPERT_AMBIGUOUS" label, which would have silently
+  // ranked a real Level-5 case as rank 0 (unrecognized) in assertions.
+  const { CASE_DIFFICULTY_LEVELS } = await import('file://' + path.join(MQC, 'case-schema.js'));
+  function difficultyRank(difficulty) {
+    const idx = CASE_DIFFICULTY_LEVELS.indexOf(difficulty);
+    return idx === -1 ? 0 : idx;
+  }
   const { recommendNextCase, caseTargetsDimension } = await import('file://' + path.join(MQC, 'adaptive', 'case-recommender.js'));
   const { recordAttempt, listAttempts, resetHistory } = await import('file://' + path.join(MQC, 'adaptive', 'attempt-store.js'));
   const { buildCompetencyHistory } = await import('file://' + path.join(MQC, 'adaptive', 'competency-history.js'));
@@ -57,11 +82,10 @@ async function main() {
 
   console.log('\n=== Appropriate difficulty — no immediate increase after weak performance (Rule C) ===');
   {
-    const DIFFICULTY_RANK = { LEVEL_1_CLEAR_SIGNAL: 0, LEVEL_2_COMPETING_EXPLANATION: 1, LEVEL_3_MULTIPLE_SIGNALS_INCOMPLETE_EVIDENCE: 2, LEVEL_4_ANALYTICAL_PLUS_RISK_TRADEOFF: 3, LEVEL_5_EXPERT_AMBIGUOUS: 4 };
     const lastCase = ALL_CASES.find(c => c.identity.id === 'pilot-2-pbrtqc-population-shift');
     const weakAttempt = { caseId: 'pilot-2-pbrtqc-population-shift', competencyProfile: [{ dimension: 'EVIDENCE_SELECTION', rating: 'NEEDS_IMPROVEMENT' }] };
     const rec = recommendNextCase(ALL_CASES, [weakAttempt]);
-    assert('ADAPT-06', (DIFFICULTY_RANK[rec.case.identity.difficulty] ?? 0) <= (DIFFICULTY_RANK[lastCase.identity.difficulty] ?? 0), 'Difficulty is not immediately increased following a weak-performance case');
+    assert('ADAPT-06', difficultyRank(rec.case.identity.difficulty) <= difficultyRank(lastCase.identity.difficulty), 'Difficulty is not immediately increased following a weak-performance case');
   }
 
   console.log('\n=== Repeated strong performance progresses difficulty (Rule D) ===');
@@ -71,9 +95,8 @@ async function main() {
       { caseId: 'case-05-increased-imprecision', competencyProfile: [{ dimension: 'SIGNAL_RECOGNITION', rating: 'STRONG' }, { dimension: 'ANALYTICAL_REASONING', rating: 'STRONG' }] },
     ];
     const rec = recommendNextCase(ALL_CASES, strongAttempts);
-    const DIFFICULTY_RANK = { LEVEL_1_CLEAR_SIGNAL: 0, LEVEL_2_COMPETING_EXPLANATION: 1, LEVEL_3_MULTIPLE_SIGNALS_INCOMPLETE_EVIDENCE: 2, LEVEL_4_ANALYTICAL_PLUS_RISK_TRADEOFF: 3, LEVEL_5_EXPERT_AMBIGUOUS: 4 };
     const lastCase = ALL_CASES.find(c => c.identity.id === 'case-05-increased-imprecision');
-    assert('ADAPT-07', (DIFFICULTY_RANK[rec.case.identity.difficulty] ?? 0) >= (DIFFICULTY_RANK[lastCase.identity.difficulty] ?? 0), 'Following consistently strong performance, the recommended case does not decrease in difficulty');
+    assert('ADAPT-07', difficultyRank(rec.case.identity.difficulty) >= difficultyRank(lastCase.identity.difficulty), 'Following consistently strong performance, the recommended case does not decrease in difficulty');
   }
 
   console.log('\n=== Learner override (guidance, not a lock) ===');
@@ -86,7 +109,7 @@ async function main() {
   console.log('\n=== Reset history (Section 21) ===');
   {
     const storage = makeStorage();
-    recordAttempt({ attemptId: 'a1', caseId: 'case-04-isolated-excursion', competencyProfile: [] }, storage);
+    recordAttempt(makeCanonicalAttempt(), storage);
     assert('ADAPT-09', listAttempts(storage).length === 1, 'Attempt recorded');
     resetHistory(storage);
     assert('ADAPT-10', listAttempts(storage).length === 0, 'Reset history clears all attempts');

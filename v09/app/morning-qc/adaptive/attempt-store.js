@@ -78,6 +78,26 @@ export function validateAttemptRecord(record) {
 
   // Required, minimally-populated fields — an empty {} or a record
   // missing the identifying fields is rejected outright.
+  // Section 2 (FINAL ACCEPTANCE closure): the persistence contract must
+  // agree with the analytics contract. Previously, {attemptId, caseId}
+  // alone validated successfully, even though projectEventsFromAttempt()
+  // then failed on the missing fields it genuinely needs (e.g.
+  // finalServiceState). Every field buildAttemptRecord() actually always
+  // produces is now REQUIRED — an incomplete record is rejected outright
+  // rather than accepted and failing downstream.
+  const CANONICAL_REQUIRED_FIELDS = [
+    'attemptId', 'caseId', 'caseSchemaVersion', 'startedAt', 'completedAt',
+    'competencyProfile', 'decisionSummary', 'confidenceSummary', 'evidenceSummary',
+    'panelSummary', 'verificationSummary', 'finalServiceState', 'executedFinalDisposition',
+    'recommendedLearningPriorities', 'caseFamily', 'difficulty',
+  ];
+  for (const field of CANONICAL_REQUIRED_FIELDS) {
+    // executedFinalDisposition may legitimately be null (no disposition
+    // decision reached yet) — its presence as a key is required, but
+    // null is an accepted value, not a missing field.
+    if (!(field in record)) errors.push(`missing required field "${field}"`);
+  }
+
   if (typeof record.attemptId !== 'string' || record.attemptId.length === 0) errors.push('attemptId must be a non-empty string');
   if (typeof record.caseId !== 'string' || record.caseId.length === 0) errors.push('caseId must be a non-empty string');
 
@@ -136,6 +156,22 @@ export function validateAttemptRecord(record) {
       if ('highValueObtainedCount' in es && !isNonNegativeInt(es.highValueObtainedCount)) errors.push('evidenceSummary.highValueObtainedCount must be a non-negative integer');
       if ('lowValueObtainedCount' in es && !isNonNegativeInt(es.lowValueObtainedCount)) errors.push('evidenceSummary.lowValueObtainedCount must be a non-negative integer');
       if ('efficiencyRatio' in es && !(isFiniteNumber(es.efficiencyRatio) && es.efficiencyRatio >= 0 && es.efficiencyRatio <= 1)) errors.push('evidenceSummary.efficiencyRatio must be a finite number in [0,1]');
+      // Section 7 (FINAL ACCEPTANCE closure): if both raw counts and the
+      // derived efficiencyRatio are present, verify they are mutually
+      // consistent (using the same 3-decimal rounding tolerance
+      // buildAttemptRecord() itself uses) — never accept a fabricated or
+      // stale ratio alongside genuine counts. Skipped when the
+      // denominator is zero, since the ratio is then legitimately absent.
+      if ('highValueObtainedCount' in es && 'lowValueObtainedCount' in es && 'efficiencyRatio' in es
+          && isNonNegativeInt(es.highValueObtainedCount) && isNonNegativeInt(es.lowValueObtainedCount)) {
+        const total = es.highValueObtainedCount + es.lowValueObtainedCount;
+        if (total > 0) {
+          const expected = Math.round((es.highValueObtainedCount / total) * 1000) / 1000;
+          if (Math.abs(expected - es.efficiencyRatio) > 0.0005) {
+            errors.push(`evidenceSummary.efficiencyRatio (${es.efficiencyRatio}) is inconsistent with highValueObtainedCount/lowValueObtainedCount (expected ${expected})`);
+          }
+        }
+      }
     }
   }
 
@@ -161,6 +197,25 @@ export function validateAttemptRecord(record) {
       if ('attemptCount' in vs && !isNonNegativeInt(vs.attemptCount)) errors.push('verificationSummary.attemptCount must be a non-negative integer');
       if ('failedAttemptCount' in vs && !isNonNegativeInt(vs.failedAttemptCount)) errors.push('verificationSummary.failedAttemptCount must be a non-negative integer');
       if ('hadPrematureOrFailedAttemptBeforeSuccess' in vs && typeof vs.hadPrematureOrFailedAttemptBeforeSuccess !== 'boolean') errors.push('verificationSummary.hadPrematureOrFailedAttemptBeforeSuccess must be a boolean');
+
+      // Section 4 (FINAL ACCEPTANCE closure): reject internally
+      // impossible cross-field combinations rather than accepting a
+      // contradictory summary at face value. Types were already
+      // checked above, so these compare genuine values.
+      if (vs.attempted === false && 'attemptCount' in vs && vs.attemptCount !== 0) {
+        errors.push('verificationSummary: attempted===false requires attemptCount===0');
+      }
+      if ('failedAttemptCount' in vs && 'attemptCount' in vs && vs.failedAttemptCount > vs.attemptCount) {
+        errors.push('verificationSummary: failedAttemptCount cannot exceed attemptCount');
+      }
+      if (vs.adequate === true && vs.attempted !== true) {
+        errors.push('verificationSummary: adequate===true requires attempted===true');
+      }
+      if (vs.hadPrematureOrFailedAttemptBeforeSuccess === true) {
+        if (vs.attempted !== true) errors.push('verificationSummary: hadPrematureOrFailedAttemptBeforeSuccess===true requires attempted===true');
+        if (!(vs.failedAttemptCount > 0)) errors.push('verificationSummary: hadPrematureOrFailedAttemptBeforeSuccess===true requires failedAttemptCount>0');
+        if (vs.adequate !== true) errors.push('verificationSummary: hadPrematureOrFailedAttemptBeforeSuccess===true requires adequate===true');
+      }
     }
   }
 
@@ -172,6 +227,7 @@ export function validateAttemptRecord(record) {
       if ('actionType' in efd && efd.actionType !== null && !ACTION_TYPES_SAFE.includes(efd.actionType)) errors.push(`executedFinalDisposition.actionType: not a recognized action type ("${efd.actionType}")`);
       if ('decisionId' in efd && efd.decisionId !== null && typeof efd.decisionId !== 'string') errors.push('executedFinalDisposition.decisionId must be a string or null');
       if ('optionId' in efd && efd.optionId !== null && typeof efd.optionId !== 'string') errors.push('executedFinalDisposition.optionId must be a string or null');
+      if ('decisionEventId' in efd && efd.decisionEventId !== null && typeof efd.decisionEventId !== 'string') errors.push('executedFinalDisposition.decisionEventId must be a string or null');
       if ('outcomeAppropriate' in efd && efd.outcomeAppropriate !== null && typeof efd.outcomeAppropriate !== 'boolean') errors.push('executedFinalDisposition.outcomeAppropriate must be a boolean or null');
       if ('reasoningSupported' in efd && efd.reasoningSupported !== null && typeof efd.reasoningSupported !== 'boolean') errors.push('executedFinalDisposition.reasoningSupported must be a boolean or null');
     }

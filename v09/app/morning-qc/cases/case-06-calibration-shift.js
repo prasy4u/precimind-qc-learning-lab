@@ -27,6 +27,7 @@ export const case06CalibrationShift = {
       tags: ['calibration', 'verification-after-intervention', 'temporal-association-trap'],
       sequencingGroup: 'investigation-verification',
       prerequisiteCompetencies: ['INVESTIGATION_STRATEGY'],
+      competencyTargets: ['INVESTIGATION_STRATEGY', 'VERIFICATION_QUALITY'],
     },
     instructor: {
       teachingPoints: [

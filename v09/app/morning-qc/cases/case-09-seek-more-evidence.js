@@ -30,6 +30,7 @@ export const case09SeekMoreEvidence = {
       tags: ['premature-closure', 'metacognitive-calibration', 'defer-decision'],
       sequencingGroup: 'evidence-selection-deferral',
       prerequisiteCompetencies: ['EVIDENCE_SELECTION'],
+      competencyTargets: ['EVIDENCE_SELECTION', 'METACOGNITIVE_CALIBRATION'],
     },
     instructor: {
       teachingPoints: [

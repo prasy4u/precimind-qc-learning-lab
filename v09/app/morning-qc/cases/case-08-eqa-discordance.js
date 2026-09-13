@@ -29,10 +29,11 @@ export const case08EqaDiscordance = {
       tags: ['eqa', 'trueness-vs-precision', 'iqc-limitation'],
       sequencingGroup: 'external-assurance',
       prerequisiteCompetencies: ['ANALYTICAL_REASONING'],
+      competencyTargets: ['STATISTICAL_INTERPRETATION', 'ANALYTICAL_REASONING'],
     },
     instructor: {
       teachingPoints: [
-        'IQC monitors precision/stability against your own material; it cannot detect a systematic bias present across all your results relative to the true (peer/reference) value.',
+        'IQC monitors precision/stability against your own material; it cannot detect a systematic bias present across all your results relative to other methods or peer groups — and a peer-group mean (all-methods or method-specific) is itself a peer statistic, never itself "the true value."',
         '"IQC is fine" is not a valid reason to dismiss an EQA discordance.',
       ],
       commonFailureModes: [

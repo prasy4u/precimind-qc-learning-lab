@@ -60,6 +60,7 @@ async function main() {
       'v09/app/morning-qc/ui/room-header.jsx',
       'v09/app/morning-qc/ui/production-case-select.jsx',
       'v09/app/morning-qc/ui/morning-qc-room.css',
+      'v09/app/morning-qc/ui/dev-launcher.jsx',
     ]);
     if (diffNames) {
       const unauthorized = diffNames.filter(f => !AUTHORIZED.has(f));

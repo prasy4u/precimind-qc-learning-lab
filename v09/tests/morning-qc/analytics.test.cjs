@@ -97,6 +97,41 @@ async function main() {
     assert('ANALYTICS-14', a1 === a2, 'Identical attempt records always produce an identical aggregation');
   }
 
+  console.log('\n=== Strict allowlist privacy hardening (Section 12 corrective closure) — required adversarial replays ===');
+  {
+    const adversarialCases = [
+      ['email', { type: 'DECISION_EXECUTED', caseId: 'c', decisionEventId: 'd#1', decisionId: 'd', quadrant: 'CORRECT_SUPPORTED', timestamp: 1, email: 'x@y.com' }],
+      ['staffId', { type: 'DECISION_EXECUTED', caseId: 'c', decisionEventId: 'd#1', decisionId: 'd', quadrant: 'CORRECT_SUPPORTED', timestamp: 1, staffId: '12345' }],
+      ['learnerName', { type: 'CASE_COMPLETED', caseId: 'c', finalServiceState: 'RESUMED', timestamp: 1, learnerName: 'John Smith' }],
+      ['institution', { type: 'CASE_COMPLETED', caseId: 'c', finalServiceState: 'RESUMED', timestamp: 1, institution: 'Acme Hospital' }],
+      ['patientId', { type: 'CASE_STARTED', caseId: 'c', timestamp: 1, patientId: 'PT-00123' }],
+      ['groundTruth', { type: 'CASE_STARTED', caseId: 'c', timestamp: 1, groundTruth: { rootCauseDescription: 'leak' } }],
+      ['arbitraryUnknownField', { type: 'CASE_STARTED', caseId: 'c', timestamp: 1, arbitraryUnknownField: 'anything' }],
+    ];
+    for (const [label, event] of adversarialCases) {
+      const result = validateEvent(event);
+      assert(`ANALYTICS-ADV-${label}`, !result.valid, `Event carrying "${label}" is correctly REJECTED by the strict allowlist (errors: ${JSON.stringify(result.errors)})`);
+    }
+  }
+
+  console.log('\n=== Event pipeline operational (Section 16 corrective closure) ===');
+  {
+    const { projectEventsFromAttempt } = await import('file://' + path.join(MQC, 'analytics', 'analytics-model.js'));
+    const record = {
+      attemptId: 'a1', caseId: 'case-04-isolated-excursion', caseFamily: 'A', difficulty: 'LEVEL_1_CLEAR_SIGNAL',
+      startedAt: 100, completedAt: 200,
+      competencyProfile: [{ dimension: 'SIGNAL_RECOGNITION', rating: 'STRONG' }],
+      decisionSummary: [{ decisionEventId: 'dec-containment#1', decisionId: 'dec-containment', quadrant: 'CORRECT_SUPPORTED' }],
+      confidenceSummary: [{ decisionEventId: 'dec-containment#1', confidence: 'HIGH', category: 'CORRECT_CALIBRATED' }],
+      verificationSummary: { attempted: true, adequate: true },
+      finalServiceState: 'RESUMED',
+    };
+    const events = projectEventsFromAttempt(record);
+    assert('ANALYTICS-PIPELINE-01', events.length >= 5, `A genuine attempt record projects into multiple real events (found ${events.length})`);
+    assert('ANALYTICS-PIPELINE-02', events.every(e => validateEvent(e).valid), 'Every generated event independently passes the strict validator');
+    assert('ANALYTICS-PIPELINE-03', events.some(e => e.type === 'DECISION_EXECUTED' && e.decisionEventId === 'dec-containment#1'), 'decisionEventId is preserved through the projection into a real DECISION_EXECUTED event');
+  }
+
   const total = passed + failed;
   console.log(`\n${'='.repeat(60)}`);
   console.log(`Analytics Tests: ${passed}/${total} passed, ${failed} failed`);

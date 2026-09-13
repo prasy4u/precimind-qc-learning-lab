@@ -38,6 +38,7 @@ import {
   EVIDENCE_REQUIRED_FIELDS, CASE_TOP_LEVEL_REQUIRED_FIELDS,
   V09_PROVENANCE_CLASSES, CASE_PROVENANCE_REQUIRED_FIELDS,
   CURRICULUM_METADATA_REQUIRED_FIELDS,
+  EVIDENCE_DECISION_OPTION_PREREQUISITE_FIELDS,
 } from './case-schema.js';
 import { SIMULATION_PHASES, DECISION_CATEGORIES, SEVERITY_LEVELS, PATIENT_IMPACT_STATES, ACTION_TYPES, SCORING_DIMENSIONS } from './states.js';
 
@@ -97,6 +98,13 @@ export function validateCase(caseObj) {
         } else {
           for (const dim of identity.curriculum.prerequisiteCompetencies) {
             if (!SCORING_DIMENSIONS.includes(dim)) errors.push(`identity.curriculum.prerequisiteCompetencies: "${dim}" is not a recognized SCORING_DIMENSIONS entry`);
+          }
+        }
+        if (!Array.isArray(identity.curriculum.competencyTargets)) {
+          errors.push('identity.curriculum.competencyTargets: must be an array');
+        } else {
+          for (const dim of identity.curriculum.competencyTargets) {
+            if (!SCORING_DIMENSIONS.includes(dim)) errors.push(`identity.curriculum.competencyTargets: "${dim}" is not a recognized SCORING_DIMENSIONS entry`);
           }
         }
       }
@@ -197,6 +205,23 @@ export function validateCase(caseObj) {
           const requiredPanelType = PANEL_DEPENDENT_ACTION_TO_PANEL_TYPE[e.availableOnlyAfterActionType];
           if (requiredPanelType && !presentPanelTypes.has(requiredPanelType)) {
             errors.push(`evidence[${i}]: availableOnlyAfterActionType="${e.availableOnlyAfterActionType}" requires a panel of type "${requiredPanelType}", but no such panel exists in this case (unreachable prerequisite)`);
+          }
+        }
+        // Stage 12D Section 3: decision-option-specific evidence
+        // provenance — OPTIONAL, validated only when present.
+        if (e.availableOnlyAfterDecisionOption != null) {
+          hasAllFields(e.availableOnlyAfterDecisionOption, EVIDENCE_DECISION_OPTION_PREREQUISITE_FIELDS, errors, `evidence[${i}].availableOnlyAfterDecisionOption`);
+          const { decisionId, optionId } = e.availableOnlyAfterDecisionOption;
+          const referencedDecision = (caseObj.decisionOpportunities || []).find(d => d.id === decisionId);
+          if (!referencedDecision) {
+            errors.push(`evidence[${i}]: availableOnlyAfterDecisionOption references nonexistent decision "${decisionId}"`);
+          } else {
+            const referencedOption = (referencedDecision.options || []).find(o => o.id === optionId);
+            if (!referencedOption) {
+              errors.push(`evidence[${i}]: availableOnlyAfterDecisionOption references nonexistent option "${optionId}" under decision "${decisionId}"`);
+            } else if (!ACTION_TYPES.includes(referencedOption.actionType)) {
+              errors.push(`evidence[${i}]: availableOnlyAfterDecisionOption's referenced option "${optionId}" has an unrecognized actionType — no compatible action type`);
+            }
           }
         }
       }

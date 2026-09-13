@@ -22,6 +22,13 @@ export const pilot1ReagentLotShift = {
     difficulty: 'LEVEL_2_COMPETING_EXPLANATION',
     intendedLearnerLevel: ['beginner', 'intermediate', 'advanced'],
     competencyMapping: ['QC-02', 'QC-04', 'QC-07', 'QC-09'],
+    curriculum: {
+      estimatedMinutes: 20,
+      tags: ['reagent-lot', 'containment', 'intervention-verification', 'patient-impact'],
+      sequencingGroup: 'flagship-full-cycle',
+      prerequisiteCompetencies: [],
+      competencyTargets: ['SIGNAL_RECOGNITION', 'RISK_REASONING', 'INVESTIGATION_STRATEGY', 'VERIFICATION_QUALITY', 'PATIENT_IMPACT_REASONING'],
+    },
   },
   labContext: {
     analyte: 'Glucose (synthetic educational dataset)',

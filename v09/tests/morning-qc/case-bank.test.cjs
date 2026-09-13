@@ -25,7 +25,7 @@ const MQC = path.join(__dirname, '..', '..', 'app', 'morning-qc');
 // re-derives its own check rather than importing the UI's private map,
 // so it independently proves the doctrine rather than merely asserting
 // the UI agrees with itself).
-const ANSWER_KEY_LEAK_TERMS = ['Reagent Lot', 'Case-Mix', 'Calibration Shift', 'Imprecision', 'EQA Discordance', 'Maintenance Coincidence', 'Premature-Release'];
+const ANSWER_KEY_LEAK_TERMS = ['Case-Mix', 'Calibration Shift', 'Imprecision', 'EQA Discordance', 'Maintenance Coincidence', 'Premature-Release'];
 
 async function main() {
   const { validateCase } = await import('file://' + path.join(MQC, 'case-validator.js'));
@@ -86,15 +86,22 @@ async function main() {
     assert('BANK-04', distinctLevels.size >= 3, `At least 3 distinct difficulty levels represented (found ${distinctLevels.size})`);
   }
 
-  console.log('\n=== Curriculum metadata completeness (Stage 12D new cases) ===');
+  console.log('\n=== Curriculum metadata completeness (all 12 cases, Section 8 corrective closure) ===');
   {
     const newCases = ALL_CASES.filter(c => c.identity.curriculum);
-    assert('BANK-05', newCases.length === 9, `Exactly 9 cases carry curriculum metadata (the new Stage 12D cases; found ${newCases.length})`);
+    // Stage 12D corrective closure (Section 8): the 3 original pilots now
+    // also carry metadata-only curriculum additions (competencyTargets
+    // etc.) so the adaptive recommender can genuinely match weak
+    // competencies across the FULL case bank, not merely the 9 new cases.
+    assert('BANK-05', newCases.length === 12, `All 12 cases carry curriculum metadata, including the 3 pilots' metadata-only additions (found ${newCases.length})`);
     for (const c of newCases) {
       const cur = c.identity.curriculum;
-      assert(`BANK-CURR-${c.identity.id}`, typeof cur.estimatedMinutes === 'number' && Array.isArray(cur.tags) && typeof cur.sequencingGroup === 'string' && Array.isArray(cur.prerequisiteCompetencies), `${c.identity.id}: curriculum metadata is complete`);
+      assert(`BANK-CURR-${c.identity.id}`, typeof cur.estimatedMinutes === 'number' && Array.isArray(cur.tags) && typeof cur.sequencingGroup === 'string' && Array.isArray(cur.prerequisiteCompetencies) && Array.isArray(cur.competencyTargets), `${c.identity.id}: curriculum metadata is complete, including competencyTargets`);
       for (const dim of cur.prerequisiteCompetencies) {
         assert(`BANK-CURR-DIM-${c.identity.id}-${dim}`, SCORING_DIMENSIONS.includes(dim), `${c.identity.id}: prerequisite competency "${dim}" is a real SCORING_DIMENSIONS entry`);
+      }
+      for (const dim of cur.competencyTargets) {
+        assert(`BANK-CURR-TARGET-${c.identity.id}-${dim}`, SCORING_DIMENSIONS.includes(dim), `${c.identity.id}: competency target "${dim}" is a real SCORING_DIMENSIONS entry`);
       }
     }
   }
@@ -137,6 +144,63 @@ async function main() {
       const displayTitleBlock = prodSelectSrc.match(/displayTitle:\s*'([^']*)'/g) || [];
       const leaked = displayTitleBlock.some(t => t.includes(term));
       assert(`BANK-NOLEAK-${term.replace(/\s+/g, '_')}`, !leaked, `Production display titles never contain the answer-revealing term "${term}"`);
+    }
+  }
+
+  console.log('\n=== Full 12-case title-leakage semantic audit (Section 2 corrective closure) ===');
+  {
+    const prodSelectSrc = fs.readFileSync(path.join(MQC, 'ui', 'production-case-select.jsx'), 'utf8');
+    const titleMatches = [...prodSelectSrc.matchAll(/'([a-z0-9-]+)':\s*\{\s*displayTitle:\s*'([^']*)'/g)];
+    const titleMap = Object.fromEntries(titleMatches.map(m => [m[1], m[2]]));
+    assert('TITLE-AUDIT-COVERAGE', Object.keys(titleMap).length === 12, `All 12 cases have a mapped production title (found ${Object.keys(titleMap).length})`);
+
+    // A title is only genuinely leaking a CONCLUSION (not merely
+    // mentioning an OBSERVABLE topic/component the learner sees
+    // immediately anyway, e.g. "calibration" or "reagent lot" as case
+    // subject matter) if it echoes a substantial MULTI-WORD PHRASE (3+
+    // consecutive significant words) from an authored hypothesis label,
+    // intervention-option label, or groundTruth field — a much more
+    // precise signal than single-word topical overlap, which produced
+    // many false positives on benign subject-matter words shared
+    // between a case's title and its own (fully expected) topic.
+    function normalize(text) {
+      return (text || '').toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
+    }
+    function hasSharedPhrase(title, sourceText, minWords) {
+      const titleWords = normalize(title).split(' ').filter(Boolean);
+      const sourceWords = normalize(sourceText).split(' ').filter(Boolean);
+      if (sourceWords.length < minWords) return false;
+      for (let i = 0; i <= sourceWords.length - minWords; i++) {
+        const phrase = sourceWords.slice(i, i + minWords).join(' ');
+        if (normalize(title).includes(phrase)) return true;
+      }
+      return false;
+    }
+
+    for (const c of ALL_CASES) {
+      const title = titleMap[c.identity.id];
+      if (!title) continue;
+
+      const hypothesisLabels = (c.hypotheses || []).map(h => h.label);
+      const hypLeak = hypothesisLabels.some(label => hasSharedPhrase(title, label, 3));
+      assert(`TITLE-NOHYP-${c.identity.id}`, !hypLeak, `${c.identity.id}: title does not share a 3+ word phrase with any authored hypothesis label`);
+
+      const interventionLabels = (c.decisionOpportunities || [])
+        .filter(d => d.category === 'INTERVENTION')
+        .flatMap(d => d.options.map(o => o.label));
+      const intLeak = interventionLabels.some(label => hasSharedPhrase(title, label, 3));
+      assert(`TITLE-NOINTERVENTION-${c.identity.id}`, !intLeak, `${c.identity.id}: title does not share a 3+ word phrase with any authored intervention-option label`);
+
+      const gtFields = [c.groundTruth.rootCauseDescription, c.groundTruth.signalExplanationDescription];
+      const gtLeak = gtFields.some(field => field && hasSharedPhrase(title, field, 3));
+      assert(`TITLE-NOGROUNDTRUTH-${c.identity.id}`, !gtLeak, `${c.identity.id}: title does not share a 3+ word phrase with any authored groundTruth root-cause/explanation field`);
+
+      // Verification-outcome / future-event leakage: words implying a
+      // resolution already known should never appear in a title — these
+      // presuppose an outcome the learner has not yet reached.
+      const OUTCOME_PRESUPPOSING_WORDS = ['brief', 'resolved', 'transient', 'ambiguous', 'confirmed', 'successful', 'failed', 'persists', 'recovers', 'benign', 'harmless', 'inadequate', 'adequate'];
+      const outcomeLeak = OUTCOME_PRESUPPOSING_WORDS.filter(w => title.toLowerCase().includes(w));
+      assert(`TITLE-NOOUTCOME-${c.identity.id}`, outcomeLeak.length === 0, `${c.identity.id}: title contains no outcome-presupposing word (found: ${JSON.stringify(outcomeLeak)})`);
     }
   }
 

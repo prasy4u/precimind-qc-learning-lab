@@ -27,20 +27,23 @@
    is selected, and the initial selector wraps properly when not. */
 import React, { useState } from 'react';
 import { MorningQCRoom } from './morning-qc-room.jsx';
+import { InstructorAnalyticsView } from '../../../dev/instructor-analytics-view.jsx';
+import { getAttemptHistory } from '../adaptive/index.js';
 
 export function DevLauncher({ cases }) {
   const [selectedId, setSelectedId] = useState(null);
   const [pickerOpen, setPickerOpen] = useState(true);
+  const [showInstructorView, setShowInstructorView] = useState(false);
   const selected = cases.find(c => c.identity.id === selectedId) || null;
 
-  function choose(id) { setSelectedId(id); setPickerOpen(false); }
+  function choose(id) { setSelectedId(id); setPickerOpen(false); setShowInstructorView(false); }
 
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column', minWidth: 0 }}>
       <div style={{ padding: '10px 16px', borderBottom: '1px solid var(--border)', background: 'var(--warn-tint)', display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center', minWidth: 0 }}>
         <strong style={{ fontSize: 13 }}>DEVELOPMENT / TEST LAUNCHER</strong>
         {selected && !pickerOpen ? (
-          <button type="button" className="mqc-btn" onClick={() => setPickerOpen(true)}>
+          <button type="button" className="mqc-btn" onClick={() => { setPickerOpen(true); setShowInstructorView(false); }}>
             Change pilot ({selected.identity.title.split(' —')[0].split(' (')[0]})
           </button>
         ) : (
@@ -56,11 +59,16 @@ export function DevLauncher({ cases }) {
             </button>
           ))
         )}
+        <button type="button" className="mqc-btn" data-variant={showInstructorView ? 'primary' : undefined} onClick={() => { setShowInstructorView(v => !v); setPickerOpen(false); }}>
+          Instructor Analytics (Dev)
+        </button>
       </div>
-      <div style={{ flex: 1, minHeight: 0, minWidth: 0, overflow: 'hidden' }}>
-        {selected && !pickerOpen
-          ? <MorningQCRoom key={selected.identity.id} caseObj={selected} />
-          : <div style={{ padding: 40, color: 'var(--text-muted)' }}>Choose a pilot case above to launch the Morning QC Room.</div>}
+      <div style={{ flex: 1, minHeight: 0, minWidth: 0, overflow: 'auto' }}>
+        {showInstructorView
+          ? <InstructorAnalyticsView attemptsByLearner={{ 'Learner A': getAttemptHistory() }} />
+          : selected && !pickerOpen
+            ? <MorningQCRoom key={selected.identity.id} caseObj={selected} />
+            : <div style={{ padding: 40, color: 'var(--text-muted)' }}>Choose a pilot case above to launch the Morning QC Room.</div>}
       </div>
     </div>
   );

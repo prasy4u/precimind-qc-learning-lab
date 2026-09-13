@@ -30,6 +30,7 @@ export const case07NoPatientImpact = {
       tags: ['patient-impact', 'environmental', 'no-harm-conclusion'],
       sequencingGroup: 'patient-impact-reasoning',
       prerequisiteCompetencies: ['RISK_REASONING'],
+      competencyTargets: ['PATIENT_IMPACT_REASONING', 'RISK_REASONING'],
     },
     instructor: {
       teachingPoints: [
@@ -51,11 +52,11 @@ export const case07NoPatientImpact = {
   },
   timeline: [
     { id: 'evt-1', type: 'ENVIRONMENTAL', timestamp: 0, description: 'Laboratory HVAC system reports a temperature excursion (ambient rose to 32\u00b0C for approximately 45 minutes).', panelId: 'panel-analyzer-status' },
-    { id: 'evt-2', type: 'QC_OBSERVATION', timestamp: 30, description: 'Run at t=30 (during excursion): 8.42 mg/dL — exceeds the 1_3s limit.', panelId: 'panel-qc-history' },
+    { id: 'evt-2', type: 'QC_OBSERVATION', timestamp: 30, description: 'Run at t=30 (during excursion): 8.68 mg/dL — exceeds the 1_3s limit.', panelId: 'panel-qc-history' },
     { id: 'evt-3', type: 'QC_OBSERVATION', timestamp: 90, description: 'Run at t=90 (after HVAC restored): 8.01 mg/dL — within control.', panelId: 'panel-qc-history' },
   ],
   panels: [
-    { id: 'panel-qc-history', type: 'QC_HISTORY', availableFromPhase: 'BRIEFING', relevance: 'RELEVANT', costTimeMinutes: 2, mayBeMisleading: false, provenance: 'LIS QC log', content: { note: 'Run at t=30 (during the HVAC excursion): 8.42 mg/dL, exceeding the 1_3s limit. Run at t=90 (after HVAC restored): 8.01 mg/dL, within control.' } },
+    { id: 'panel-qc-history', type: 'QC_HISTORY', availableFromPhase: 'BRIEFING', relevance: 'RELEVANT', costTimeMinutes: 2, mayBeMisleading: false, provenance: 'LIS QC log', content: { note: 'Run at t=30 (during the HVAC excursion): 8.68 mg/dL, exceeding the 1_3s limit. Run at t=90 (after HVAC restored): 8.01 mg/dL, within control.' } },
     { id: 'panel-analyzer-status', type: 'ANALYZER_STATUS', availableFromPhase: 'CHARACTERISATION', relevance: 'RELEVANT', costTimeMinutes: 2, mayBeMisleading: false, provenance: 'Facilities/analyzer environmental log', content: { note: 'Ambient temperature rose to 32\u00b0C for approximately 45 minutes (t=0 to t=45) before the HVAC system was restored.' } },
     { id: 'panel-patient-distribution', type: 'PATIENT_RESULT_DISTRIBUTION', availableFromPhase: 'CHARACTERISATION', relevance: 'RELEVANT', costTimeMinutes: 3, mayBeMisleading: false, provenance: 'LIS patient result log', content: { note: 'Three patient calcium specimens were run between t=15 and t=40, within the excursion window.' } },
   ],
@@ -85,7 +86,7 @@ export const case07NoPatientImpact = {
     weakPathDescriptions: ['Assuming all patient results run during the excursion are automatically wrong without reviewing them.', 'Resuming service without ever reviewing patient-impact for the affected window.'],
   },
   groundTruth: {
-    observedSignal: 'Calcium Level 1 QC: 8.42 mg/dL during a laboratory HVAC temperature excursion (exceeds 1_3s limit); 8.01 mg/dL after HVAC restored (within control).',
+    observedSignal: 'Calcium Level 1 QC: 8.68 mg/dL during a laboratory HVAC temperature excursion (exceeds 1_3s limit); 8.01 mg/dL after HVAC restored (within control).',
     disturbanceEstablished: true,
     disturbanceDescription: 'A genuine, brief, self-resolving analytical shift caused by an environmental temperature excursion.',
     rootCauseEstablished: true,

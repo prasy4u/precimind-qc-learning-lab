@@ -18,6 +18,24 @@ export function validateEvent(event) {
   for (const field of schema.required) {
     if (!(field in event)) errors.push(`${event.type}: missing required field "${field}"`);
   }
+  // Stage 12D Section 12 corrective closure: independent audit proved
+  // that DECISION_EXECUTED+email+staffId and CASE_COMPLETED+learnerName+
+  // institution both previously validated, because the prior check only
+  // rejected fields explicitly named in each event's small `prohibited`
+  // array. Switched to a STRICT ALLOWLIST — type + schema.required +
+  // schema.optional — so ANY field outside that exact set fails
+  // validation, automatically preventing hidden/internal/PII payload
+  // smuggling regardless of what name it's given. The explicit
+  // groundTruth check in `prohibited` is retained as defense-in-depth
+  // (a field named exactly "groundTruth" is guaranteed to be flagged
+  // even if a future schema change ever added it to required/optional
+  // by mistake).
+  const allowedFields = new Set(['type', ...schema.required, ...schema.optional]);
+  for (const field of Object.keys(event)) {
+    if (!allowedFields.has(field)) {
+      errors.push(`${event.type}: field "${field}" is not in the allowlist (type + required + optional) — rejected`);
+    }
+  }
   for (const field of schema.prohibited) {
     if (field in event) errors.push(`${event.type}: prohibited field "${field}" present`);
   }
@@ -68,4 +86,46 @@ export function aggregateAttempts(attempts) {
     unsupportedDecisionCount: unsupportedDecisionRate,
     confidenceCalibrationCounts: calibrationCounts,
   };
+}
+
+/**
+ * Stage 12D Section 16: a deterministic, safe event-projection function
+ * — makes the 10-event schema OPERATIONAL rather than dead
+ * documentation. Projects a genuine, already-sanitized attempt record
+ * (the same shape attempt-store.js persists) into a sequence of
+ * schema-valid events. Every generated event is verified against
+ * validateEvent() before being returned — if any generated event would
+ * fail, this throws rather than silently emitting an invalid event.
+ * No external transmission ever occurs; this is a pure, local
+ * projection function.
+ */
+export function projectEventsFromAttempt(record) {
+  const events = [];
+  const baseTimestamp = record.startedAt || 0;
+
+  events.push({ type: 'CASE_STARTED', caseId: record.caseId, timestamp: baseTimestamp, ...(record.caseFamily != null ? { caseFamily: record.caseFamily } : {}), ...(record.difficulty != null ? { difficulty: record.difficulty } : {}) });
+
+  for (const d of record.decisionSummary || []) {
+    if (d.decisionEventId && d.decisionId && d.quadrant) {
+      events.push({ type: 'DECISION_EXECUTED', caseId: record.caseId, decisionEventId: d.decisionEventId, decisionId: d.decisionId, quadrant: d.quadrant, timestamp: record.completedAt || baseTimestamp });
+    }
+  }
+  for (const c of record.confidenceSummary || []) {
+    if (c.decisionEventId && c.category) {
+      events.push({ type: 'CONFIDENCE_RECORDED', caseId: record.caseId, decisionEventId: c.decisionEventId, confidence: c.confidence || 'MODERATE', category: c.category, timestamp: record.completedAt || baseTimestamp });
+    }
+  }
+  if (record.verificationSummary && record.verificationSummary.attempted != null) {
+    events.push({ type: 'VERIFICATION_ATTEMPTED', caseId: record.caseId, wasSuccessful: !!record.verificationSummary.adequate, timestamp: record.completedAt || baseTimestamp });
+  }
+  events.push({ type: 'CASE_COMPLETED', caseId: record.caseId, finalServiceState: record.finalServiceState, timestamp: record.completedAt || baseTimestamp, ...(record.competencyProfile != null ? { competencyProfile: record.competencyProfile } : {}) });
+  events.push({ type: 'DEBRIEF_VIEWED', caseId: record.caseId, timestamp: record.completedAt || baseTimestamp });
+
+  for (const ev of events) {
+    const result = validateEvent(ev);
+    if (!result.valid) {
+      throw new Error(`projectEventsFromAttempt() produced an invalid event (${ev.type}): ${result.errors.join('; ')}`);
+    }
+  }
+  return events;
 }

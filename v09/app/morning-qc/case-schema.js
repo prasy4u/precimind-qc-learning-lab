@@ -33,6 +33,15 @@ export const CASE_DIFFICULTY_LEVELS = [
   'LEVEL_5_COMPLEX_GOVERNANCE_LONGITUDINAL',
 ];
 
+// Stage 12D Section 14: CASE_SCHEMA_VERSION describes THIS SCHEMA's own
+// version (the shape/rules case-validator.js enforces) — distinct from
+// each case's own identity.version, which is a CASE CONTENT version
+// (how many times that specific case's authored content has been
+// revised). A case-schema version bump means the shape of what a valid
+// case object looks like changed; an identity.version bump means one
+// case's own content changed. The two axes are never conflated.
+export const CASE_SCHEMA_VERSION = '1.1.0';
+
 export const LEARNER_LEVELS = ['beginner', 'intermediate', 'advanced', 'expert'];
 
 /* -----------------------------------------------------------------------
@@ -238,6 +247,16 @@ export const EVIDENCE_REQUIRED_FIELDS = [
                             // of, and in addition to, sourcePanelId: both may apply.
 ];
 
+/* Stage 12D Section 3 (SCIENTIFIC, ADAPTIVE AND ANALYTICS TRUTH closure):
+   OPTIONAL, additive evidence field — validated only when present.
+   availableOnlyAfterActionType alone cannot distinguish between two
+   authored decision options that share the same actionType (e.g. two
+   different APPLY_INTERVENTION options in the same case); this field
+   requires that a prior actionHistory entry genuinely executed this
+   EXACT decisionId + optionId. Both fields may be combined with
+   sourcePanelId on the same evidence item. */
+export const EVIDENCE_DECISION_OPTION_PREREQUISITE_FIELDS = ['decisionId', 'optionId'];
+
 /* -----------------------------------------------------------------------
    TOP-LEVEL CASE SHAPE
    ----------------------------------------------------------------------- */
@@ -263,7 +282,16 @@ export const CURRICULUM_METADATA_REQUIRED_FIELDS = [
   'tags',                        // array of strings
   'sequencingGroup',             // string — a coarse grouping the recommender uses to avoid
                                   // immediately repeating the same reasoning pattern (Rule B)
-  'prerequisiteCompetencies',    // array of SCORING_DIMENSIONS strings (states.js), may be empty
+  'prerequisiteCompetencies',    // array of SCORING_DIMENSIONS strings (states.js), may be empty —
+                                  // competencies a learner should already have BEFORE attempting
+                                  // this case. Distinct from competencyTargets (below): never
+                                  // treated as a target by the recommender.
+  'competencyTargets',           // array of SCORING_DIMENSIONS strings (states.js), may be empty —
+                                  // Stage 12D SCIENTIFIC/ADAPTIVE/ANALYTICS TRUTH closure Section 8:
+                                  // the ACTUAL dimensions this case is designed to exercise, used by
+                                  // the adaptive recommender to genuinely match weak competencies to
+                                  // cases. Distinct from identity.competencyMapping (QC-01..QC-12
+                                  // module-mapping codes) — never conflated with it.
 ];
 
 // Instructor-only metadata (Stage 12D Section 9). OPTIONAL. Never read by

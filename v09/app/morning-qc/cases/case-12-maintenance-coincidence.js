@@ -33,6 +33,7 @@ export const case12MaintenanceCoincidence = {
       tags: ['maintenance', 'temporal-association-trap', 'coincidental-timing'],
       sequencingGroup: 'investigation-verification',
       prerequisiteCompetencies: ['INVESTIGATION_STRATEGY'],
+      competencyTargets: ['INVESTIGATION_STRATEGY', 'VERIFICATION_QUALITY'],
     },
     instructor: {
       teachingPoints: [
@@ -55,11 +56,11 @@ export const case12MaintenanceCoincidence = {
   timeline: [
     { id: 'evt-1', type: 'QC_OBSERVATION', timestamp: 0, description: 'Run 1: 60.2 U/L — within control.', panelId: 'panel-qc-history' },
     { id: 'evt-2', type: 'MAINTENANCE', timestamp: 60, description: 'Scheduled preventive maintenance performed (fluidics cleaning, tubing replacement).', panelId: 'panel-maintenance' },
-    { id: 'evt-3', type: 'QC_OBSERVATION', timestamp: 240, description: 'Run 2 (post-maintenance): 54.8 U/L — exceeds the 1_3s lower limit.', panelId: 'panel-qc-history' },
-    { id: 'evt-4', type: 'QC_OBSERVATION', timestamp: 480, description: 'Run 3: 54.1 U/L — sustained low.', panelId: 'panel-qc-history' },
+    { id: 'evt-3', type: 'QC_OBSERVATION', timestamp: 240, description: 'Run 2 (post-maintenance): 53.8 U/L — exceeds the 1_3s lower limit.', panelId: 'panel-qc-history' },
+    { id: 'evt-4', type: 'QC_OBSERVATION', timestamp: 480, description: 'Run 3: 53.5 U/L — sustained low.', panelId: 'panel-qc-history' },
   ],
   panels: [
-    { id: 'panel-qc-history', type: 'QC_HISTORY', availableFromPhase: 'BRIEFING', relevance: 'RELEVANT', costTimeMinutes: 2, mayBeMisleading: false, provenance: 'LIS QC log', content: { note: 'Pre-maintenance: 60.2 U/L, in control. Post-maintenance runs 2-3: 54.8, 54.1 U/L — a sustained negative shift beginning after maintenance.' } },
+    { id: 'panel-qc-history', type: 'QC_HISTORY', availableFromPhase: 'BRIEFING', relevance: 'RELEVANT', costTimeMinutes: 2, mayBeMisleading: false, provenance: 'LIS QC log', content: { note: 'Pre-maintenance: 60.2 U/L, in control. Post-maintenance runs 2-3: 53.8, 53.5 U/L — a sustained negative shift beginning after maintenance.' } },
     { id: 'panel-maintenance', type: 'MAINTENANCE', availableFromPhase: 'CHARACTERISATION', relevance: 'RELEVANT', costTimeMinutes: 3, mayBeMisleading: true, provenance: 'Maintenance log', content: { note: 'Scheduled fluidics cleaning and tubing replacement, performed per manufacturer protocol. All post-maintenance functional checks (flow rate, pressure) passed within specification, correctly documented and signed off.', learnerNote: 'Scheduled fluidics cleaning and tubing replacement, performed per manufacturer protocol. All post-maintenance functional checks passed within specification and were correctly documented.' } },
     { id: 'panel-analyzer-status', type: 'ANALYZER_STATUS', availableFromPhase: 'HYPOTHESIS_GENERATION', relevance: 'RELEVANT', costTimeMinutes: 3, mayBeMisleading: false, provenance: 'Analyzer diagnostic log', content: { note: 'The photometric light source shows an intensity reading 18% below its established baseline, flagged by the analyzer\u2019s own diagnostic self-check as approaching end-of-life — unrelated to the fluidics maintenance performed.' } },
     { id: 'panel-reagent-lot', type: 'REAGENT_LOT', availableFromPhase: 'CHARACTERISATION', relevance: 'IRRELEVANT', costTimeMinutes: 2, mayBeMisleading: true, provenance: 'Reagent lot log', content: { note: 'No reagent lot change has occurred in the past 30 days.', learnerNote: 'No reagent lot change has occurred in the past 30 days.' } },
@@ -72,7 +73,7 @@ export const case12MaintenanceCoincidence = {
     { id: 'ev-shift-timing', source: 'panel-qc-history', sourcePanelId: 'panel-qc-history', timestamp: 480, observedValueOrFinding: 'The shift begins immediately after maintenance, with no gradual drift beforehand.', interpretationLimits: 'Timing alone establishes temporal association only, not causation — the maintenance record itself must be checked before concluding it was the cause.', supportsHypothesisIds: ['hyp-maintenance-inadequate'], weakensHypothesisIds: [], decisive: false, relevant: true, availableOnlyAfterActionType: null },
     { id: 'ev-maintenance-adequate', source: 'panel-maintenance', sourcePanelId: 'panel-maintenance', timestamp: 480, observedValueOrFinding: 'All post-maintenance functional checks passed within specification, correctly documented.', interpretationLimits: 'Decisive evidence AGAINST the maintenance itself being the cause — but this means the true cause must be sought elsewhere, not that nothing further needs investigation.', supportsHypothesisIds: [], weakensHypothesisIds: ['hyp-maintenance-inadequate'], decisive: true, relevant: true, availableOnlyAfterActionType: null },
     { id: 'ev-light-source-flagged', source: 'panel-analyzer-status', sourcePanelId: 'panel-analyzer-status', timestamp: 480, observedValueOrFinding: 'The photometric light source reads 18% below baseline, flagged as approaching end-of-life, unrelated to the maintenance performed.', interpretationLimits: 'Establishes the genuine, independent cause — a separately failing component whose timing coincidentally overlapped with the maintenance.', supportsHypothesisIds: ['hyp-light-source'], weakensHypothesisIds: ['hyp-maintenance-inadequate'], decisive: true, relevant: true, availableOnlyAfterActionType: null },
-    { id: 'ev-post-replacement-recovery', source: 'repeat QC after light source replacement', sourcePanelId: null, timestamp: 520, observedValueOrFinding: 'After replacing the light source, repeat QC reads 60.0 U/L — within control.', interpretationLimits: 'Genuine verification of recovery after the correct intervention.', supportsHypothesisIds: ['hyp-light-source'], weakensHypothesisIds: [], decisive: true, relevant: true, availableOnlyAfterActionType: 'APPLY_INTERVENTION' },
+    { id: 'ev-post-replacement-recovery', source: 'repeat QC after light source replacement', sourcePanelId: null, timestamp: 520, observedValueOrFinding: 'After replacing the light source, repeat QC reads 60.0 U/L — within control.', interpretationLimits: 'Genuine verification of recovery after the correct intervention.', supportsHypothesisIds: ['hyp-light-source'], weakensHypothesisIds: [], decisive: true, relevant: true, availableOnlyAfterActionType: null, availableOnlyAfterDecisionOption: { decisionId: 'dec-intervention', optionId: 'opt-replace-light-source' } },
   ],
   decisionOpportunities: [
     { id: 'dec-containment', category: 'CONTAINMENT', availableFromPhase: 'SIGNAL_RECOGNITION', options: [
@@ -95,7 +96,7 @@ export const case12MaintenanceCoincidence = {
     weakPathDescriptions: ['Concluding the maintenance was inadequate without checking the maintenance record.', 'Stopping the investigation once the maintenance record checked out fine, without finding the actual cause.'],
   },
   groundTruth: {
-    observedSignal: 'ALT Level 2 QC: 60.2 U/L pre-maintenance (in control), 54.8 and 54.1 U/L post-maintenance (sustained 1_3s exceedance).',
+    observedSignal: 'ALT Level 2 QC: 60.2 U/L pre-maintenance (in control), 53.8 and 53.5 U/L post-maintenance (sustained 1_3s exceedance).',
     disturbanceEstablished: true,
     disturbanceDescription: 'A genuine, sustained negative analytical shift caused by a failing photometric light source, coincidentally overlapping with scheduled maintenance.',
     rootCauseEstablished: true,

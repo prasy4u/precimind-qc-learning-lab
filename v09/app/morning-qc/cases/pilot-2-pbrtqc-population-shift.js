@@ -19,6 +19,13 @@ export const pilot2PbrtqcPopulationShift = {
     difficulty: 'LEVEL_3_MULTIPLE_SIGNALS_INCOMPLETE_EVIDENCE',
     intendedLearnerLevel: ['intermediate', 'advanced', 'expert'],
     competencyMapping: ['QC-08', 'QC-10', 'QC-11'],
+    curriculum: {
+      estimatedMinutes: 18,
+      tags: ['pbrtqc', 'population-shift', 'evidence-based-disposition'],
+      sequencingGroup: 'statistical-interpretation',
+      prerequisiteCompetencies: ['SIGNAL_RECOGNITION'],
+      competencyTargets: ['STATISTICAL_INTERPRETATION', 'ANALYTICAL_REASONING', 'DECISION_APPROPRIATENESS', 'METACOGNITIVE_CALIBRATION'],
+    },
   },
   labContext: {
     analyte: 'Troponin (synthetic educational dataset)',

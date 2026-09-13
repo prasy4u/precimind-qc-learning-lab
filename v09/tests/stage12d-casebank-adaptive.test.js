@@ -21,6 +21,7 @@ const { execSync } = require('child_process');
 
 const V09 = path.join(__dirname, '..');
 const MQC = path.join(V09, 'app', 'morning-qc');
+const UI = path.join(MQC, 'ui');
 const STAGE12C_BASE = 'd81fa9e764cbcb307226af5a2db98d323548109e'; // accepted, FINAL Stage 12C baseline (post-corrective-closure)
 
 let passed = 0, failed = 0;
@@ -46,6 +47,7 @@ async function main() {
       'v09/app/morning-qc/ui/morning-qc-room.jsx',       // onCaseCompleted hook
       'v09/app/morning-qc/ui/production-case-select.jsx', // case-bank UI
       'v09/app/morning-qc/ui/morning-qc-room.css',        // case-bank UI styles
+      'v09/app/morning-qc/ui/dev-launcher.jsx',            // instructor dev view toggle (Section 15)
       'v09/app/morning-qc/debrief/debrief-adapter.js',    // caseIdentity leak fix
       'v09/app/ui/app-shell.jsx',                          // ALL_CASES import
     ]);
@@ -58,6 +60,25 @@ async function main() {
       assert('1b', unauthorized.length === 0, `Only authorized Stage 12D integration-point files changed in ui/debrief/app-ui (found unauthorized: ${JSON.stringify(unauthorized)})`);
     } else {
       assert('1b', true, 'Baseline commit unreachable in this environment for diffing (non-fatal informational check)');
+    }
+  }
+
+  console.log('\n=== 1c. Historical Stage 12B/12C browser evidence freeze (Section 18 corrective closure) ===');
+  {
+    const crypto = require('crypto');
+    const evidenceManifestPath = path.join(V09, 'docs', 'v09-stage12bc-evidence-freeze-manifest.json');
+    assert('1c-exists', fs.existsSync(evidenceManifestPath), 'Historical evidence freeze manifest exists');
+    if (fs.existsSync(evidenceManifestPath)) {
+      const manifest = JSON.parse(fs.readFileSync(evidenceManifestPath, 'utf8'));
+      let allFrozen = true;
+      const mismatches = [];
+      for (const [relPath, expectedHash] of Object.entries(manifest.files)) {
+        const fullPath = path.join(V09, '..', relPath);
+        if (!fs.existsSync(fullPath)) { allFrozen = false; mismatches.push(relPath + ' (missing)'); continue; }
+        const actualHash = crypto.createHash('sha256').update(fs.readFileSync(fullPath)).digest('hex');
+        if (actualHash !== expectedHash) { allFrozen = false; mismatches.push(relPath); }
+      }
+      assert('1c-frozen', allFrozen, `All ${Object.keys(manifest.files).length} historical Stage 12B/12C evidence PNGs remain byte-identical (mismatches: ${JSON.stringify(mismatches)}) — running this stage's own browser suites must never leave these overwritten`);
     }
   }
 
@@ -130,7 +151,7 @@ async function main() {
     assert('7a', /localStorage/.test(storeSrc), 'attempt-store.js uses localStorage (local-only, no network call)');
     assert('7b', !/fetch\(|XMLHttpRequest|axios/.test(storeSrc), 'attempt-store.js makes no network calls');
     const { buildAttemptRecord } = await import('file://' + path.join(MQC, 'adaptive', 'sequencing-model.js'));
-    const fields = Object.keys(buildAttemptRecord('x', { competencyProfile: [], decisionReview: [], confidenceCalibration: [], evidenceReview: { obtained: {} }, caseResolution: {} }));
+    const fields = Object.keys(buildAttemptRecord('x', { competencyProfile: [], decisionReview: [], confidenceCalibration: [], evidenceReview: { obtained: {} }, patientSafetyReview: {}, documentationVsExecuted: {}, caseResolution: {} }));
     const forbidden = ['name', 'email', 'staffId', 'institution', 'ip', 'deviceId'];
     assert('7c', forbidden.every(f => !fields.includes(f)), 'attemptRecord shape contains no personal-identifier fields');
   }
@@ -144,6 +165,15 @@ async function main() {
     assert('8b', navItems.length === 14, `Production navigation remains exactly 14 destinations (found ${navItems.length})`);
     const coreScreensSrc = fs.readFileSync(path.join(V09, 'app', 'ui', 'core-screens.jsx'), 'utf8');
     assert('8c', !/QC-13/.test(coreScreensSrc), 'Morning QC is never labeled QC-13');
+    // Section 15: a genuine instructor dev-only view now exists,
+    // isolated under v09/dev/ (outside app/**), reachable only through
+    // the isolated DevLauncher — never app-shell.jsx.
+    assert('8d', fs.existsSync(path.join(V09, 'dev', 'instructor-analytics-view.jsx')), 'A genuine instructor analytics dev view component exists under v09/dev/ (isolated from production)');
+    const instructorViewSrc = fs.readFileSync(path.join(V09, 'dev', 'instructor-analytics-view.jsx'), 'utf8');
+    assert('8e', /Simulation-learning analytics only/.test(instructorViewSrc) || /summary\.disclaimer/.test(instructorViewSrc), 'The instructor view renders the mandatory disclaimer');
+    const devLauncherSrc = fs.readFileSync(path.join(UI, 'dev-launcher.jsx'), 'utf8');
+    assert('8f', /InstructorAnalyticsView/.test(devLauncherSrc), 'The instructor view is reachable from the isolated DevLauncher (dev-only)');
+    assert('8g', fs.existsSync(path.join(V09, 'tests', 'browser', 'evidence', 'stage12d', 'instructor-analytics-dev-view-1440x1000.png')), 'Real browser screenshot evidence of the instructor dev view exists under tests/browser/evidence/stage12d/');
   }
 
   console.log('\n=== 9. Analytics schema version and case schema version present ===');
@@ -173,6 +203,7 @@ async function main() {
       ['tests/morning-qc/expanded-case-paths.test.cjs', 'EXPANDED CASE PATH TESTS PASSED'],
       ['tests/morning-qc/adaptive-sequencing.test.cjs', 'ADAPTIVE SEQUENCING TESTS PASSED'],
       ['tests/morning-qc/analytics.test.cjs', 'ANALYTICS TESTS PASSED'],
+      ['tests/morning-qc/scientific-numeric-audit.test.cjs', 'SCIENTIFIC NUMERIC AUDIT PASSED'],
     ];
     for (const [rel, marker] of suites) {
       let ok = false;

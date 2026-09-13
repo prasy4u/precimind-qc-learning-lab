@@ -40,15 +40,15 @@ const PRODUCTION_CASE_META = {
     focus: 'Signal recognition and avoiding unnecessary intervention',
   },
   'case-05-increased-imprecision': {
-    displayTitle: 'Morning QC Room — Widened QC Scatter, Mean On Target',
+    displayTitle: 'Morning QC Room — Potassium Level 1 QC Precision Review',
     focus: 'Statistical interpretation and Sigma impact',
   },
   'case-06-calibration-shift': {
-    displayTitle: 'Morning QC Room — Shift Following Scheduled Calibration',
+    displayTitle: 'Morning QC Room — Creatinine QC Investigation Following Calibration',
     focus: 'Investigation strategy and verification after intervention',
   },
   'case-07-no-patient-impact': {
-    displayTitle: 'Morning QC Room — Brief Shift During an Environmental Event',
+    displayTitle: 'Morning QC Room — Calcium QC Signal During an Environmental Event',
     focus: 'Patient-impact reasoning and risk assessment',
   },
   'case-08-eqa-discordance': {
@@ -56,11 +56,11 @@ const PRODUCTION_CASE_META = {
     focus: 'External quality assessment interpretation',
   },
   'case-09-seek-more-evidence': {
-    displayTitle: 'Morning QC Room — Ambiguous Single-Run Deviation',
+    displayTitle: 'Morning QC Room — Magnesium Level 2 QC Single-Run Deviation',
     focus: 'Evidence selection and metacognitive calibration',
   },
   'case-10-premature-release-trap': {
-    displayTitle: 'Morning QC Room — Shift Persists After First Correction',
+    displayTitle: 'Morning QC Room — Chloride Level 1 QC Investigation Following a Reagent Lot Change',
     focus: 'Verification quality and investigation strategy',
   },
   'case-11-concurrent-triage': {
@@ -101,9 +101,10 @@ export function ProductionCaseSelect({ cases, onReturn }) {
   );
 
   const handleCaseCompleted = useCallback((caseId, projection) => {
-    recordCompletedAttempt(caseId, projection);
+    const caseMeta = cases.find(c => c.identity.id === caseId);
+    recordCompletedAttempt(caseId, projection, { caseFamily: caseMeta?.identity?.caseFamily, difficulty: caseMeta?.identity?.difficulty });
     setHistoryVersion(v => v + 1);
-  }, []);
+  }, [cases]);
 
   const handleResetHistory = useCallback(() => {
     if (typeof window !== 'undefined' && !window.confirm('Reset all learning history? This cannot be undone.')) return;

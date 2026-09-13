@@ -190,7 +190,7 @@ async function main() {
     await gotoMorningQC(page);
     await resetLearnerHistory(page);
     // INTERMEDIATE: case-06-calibration-shift
-    const calibCard = page.locator('.mqc-case-select__grid .mqc-case-select__card', { hasText: 'Shift Following Scheduled Calibration' });
+    const calibCard = page.locator('.mqc-case-select__grid .mqc-case-select__card', { hasText: 'Creatinine QC Investigation Following Calibration' });
     await calibCard.click();
     await page.waitForSelector('[data-testid="morning-qc-room"]');
     await page.getByRole('button', { name: 'Acknowledge signal', exact: true }).click();

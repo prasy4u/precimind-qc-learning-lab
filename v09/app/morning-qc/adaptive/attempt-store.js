@@ -2,21 +2,59 @@
    v09/app/morning-qc/adaptive/attempt-store.js
 
    Morning QC Room — Stage 12D Local Learner Attempt Store
-   PROVENANCE: V09_NEW
+   PROVENANCE: V09_MODIFIED (Stage 12D corrective closure)
 
    Section 20-22: a deterministic, local-only persistence layer for
    learner attempt records. Uses window.localStorage when available
    (browser/production), falling back to an injectable in-memory Map
    (Node/tests) — no new dependency, no external network call, ever.
 
-   PRIVACY (Section 22): an attempt record contains ONLY simulation-
-   learning data — no name, email, staff identifier, institution, real
-   patient data, IP address, or device fingerprint. Never stores raw
-   hidden ground truth (Section 20) — only the SAME safe, post-gate
-   debrief projection fields already exposed to the learner.
+   PRIVACY HARDENING (Section 11 corrective closure): independent audit
+   proved that a raw recordAttempt() call could persist arbitrary fields
+   — including groundTruth and email — completely unchanged, since the
+   prior version trusted its caller entirely. recordAttempt() now
+   validates every record against a strict ALLOWLIST
+   (ATTEMPT_RECORD_ALLOWED_FIELDS) before ever writing to storage: any
+   field outside that allowlist causes the entire record to be
+   REJECTED (not silently stripped — a caller passing a disallowed
+   field is a bug that should fail loudly, not be quietly "fixed").
    ========================================================================= */
 
 const STORAGE_KEY = 'precimind-morningqc-attempts-v1';
+
+// Stage 12D Section 11/13: the complete, strict allowlist of fields a
+// safe attempt record may contain. Includes the research-readiness
+// fields from Section 13 (caseFamily, difficulty, caseSchemaVersion,
+// decisionEventId/quadrant inside decisionSummary, decisionEventId/
+// category inside confidenceSummary, evidence/verification summaries,
+// executedFinalDisposition) — but NEVER groundTruth, and NEVER any
+// personal identifier (name, email, staff/patient ID, institution, IP,
+// device fingerprint).
+export const ATTEMPT_RECORD_ALLOWED_FIELDS = [
+  'attemptId', 'caseId', 'caseFamily', 'difficulty', 'caseSchemaVersion',
+  'startedAt', 'completedAt',
+  'competencyProfile', 'decisionSummary', 'confidenceSummary',
+  'evidenceSummary', 'verificationSummary',
+  'finalServiceState', 'executedFinalDisposition', 'recommendedLearningPriorities',
+];
+
+/**
+ * Validates a candidate record against the strict allowlist. Returns
+ * {valid, errors} — never silently strips fields; an out-of-schema
+ * field is a hard validation failure.
+ */
+export function validateAttemptRecord(record) {
+  const errors = [];
+  if (record == null || typeof record !== 'object') {
+    return { valid: false, errors: ['attempt record must be a non-null object'] };
+  }
+  for (const key of Object.keys(record)) {
+    if (!ATTEMPT_RECORD_ALLOWED_FIELDS.includes(key)) {
+      errors.push(`attempt record contains a field outside the strict allowlist: "${key}"`);
+    }
+  }
+  return { valid: errors.length === 0, errors };
+}
 
 function getBackend(injectedStorage) {
   if (injectedStorage) return injectedStorage;
@@ -57,11 +95,16 @@ function writeAll(records, storage) {
 }
 
 /**
- * Records a single, safe attempt. `record` must already be the reduced,
- * safe shape (Section 20) — this function does not itself reach into
- * raw case/groundTruth data.
+ * Records a single attempt — but ONLY if it validates against the
+ * strict allowlist (Section 11). Throws if the record contains any
+ * disallowed field (including groundTruth or any personal identifier),
+ * rather than silently sanitizing and persisting a partial record.
  */
 export function recordAttempt(record, storage) {
+  const { valid, errors } = validateAttemptRecord(record);
+  if (!valid) {
+    throw new Error(`recordAttempt() refused an unsafe attempt record: ${errors.join('; ')}`);
+  }
   const all = readAll(storage);
   all.push(record);
   writeAll(all, storage);

@@ -31,6 +31,13 @@ export const pilot3RcvPatientImpact = {
     difficulty: 'LEVEL_3_MULTIPLE_SIGNALS_INCOMPLETE_EVIDENCE',
     intendedLearnerLevel: ['advanced', 'expert'],
     competencyMapping: ['QC-05', 'QC-06', 'QC-11'],
+    curriculum: {
+      estimatedMinutes: 18,
+      tags: ['rcv', 'patient-impact', 'statistical-interpretation'],
+      sequencingGroup: 'patient-impact-reasoning',
+      prerequisiteCompetencies: ['STATISTICAL_INTERPRETATION'],
+      competencyTargets: ['STATISTICAL_INTERPRETATION', 'PATIENT_IMPACT_REASONING', 'ANALYTICAL_REASONING'],
+    },
   },
   labContext: {
     analyte: 'Potassium (synthetic educational dataset)',

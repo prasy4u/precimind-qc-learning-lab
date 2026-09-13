@@ -1,0 +1,32 @@
+{
+  "description": "Stage 12D Section 18 sanction: a freeze manifest for accepted Stage 12B/12C real-browser screenshot evidence (restored byte-identically from the accepted Stage 12C baseline commit d81fa9e764cbcb307226af5a2db98d323548109e after Stage 12D's initial commit inadvertently overwrote 10 of them during unrelated regression runs). Historical evidence directories (stage12b/, stage12c/) must never be used as output targets for later stages' regression runs; any new cross-stage evidence belongs under that stage's own evidence directory (e.g. stage12d/) or a disposable temp location.",
+  "files": {
+    "v09/tests/browser/evidence/stage12b/p1-decision-dialog-1440x1000.png": "9514e0d3b33fd7ea35ab96631459dc3eda26e8ef5536c8b981d01d86350fe45e",
+    "v09/tests/browser/evidence/stage12b/p1-desktop-1440x1000.png": "a06ecde19b4827789d3f3f0d5cdab82ebf991feba386d6be60e9c079e315fe33",
+    "v09/tests/browser/evidence/stage12b/p1-drawer-open-390x844.png": "f2a701918c3d739d702c427f497b0fa30110aff2165ebd09965fe7fe74a03be0",
+    "v09/tests/browser/evidence/stage12b/p1-held-verification-1440x1000.png": "32e6ad397cbdcbe3a9dce15449171492eab512f7586a03ef38e4be8d1e80d1ed",
+    "v09/tests/browser/evidence/stage12b/p1-initial-1440x1000.png": "b372445a021ca85a5f7a3ea3ae86543f58dc92dc871cc1a8293d94b9ba8f1131",
+    "v09/tests/browser/evidence/stage12b/p1-mobile-390x844.png": "a801726641b8291cd3a66bf952e7a6019c5b5acd670f83ec67a06fe96ececeb1",
+    "v09/tests/browser/evidence/stage12b/p1-mobile-decision-dialog-390x844.png": "6710324e6a709678db2372ea521554f4547698ddd20095e75a57a9ce5b8ac287",
+    "v09/tests/browser/evidence/stage12b/p1-mobile-held-verification-390x844.png": "7b1dc9d268f8b816af806fea12c7126288509519d5e6f262e0b8ceae738d25f2",
+    "v09/tests/browser/evidence/stage12b/p1-mobile-panel-open-390x844.png": "9a2fe02768554a203f0f42c4e333691e1bcd2b746ac8e5d55cebd7936f0ba3f3",
+    "v09/tests/browser/evidence/stage12b/p1-panel-open-1440x1000.png": "cf650dac0f424f8c45d228d0da121a6db9b50a2ecd79d66197f0b948f187e859",
+    "v09/tests/browser/evidence/stage12b/p2-early-disposition-dialog.png": "7a001bf4bfc7e6f957f03bb409e9f618ac2a2312e993f0e56210d7139caff062",
+    "v09/tests/browser/evidence/stage12c/mobile-debrief-overview-390x844.png": "d67244343c3fda35a13391e7b9a4651e1c76667490afbfcec6c21820436dc7e3",
+    "v09/tests/browser/evidence/stage12c/mobile-decision-calibration-390x844.png": "d67244343c3fda35a13391e7b9a4651e1c76667490afbfcec6c21820436dc7e3",
+    "v09/tests/browser/evidence/stage12c/mobile-landing-390x844.png": "f09389d15d4ca42dc2a76c6b4b7811fb5db61027169c1e5b71f467be4280d7e6",
+    "v09/tests/browser/evidence/stage12c/mobile-p2-early-unsupported-390x844.png": "23e08c32a93d1e23b03e52dfd884f46c102da9a2ef618a2b1d689c3f45d2d0dd",
+    "v09/tests/browser/evidence/stage12c/p1-debrief-overview-1440x1000.png": "fedd20c88cd005de3a3f5e6cbbc03ca5d683e4db1237cea7bf0051ba40c2d719",
+    "v09/tests/browser/evidence/stage12c/p2-debrief-overview-1440x1000.png": "f28ed3191f755d336af02b9bb0d4dfe30bc9531b98f56c77978973124ad68d2e",
+    "v09/tests/browser/evidence/stage12c/p2-decision-calibration-1440x1000.png": "f28ed3191f755d336af02b9bb0d4dfe30bc9531b98f56c77978973124ad68d2e",
+    "v09/tests/browser/evidence/stage12c/p2-early-high-confidence.png": "46a09b14a59947d2be32646a9008d8fff801cf7fd91352ffe04667fd9d0a3688",
+    "v09/tests/browser/evidence/stage12c/p3-debrief-overview-1440x1000.png": "2d3e80e90e7167219b23d5a65855ad373c6d078f59098779c04ce912d72fefa3",
+    "v09/tests/browser/evidence/stage12c/prod-competency-profile-1440x1000.png": "766ff95fc94fc972634eadd8b5b67cb307d5ec25724437d5833f2e95f3c44a0a",
+    "v09/tests/browser/evidence/stage12c/prod-debrief-overview-1440x1000.png": "766ff95fc94fc972634eadd8b5b67cb307d5ec25724437d5833f2e95f3c44a0a",
+    "v09/tests/browser/evidence/stage12c/prod-decision-review-1440x1000.png": "97927f1fc2f63cfa0b240cd1ce105c31d3b226f938f4894e83782a692912333e",
+    "v09/tests/browser/evidence/stage12c/prod-home-1440x1000.png": "c72d840453588f018257eceea4775b1eae38516d0da2018fd9117659d4dd31d9",
+    "v09/tests/browser/evidence/stage12c/prod-mobile-debrief-390x844.png": "71f5e24af0fd50fc6b37dff34924209e597b7ef1752eb2d8080763f30486be21",
+    "v09/tests/browser/evidence/stage12c/prod-mobile-landing-390x844.png": "f09389d15d4ca42dc2a76c6b4b7811fb5db61027169c1e5b71f467be4280d7e6",
+    "v09/tests/browser/evidence/stage12c/prod-morningqc-landing-1440x1000.png": "bde19b5ec44f7ddf314871da85e94f37342899f308415e9954557421c66407c4"
+  }
+}

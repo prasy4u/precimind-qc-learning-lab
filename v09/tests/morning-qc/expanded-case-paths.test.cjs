@@ -78,9 +78,10 @@ async function main() {
       { type: 'INSPECT_PANEL', panelId: 'panel-sigma' }, { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-sigma-degraded' },
       { type: 'INSPECT_PANEL', panelId: 'panel-maintenance' }, { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-probe-flagged' },
       { type: 'APPLY_INTERVENTION', decisionId: 'dec-intervention', optionId: 'opt-service-probe' },
-      { type: 'VERIFY_RECOVERY' }, { type: 'RESUME_SERVICE' },
+      { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-post-service-sd-recovery' },
+      { type: 'VERIFY_RECOVERY' }, { type: 'RESUME_SERVICE', decisionId: 'dec-disposition', optionId: 'opt-resume-verified' },
     ]);
-    assert('P5-EXPERT-01', expert.error === null && expert.state.serviceState === 'RESUMED', 'Case 5 expert path resumes cleanly');
+    assert('P5-EXPERT-01', expert.error === null && expert.state.serviceState === 'RESUMED', 'Case 5 expert path resumes cleanly after a genuine post-service repeat window');
 
     const adv1 = await run(c, [{ type: 'ACKNOWLEDGE_SIGNAL' }, { type: 'CONTINUE_ANALYSIS', decisionId: 'dec-containment', optionId: 'opt-continue-mean-fine' }]);
     assert('P5-ADV-01', adv1.lastOut.severity === 'UNSAFE' && adv1.lastOut.outcomeAppropriate === false, 'Case 5 adversarial: dismissing because the mean is fine is correctly flagged UNSAFE');
@@ -243,11 +244,12 @@ async function main() {
       { type: 'FORM_HYPOTHESIS', hypothesisId: 'hyp-tsh-cal-drift', decisionId: 'dec-priority', optionId: 'opt-prioritize-tsh' },
       { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-tsh-trend' }, { type: 'INSPECT_PANEL', panelId: 'panel-calibration' },
       { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-tsh-cal-overdue' }, { type: 'APPLY_INTERVENTION', decisionId: 'dec-intervention', optionId: 'opt-recalibrate-tsh' },
+      { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-tsh-post-recal-recovery' },
       { type: 'REPEAT_QC' }, { type: 'INSPECT_PANEL', panelId: 'panel-glucose-repeat' },
       { type: 'FORM_HYPOTHESIS', hypothesisId: 'hyp-glucose-random' }, { type: 'REQUEST_EVIDENCE', evidenceId: 'ev-glucose-repeat-normal' },
       { type: 'VERIFY_RECOVERY' }, { type: 'RESUME_SERVICE', decisionId: 'dec-disposition', optionId: 'opt-resume-both-verified' },
     ]);
-    assert('P11-EXPERT-01', expert.error === null && expert.state.serviceState === 'RESUMED', 'Case 11 expert path correctly prioritizes TSH and resumes after verifying both analytes independently');
+    assert('P11-EXPERT-01', expert.error === null && expert.state.serviceState === 'RESUMED', 'Case 11 expert path correctly prioritizes TSH, obtains genuine post-recalibration recovery, and resumes after verifying both analytes independently');
 
     const adv1 = await run(c, [
       { type: 'ACKNOWLEDGE_SIGNAL' }, { type: 'HOLD_RESULTS', decisionId: 'dec-containment', optionId: 'opt-hold-both' },

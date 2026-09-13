@@ -30,6 +30,7 @@ export const case04IsolatedExcursion = {
       tags: ['random-variation', 'repeat-testing', 'avoid-unnecessary-intervention'],
       sequencingGroup: 'signal-interpretation-foundation',
       prerequisiteCompetencies: [],
+      competencyTargets: ['SIGNAL_RECOGNITION', 'INVESTIGATION_STRATEGY'],
     },
     instructor: {
       teachingPoints: [

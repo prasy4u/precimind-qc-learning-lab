@@ -247,6 +247,19 @@ function isEvidenceAvailable(evidenceItem, caseObj, state) {
   if (evidenceItem.availableOnlyAfterActionType != null) {
     if (!state.actionHistory.some(h => h.type === evidenceItem.availableOnlyAfterActionType)) return false;
   }
+  // Stage 12D Section 3: decision-OPTION-specific evidence provenance.
+  // availableOnlyAfterActionType alone cannot distinguish between
+  // multiple authored options sharing the same actionType (e.g. two
+  // different APPLY_INTERVENTION options within the same case) —
+  // requires that a prior actionHistory entry genuinely executed this
+  // EXACT decisionId + optionId, not merely any action of a matching
+  // type. This closes the class of "wrong intervention still unlocks
+  // the right recovery evidence" exploits found in Stage 12D's
+  // corrective audit (RECOV-05/10/11/12).
+  if (evidenceItem.availableOnlyAfterDecisionOption != null) {
+    const { decisionId, optionId } = evidenceItem.availableOnlyAfterDecisionOption;
+    if (!state.actionHistory.some(h => h.decisionId === decisionId && h.optionId === optionId)) return false;
+  }
   return true;
 }
 
@@ -492,6 +505,7 @@ export function applyAction(caseObj, state, action) {
         const reasonParts = [];
         if (ev.sourcePanelId != null) reasonParts.push(`source panel "${ev.sourcePanelId}" must be inspected`);
         if (ev.availableOnlyAfterActionType != null) reasonParts.push(`prior action type "${ev.availableOnlyAfterActionType}" must have occurred`);
+        if (ev.availableOnlyAfterDecisionOption != null) reasonParts.push(`decision "${ev.availableOnlyAfterDecisionOption.decisionId}" option "${ev.availableOnlyAfterDecisionOption.optionId}" must have been genuinely executed`);
         return { state, error: `Evidence "${ev.id}" is not yet available (${reasonParts.join(' AND ')})`, severity: null };
       }
       if (!ev.relevant && !authoredOption) { severity = 'INEFFICIENT'; outcomeAppropriate = false; }

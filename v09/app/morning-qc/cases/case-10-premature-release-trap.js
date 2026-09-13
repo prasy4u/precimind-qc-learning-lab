@@ -17,7 +17,7 @@
 export const case10PrematureReleaseTrap = {
   identity: {
     id: 'case-10-premature-release-trap',
-    title: 'Chloride Level 1 QC — Shift Persists After First Corrective Attempt',
+    title: 'Chloride Level 1 QC — Investigation Following a Reagent Lot Change',
     caseFamily: 'P',
     version: '1.0.0',
     difficulty: 'LEVEL_3_MULTIPLE_SIGNALS_INCOMPLETE_EVIDENCE',
@@ -28,6 +28,7 @@ export const case10PrematureReleaseTrap = {
       tags: ['verification-before-release', 'premature-resume', 'failed-recovery'],
       sequencingGroup: 'investigation-verification',
       prerequisiteCompetencies: ['VERIFICATION_QUALITY'],
+      competencyTargets: ['VERIFICATION_QUALITY', 'INVESTIGATION_STRATEGY'],
     },
     instructor: {
       teachingPoints: [
@@ -58,12 +59,13 @@ export const case10PrematureReleaseTrap = {
   ],
   hypotheses: [
     { id: 'hyp-new-lot', label: 'The new reagent lot (#7712) is causing the shift.', plausibleFromStart: true },
+    { id: 'hyp-electrode', label: 'An overdue ISE reference-junction replacement is causing the shift, independent of the lot change.', plausibleFromStart: false },
   ],
   evidence: [
     { id: 'ev-lot-timing', source: 'panel-reagent-lot', sourcePanelId: 'panel-reagent-lot', timestamp: 30, observedValueOrFinding: 'Lot #7712 was brought into service immediately before the exceedance.', interpretationLimits: 'Establishes plausible timing — does not by itself confirm reverting the lot will resolve the shift.', supportsHypothesisIds: ['hyp-new-lot'], weakensHypothesisIds: [], decisive: false, relevant: true, availableOnlyAfterActionType: null },
-    { id: 'ev-first-repeat-still-high', source: 'repeat QC on reverted lot', sourcePanelId: null, timestamp: 50, observedValueOrFinding: 'After reverting to the previous lot (#7698), a repeat QC still reads 106.9 mmol/L — still exceeding the limit.', interpretationLimits: 'This is the critical finding: the first corrective attempt (reverting the lot) did NOT resolve the shift, meaning the reagent lot was not the sole or correct explanation. This must not be ignored or treated as a fluke.', supportsHypothesisIds: [], weakensHypothesisIds: ['hyp-new-lot'], decisive: true, relevant: true, availableOnlyAfterActionType: 'APPLY_INTERVENTION' },
-    { id: 'ev-ise-electrode-flagged', source: 'panel-analyzer-status', sourcePanelId: 'panel-analyzer-status', timestamp: 55, observedValueOrFinding: 'The chloride ISE electrode\u2019s reference junction is flagged as due for replacement, overdue by 3 weeks.', interpretationLimits: 'A plausible genuine cause independent of the reagent lot, consistent with the lot revert failing to resolve the shift.', supportsHypothesisIds: [], weakensHypothesisIds: ['hyp-new-lot'], decisive: false, relevant: true, availableOnlyAfterActionType: null },
-    { id: 'ev-second-repeat-normal', source: 'repeat QC after electrode replacement', sourcePanelId: null, timestamp: 90, observedValueOrFinding: 'After replacing the overdue reference junction, repeat QC reads 100.4 mmol/L — within control.', interpretationLimits: 'Genuine verification of recovery after the SECOND, correct intervention.', supportsHypothesisIds: [], weakensHypothesisIds: [], decisive: true, relevant: true, availableOnlyAfterActionType: 'APPLY_INTERVENTION' },
+    { id: 'ev-first-repeat-still-high', source: 'repeat QC on reverted lot', sourcePanelId: null, timestamp: 50, observedValueOrFinding: 'After reverting to the previous lot (#7698), a repeat QC still reads 106.9 mmol/L — still exceeding the limit.', interpretationLimits: 'This is the critical finding: the first corrective attempt (reverting the lot) did NOT resolve the shift, meaning the reagent lot was not the sole or correct explanation. This must not be ignored or treated as a fluke.', supportsHypothesisIds: ['hyp-electrode'], weakensHypothesisIds: ['hyp-new-lot'], decisive: true, relevant: true, availableOnlyAfterActionType: null, availableOnlyAfterDecisionOption: { decisionId: 'dec-intervention', optionId: 'opt-revert-lot' } },
+    { id: 'ev-ise-electrode-flagged', source: 'panel-analyzer-status', sourcePanelId: 'panel-analyzer-status', timestamp: 55, observedValueOrFinding: 'The chloride ISE electrode\u2019s reference junction is flagged as due for replacement, overdue by 3 weeks.', interpretationLimits: 'A plausible genuine cause independent of the reagent lot, consistent with the lot revert failing to resolve the shift.', supportsHypothesisIds: ['hyp-electrode'], weakensHypothesisIds: ['hyp-new-lot'], decisive: false, relevant: true, availableOnlyAfterActionType: null },
+    { id: 'ev-second-repeat-normal', source: 'repeat QC after electrode replacement', sourcePanelId: null, timestamp: 90, observedValueOrFinding: 'After replacing the overdue reference junction, repeat QC reads 100.4 mmol/L — within control.', interpretationLimits: 'Genuine verification of recovery after the SECOND, correct intervention.', supportsHypothesisIds: ['hyp-electrode'], weakensHypothesisIds: [], decisive: true, relevant: true, availableOnlyAfterActionType: null, availableOnlyAfterDecisionOption: { decisionId: 'dec-intervention', optionId: 'opt-replace-electrode' } },
   ],
   decisionOpportunities: [
     { id: 'dec-containment', category: 'CONTAINMENT', availableFromPhase: 'SIGNAL_RECOGNITION', options: [
@@ -97,6 +99,7 @@ export const case10PrematureReleaseTrap = {
     appropriateDisposition: 'HOLD_INVESTIGATE_SECOND_INTERVENTION_THEN_RESUME_AFTER_VERIFIED_RECOVERY',
     evidenceForHypotheses: [
       { hypothesisId: 'hyp-new-lot', supports: false, weight: 'DECISIVE' },
+      { hypothesisId: 'hyp-electrode', supports: true, weight: 'DECISIVE' },
     ],
   },
   provenance: {

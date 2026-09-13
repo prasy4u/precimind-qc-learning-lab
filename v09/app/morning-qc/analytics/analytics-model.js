@@ -11,8 +11,72 @@
    ========================================================================= */
 import { EVENT_TYPES, EVENT_FIELD_SCHEMA, ANALYTICS_SCHEMA_VERSION } from './analytics-types.js';
 
+const QUADRANTS = ['CORRECT_SUPPORTED', 'CORRECT_UNSUPPORTED', 'INCORRECT_SUPPORTED', 'INCORRECT_UNSUPPORTED'];
+const CONFIDENCE_LEVELS = ['HIGH', 'MODERATE', 'LOW'];
+const CALIBRATION_CATEGORIES = [
+  'OVERCONFIDENT_WITH_INSUFFICIENT_EVIDENCE', 'APPROPRIATELY_CAUTIOUS', 'CORRECT_MODERATE',
+  'CORRECT_CALIBRATED', 'CORRECT_UNDERCONFIDENT', 'INCORRECT_OVERCONFIDENT',
+  'INCORRECT_APPROPRIATELY_UNCERTAIN', 'INCORRECT_MODERATE',
+];
+const RATINGS = ['NEEDS_IMPROVEMENT', 'DEVELOPING', 'PROFICIENT', 'STRONG', null];
+const SERVICE_STATES = ['RUNNING', 'HELD', 'RESUMED', 'ESCALATED'];
+
+function isPlainObject(v) { return v != null && typeof v === 'object' && !Array.isArray(v); }
+function onlyKeys(obj, allowed) { return isPlainObject(obj) && Object.keys(obj).every(k => allowed.includes(k)); }
+
+/**
+ * Field-type/enum checks per scalar field name — applied to EVERY event
+ * carrying that field name, regardless of event type. A field supplied
+ * as the wrong type (e.g. a scalar field given as an object, a common
+ * injection pattern) fails outright rather than merely being "present."
+ */
+function validateScalarField(field, value, errors, eventType) {
+  switch (field) {
+    case 'caseId': case 'panelId': case 'evidenceId': case 'decisionEventId': case 'decisionId': case 'reason':
+      if (typeof value !== 'string') errors.push(`${eventType}: "${field}" must be a string (found ${typeof value})`);
+      break;
+    case 'timestamp':
+      if (typeof value !== 'number' || !Number.isFinite(value)) errors.push(`${eventType}: "timestamp" must be a finite number`);
+      break;
+    case 'quadrant':
+      if (!QUADRANTS.includes(value)) errors.push(`${eventType}: "quadrant" is not a recognized value ("${JSON.stringify(value)}")`);
+      break;
+    case 'confidence':
+      if (!CONFIDENCE_LEVELS.includes(value)) errors.push(`${eventType}: "confidence" is not a recognized value ("${JSON.stringify(value)}")`);
+      break;
+    case 'category':
+      if (!CALIBRATION_CATEGORIES.includes(value)) errors.push(`${eventType}: "category" is not a recognized calibration category ("${JSON.stringify(value)}")`);
+      break;
+    case 'wasSuccessful': case 'wasRecommended':
+      if (typeof value !== 'boolean') errors.push(`${eventType}: "${field}" must be a boolean (found ${typeof value})`);
+      break;
+    case 'finalServiceState':
+      if (!SERVICE_STATES.includes(value)) errors.push(`${eventType}: "finalServiceState" is not a recognized service state ("${JSON.stringify(value)}")`);
+      break;
+    case 'caseFamily':
+      if (typeof value !== 'string') errors.push(`${eventType}: "caseFamily" must be a string`);
+      break;
+    case 'difficulty':
+      if (typeof value !== 'string') errors.push(`${eventType}: "difficulty" must be a string`);
+      break;
+    case 'competencyProfile':
+      if (!Array.isArray(value)) { errors.push(`${eventType}: "competencyProfile" must be an array`); break; }
+      value.forEach((entry, i) => {
+        if (!onlyKeys(entry, ['dimension', 'rating'])) errors.push(`${eventType}: competencyProfile[${i}] must contain ONLY {dimension, rating}`);
+        else {
+          if (typeof entry.dimension !== 'string') errors.push(`${eventType}: competencyProfile[${i}].dimension must be a string`);
+          if (!RATINGS.includes(entry.rating)) errors.push(`${eventType}: competencyProfile[${i}].rating is not a recognized rating`);
+        }
+      });
+      break;
+    default:
+      break; // 'type' itself, already checked separately
+  }
+}
+
 export function validateEvent(event) {
   const errors = [];
+  if (!isPlainObject(event)) return { valid: false, errors: ['event must be a non-null, non-array object'] };
   if (!EVENT_TYPES.includes(event.type)) { errors.push(`Unknown event type "${event.type}"`); return { valid: false, errors }; }
   const schema = EVENT_FIELD_SCHEMA[event.type];
   for (const field of schema.required) {
@@ -25,11 +89,7 @@ export function validateEvent(event) {
   // array. Switched to a STRICT ALLOWLIST — type + schema.required +
   // schema.optional — so ANY field outside that exact set fails
   // validation, automatically preventing hidden/internal/PII payload
-  // smuggling regardless of what name it's given. The explicit
-  // groundTruth check in `prohibited` is retained as defense-in-depth
-  // (a field named exactly "groundTruth" is guaranteed to be flagged
-  // even if a future schema change ever added it to required/optional
-  // by mistake).
+  // smuggling regardless of what name it's given.
   const allowedFields = new Set(['type', ...schema.required, ...schema.optional]);
   for (const field of Object.keys(event)) {
     if (!allowedFields.has(field)) {
@@ -38,6 +98,16 @@ export function validateEvent(event) {
   }
   for (const field of schema.prohibited) {
     if (field in event) errors.push(`${event.type}: prohibited field "${field}" present`);
+  }
+  // Stage 12D FINAL closure Section 6: DEEP validation — every field's
+  // own type/enum is checked, and nested competencyProfile entries are
+  // validated recursively. Independently reproduced and closed: a
+  // scalar field supplied as an object (e.g. caseId: {email:'...'}), or
+  // a nested PII/groundTruth injection inside competencyProfile, no
+  // longer passes merely because the top-level field NAME was allowed.
+  for (const field of Object.keys(event)) {
+    if (field === 'type') continue;
+    validateScalarField(field, event[field], errors, event.type);
   }
   return { valid: errors.length === 0, errors };
 }
@@ -77,6 +147,21 @@ export function aggregateAttempts(attempts) {
     for (const c of a.confidenceSummary || []) calibrationCounts[c.category] = (calibrationCounts[c.category] || 0) + 1;
   }
 
+  // Section 10 corrective closure: safe, aggregate verification-behavior
+  // analytics — never claims individual competence or staff performance,
+  // only counts across the (already-anonymised) attempt set.
+  let noVerificationAttemptedCount = 0, failedVerificationCount = 0, successfulVerificationCount = 0, failedBeforeSuccessCount = 0;
+  for (const a of attempts) {
+    const vs = a.verificationSummary;
+    if (!vs) continue;
+    if (vs.attempted === false) noVerificationAttemptedCount += 1;
+    else if (vs.attempted === true) {
+      if (vs.adequate === true) successfulVerificationCount += 1;
+      else if (vs.adequate === false) failedVerificationCount += 1;
+      if (vs.hadPrematureOrFailedAttemptBeforeSuccess === true) failedBeforeSuccessCount += 1;
+    }
+  }
+
   return {
     schemaVersion: ANALYTICS_SCHEMA_VERSION,
     totalAttempts: attempts.length,
@@ -85,6 +170,12 @@ export function aggregateAttempts(attempts) {
     decisionQuadrantCounts: quadrantCounts,
     unsupportedDecisionCount: unsupportedDecisionRate,
     confidenceCalibrationCounts: calibrationCounts,
+    verificationBehavior: {
+      noVerificationAttemptedCount,
+      failedVerificationCount,
+      successfulVerificationCount,
+      failedBeforeSuccessCount,
+    },
   };
 }
 
@@ -111,11 +202,20 @@ export function projectEventsFromAttempt(record) {
     }
   }
   for (const c of record.confidenceSummary || []) {
-    if (c.decisionEventId && c.category) {
-      events.push({ type: 'CONFIDENCE_RECORDED', caseId: record.caseId, decisionEventId: c.decisionEventId, confidence: c.confidence || 'MODERATE', category: c.category, timestamp: record.completedAt || baseTimestamp });
+    // Section 7 corrective fix: never fabricate a confidence level.
+    // Skip emitting CONFIDENCE_RECORDED entirely if the genuine
+    // confidence value is missing — defaulting to MODERATE would
+    // silently misrepresent a real HIGH or LOW confidence event.
+    if (c.decisionEventId && c.category && c.confidence) {
+      events.push({ type: 'CONFIDENCE_RECORDED', caseId: record.caseId, decisionEventId: c.decisionEventId, confidence: c.confidence, category: c.category, timestamp: record.completedAt || baseTimestamp });
     }
   }
-  if (record.verificationSummary && record.verificationSummary.attempted != null) {
+  // Section 8 corrective fix: only emit VERIFICATION_ATTEMPTED when a
+  // verification attempt genuinely occurred (attempted === true, strict
+  // equality) — the prior `!= null` check treated attempted:false (no
+  // attempt at all) as if an attempt had occurred and failed, which is
+  // false analytics.
+  if (record.verificationSummary && record.verificationSummary.attempted === true) {
     events.push({ type: 'VERIFICATION_ATTEMPTED', caseId: record.caseId, wasSuccessful: !!record.verificationSummary.adequate, timestamp: record.completedAt || baseTimestamp });
   }
   events.push({ type: 'CASE_COMPLETED', caseId: record.caseId, finalServiceState: record.finalServiceState, timestamp: record.completedAt || baseTimestamp, ...(record.competencyProfile != null ? { competencyProfile: record.competencyProfile } : {}) });

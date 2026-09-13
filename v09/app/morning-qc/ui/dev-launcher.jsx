@@ -30,6 +30,21 @@ import { MorningQCRoom } from './morning-qc-room.jsx';
 import { InstructorAnalyticsView } from '../../../dev/instructor-analytics-view.jsx';
 import { getAttemptHistory } from '../adaptive/index.js';
 
+// Section 11 (Stage 12D FINAL closure): this is a single-user, local-
+// only dev environment — there is no real multi-learner storage by
+// design (Section 21/22 privacy doctrine). For DEMONSTRATION purposes
+// only, the dev-only instructor view round-robins the local attempt
+// history into synthetic "Learner A/B/C" buckets so the aggregate/
+// per-learner projections can be exercised and reviewed with more than
+// one bucket. This never represents real separate learners — only ever
+// this same local learner's own history, split for display purposes.
+function splitIntoSyntheticLearners(attempts) {
+  const labels = ['Learner A', 'Learner B', 'Learner C'];
+  const buckets = { 'Learner A': [], 'Learner B': [], 'Learner C': [] };
+  attempts.forEach((a, i) => { buckets[labels[i % labels.length]].push(a); });
+  return buckets;
+}
+
 export function DevLauncher({ cases }) {
   const [selectedId, setSelectedId] = useState(null);
   const [pickerOpen, setPickerOpen] = useState(true);
@@ -65,7 +80,7 @@ export function DevLauncher({ cases }) {
       </div>
       <div style={{ flex: 1, minHeight: 0, minWidth: 0, overflow: 'auto' }}>
         {showInstructorView
-          ? <InstructorAnalyticsView attemptsByLearner={{ 'Learner A': getAttemptHistory() }} />
+          ? <InstructorAnalyticsView attemptsByLearner={splitIntoSyntheticLearners(getAttemptHistory())} />
           : selected && !pickerOpen
             ? <MorningQCRoom key={selected.identity.id} caseObj={selected} />
             : <div style={{ padding: 40, color: 'var(--text-muted)' }}>Choose a pilot case above to launch the Morning QC Room.</div>}

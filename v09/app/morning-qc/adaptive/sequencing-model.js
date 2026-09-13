@@ -29,6 +29,24 @@ function nextAttemptId() {
  */
 export function buildAttemptRecord(caseId, projection, options = {}) {
   const { startedAt, completedAt, caseFamily, difficulty } = options;
+  const timeline = projection.reasoningTimeline || [];
+  const highValueObtainedCount = projection.evidenceReview.obtained.highValueObtainedCount;
+  const lowValueObtainedCount = projection.evidenceReview.obtained.lowValueObtainedCount;
+  const totalEvidenceObtained = highValueObtainedCount + lowValueObtainedCount;
+  // Section 9 corrective closure: expanded, safely-derivable metrics.
+  // panelSummary.inspectedCount and verificationSummary.attemptCount/
+  // failedAttemptCount are computed directly from reasoningTimeline
+  // (real, already-safe action history already exposed by the debrief
+  // projection) — never fabricated. relevantInspectedCount/
+  // irrelevantInspectedCount are NOT included: they would require panel
+  // relevance metadata that is not currently exposed through the safe
+  // projection, and this closure does not reopen debrief-adapter.js's
+  // Stage 12C-frozen architecture to add it — documented here as a
+  // known, deliberate gap rather than fabricated.
+  const inspectedCount = timeline.filter(t => t.type === 'INSPECT_PANEL').length;
+  const verifyAttempts = timeline.filter(t => t.type === 'VERIFY_RECOVERY');
+  const attemptCount = verifyAttempts.length;
+  const failedAttemptCount = verifyAttempts.filter(t => t.outcomeAppropriate === false).length;
   const record = {
     attemptId: nextAttemptId(),
     caseId,
@@ -37,14 +55,19 @@ export function buildAttemptRecord(caseId, projection, options = {}) {
     completedAt: completedAt ?? Date.now(),
     competencyProfile: projection.competencyProfile,
     decisionSummary: projection.decisionReview.map(d => ({ decisionEventId: d.decisionEventId, decisionId: d.decisionId, quadrant: d.quadrant })),
-    confidenceSummary: projection.confidenceCalibration.map(c => ({ decisionEventId: c.decisionEventId, category: c.category })),
+    confidenceSummary: projection.confidenceCalibration.map(c => ({ decisionEventId: c.decisionEventId, confidence: c.confidence, category: c.category })),
     evidenceSummary: {
-      highValueObtainedCount: projection.evidenceReview.obtained.highValueObtainedCount,
-      lowValueObtainedCount: projection.evidenceReview.obtained.lowValueObtainedCount,
+      highValueObtainedCount,
+      lowValueObtainedCount,
+      ...(totalEvidenceObtained > 0 ? { efficiencyRatio: Math.round((highValueObtainedCount / totalEvidenceObtained) * 1000) / 1000 } : {}),
     },
+    panelSummary: { inspectedCount },
     verificationSummary: {
       attempted: projection.patientSafetyReview.verificationAttempted,
       adequate: projection.patientSafetyReview.verificationAdequate,
+      attemptCount,
+      failedAttemptCount,
+      hadPrematureOrFailedAttemptBeforeSuccess: attemptCount > 1 && failedAttemptCount > 0 && !!projection.patientSafetyReview.verificationAdequate,
     },
     finalServiceState: projection.caseResolution.actualServiceState,
     executedFinalDisposition: projection.documentationVsExecuted.executedDisposition,

@@ -173,7 +173,8 @@ async function main() {
     assert('8e', /Simulation-learning analytics only/.test(instructorViewSrc) || /summary\.disclaimer/.test(instructorViewSrc), 'The instructor view renders the mandatory disclaimer');
     const devLauncherSrc = fs.readFileSync(path.join(UI, 'dev-launcher.jsx'), 'utf8');
     assert('8f', /InstructorAnalyticsView/.test(devLauncherSrc), 'The instructor view is reachable from the isolated DevLauncher (dev-only)');
-    assert('8g', fs.existsSync(path.join(V09, 'tests', 'browser', 'evidence', 'stage12d', 'instructor-analytics-dev-view-1440x1000.png')), 'Real browser screenshot evidence of the instructor dev view exists under tests/browser/evidence/stage12d/');
+    assert('8g', fs.existsSync(path.join(V09, 'tests', 'browser', 'evidence', 'stage12d', 'instructor-analytics-dev-view-populated-1440x1400.png')), 'Real browser screenshot evidence of the POPULATED (non-zero) instructor dev view exists under tests/browser/evidence/stage12d/ (Section 11 FINAL closure)');
+    assert('8h', !fs.existsSync(path.join(V09, 'tests', 'browser', 'evidence', 'stage12d', 'instructor-analytics-dev-view-1440x1000.png')), 'The prior empty ("Total attempts: 0") instructor screenshot has been removed, not merely supplemented');
   }
 
   console.log('\n=== 9. Analytics schema version and case schema version present ===');

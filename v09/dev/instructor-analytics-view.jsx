@@ -66,6 +66,16 @@ export function InstructorAnalyticsView({ attemptsByLearner }) {
         </ul>
       </section>
 
+      <section aria-labelledby="iav-verification-heading">
+        <h2 id="iav-verification-heading">Verification Behavior</h2>
+        <ul>
+          <li>No verification attempted: {aggregate.verificationBehavior.noVerificationAttemptedCount}</li>
+          <li>Failed verification attempts: {aggregate.verificationBehavior.failedVerificationCount}</li>
+          <li>Successful verification: {aggregate.verificationBehavior.successfulVerificationCount}</li>
+          <li>Failed-before-successful pattern: {aggregate.verificationBehavior.failedBeforeSuccessCount}</li>
+        </ul>
+      </section>
+
       {Object.keys(summary.perLearner).length > 0 && (
         <section aria-labelledby="iav-perlearner-heading">
           <h2 id="iav-perlearner-heading">Per-Learner Summary (Synthetic Labels Only)</h2>

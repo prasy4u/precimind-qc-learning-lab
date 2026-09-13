@@ -1,8 +1,8 @@
 {
   "status": "PASS",
-  "passed": 17,
+  "passed": 21,
   "failed": 0,
-  "total": 17,
+  "total": 21,
   "browserExecutable": "/opt/pw-browsers/chromium-1194/chrome-linux/chrome",
   "checkpoints": [
     {
@@ -33,12 +33,12 @@
     {
       "id": "COMPLETION-STATUS-UPDATED",
       "status": "PASS",
-      "detail": "The completed case shows an updated status badge (found \"Completed\")"
+      "detail": "The completed case shows an updated status badge (found \"Repeat recommended\")"
     },
     {
       "id": "RECOMMENDATION-TARGETS-WEAK-DIM",
       "status": "PASS",
-      "detail": "Recommendation explanation names the weak competency (found \"Recommended because your previous debrief identified evidence selection as a development priority.\")"
+      "detail": "Recommendation explanation names the weak competency (found \"Recommended as consolidation practice. A case targeting evidence selection exists, but only at a higher difficulty — repeating this case first can help reinforce foundation skills.\")"
     },
     {
       "id": "DASHBOARD-SHOWS-PRIORITY",
@@ -89,6 +89,26 @@
       "id": "MOBILE-DASHBOARD-READABLE",
       "status": "PASS",
       "detail": "Progress dashboard renders and is readable on mobile"
+    },
+    {
+      "id": "INSTRUCTOR-VIEW-NONZERO",
+      "status": "PASS",
+      "detail": "The instructor dev view shows a genuinely non-zero total attempts count"
+    },
+    {
+      "id": "INSTRUCTOR-VIEW-LEARNERS",
+      "status": "PASS",
+      "detail": "Synthetic Learner A/B/C labels are shown (never real names)"
+    },
+    {
+      "id": "INSTRUCTOR-VIEW-VERIFICATION",
+      "status": "PASS",
+      "detail": "Verification-behavior analytics are shown"
+    },
+    {
+      "id": "INSTRUCTOR-VIEW-DISCLAIMER",
+      "status": "PASS",
+      "detail": "The mandatory disclaimer is present"
     }
   ]
 }

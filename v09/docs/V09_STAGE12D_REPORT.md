@@ -293,3 +293,51 @@ The corrective closure's own regression verification re-triggered the exact over
 - `stage12d-casebank-adaptive.test.js`: **47/47** (was 40, +7)
 - Real browser E2E: **17/17** (title-reference fix applied)
 - Stage 12A/12B/12C baselines: all reconfirmed unchanged after two additional governance false-positives were found and fixed (both from the legitimate `dev-launcher.jsx` instructor-view change, caught by each stage's own independent diff-based governance check)
+
+---
+
+## Stage 12D FINAL Adaptive, Privacy, Analytics + EQA Truth Closure
+
+A third independent audit found 16 remaining defects. All resolved.
+
+### 1. Rule C enforcement fixed
+Independently reproduced the exact violation (Level-1 weak performance recommending a Level-3 case). The recommender no longer falls back to a harder pool when no same-or-lower-difficulty targeting case exists — it recommends genuine consolidation practice (or an honest repeat, when no lateral alternative exists) with a truthful explanation, while the harder targeting case remains manually selectable.
+
+### 2. Honest no-target-dimension behavior
+A weak `DOCUMENTATION_GOVERNANCE` rating no longer produces the false "following consistently strong recent performance" message. `DOCUMENTATION_GOVERNANCE` was also added as a genuine, scientifically-justified `competencyTargets` entry on Case 8 (which centers on a `DOCUMENT` disposition).
+
+### 3. Rule D requires repeated strong performance
+Added an explicit, documented threshold (`MIN_ATTEMPTS_FOR_STRONG_PROGRESSION = 2`). One strong attempt no longer escalates difficulty; two genuinely does.
+
+### 4-5. Deep attempt validation, validated on read
+Every nested field (competencyProfile, decisionSummary, confidenceSummary, evidenceSummary, panelSummary, verificationSummary, executedFinalDisposition, recommendedLearningPriorities) now has its own keys and enum values strictly validated. All three of the audit's exact exploits (`{}`, `{attemptId:'x'}`, nested `email`/`groundTruth` inside `competencyProfile`) independently reproduced as accepted before the fix, and confirmed rejected after. `readAll()` now re-validates every stored record on read, silently dropping any that fail.
+
+### 6. Deep analytics-event validation
+Every scalar field now has its own type/enum check (not just top-level presence), and `competencyProfile` nested inside `CASE_COMPLETED` is recursively validated. All three of the audit's exact exploits reproduced-then-closed.
+
+### 7. Confidence preservation fixed
+Found the exact bug: `sequencing-model.js` dropped the real `confidence` field; `analytics-model.js` defaulted the missing value to `MODERATE`. Fixed both; verified HIGH and LOW both survive end-to-end.
+
+### 8. Verification-event fabrication fixed
+Changed the emission guard from `!= null` to strict `=== true`; verified all three scenarios (no attempt/failed/successful).
+
+### 9. Expanded safe attempt metrics
+Added `evidenceSummary.efficiencyRatio`, `panelSummary.inspectedCount` (from real `reasoningTimeline` action history), and `verificationSummary.attemptCount`/`failedAttemptCount`/`hadPrematureOrFailedAttemptBeforeSuccess`. `relevantInspectedCount`/`irrelevantInspectedCount` are documented as a known, deliberate gap — deriving them would require modifying `debrief-adapter.js`'s Stage-12C-frozen projection, which this closure does not reopen.
+
+### 10-11. Instructor verification analytics + populated screenshot
+Added aggregate verification-behavior counts (no attempt / failed / successful / failed-before-success) to `aggregateAttempts()` and the instructor view. Replaced the empty ("Total attempts: 0") screenshot with a populated one showing synthetic Learner A/B/C data with non-zero totals across every section — captured via a real, permanent browser-test checkpoint (not an ad-hoc script), which in the process found and fixed a real bug: `executedFinalDisposition` can legitimately be `null` (no disposition decision yet), which the deep validator had incorrectly rejected.
+
+### 12. Case 8 EQA model finalized (Option A)
+Removed all trueness/bias/interference/root-cause claims. Reframed as a genuine signal-explanation case: the apparent discordance is explained by comparison against the wrong peer group, not by any established mechanism. `disturbanceEstablished`/`rootCauseEstablished` both `false`; `signalExplanationEstablished` `true`.
+
+### 13. Genuine end-to-end adaptive path test
+Added a test that plays a real case through the engine, builds a real debrief projection, builds a real attempt record, records it, and calls the real recommender — verifying Rule C and genuine targeting hold through the full production pipeline, not just hand-built history objects.
+
+### 14. Nested privacy adversarial matrix
+Added direct tests for nested injection inside `competencyProfile`, `decisionSummary`, `confidenceSummary`, and `executedFinalDisposition` (attempt store), and nested injection inside `CASE_COMPLETED.competencyProfile` plus scalar-fields-supplied-as-objects (analytics events) — all confirmed rejected.
+
+### Regression note
+Fixing Rule C changed genuine, correct behavior for weak-dimension-with-only-harder-targets scenarios, which broke 5 existing tests that had unknowingly relied on the old, buggy escalation behavior when baselined from a Level-1 case. Re-baselined those tests to a Level-4 starting case so they test Rule B/targeting in isolation from Rule C, rather than weakening the new correct behavior.
+
+### Updated test totals
+`case-bank.test.cjs` **221/221**, `expanded-case-paths.test.cjs` **27/27**, `adaptive-sequencing.test.cjs` **41/41** (was 33, +8), `analytics.test.cjs` **47/47** (was 44, +3), `scientific-numeric-audit.test.cjs` **29/29**, `stage12d-casebank-adaptive.test.js` **48/48** (was 47, +1), real browser E2E **21/21** (was 17, +4, including the new populated-instructor-view checkpoint).

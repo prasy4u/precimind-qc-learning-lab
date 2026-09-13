@@ -2,29 +2,43 @@
    v09/app/morning-qc/adaptive/case-recommender.js
 
    Morning QC Room — Stage 12D Deterministic Case Recommender
-   PROVENANCE: V09_MODIFIED (Stage 12D corrective closure)
+   PROVENANCE: V09_MODIFIED (Stage 12D FINAL adaptive/privacy/analytics closure)
 
    Section 4/25-29: transparent, deterministic, explainable, reversible,
    non-punitive rules. Never uses random ranking, opaque ML, or external
-   API calls (Section 24/53). Inputs: prior competency ratings, prior
-   attempted cases (by ID/family), case metadata (difficulty/family/
-   competency targets). NEVER reads hidden ground truth of any case.
+   API calls. Inputs: prior competency ratings, prior attempted cases
+   (by ID/family), case metadata (difficulty/family/competency targets).
+   NEVER reads hidden ground truth of any case.
 
-   CORRECTIVE CLOSURE FIXES (Section 8-9): caseTargetsDimension()
-   previously returned true unconditionally, creating false adaptivity —
-   a recommendation could claim to target a weak dimension when the
-   chosen case did not actually exercise it. This now checks the case's
-   REAL, validated identity.curriculum.competencyTargets array (never
-   prerequisiteCompetencies, which is a distinct axis — a case's
-   prerequisites are what a learner should already have, not what the
-   case is designed to exercise). If no case targets a given dimension,
-   the recommender falls through generically rather than fabricating an
-   explanation. Difficulty ranking now derives from the single
-   authoritative CASE_DIFFICULTY_LEVELS array (case-schema.js) instead
-   of a second, drifting hand-maintained copy — the prior copy's
-   "LEVEL_5_EXPERT_AMBIGUOUS" did not match the real
-   "LEVEL_5_COMPLEX_GOVERNANCE_LONGITUDINAL" level and would have
-   silently ranked as an unrecognized (rank-0) difficulty.
+   FINAL CLOSURE FIXES:
+
+   Section 1 (Rule C enforcement): previously, if every case genuinely
+   targeting a weak dimension happened to be HARDER than the last
+   attempted case, the code fell back to the harder pool anyway,
+   violating "do not immediately increase difficulty after a weak
+   performance" (independently reproduced: Level 1 weak performance ->
+   a Level 3 recommendation). Now, when no same-or-lower-difficulty
+   targeting case exists, the recommender NEVER silently escalates —
+   it instead recommends genuine consolidation practice (any
+   unattempted, same-or-lower-difficulty case, preferring a different
+   family) with an HONEST explanation that a harder targeting case
+   exists but is being deliberately deferred; the learner may still
+   choose that harder case directly from "Browse all cases."
+
+   Section 2 (honest no-target-case behavior): when weak dimensions
+   exist but NONE has any targeting case anywhere in the bank, the
+   recommender must never claim "following consistently strong recent
+   performance" — that is a claim about performance, not target
+   availability, and asserting it here would be false. It now uses a
+   separate, honest "broadening/consolidation" message and does not
+   escalate difficulty.
+
+   Section 3 (Rule D requires REPEATED strong performance): a single
+   synthetic all-STRONG attempt previously triggered immediate
+   difficulty escalation. The documented doctrine ("after REPEATED
+   PROFICIENT/STRONG performance") is now enforced with a transparent,
+   deterministic threshold: at least 2 attempts, AND no weak dimension
+   present, before Rule D difficulty escalation is offered.
    ========================================================================= */
 import { buildCompetencyHistory } from './competency-history.js';
 import { CASE_DIFFICULTY_LEVELS } from '../case-schema.js';
@@ -35,6 +49,9 @@ function difficultyRank(difficulty) {
 }
 
 const WEAK_RATINGS = ['NEEDS_IMPROVEMENT', 'DEVELOPING'];
+
+/** Section 3: the deterministic threshold for Rule D escalation — documented here, not buried in a magic number. */
+export const MIN_ATTEMPTS_FOR_STRONG_PROGRESSION = 2;
 
 /**
  * A case genuinely "targets" a dimension only if that dimension appears
@@ -49,14 +66,15 @@ export { caseTargetsDimension };
 /**
  * Returns { case, reason } for the single recommended next case, or
  * null if the case bank is empty. `reason` is always a single short,
- * non-punitive, explainable sentence (Section 27) — never exposes raw
- * scoring objects, and never claims a competency target the chosen
- * case does not genuinely have.
+ * non-punitive, explainable sentence — never exposes raw scoring
+ * objects, never claims a competency target the chosen case does not
+ * genuinely have, and never claims strong performance that was not
+ * genuinely observed.
  */
 export function recommendNextCase(allCases, attempts) {
   if (!allCases || allCases.length === 0) return null;
 
-  // Section 29: cold start — no attempt history at all.
+  // Cold start — no attempt history at all.
   if (!attempts || attempts.length === 0) {
     const foundationCase = allCases
       .slice()
@@ -69,6 +87,7 @@ export function recommendNextCase(allCases, attempts) {
   const lastAttempt = attempts[attempts.length - 1];
   const lastCase = allCases.find(c => c.identity.id === lastAttempt.caseId);
   const lastFamily = lastCase ? lastCase.identity.caseFamily : null;
+  const lastDifficultyRank = lastCase ? difficultyRank(lastCase.identity.difficulty) : 0;
 
   // Rule A: prioritise NEEDS_IMPROVEMENT before DEVELOPING.
   const weakDims = Object.entries(history)
@@ -76,44 +95,74 @@ export function recommendNextCase(allCases, attempts) {
     .sort(([, a], [, b]) => (a.latestRating === 'NEEDS_IMPROVEMENT' ? 0 : 1) - (b.latestRating === 'NEEDS_IMPROVEMENT' ? 0 : 1))
     .map(([dim]) => dim);
 
-  // Try each weak dimension in priority order until one genuinely has a
-  // targeting case — never fabricate an explanation for a dimension no
-  // case actually targets.
+  let anyWeakDimHadATargetingCaseAnywhere = false;
+
   for (const targetDim of weakDims) {
     const candidates = allCases.filter(c => caseTargetsDimension(c, targetDim));
-    if (candidates.length === 0) continue; // no case targets this dimension — try the next weak one, or fall through below
+    if (candidates.length === 0) continue; // no case anywhere targets this dimension — try the next weak one
+
+    anyWeakDimHadATargetingCaseAnywhere = true;
 
     // Rule B: prefer a case targeting the weak competency but from a
-    // DIFFERENT family than the immediately previous case, avoiding
-    // rote memorisation of one pattern.
+    // DIFFERENT family than the immediately previous case.
     const differentFamily = candidates.filter(c => c.identity.caseFamily !== lastFamily);
     const pool = differentFamily.length > 0 ? differentFamily : candidates;
     // Rule C: do not immediately increase difficulty after a weak performance.
-    const lastDifficultyRank = lastCase ? difficultyRank(lastCase.identity.difficulty) : 0;
     const notHarder = pool.filter(c => difficultyRank(c.identity.difficulty) <= lastDifficultyRank);
-    const finalPool = notHarder.length > 0 ? notHarder : pool;
-    // Rule E: avoid repeating the same case unless no alternative exists.
-    const unrepeated = finalPool.filter(c => !attemptedCaseIds.has(c.identity.id));
-    const chosen = (unrepeated.length > 0 ? unrepeated : finalPool)[0];
-    return { case: chosen, reason: `Recommended because your previous debrief identified ${dimensionDisplayName(targetDim)} as a development priority.` };
+
+    if (notHarder.length > 0) {
+      const unrepeated = notHarder.filter(c => !attemptedCaseIds.has(c.identity.id));
+      const chosen = (unrepeated.length > 0 ? unrepeated : notHarder)[0];
+      return { case: chosen, reason: `Recommended because your previous debrief identified ${dimensionDisplayName(targetDim)} as a development priority.` };
+    }
+
+    // Every case genuinely targeting this weak dimension is HARDER than
+    // the last attempt. Rule C forbids escalating automatically here —
+    // recommend genuine consolidation practice instead (never claiming
+    // it targets the weak dimension, since it may not).
+    const consolidationPool = allCases.filter(c => difficultyRank(c.identity.difficulty) <= lastDifficultyRank && c.identity.caseFamily !== lastFamily);
+    const unrepeatedConsolidation = consolidationPool.filter(c => !attemptedCaseIds.has(c.identity.id));
+    if (unrepeatedConsolidation.length > 0) {
+      return { case: unrepeatedConsolidation[0], reason: `Recommended as consolidation practice at your current level. A case targeting ${dimensionDisplayName(targetDim)} exists, but only at a higher difficulty — you can choose it directly from "Browse all cases" if you feel ready.` };
+    }
+    return { case: lastCase || allCases[0], reason: `Recommended as consolidation practice. A case targeting ${dimensionDisplayName(targetDim)} exists, but only at a higher difficulty — repeating this case first can help reinforce foundation skills.` };
   }
 
-  // Rule D: after repeated PROFICIENT/STRONG performance (or no weak
-  // dimension had a genuinely targeting case), progress difficulty.
-  const lastDifficultyRank = lastCase ? difficultyRank(lastCase.identity.difficulty) : 0;
-  const harderUnattempted = allCases
-    .filter(c => !attemptedCaseIds.has(c.identity.id))
-    .filter(c => difficultyRank(c.identity.difficulty) > lastDifficultyRank)
-    .sort((a, b) => difficultyRank(a.identity.difficulty) - difficultyRank(b.identity.difficulty));
-  if (harderUnattempted.length > 0) {
-    return { case: harderUnattempted[0], reason: 'Recommended as a next step in complexity, following consistently strong recent performance.' };
+  // At this point, either there were no weak dimensions at all, or every
+  // weak dimension had NO targeting case anywhere in the bank.
+  if (weakDims.length > 0 && !anyWeakDimHadATargetingCaseAnywhere) {
+    // Section 2: honest broadening message — NEVER the strong-performance
+    // escalation message, and difficulty is never increased here.
+    const broadeningPool = allCases.filter(c => !attemptedCaseIds.has(c.identity.id) && c.identity.caseFamily !== lastFamily && difficultyRank(c.identity.difficulty) <= lastDifficultyRank);
+    if (broadeningPool.length > 0) {
+      return { case: broadeningPool[0], reason: 'Recommended to broaden your experience — no case in the current bank specifically targets your most recent development priority yet, so this continues practice at your current level.' };
+    }
+    const anyUnattempted = allCases.filter(c => !attemptedCaseIds.has(c.identity.id));
+    if (anyUnattempted.length > 0) {
+      return { case: anyUnattempted[0], reason: 'Recommended to broaden your experience — no case in the current bank specifically targets your most recent development priority yet.' };
+    }
+    return { case: lastCase || allCases[0], reason: 'No new case fits better right now — repeating this one can reinforce what you\u2019ve learned.' };
   }
 
-  // Fallback: any unattempted case from a different family than last time.
+  // Rule D: genuinely no weak dimension is currently active. Requires
+  // REPEATED strong performance (a transparent, documented threshold —
+  // MIN_ATTEMPTS_FOR_STRONG_PROGRESSION), never a single attempt, before
+  // automatically progressing difficulty.
+  if (attempts.length >= MIN_ATTEMPTS_FOR_STRONG_PROGRESSION) {
+    const harderUnattempted = allCases
+      .filter(c => !attemptedCaseIds.has(c.identity.id))
+      .filter(c => difficultyRank(c.identity.difficulty) > lastDifficultyRank)
+      .sort((a, b) => difficultyRank(a.identity.difficulty) - difficultyRank(b.identity.difficulty));
+    if (harderUnattempted.length > 0) {
+      return { case: harderUnattempted[0], reason: 'Recommended as a next step in complexity, following consistently strong recent performance.' };
+    }
+  }
+
+  // Fallback: any unattempted case from a different family than last time
+  // (never claims strong performance — this is a neutral broadening pick).
   const unattempted = allCases.filter(c => !attemptedCaseIds.has(c.identity.id) && c.identity.caseFamily !== lastFamily);
   if (unattempted.length > 0) return { case: unattempted[0], reason: 'Recommended to broaden your experience across a different case pattern.' };
 
-  // Rule E fallback: no suitable alternative — repeat is genuinely appropriate.
   return { case: lastCase || allCases[0], reason: 'No new case fits better right now — repeating this one can reinforce what you\u2019ve learned.' };
 }
 

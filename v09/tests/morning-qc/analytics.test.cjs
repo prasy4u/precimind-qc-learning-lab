@@ -132,6 +132,18 @@ async function main() {
     assert('ANALYTICS-PIPELINE-03', events.some(e => e.type === 'DECISION_EXECUTED' && e.decisionEventId === 'dec-containment#1'), 'decisionEventId is preserved through the projection into a real DECISION_EXECUTED event');
   }
 
+  console.log('\n=== Nested privacy adversarial matrix (Section 14/15 FINAL closure) ===');
+  {
+    const nested1 = validateEvent({ type: 'CASE_COMPLETED', caseId: 'c', finalServiceState: 'RESUMED', timestamp: 1, competencyProfile: [{ dimension: 'SIGNAL_RECOGNITION', rating: 'STRONG', staffId: '123', groundTruth: {} }] });
+    assert('ANALYTICS-NESTED-competencyProfile', !nested1.valid, `Nested staffId/groundTruth inside CASE_COMPLETED.competencyProfile is correctly rejected (errors: ${JSON.stringify(nested1.errors)})`);
+
+    const nested2 = validateEvent({ type: 'CASE_STARTED', caseId: { email: 'x@y.com' }, timestamp: 1 });
+    assert('ANALYTICS-NESTED-scalar-as-object', !nested2.valid, 'A scalar field (caseId) supplied as an object is correctly rejected');
+
+    const nested3 = validateEvent({ type: 'CASE_RECOMMENDED', caseId: 'c', reason: { patientId: 'x' }, timestamp: 1 });
+    assert('ANALYTICS-NESTED-reason-as-object', !nested3.valid, 'CASE_RECOMMENDED.reason supplied as an object (nested patientId) is correctly rejected');
+  }
+
   const total = passed + failed;
   console.log(`\n${'='.repeat(60)}`);
   console.log(`Analytics Tests: ${passed}/${total} passed, ${failed} failed`);

@@ -54,14 +54,23 @@ correct patient-impact terminal state is COMPLETED_NO_AFFECTED_RESULTS
 reached through active review, not default absence.
 
 ## Case 8 — EQA Discordance (Family I)
-**Hidden truth:** a known, expected diazo-method bias relative to the
-all-methods peer group — not a laboratory error. **Rationale:** IQC
-(precision/stability) and EQA (trueness) answer different questions; a
-stable IQC record can never be used to dismiss an EQA discordance.
-**Evidence hierarchy:** ev-method-subgroup-closer is decisive.
-**Misconception targeted:** "IQC is fine, so the EQA result must be
-wrong." **Disposition:** document the method-specific interpretation, no
-analytical hold needed. **Distinctness:** the only case with no
+**Hidden truth (revised, Stage 12D FINAL closure Option A):** no
+disturbance and no root cause are established — this is a
+signal-EXPLANATION case. The apparent discordance is explained by
+having compared against the wrong peer group (all-methods) rather than
+the correct one (method-specific); no bias, interference, or
+laboratory-specific problem is claimed, since no genuine, commutable
+reference-method target was authored for this case. **Rationale:** IQC
+(precision/stability) and EQA (peer/method comparability) answer
+different questions; a stable IQC record can never be used to dismiss
+an EQA discordance, and a peer-group mean (all-methods or
+method-specific) is a peer statistic, never itself a trueness
+reference. **Evidence hierarchy:** ev-method-subgroup-closer is
+decisive for identifying the correct peer group, not for establishing
+a mechanism. **Misconception targeted:** "IQC is fine, so the EQA
+result must be wrong" AND "closeness to the method-specific peer mean
+proves a specific interference." **Disposition:** document the
+peer-group re-interpretation, no analytical hold needed. **Distinctness:** the only case with no
 containment decision at all — appropriately, since no analytical
 disturbance exists.
 

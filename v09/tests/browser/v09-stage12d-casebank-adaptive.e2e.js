@@ -233,6 +233,54 @@ async function main() {
     await context.close();
   }
 
+  console.log('\n=== Instructor dev view: populated with synthetic Learner A/B/C (Section 11 FINAL closure) ===');
+  {
+    const DEV_DIST_DIR = path.join(V09, 'dist-morning-qc-dev');
+    const devServer = await serveStatic(DEV_DIST_DIR, PORT + 1);
+    const { context, page } = await newPage();
+    await page.goto(`http://localhost:${PORT + 1}/morning-qc-dev.html`, { waitUntil: 'networkidle' });
+    await page.evaluate(() => {
+      const records = [
+        { attemptId: 'a1', caseId: 'case-04-isolated-excursion', caseFamily: 'A', difficulty: 'LEVEL_1_CLEAR_SIGNAL', caseSchemaVersion: '1.1.0', startedAt: 1, completedAt: 2,
+          competencyProfile: [{ dimension: 'EVIDENCE_SELECTION', rating: 'NEEDS_IMPROVEMENT' }],
+          decisionSummary: [{ decisionEventId: 'd1#1', decisionId: 'dec-containment', quadrant: 'CORRECT_UNSUPPORTED' }],
+          confidenceSummary: [{ decisionEventId: 'd1#1', confidence: 'HIGH', category: 'OVERCONFIDENT_WITH_INSUFFICIENT_EVIDENCE' }],
+          evidenceSummary: { highValueObtainedCount: 1, lowValueObtainedCount: 1 }, panelSummary: { inspectedCount: 2 },
+          verificationSummary: { attempted: true, adequate: true, attemptCount: 1, failedAttemptCount: 0, hadPrematureOrFailedAttemptBeforeSuccess: false },
+          finalServiceState: 'RESUMED', executedFinalDisposition: { actionType: 'RESUME_SERVICE', decisionId: null, optionId: null, decisionEventId: null, outcomeAppropriate: true, reasoningSupported: true },
+          recommendedLearningPriorities: ['EVIDENCE_SELECTION'] },
+        { attemptId: 'a2', caseId: 'case-06-calibration-shift', caseFamily: 'D', difficulty: 'LEVEL_2_COMPETING_EXPLANATION', caseSchemaVersion: '1.1.0', startedAt: 3, completedAt: 4,
+          competencyProfile: [{ dimension: 'VERIFICATION_QUALITY', rating: 'PROFICIENT' }],
+          decisionSummary: [{ decisionEventId: 'd2#1', decisionId: 'dec-intervention', quadrant: 'CORRECT_SUPPORTED' }],
+          confidenceSummary: [{ decisionEventId: 'd2#1', confidence: 'MODERATE', category: 'CORRECT_MODERATE' }],
+          evidenceSummary: { highValueObtainedCount: 2, lowValueObtainedCount: 0 }, panelSummary: { inspectedCount: 2 },
+          verificationSummary: { attempted: true, adequate: true, attemptCount: 2, failedAttemptCount: 1, hadPrematureOrFailedAttemptBeforeSuccess: true },
+          finalServiceState: 'RESUMED', executedFinalDisposition: { actionType: 'RESUME_SERVICE', decisionId: null, optionId: null, decisionEventId: null, outcomeAppropriate: true, reasoningSupported: true },
+          recommendedLearningPriorities: [] },
+        { attemptId: 'a3', caseId: 'case-09-seek-more-evidence', caseFamily: 'O', difficulty: 'LEVEL_3_MULTIPLE_SIGNALS_INCOMPLETE_EVIDENCE', caseSchemaVersion: '1.1.0', startedAt: 5, completedAt: 6,
+          competencyProfile: [{ dimension: 'METACOGNITIVE_CALIBRATION', rating: 'DEVELOPING' }],
+          decisionSummary: [{ decisionEventId: 'd3#1', decisionId: 'dec-disposition', quadrant: 'INCORRECT_UNSUPPORTED' }],
+          confidenceSummary: [{ decisionEventId: 'd3#1', confidence: 'HIGH', category: 'INCORRECT_OVERCONFIDENT' }],
+          evidenceSummary: { highValueObtainedCount: 0, lowValueObtainedCount: 2 }, panelSummary: { inspectedCount: 3 },
+          verificationSummary: { attempted: false, adequate: false, attemptCount: 0, failedAttemptCount: 0, hadPrematureOrFailedAttemptBeforeSuccess: false },
+          finalServiceState: 'HELD', executedFinalDisposition: { actionType: 'HOLD_RESULTS', decisionId: null, optionId: null, decisionEventId: null, outcomeAppropriate: false, reasoningSupported: false },
+          recommendedLearningPriorities: ['METACOGNITIVE_CALIBRATION'] },
+      ];
+      localStorage.setItem('precimind-morningqc-attempts-v1', JSON.stringify(records));
+    });
+    await page.reload({ waitUntil: 'networkidle' });
+    await page.getByRole('button', { name: 'Instructor Analytics (Dev)' }).click();
+    await page.waitForTimeout(300);
+    const viewText = await page.locator('.mqc-instructor-view').innerText();
+    assert('INSTRUCTOR-VIEW-NONZERO', /Total attempts: [1-9]/.test(viewText), 'The instructor dev view shows a genuinely non-zero total attempts count');
+    assert('INSTRUCTOR-VIEW-LEARNERS', /Learner A/.test(viewText) && /Learner B/.test(viewText) && /Learner C/.test(viewText), 'Synthetic Learner A/B/C labels are shown (never real names)');
+    assert('INSTRUCTOR-VIEW-VERIFICATION', /Verification Behavior/.test(viewText), 'Verification-behavior analytics are shown');
+    assert('INSTRUCTOR-VIEW-DISCLAIMER', /Simulation-learning analytics only/.test(viewText), 'The mandatory disclaimer is present');
+    await page.screenshot({ path: path.join(EVIDENCE_DIR, 'instructor-analytics-dev-view-populated-1440x1400.png'), fullPage: true });
+    await context.close();
+    devServer.close();
+  }
+
   await browser.close();
   server.close();
 

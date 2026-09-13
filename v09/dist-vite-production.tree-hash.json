@@ -8,15 +8,15 @@
       "bytes": 47353
     },
     {
-      "path": "assets/index-D3PXufBH.js",
-      "sha256": "794bafae0f12d19fa106ec8b2aed835015ec957008a00ca5aaf69d2097282e51",
-      "bytes": 1060757
+      "path": "assets/index-adQfcKHd.js",
+      "sha256": "3c65ca6643d66e26b6bbe2683c3dd4ef7ec1d2f383b75d238bbfae813db5a198",
+      "bytes": 1062708
     },
     {
       "path": "index.html",
-      "sha256": "b5eb1b9717cabc23b220fca03dce06f71f36e140ddad9221af0569c4763b7262",
+      "sha256": "69b39d7d0d73adb31573a0347d27c654b191c38134fd487b14588c31cdaf5287",
       "bytes": 382
     }
   ],
-  "tree_hash_sha256": "f25cacb868982bfd4fb0f328845b2e8b4dd37c6bd963ef98650ef6e0ae4e4cdd"
+  "tree_hash_sha256": "04fa0a3222150b7d07300617685eaf3ccc46fd08dd3f0129fe027377ce2b2ed1"
 }

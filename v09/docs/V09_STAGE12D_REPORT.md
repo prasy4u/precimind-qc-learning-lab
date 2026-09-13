@@ -380,3 +380,27 @@ Fixing the canonical-schema requirement (Item 2) broke three of the browser E2E 
 
 ### Updated test totals
 `case-bank.test.cjs` **221/221**, `expanded-case-paths.test.cjs` **27/27**, `adaptive-sequencing.test.cjs` **41/41**, `analytics.test.cjs` **47/47**, `scientific-numeric-audit.test.cjs` **28/28** (was 29, −1: removed tautology), `stage12d-casebank-adaptive.test.js` **48/48**, real browser E2E **21/21**.
+
+---
+
+## Stage 12D FINAL ACCEPTANCE MICRO-Closure
+
+A fifth independent audit found 2 remaining integrity defects. Both resolved.
+
+### 1. Neutral-fallback difficulty escalation closed
+Independently reproduced all three violations (two empty/null/sparse Level-1 attempts each recommending Level 2) before touching code — traced to the final fallback (`unattempted`, reached once `unattemptedNotHarder` was empty) having no difficulty restriction at all. Fixed by adding two further capped fallback tiers (attempted-but-not-harder-different-family, then any-not-harder) before ever considering a harder case; a harder case is now never selected automatically anywhere in the function. Verified all 4 required scenarios directly (A/B/C correctly stay at Level 1; D correctly progresses to Level 2), plus additional checks confirming the same holds starting from Level 2/3/4.
+
+### 2. Nested attempt structures made fully canonical
+Independently reproduced `evidenceSummary: {}`, `panelSummary: {}`, `verificationSummary: {}`, `executedFinalDisposition: {}` all validating and persisting successfully. Fixed:
+- **evidenceSummary**: `highValueObtainedCount`/`lowValueObtainedCount` now required; `efficiencyRatio` required (and consistency-checked) once the denominator is positive.
+- **panelSummary**: `inspectedCount` required; optional fine-grained counts cross-checked (`relevantInspectedCount + irrelevantInspectedCount` cannot exceed `inspectedCount`; `selectivityRatio` consistency-checked when derivable).
+- **verificationSummary**: all five fields required; added `attempted===true ⇒ attemptCount>0`, `attemptCount===0 ⇒ attempted===false`, and `failedAttemptCount>0 ⇒ attempted===true`.
+- **executedFinalDisposition**: non-null values must now be the exact six-field object; `{}` no longer validates.
+
+Verified the full required replay matrix directly: E (nested-empty rejected), F (attempted=true+attemptCount=0 rejected), G (executedFinalDisposition={} rejected), H (a real `buildAttemptRecord()` output still accepted), and I (a malformed legacy record pre-populated directly into storage is silently quarantined on read, confirming no explicit migration was needed).
+
+### Regression found and fixed
+Tightening these nested schemas broke the browser E2E test's own three synthetic instructor-view fixtures (missing the now-required `efficiencyRatio`), caught via a real, permanent browser-test failure during this closure's own verification — fixed by adding the correct, consistent ratios to each fixture, then reconfirmed 21/21.
+
+### Updated test totals
+`adaptive-sequencing.test.cjs` **53/53** (was 41, +12: 7 Rule-D fallback replays, 5 canonical nested-shape/quarantine tests). All other Stage 12D suites unchanged in count: case-bank 221/221, expanded-paths 27/27, analytics 47/47, scientific-numeric-audit 28/28, Stage 12D governance 48/48, real browser E2E 21/21.

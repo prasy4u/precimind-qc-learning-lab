@@ -153,23 +153,30 @@ export function validateAttemptRecord(record) {
       errors.push('evidenceSummary: must contain ONLY {highValueObtainedCount, lowValueObtainedCount, efficiencyRatio}');
     } else {
       const es = record.evidenceSummary;
-      if ('highValueObtainedCount' in es && !isNonNegativeInt(es.highValueObtainedCount)) errors.push('evidenceSummary.highValueObtainedCount must be a non-negative integer');
-      if ('lowValueObtainedCount' in es && !isNonNegativeInt(es.lowValueObtainedCount)) errors.push('evidenceSummary.lowValueObtainedCount must be a non-negative integer');
-      if ('efficiencyRatio' in es && !(isFiniteNumber(es.efficiencyRatio) && es.efficiencyRatio >= 0 && es.efficiencyRatio <= 1)) errors.push('evidenceSummary.efficiencyRatio must be a finite number in [0,1]');
-      // Section 7 (FINAL ACCEPTANCE closure): if both raw counts and the
-      // derived efficiencyRatio are present, verify they are mutually
-      // consistent (using the same 3-decimal rounding tolerance
-      // buildAttemptRecord() itself uses) — never accept a fabricated or
-      // stale ratio alongside genuine counts. Skipped when the
-      // denominator is zero, since the ratio is then legitimately absent.
-      if ('highValueObtainedCount' in es && 'lowValueObtainedCount' in es && 'efficiencyRatio' in es
-          && isNonNegativeInt(es.highValueObtainedCount) && isNonNegativeInt(es.lowValueObtainedCount)) {
+      // Section 2 (FINAL ACCEPTANCE MICRO-closure): require the nested
+      // shape buildAttemptRecord() actually emits — an empty {} no
+      // longer validates.
+      if (!('highValueObtainedCount' in es)) errors.push('evidenceSummary: missing required field "highValueObtainedCount"');
+      else if (!isNonNegativeInt(es.highValueObtainedCount)) errors.push('evidenceSummary.highValueObtainedCount must be a non-negative integer');
+      if (!('lowValueObtainedCount' in es)) errors.push('evidenceSummary: missing required field "lowValueObtainedCount"');
+      else if (!isNonNegativeInt(es.lowValueObtainedCount)) errors.push('evidenceSummary.lowValueObtainedCount must be a non-negative integer');
+
+      if (isNonNegativeInt(es.highValueObtainedCount) && isNonNegativeInt(es.lowValueObtainedCount)) {
         const total = es.highValueObtainedCount + es.lowValueObtainedCount;
         if (total > 0) {
-          const expected = Math.round((es.highValueObtainedCount / total) * 1000) / 1000;
-          if (Math.abs(expected - es.efficiencyRatio) > 0.0005) {
-            errors.push(`evidenceSummary.efficiencyRatio (${es.efficiencyRatio}) is inconsistent with highValueObtainedCount/lowValueObtainedCount (expected ${expected})`);
+          // efficiencyRatio is REQUIRED once a denominator exists.
+          if (!('efficiencyRatio' in es)) {
+            errors.push('evidenceSummary: efficiencyRatio is required when highValueObtainedCount+lowValueObtainedCount > 0');
+          } else if (!(isFiniteNumber(es.efficiencyRatio) && es.efficiencyRatio >= 0 && es.efficiencyRatio <= 1)) {
+            errors.push('evidenceSummary.efficiencyRatio must be a finite number in [0,1]');
+          } else {
+            const expected = Math.round((es.highValueObtainedCount / total) * 1000) / 1000;
+            if (Math.abs(expected - es.efficiencyRatio) > 0.0005) {
+              errors.push(`evidenceSummary.efficiencyRatio (${es.efficiencyRatio}) is inconsistent with highValueObtainedCount/lowValueObtainedCount (expected ${expected})`);
+            }
           }
+        } else if ('efficiencyRatio' in es && !(isFiniteNumber(es.efficiencyRatio) && es.efficiencyRatio >= 0 && es.efficiencyRatio <= 1)) {
+          errors.push('evidenceSummary.efficiencyRatio must be a finite number in [0,1]');
         }
       }
     }
@@ -180,30 +187,58 @@ export function validateAttemptRecord(record) {
       errors.push('panelSummary: must contain ONLY {inspectedCount, relevantInspectedCount, irrelevantInspectedCount, selectivityRatio}');
     } else {
       const ps = record.panelSummary;
-      if ('inspectedCount' in ps && !isNonNegativeInt(ps.inspectedCount)) errors.push('panelSummary.inspectedCount must be a non-negative integer');
+      if (!('inspectedCount' in ps)) errors.push('panelSummary: missing required field "inspectedCount"');
+      else if (!isNonNegativeInt(ps.inspectedCount)) errors.push('panelSummary.inspectedCount must be a non-negative integer');
       if ('relevantInspectedCount' in ps && !isNonNegativeInt(ps.relevantInspectedCount)) errors.push('panelSummary.relevantInspectedCount must be a non-negative integer');
       if ('irrelevantInspectedCount' in ps && !isNonNegativeInt(ps.irrelevantInspectedCount)) errors.push('panelSummary.irrelevantInspectedCount must be a non-negative integer');
       if ('selectivityRatio' in ps && !(isFiniteNumber(ps.selectivityRatio) && ps.selectivityRatio >= 0 && ps.selectivityRatio <= 1)) errors.push('panelSummary.selectivityRatio must be a finite number in [0,1]');
+      // Internal consistency for the optional fine-grained counts.
+      if (isNonNegativeInt(ps.inspectedCount) && isNonNegativeInt(ps.relevantInspectedCount) && isNonNegativeInt(ps.irrelevantInspectedCount)) {
+        if (ps.relevantInspectedCount + ps.irrelevantInspectedCount > ps.inspectedCount) {
+          errors.push('panelSummary: relevantInspectedCount + irrelevantInspectedCount cannot exceed inspectedCount');
+        }
+        const total = ps.relevantInspectedCount + ps.irrelevantInspectedCount;
+        if (total > 0 && 'selectivityRatio' in ps && isFiniteNumber(ps.selectivityRatio)) {
+          const expected = Math.round((ps.relevantInspectedCount / total) * 1000) / 1000;
+          if (Math.abs(expected - ps.selectivityRatio) > 0.0005) {
+            errors.push(`panelSummary.selectivityRatio (${ps.selectivityRatio}) is inconsistent with relevantInspectedCount/irrelevantInspectedCount (expected ${expected})`);
+          }
+        }
+      }
     }
   }
 
   if ('verificationSummary' in record) {
-    if (!onlyKeys(record.verificationSummary, ['attempted', 'attemptCount', 'failedAttemptCount', 'adequate', 'hadPrematureOrFailedAttemptBeforeSuccess'])) {
+    const REQUIRED_VS_FIELDS = ['attempted', 'attemptCount', 'failedAttemptCount', 'adequate', 'hadPrematureOrFailedAttemptBeforeSuccess'];
+    if (!onlyKeys(record.verificationSummary, REQUIRED_VS_FIELDS)) {
       errors.push('verificationSummary: must contain ONLY {attempted, attemptCount, failedAttemptCount, adequate, hadPrematureOrFailedAttemptBeforeSuccess}');
     } else {
       const vs = record.verificationSummary;
+      for (const f of REQUIRED_VS_FIELDS) {
+        if (!(f in vs)) errors.push(`verificationSummary: missing required field "${f}"`);
+      }
       if ('attempted' in vs && typeof vs.attempted !== 'boolean') errors.push('verificationSummary.attempted must be a boolean');
       if ('adequate' in vs && typeof vs.adequate !== 'boolean') errors.push('verificationSummary.adequate must be a boolean');
       if ('attemptCount' in vs && !isNonNegativeInt(vs.attemptCount)) errors.push('verificationSummary.attemptCount must be a non-negative integer');
       if ('failedAttemptCount' in vs && !isNonNegativeInt(vs.failedAttemptCount)) errors.push('verificationSummary.failedAttemptCount must be a non-negative integer');
       if ('hadPrematureOrFailedAttemptBeforeSuccess' in vs && typeof vs.hadPrematureOrFailedAttemptBeforeSuccess !== 'boolean') errors.push('verificationSummary.hadPrematureOrFailedAttemptBeforeSuccess must be a boolean');
 
-      // Section 4 (FINAL ACCEPTANCE closure): reject internally
-      // impossible cross-field combinations rather than accepting a
-      // contradictory summary at face value. Types were already
-      // checked above, so these compare genuine values.
+      // Section 4 (FINAL ACCEPTANCE closure) + Section 2 additions
+      // (FINAL ACCEPTANCE MICRO-closure): reject internally impossible
+      // cross-field combinations rather than accepting a contradictory
+      // summary at face value. Types were already checked above, so
+      // these compare genuine values.
       if (vs.attempted === false && 'attemptCount' in vs && vs.attemptCount !== 0) {
         errors.push('verificationSummary: attempted===false requires attemptCount===0');
+      }
+      if (vs.attemptCount === 0 && vs.attempted !== false) {
+        errors.push('verificationSummary: attemptCount===0 requires attempted===false');
+      }
+      if (vs.attempted === true && isNonNegativeInt(vs.attemptCount) && !(vs.attemptCount > 0)) {
+        errors.push('verificationSummary: attempted===true requires attemptCount>0');
+      }
+      if (isNonNegativeInt(vs.failedAttemptCount) && vs.failedAttemptCount > 0 && vs.attempted !== true) {
+        errors.push('verificationSummary: failedAttemptCount>0 requires attempted===true');
       }
       if ('failedAttemptCount' in vs && 'attemptCount' in vs && vs.failedAttemptCount > vs.attemptCount) {
         errors.push('verificationSummary: failedAttemptCount cannot exceed attemptCount');
@@ -220,10 +255,18 @@ export function validateAttemptRecord(record) {
   }
 
   if ('executedFinalDisposition' in record && record.executedFinalDisposition !== null) {
-    if (!onlyKeys(record.executedFinalDisposition, ['actionType', 'decisionId', 'optionId', 'decisionEventId', 'outcomeAppropriate', 'reasoningSupported'])) {
+    const REQUIRED_EFD_FIELDS = ['actionType', 'decisionId', 'optionId', 'decisionEventId', 'outcomeAppropriate', 'reasoningSupported'];
+    if (!onlyKeys(record.executedFinalDisposition, REQUIRED_EFD_FIELDS)) {
       errors.push('executedFinalDisposition: must contain ONLY {actionType, decisionId, optionId, decisionEventId, outcomeAppropriate, reasoningSupported}');
     } else {
       const efd = record.executedFinalDisposition;
+      // Section 2 (FINAL ACCEPTANCE MICRO-closure): a non-null
+      // executedFinalDisposition must be the exact six-field object
+      // debrief-model.js actually produces — an empty {} no longer
+      // validates as a "valid" non-null disposition.
+      for (const f of REQUIRED_EFD_FIELDS) {
+        if (!(f in efd)) errors.push(`executedFinalDisposition: missing required field "${f}"`);
+      }
       if ('actionType' in efd && efd.actionType !== null && !ACTION_TYPES_SAFE.includes(efd.actionType)) errors.push(`executedFinalDisposition.actionType: not a recognized action type ("${efd.actionType}")`);
       if ('decisionId' in efd && efd.decisionId !== null && typeof efd.decisionId !== 'string') errors.push('executedFinalDisposition.decisionId must be a string or null');
       if ('optionId' in efd && efd.optionId !== null && typeof efd.optionId !== 'string') errors.push('executedFinalDisposition.optionId must be a string or null');

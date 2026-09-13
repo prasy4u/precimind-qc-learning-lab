@@ -191,8 +191,22 @@ export function recommendNextCase(allCases, attempts) {
   // difficulty through this neutral path either.
   const unattemptedNotHarder = allCases.filter(c => !attemptedCaseIds.has(c.identity.id) && c.identity.caseFamily !== lastFamily && difficultyRank(c.identity.difficulty) <= lastDifficultyRank);
   if (unattemptedNotHarder.length > 0) return { case: unattemptedNotHarder[0], reason: 'Recommended to broaden your experience across a different case pattern.' };
-  const unattempted = allCases.filter(c => !attemptedCaseIds.has(c.identity.id) && c.identity.caseFamily !== lastFamily);
-  if (unattempted.length > 0) return { case: unattempted[0], reason: 'Recommended to broaden your experience across a different case pattern.' };
+
+  // Section 1 (FINAL ACCEPTANCE MICRO-closure): independently reproduced
+  // that once no UNATTEMPTED same-or-lower-difficulty case existed, the
+  // recommender fell through to "any unattempted case" with NO
+  // difficulty restriction at all — automatically escalating difficulty
+  // even though hasRepeatedStrongPerformance() was false. The accepted
+  // invariant is that ONLY genuine repeated strong performance may ever
+  // automatically increase difficulty. Every remaining fallback below
+  // therefore stays capped at lastDifficultyRank; a harder case is never
+  // selected automatically here — the learner remains free to choose
+  // one manually from "Browse all cases."
+  const attemptedNotHarderDifferentFamily = allCases.filter(c => c.identity.caseFamily !== lastFamily && difficultyRank(c.identity.difficulty) <= lastDifficultyRank && c.identity.id !== lastAttempt.caseId);
+  if (attemptedNotHarderDifferentFamily.length > 0) return { case: attemptedNotHarderDifferentFamily[0], reason: 'Recommended as consolidation practice at your current level — no new case fits better right now without increasing difficulty.' };
+
+  const anyNotHarder = allCases.filter(c => difficultyRank(c.identity.difficulty) <= lastDifficultyRank && c.identity.id !== lastAttempt.caseId);
+  if (anyNotHarder.length > 0) return { case: anyNotHarder[0], reason: 'Recommended as consolidation practice at your current level — no new case fits better right now without increasing difficulty.' };
 
   return { case: lastCase || allCases[0], reason: 'No new case fits better right now — repeating this one can reinforce what you\u2019ve learned.' };
 }

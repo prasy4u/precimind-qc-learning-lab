@@ -298,6 +298,66 @@ async function main() {
     assert('ADAPT-E2E-03', !hasWeakDim || recRank <= lastRank, 'Rule C respected end-to-end: no difficulty spike after a genuinely weak dimension from real gameplay');
   }
 
+  console.log('\n=== Rule D fallback: neutral path never escalates difficulty (FINAL ACCEPTANCE MICRO-closure) ===');
+  {
+    const recEmpty = recommendNextCase(ALL_CASES, [{ caseId: 'case-04-isolated-excursion', competencyProfile: [] }, { caseId: 'case-04-isolated-excursion', competencyProfile: [] }]);
+    assert('RULE-D-EMPTY', recEmpty.case.identity.difficulty === 'LEVEL_1_CLEAR_SIGNAL', `Two empty Level-1 attempts stay at Level 1 (found ${recEmpty.case.identity.difficulty})`);
+
+    const recNull = recommendNextCase(ALL_CASES, [
+      { caseId: 'case-04-isolated-excursion', competencyProfile: [{ dimension: 'SIGNAL_RECOGNITION', rating: null }] },
+      { caseId: 'case-04-isolated-excursion', competencyProfile: [{ dimension: 'SIGNAL_RECOGNITION', rating: null }] },
+    ]);
+    assert('RULE-D-NULL', recNull.case.identity.difficulty === 'LEVEL_1_CLEAR_SIGNAL', `Two null-only Level-1 attempts stay at Level 1 (found ${recNull.case.identity.difficulty})`);
+
+    const recSparse = recommendNextCase(ALL_CASES, [
+      { caseId: 'case-04-isolated-excursion', competencyProfile: [{ dimension: 'SIGNAL_RECOGNITION', rating: 'STRONG' }] },
+      { caseId: 'case-04-isolated-excursion', competencyProfile: [] },
+    ]);
+    assert('RULE-D-SPARSE', recSparse.case.identity.difficulty === 'LEVEL_1_CLEAR_SIGNAL', `One strong + one unevaluated Level-1 attempt stays at Level 1 (found ${recSparse.case.identity.difficulty})`);
+
+    const recPass = recommendNextCase(ALL_CASES, [
+      { caseId: 'case-04-isolated-excursion', competencyProfile: [{ dimension: 'SIGNAL_RECOGNITION', rating: 'STRONG' }] },
+      { caseId: 'case-04-isolated-excursion', competencyProfile: [{ dimension: 'SIGNAL_RECOGNITION', rating: 'PROFICIENT' }] },
+    ]);
+    assert('RULE-D-PASS', difficultyRank(recPass.case.identity.difficulty) > difficultyRank('LEVEL_1_CLEAR_SIGNAL'), `Two genuine PROFICIENT/STRONG Level-1 attempts may progress (found ${recPass.case.identity.difficulty})`);
+
+    // Also verify at higher starting levels (2/3/4): the neutral
+    // fallback never increases difficulty unless hasRepeatedStrongPerformance() is true.
+    for (const [caseId, label] of [['pilot-1-reagent-lot-shift', 'Level 2'], ['case-09-seek-more-evidence', 'Level 3'], ['case-11-concurrent-triage', 'Level 4']]) {
+      const lastCase = ALL_CASES.find(c => c.identity.id === caseId);
+      const rec = recommendNextCase(ALL_CASES, [{ caseId, competencyProfile: [] }, { caseId, competencyProfile: [] }]);
+      assert(`RULE-D-NOESCALATE-${label.replace(' ', '')}`, difficultyRank(rec.case.identity.difficulty) <= difficultyRank(lastCase.identity.difficulty), `Starting from ${label} with no genuine strong performance, the recommendation never escalates (found ${rec.case.identity.difficulty})`);
+    }
+  }
+
+  console.log('\n=== Canonical nested-shape validation (FINAL ACCEPTANCE MICRO-closure) ===');
+  {
+    const { validateAttemptRecord, recordAttempt, listAttempts: listAttemptsFn } = await import('file://' + path.join(MQC, 'adaptive', 'attempt-store.js'));
+
+    const nestedEmpty = makeCanonicalAttempt({ evidenceSummary: {}, panelSummary: {}, verificationSummary: {}, executedFinalDisposition: {} });
+    const rNestedEmpty = validateAttemptRecord(nestedEmpty);
+    assert('NESTED-EMPTY-REJECTED', !rNestedEmpty.valid, 'A record with all four nested summaries as empty {} is correctly rejected');
+
+    const contradictoryAttempted = makeCanonicalAttempt({ verificationSummary: { attempted: true, attemptCount: 0, failedAttemptCount: 0, adequate: false, hadPrematureOrFailedAttemptBeforeSuccess: false } });
+    const rContradictory = validateAttemptRecord(contradictoryAttempted);
+    assert('ATTEMPTED-TRUE-ZERO-COUNT-REJECTED', !rContradictory.valid, 'attempted=true with attemptCount=0 is correctly rejected');
+
+    const emptyDisposition = makeCanonicalAttempt({ executedFinalDisposition: {} });
+    const rEmptyDisposition = validateAttemptRecord(emptyDisposition);
+    assert('EMPTY-DISPOSITION-REJECTED', !rEmptyDisposition.valid, 'executedFinalDisposition={} is correctly rejected');
+
+    const canonical = makeCanonicalAttempt();
+    const rCanonical = validateAttemptRecord(canonical);
+    assert('CANONICAL-ACCEPTED', rCanonical.valid, `A genuinely canonical minimal record is accepted (errors: ${JSON.stringify(rCanonical.errors)})`);
+
+    // Read-time quarantine: pre-populate storage with the previously-
+    // accepted malformed nested-empty record, prove listAttempts()
+    // returns zero.
+    const quarantineStorage = makeStorage();
+    quarantineStorage.setItem('precimind-morningqc-attempts-v1', JSON.stringify([nestedEmpty]));
+    assert('QUARANTINE-ON-READ', listAttemptsFn(quarantineStorage).length === 0, 'A malformed nested-empty record pre-populated directly into storage is quarantined (dropped) on read, never reaching the recommender or instructor analytics');
+  }
+
   const total = passed + failed;
   console.log(`\n${'='.repeat(60)}`);
   console.log(`Adaptive Sequencing Tests: ${passed}/${total} passed, ${failed} failed`);

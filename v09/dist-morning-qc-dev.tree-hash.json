@@ -3,20 +3,20 @@
   "file_count": 3,
   "files": [
     {
-      "path": "assets/morning-qc-dev-BLFnDp79.js",
-      "sha256": "5965c572704abc8056a9458b8e3b1ee4b0d25ac4a4dd4d205629a48a7ac15e91",
-      "bytes": 313896
-    },
-    {
       "path": "assets/morning-qc-dev-DH8Qs1eN.css",
       "sha256": "2caf319efb760d212bee86202548ee75a33600fe7394f1d24500d7f1b0d4aa60",
       "bytes": 42211
     },
     {
+      "path": "assets/morning-qc-dev-DOgy_XZf.js",
+      "sha256": "c8860e84ab3319b7d697075da63009c470d68507691520905dd2e036298d4b3e",
+      "bytes": 344169
+    },
+    {
       "path": "morning-qc-dev.html",
-      "sha256": "cb7cf5a881f109f88623132f161b32363ade6722d146a9247e2fdd4c8549d0b4",
+      "sha256": "40c990a7431df5e496f65ad5d88ba68387b812ba00e056881c3fdc2552859b6f",
       "bytes": 861
     }
   ],
-  "tree_hash_sha256": "9eff950cc2e9940899947b12fe715a31b57a02519b02f6ff0093bd4af2e3cead"
+  "tree_hash_sha256": "8584e3d1aa47341a4f58cd6d146642595c939a2547aeb716838f91d2962ab255"
 }

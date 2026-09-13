@@ -28,7 +28,8 @@
 import React, { useState } from 'react';
 import { MorningQCRoom } from './morning-qc-room.jsx';
 import { InstructorAnalyticsView } from '../../../dev/instructor-analytics-view.jsx';
-import { getAttemptHistory } from '../adaptive/index.js';
+import { getAttemptHistory, recordAttempt, resetHistory } from '../adaptive/index.js';
+import { buildSyntheticCohort } from '../research/index.js';
 
 // Section 11 (Stage 12D FINAL closure): this is a single-user, local-
 // only dev environment — there is no real multi-learner storage by
@@ -49,9 +50,26 @@ export function DevLauncher({ cases }) {
   const [selectedId, setSelectedId] = useState(null);
   const [pickerOpen, setPickerOpen] = useState(true);
   const [showInstructorView, setShowInstructorView] = useState(false);
+  const [historyVersion, setHistoryVersion] = useState(0);
   const selected = cases.find(c => c.identity.id === selectedId) || null;
 
   function choose(id) { setSelectedId(id); setPickerOpen(false); setShowInstructorView(false); }
+
+  // Section 14 (Stage 12E): dev-only synthetic fixture loading for
+  // instructor-UI demonstration/testing — never a general learner-facing
+  // import feature (Section 17 explicitly restricts import to this
+  // narrow, developer-triggered case).
+  function loadSyntheticFixtures() {
+    resetHistory();
+    for (const record of buildSyntheticCohort()) recordAttempt(record);
+    setHistoryVersion(v => v + 1);
+  }
+  function clearHistory() {
+    resetHistory();
+    setHistoryVersion(v => v + 1);
+  }
+
+  const attempts = getAttemptHistory();
 
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column', minWidth: 0 }}>
@@ -77,10 +95,20 @@ export function DevLauncher({ cases }) {
         <button type="button" className="mqc-btn" data-variant={showInstructorView ? 'primary' : undefined} onClick={() => { setShowInstructorView(v => !v); setPickerOpen(false); }}>
           Instructor Analytics (Dev)
         </button>
+        {showInstructorView && (
+          <>
+            <button type="button" className="mqc-btn" onClick={loadSyntheticFixtures} data-testid="load-synthetic-fixtures-button">
+              Load synthetic fixtures (demo)
+            </button>
+            <button type="button" className="mqc-btn" onClick={clearHistory} data-testid="clear-history-button">
+              Clear learning history
+            </button>
+          </>
+        )}
       </div>
       <div style={{ flex: 1, minHeight: 0, minWidth: 0, overflow: 'auto' }}>
         {showInstructorView
-          ? <InstructorAnalyticsView attemptsByLearner={splitIntoSyntheticLearners(getAttemptHistory())} />
+          ? <InstructorAnalyticsView attemptsByLearner={splitIntoSyntheticLearners(attempts)} allValidAttempts={attempts} />
           : selected && !pickerOpen
             ? <MorningQCRoom key={selected.identity.id} caseObj={selected} />
             : <div style={{ padding: 40, color: 'var(--text-muted)' }}>Choose a pilot case above to launch the Morning QC Room.</div>}

@@ -15,18 +15,56 @@
    directly, never groundTruth. Displays the mandatory disclaimer
    verbatim, non-negotiably, at the top of the view.
    ========================================================================= */
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { buildInstructorSummary } from '../app/morning-qc/analytics/instructor-projection.js';
 import { dimensionLabel } from '../app/morning-qc/debrief/debrief-model-ui.js';
+import { computeInstructorMetrics, formatRatioForDisplay, buildResearchExportBundle, buildSyntheticCohort } from '../app/morning-qc/research/index.js';
 
-export function InstructorAnalyticsView({ attemptsByLearner }) {
+/** Triggers a real browser download of a text blob — standard Web API, no server round-trip. */
+function downloadTextFile(filename, content, mimeType) {
+  if (typeof document === 'undefined') return;
+  const blob = new Blob([content], { type: mimeType || 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+export function InstructorAnalyticsView({ attemptsByLearner, allValidAttempts, quarantinedCount = 0 }) {
   const summary = buildInstructorSummary(attemptsByLearner || {});
   const { aggregate } = summary;
+  const flatAttempts = allValidAttempts || Object.values(attemptsByLearner || {}).flat();
+  const denomMetrics = computeInstructorMetrics(flatAttempts, { quarantinedCount });
+  const [exportStatus, setExportStatus] = useState(null);
+
+  const handleExport = useCallback(() => {
+    const bundle = buildResearchExportBundle(flatAttempts, { syntheticFlag: false });
+    downloadTextFile('attempts.csv', bundle.attemptsCsv, 'text/csv');
+    downloadTextFile('events.csv', bundle.eventsCsv, 'text/csv');
+    downloadTextFile('metric_dictionary.json', bundle.metricDictionaryJson, 'application/json');
+    downloadTextFile('dataset_manifest.json', bundle.manifestJson, 'application/json');
+    downloadTextFile('README.md', bundle.readme, 'text/markdown');
+    setExportStatus(`Exported ${bundle.manifest.validAttemptCount} valid attempt(s), excluded ${bundle.manifest.excludedRecordCount} malformed record(s).`);
+  }, [flatAttempts]);
 
   return (
     <div className="mqc-instructor-view" data-testid="instructor-analytics-view">
       <div className="mqc-instructor-view__disclaimer" role="note">{summary.disclaimer}</div>
+      <p className="mqc-instructor-view__ethics-note">
+        Local, educational, and identity-free by design. Not used for ranking, punitive review, or credentialing.
+        No leaderboard. No pass/fail certification threshold.
+      </p>
       <h1 className="mqc-instructor-view__title">Instructor Analytics (Development Only)</h1>
+
+      <section aria-labelledby="iav-dataset-overview-heading" data-testid="dataset-overview">
+        <h2 id="iav-dataset-overview-heading">Dataset Overview</h2>
+        <ul>
+          <li>Valid attempts: {denomMetrics.datasetOverview.validAttemptCount}</li>
+          <li>Quarantined (rejected) records: {denomMetrics.datasetOverview.quarantinedRecordCount}</li>
+          <li>Cases represented: {denomMetrics.datasetOverview.casesRepresented.length}</li>
+        </ul>
+      </section>
 
       <section aria-labelledby="iav-attempts-heading">
         <h2 id="iav-attempts-heading">Aggregate Case Attempts</h2>
@@ -55,6 +93,9 @@ export function InstructorAnalyticsView({ attemptsByLearner }) {
             <li key={quadrant}>{quadrant}: {count}</li>
           ))}
         </ul>
+        <p data-testid="unsupported-rate-denominator">
+          Unsupported-reasoning rate: {formatRatioForDisplay(denomMetrics.decisionQuality.unsupportedRate)} (of {denomMetrics.decisionQuality.totalDecisions} recorded decisions)
+        </p>
       </section>
 
       <section aria-labelledby="iav-calibration-heading">
@@ -64,6 +105,18 @@ export function InstructorAnalyticsView({ attemptsByLearner }) {
             <li key={category}>{category}: {count}</li>
           ))}
         </ul>
+        <p data-testid="confidence-denominator">
+          Based on {denomMetrics.confidenceCalibration.recordedConfidenceDenominator} decision(s) where confidence was genuinely recorded (never defaulted).
+        </p>
+      </section>
+
+      <section aria-labelledby="iav-evidence-heading" data-testid="evidence-use">
+        <h2 id="iav-evidence-heading">Evidence-Acquisition Behavior</h2>
+        <ul>
+          <li>Evidence efficiency: {formatRatioForDisplay(denomMetrics.evidenceUse.efficiencyRatio)} (among {denomMetrics.evidenceUse.eligibleAttemptCount} attempts that obtained any evidence)</li>
+          <li>Total panel inspections: {denomMetrics.evidenceUse.totalPanelInspections}</li>
+        </ul>
+        <p className="mqc-instructor-view__caveat">Opening more panels is not inherently better — correct minimal inaction is expert behavior.</p>
       </section>
 
       <section aria-labelledby="iav-verification-heading">
@@ -86,6 +139,15 @@ export function InstructorAnalyticsView({ attemptsByLearner }) {
           </ul>
         </section>
       )}
+
+      <section aria-labelledby="iav-export-heading" data-testid="research-export-section">
+        <h2 id="iav-export-heading">Educational Research Export</h2>
+        <p>Exports a local, anonymous, schema-versioned dataset derived only from valid attempt records. No learner identity, no patient data, no raw ground truth.</p>
+        <button type="button" className="mqc-btn" onClick={handleExport} data-testid="export-research-data-button">
+          Export research data
+        </button>
+        {exportStatus && <p role="status">{exportStatus}</p>}
+      </section>
     </div>
   );
 }

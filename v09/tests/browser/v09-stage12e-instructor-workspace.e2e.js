@@ -2,15 +2,23 @@
    v09/tests/browser/v09-stage12e-instructor-workspace.e2e.js
 
    Morning QC Room — Stage 12E REAL Browser E2E Test
-   PROVENANCE: V09_TEST
+   PROVENANCE: V09_MODIFIED (Stage 12E CORRECTIVE CLOSURE)
 
    Drives a REAL Chromium instance against the real, deterministically-
    built dist-morning-qc-dev/ artifact. Verifies the instructor workspace
-   empty state, synthetic-fixture population, denominator-explicit
-   metric rendering, research export (real file download), and reset —
-   at desktop and mobile viewports. Evidence saved under a DEDICATED
-   Stage 12E directory — never overwriting Stage 12B/12C historical
-   evidence.
+   empty state, the NON-DESTRUCTIVE synthetic demo mode (a sentinel real
+   attempt survives byte-for-byte across entering/exiting demo mode),
+   denominator-explicit metric rendering including the completed
+   competency distribution and per-case summary, the true raw-storage
+   quarantine count, per-file research export downloads (every file in
+   the manifest individually verified), and reset cancel/confirm
+   semantics — at desktop and mobile viewports.
+
+   CORRECTIVE CLOSURE: evidence saved under a NEW stage12e-corrective
+   directory — the prior stage12e evidence reflected a UI with a real
+   data-safety defect (synthetic fixtures overwriting real history) and
+   is superseded, not overwritten in place, so the corrective fix is
+   independently auditable against fresh evidence.
    ========================================================================= */
 'use strict';
 const path = require('path');
@@ -19,7 +27,7 @@ const http = require('http');
 
 const V09 = path.join(__dirname, '..', '..');
 const DIST_DIR = path.join(V09, 'dist-morning-qc-dev');
-const EVIDENCE_DIR = path.join(__dirname, 'evidence', 'stage12e');
+const EVIDENCE_DIR = path.join(__dirname, 'evidence', 'stage12e-corrective');
 
 let passed = 0, failed = 0;
 const checkpoints = [];
@@ -45,6 +53,13 @@ function serveStatic(rootDir, port) {
   });
   return new Promise(resolve => server.listen(port, () => resolve(server)));
 }
+const SENTINEL_RECORD = {
+  attemptId: 'SENTINEL-REAL-ATTEMPT', caseId: 'case-04-isolated-excursion', caseFamily: 'A', difficulty: 'LEVEL_1_CLEAR_SIGNAL', caseSchemaVersion: '1.1.0',
+  startedAt: 1, completedAt: 2, competencyProfile: [{ dimension: 'SIGNAL_RECOGNITION', rating: 'STRONG' }],
+  decisionSummary: [], confidenceSummary: [], evidenceSummary: { highValueObtainedCount: 0, lowValueObtainedCount: 0 },
+  panelSummary: { inspectedCount: 0 }, verificationSummary: { attempted: false, adequate: false, attemptCount: 0, failedAttemptCount: 0, hadPrematureOrFailedAttemptBeforeSuccess: false },
+  finalServiceState: 'RESUMED', executedFinalDisposition: null, recommendedLearningPriorities: [],
+};
 
 async function main() {
   fs.mkdirSync(EVIDENCE_DIR, { recursive: true });
@@ -65,7 +80,7 @@ async function main() {
     console.error('BLOCKED: playwright-core not installed.'); process.exit(1);
   }
 
-  const PORT = 8990;
+  const PORT = 8993;
   const server = await serveStatic(DIST_DIR, PORT);
   const baseUrl = `http://localhost:${PORT}/morning-qc-dev.html`;
   const browser = await playwrightCore.chromium.launch({ executablePath: execPath, headless: true });
@@ -81,75 +96,134 @@ async function main() {
     const o = await page.evaluate(() => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth }));
     assert(`OVERFLOW-${label}`, o.sw <= o.cw + 1, `No horizontal overflow at ${label}`);
   }
+  async function openInstructorView(page) {
+    await page.goto(baseUrl, { waitUntil: 'networkidle' });
+    await page.getByRole('button', { name: 'Instructor Analytics (Dev)' }).click();
+    await page.waitForTimeout(150);
+  }
 
-  console.log('\n=== Desktop 1920x1080: instructor workspace empty state ===');
+  console.log('\n=== CRITICAL: synthetic demo mode is genuinely non-destructive (Section 3) ===');
   {
     const { context, page } = await newPage({ width: 1920, height: 1080 });
     await page.goto(baseUrl, { waitUntil: 'networkidle' });
+    await page.evaluate((sentinel) => { localStorage.setItem('precimind-morningqc-attempts-v1', JSON.stringify([sentinel])); }, SENTINEL_RECORD);
+    const storageBeforeDemo = await page.evaluate(() => localStorage.getItem('precimind-morningqc-attempts-v1'));
+    assert('SENTINEL-PERSISTED', storageBeforeDemo.includes('SENTINEL-REAL-ATTEMPT'), 'Sentinel real attempt genuinely persisted before demo mode');
+
+    await page.reload({ waitUntil: 'networkidle' });
     await page.getByRole('button', { name: 'Instructor Analytics (Dev)' }).click();
-    await page.waitForTimeout(200);
-    const view = page.locator('[data-testid="instructor-analytics-view"]');
-    assert('EMPTY-STATE-LOADS', await view.count() === 1, 'Instructor workspace loads in its empty state');
-    const overviewText = await page.getByTestId('dataset-overview').innerText();
-    assert('EMPTY-STATE-ZERO', /Valid attempts: 0/.test(overviewText), 'Empty state shows zero valid attempts, not fabricated data');
-    await checkNoOverflow(page, '1920x1080-empty');
-    await page.screenshot({ path: path.join(EVIDENCE_DIR, 'instructor-empty-1920x1080.png') });
+    await page.waitForTimeout(150);
+    const overviewBefore = await page.getByTestId('dataset-overview').innerText();
+    assert('OVERVIEW-SHOWS-SENTINEL', /Valid attempts: 1/.test(overviewBefore), 'Dataset overview shows exactly the 1 real sentinel attempt before demo mode');
+
+    await page.getByTestId('toggle-demo-mode-button').click();
+    await page.waitForTimeout(150);
+    assert('DEMO-BANNER-SHOWN', await page.getByTestId('synthetic-demo-banner').count() === 1, 'The "SYNTHETIC DEMONSTRATION DATA" banner is shown while demo mode is active');
+    const overviewDuring = await page.getByTestId('dataset-overview').innerText();
+    assert('DEMO-SHOWS-SYNTHETIC-COUNT', /Valid attempts: 10/.test(overviewDuring), 'Dataset overview shows the 10-record synthetic cohort while demo mode is active');
+    await page.screenshot({ path: path.join(EVIDENCE_DIR, 'demo-mode-active-1920x1080.png'), fullPage: true });
+
+    const storageDuringDemo = await page.evaluate(() => localStorage.getItem('precimind-morningqc-attempts-v1'));
+    assert('SENTINEL-UNCHANGED-DURING-DEMO', storageDuringDemo === storageBeforeDemo, 'Real storage is BYTE-FOR-BYTE unchanged while demo mode is active — the exact defect the audit reproduced is closed');
+
+    await page.getByTestId('toggle-demo-mode-button').click();
+    await page.waitForTimeout(150);
+    const overviewAfter = await page.getByTestId('dataset-overview').innerText();
+    assert('OVERVIEW-RESTORED-AFTER-EXIT', /Valid attempts: 1/.test(overviewAfter), 'Exiting demo mode restores the view of genuine real history (1 attempt)');
+    const storageAfterExit = await page.evaluate(() => localStorage.getItem('precimind-morningqc-attempts-v1'));
+    assert('SENTINEL-UNCHANGED-AFTER-EXIT', storageAfterExit === storageBeforeDemo, 'Real storage remains byte-for-byte unchanged after exiting demo mode');
     await context.close();
   }
 
-  console.log('\n=== Desktop 1920x1080: populated with synthetic fixtures ===');
+  console.log('\n=== Reset safety: cancel leaves data intact, confirm clears it (Section 4) ===');
   {
     const { context, page } = await newPage({ width: 1920, height: 1080 });
     await page.goto(baseUrl, { waitUntil: 'networkidle' });
+    await page.evaluate((sentinel) => { localStorage.setItem('precimind-morningqc-attempts-v1', JSON.stringify([sentinel])); }, SENTINEL_RECORD);
+    await page.reload({ waitUntil: 'networkidle' });
     await page.getByRole('button', { name: 'Instructor Analytics (Dev)' }).click();
-    await page.getByTestId('load-synthetic-fixtures-button').click();
-    await page.waitForTimeout(300);
-    const overviewText = await page.getByTestId('dataset-overview').innerText();
-    assert('POPULATED-NONZERO', /Valid attempts: 10/.test(overviewText), 'Loading synthetic fixtures populates exactly 10 valid attempts');
-    const evidenceText = await page.getByTestId('evidence-use').innerText();
-    assert('DENOMINATOR-EXPLICIT', /among \d+ attempts that obtained any evidence/.test(evidenceText), 'Evidence efficiency shows its real eligible-attempt denominator explicitly');
-    const confidenceText = await page.getByTestId('confidence-denominator').innerText();
-    assert('CONFIDENCE-DENOMINATOR-EXPLICIT', /decision\(s\) where confidence was genuinely recorded/.test(confidenceText), 'Confidence calibration shows its real recorded-confidence denominator explicitly');
-    await checkNoOverflow(page, '1920x1080-populated');
-    await page.screenshot({ path: path.join(EVIDENCE_DIR, 'instructor-populated-1920x1080.png'), fullPage: true });
+    await page.waitForTimeout(150);
 
-    console.log('\n=== Research export triggers a real file download ===');
-    const [download] = await Promise.all([
-      page.waitForEvent('download'),
-      page.getByTestId('export-research-data-button').click(),
-    ]);
-    assert('EXPORT-DOWNLOAD-TRIGGERED', download.suggestedFilename() === 'attempts.csv', `Export triggers a real browser download (filename: ${download.suggestedFilename()})`);
-
-    console.log('\n=== Clear learning history ===');
+    page.once('dialog', d => d.dismiss());
     await page.getByTestId('clear-history-button').click();
-    await page.waitForTimeout(200);
-    const clearedText = await page.getByTestId('dataset-overview').innerText();
-    assert('CLEAR-RESTORES-EMPTY', /Valid attempts: 0/.test(clearedText), 'Clearing history correctly restores the empty state');
+    await page.waitForTimeout(150);
+    const afterCancel = await page.getByTestId('dataset-overview').innerText();
+    assert('RESET-CANCEL-LEAVES-INTACT', /Valid attempts: 1/.test(afterCancel), 'Cancelling the confirmation dialog leaves history completely intact');
+
+    page.once('dialog', d => d.accept());
+    await page.getByTestId('clear-history-button').click();
+    await page.waitForTimeout(150);
+    const afterConfirm = await page.getByTestId('dataset-overview').innerText();
+    assert('RESET-CONFIRM-CLEARS', /Valid attempts: 0/.test(afterConfirm), 'Confirming the dialog clears the intended history');
     await context.close();
   }
 
-  console.log('\n=== Desktop 1366x768 ===');
+  console.log('\n=== Raw-storage quarantine truth surfaces correctly in the UI (Section 1) ===');
+  {
+    const { context, page } = await newPage({ width: 1920, height: 1080 });
+    await page.goto(baseUrl, { waitUntil: 'networkidle' });
+    await page.evaluate((sentinel) => {
+      localStorage.setItem('precimind-morningqc-attempts-v1', JSON.stringify([sentinel, { attemptId: 'bad', caseId: 'c', evidenceSummary: {}, panelSummary: {}, verificationSummary: {}, executedFinalDisposition: {} }]));
+    }, SENTINEL_RECORD);
+    await page.reload({ waitUntil: 'networkidle' });
+    await page.getByRole('button', { name: 'Instructor Analytics (Dev)' }).click();
+    await page.waitForTimeout(150);
+    const overview = await page.getByTestId('dataset-overview').innerText();
+    assert('QUARANTINE-TRUTH-IN-UI', /Valid attempts: 1/.test(overview) && /Quarantined \(rejected\) records: 1/.test(overview), `The UI reports the TRUE raw-storage quarantine count (1 valid, 1 quarantined), found: ${overview.replace(/\n/g, ' | ')}`);
+    await context.close();
+  }
+
+  console.log('\n=== Denominator-governed instructor analytics: competency distribution + per-case summary (Section 7) ===');
+  {
+    const { context, page } = await newPage({ width: 1920, height: 1080 });
+    await openInstructorView(page);
+    await page.getByTestId('toggle-demo-mode-button').click();
+    await page.waitForTimeout(200);
+    const competencyText = await page.getByTestId('competency-distribution').innerText();
+    assert('COMPETENCY-DISTRIBUTION-RENDERS', /evaluated \d+, not evaluated \d+/.test(competencyText), 'Competency distribution shows explicit evaluated/not-evaluated counts per dimension');
+    const caseSummaryText = await page.getByTestId('case-level-summary').innerText();
+    assert('CASE-SUMMARY-RENDERS', /attempt\(s\), family/.test(caseSummaryText), 'Per-case summary shows attempt count, family, and difficulty');
+    await checkNoOverflow(page, '1920x1080-denominators');
+    await page.screenshot({ path: path.join(EVIDENCE_DIR, 'denominator-governed-analytics-1920x1080.png'), fullPage: true });
+    await context.close();
+  }
+
+  console.log('\n=== Every exported file is individually downloadable and correctly named (Section 9) ===');
+  {
+    const { context, page } = await newPage({ width: 1920, height: 1080 });
+    await openInstructorView(page);
+    await page.getByTestId('toggle-demo-mode-button').click();
+    await page.waitForTimeout(200);
+    await page.getByTestId('prepare-export-button').click();
+    await page.waitForTimeout(150);
+    const expectedFiles = ['attempts.csv', 'competencies.csv', 'events.jsonl', 'metric_dictionary.json', 'data_dictionary.json', 'dataset_manifest.json', 'README.md'];
+    for (const fname of expectedFiles) {
+      const [download] = await Promise.all([
+        page.waitForEvent('download'),
+        page.getByTestId(`download-${fname}`).click(),
+      ]);
+      assert(`EXPORT-FILE-${fname}`, download.suggestedFilename() === fname, `${fname} is individually downloadable with the correct filename`);
+    }
+    await context.close();
+  }
+
+  console.log('\n=== Desktop 1366x768 / Mobile 390x844: no overflow with demo data populated ===');
   {
     const { context, page } = await newPage({ width: 1366, height: 768 });
-    await page.goto(baseUrl, { waitUntil: 'networkidle' });
-    await page.getByRole('button', { name: 'Instructor Analytics (Dev)' }).click();
-    await page.getByTestId('load-synthetic-fixtures-button').click();
-    await page.waitForTimeout(300);
+    await openInstructorView(page);
+    await page.getByTestId('toggle-demo-mode-button').click();
+    await page.waitForTimeout(200);
     await checkNoOverflow(page, '1366x768');
     await page.screenshot({ path: path.join(EVIDENCE_DIR, 'instructor-populated-1366x768.png'), fullPage: true });
     await context.close();
   }
-
-  console.log('\n=== Mobile 390x844 ===');
   {
     const { context, page } = await newPage({ width: 390, height: 844 });
-    await page.goto(baseUrl, { waitUntil: 'networkidle' });
-    await page.getByRole('button', { name: 'Instructor Analytics (Dev)' }).click();
-    await page.getByTestId('load-synthetic-fixtures-button').click();
-    await page.waitForTimeout(300);
+    await openInstructorView(page);
+    await page.getByTestId('toggle-demo-mode-button').click();
+    await page.waitForTimeout(200);
     await checkNoOverflow(page, '390x844');
-    const view = page.locator('[data-testid="instructor-analytics-view"]');
-    assert('MOBILE-VIEW-RENDERS', await view.count() === 1, 'Instructor workspace renders on mobile without horizontal overflow');
+    assert('MOBILE-VIEW-RENDERS', await page.locator('[data-testid="instructor-analytics-view"]').count() === 1, 'Instructor workspace renders on mobile without horizontal overflow');
     await page.screenshot({ path: path.join(EVIDENCE_DIR, 'instructor-populated-390x844.png'), fullPage: true });
     await context.close();
   }
@@ -160,7 +234,7 @@ async function main() {
     await page.goto(baseUrl, { waitUntil: 'networkidle' });
     await page.getByRole('button', { name: 'Glucose Level 2 QC', exact: true }).click();
     await page.waitForSelector('[data-testid="morning-qc-room"]');
-    assert('LEARNER-ROOM-LOADS', await page.locator('[data-testid="morning-qc-room"]').count() === 1, 'Learner case room still loads correctly (dev-launcher pilot selection unaffected by Stage 12E additions)');
+    assert('LEARNER-ROOM-LOADS', await page.locator('[data-testid="morning-qc-room"]').count() === 1, 'Learner case room still loads correctly');
     await context.close();
   }
 
@@ -171,7 +245,7 @@ async function main() {
   const result = { status: failed === 0 ? 'PASS' : 'FAIL', passed, failed, total, browserExecutable: execPath, browserEngine: 'chromium', checkpoints };
   fs.writeFileSync(path.join(EVIDENCE_DIR, 'result.json'), JSON.stringify(result, null, 2));
   console.log(`\n${'='.repeat(60)}`);
-  console.log(`Stage 12E Browser E2E: ${passed}/${total} passed, ${failed} failed`);
+  console.log(`Stage 12E Corrective Closure Browser E2E: ${passed}/${total} passed, ${failed} failed`);
   if (failed > 0) { console.error('BROWSER E2E FAILED.'); process.exit(1); }
   console.log('BROWSER E2E PASSED (real Chromium, not simulated).');
   process.exit(0);

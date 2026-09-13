@@ -118,12 +118,27 @@ async function main() {
 
   console.log('\n=== 8. Stage 12E browser evidence ===');
   {
-    const resultPath = path.join(V09, 'tests', 'browser', 'evidence', 'stage12e', 'result.json');
+    const resultPath = path.join(V09, 'tests', 'browser', 'evidence', 'stage12e-corrective', 'result.json');
     assert('8a', fs.existsSync(resultPath), 'A real browser-run result.json exists for Stage 12E');
     if (fs.existsSync(resultPath)) {
       const result = JSON.parse(fs.readFileSync(resultPath, 'utf8'));
       assert('8b', result.status === 'PASS', `Stage 12E browser E2E result is genuinely PASS (found ${result.status})`);
     }
+  }
+
+  console.log('\n=== 9. Targeted accessibility audit of new Stage 12E controls (Section 11) ===');
+  {
+    const viewSrc = fs.readFileSync(path.join(V09, 'dev', 'instructor-analytics-view.jsx'), 'utf8');
+    const launcherSrc = fs.readFileSync(path.join(MQC, 'ui', 'dev-launcher.jsx'), 'utf8');
+    assert('9a', !/<h3[\s\S]*<h1/.test(viewSrc), 'No heading-hierarchy skip in the instructor view source (h1 before any h3)');
+    assert('9b', (viewSrc.match(/<h1/g) || []).length === 1, 'Exactly one h1 in the instructor view');
+    assert('9c', (launcherSrc.match(/type="button"/g) || []).length >= 5, 'All new interactive controls use explicit type="button" (never an implicit submit)');
+    assert('9d', /role="status"/.test(viewSrc), 'The export result uses role="status" for assistive-technology announcement');
+    assert('9e', /role="alert"/.test(viewSrc), 'The synthetic-demo banner uses role="alert" so it is announced, not conveyed by color alone');
+    assert('9f', /aria-labelledby/.test(viewSrc), 'Sections use aria-labelledby linking to their own heading, not color/position alone');
+    // Every button in the new controls has real text content (accessible name via content, never icon-only).
+    const buttonTexts = [...launcherSrc.matchAll(/<button[^>]*>\s*\{?([^{<]+)/g)].map(m => m[1].trim()).filter(Boolean);
+    assert('9g', buttonTexts.length > 0 && buttonTexts.every(t => t.length > 0), 'New buttons have real, non-empty text content serving as their accessible name');
   }
 
   const total = passed + failed;

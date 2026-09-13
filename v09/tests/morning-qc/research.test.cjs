@@ -134,11 +134,90 @@ async function main() {
     for (const pattern of FORBIDDEN_PATTERNS) {
       assert(`EXPORT-NO-${pattern.source.replace(/\W/g, '')}`, !pattern.test(allExportText), `Export bundle contains no "${pattern.source}"-matching content`);
     }
-    assert('EXPORT-DECISIONEVENTID-PRESERVED', bundle.eventsCsv.includes('syn01-d1#1'), 'events.csv preserves the genuine decisionEventId for linkage');
+    assert('EXPORT-DECISIONEVENTID-PRESERVED', bundle.eventsJsonl.includes('syn01-d1#1'), 'events.jsonl preserves the genuine decisionEventId for linkage');
 
     // Deterministic structure: identical input produces identical output.
     const bundle2 = buildResearchExportBundle([...cohort, malformed], { syntheticFlag: true });
-    assert('EXPORT-DETERMINISTIC', bundle.attemptsCsv === bundle2.attemptsCsv && bundle.eventsCsv === bundle2.eventsCsv, 'Identical export input produces byte-identical CSV output');
+    assert('EXPORT-DETERMINISTIC', bundle.attemptsCsv === bundle2.attemptsCsv && bundle.eventsJsonl === bundle2.eventsJsonl, 'Identical export input produces byte-identical output');
+  }
+
+  console.log('\n=== CORRECTIVE CLOSURE Section 1: raw-storage/quarantine truth boundary ===');
+  {
+    const { inspectStoredAttempts } = await import('file://' + path.join(MQC, 'adaptive', 'attempt-store.js'));
+    const storage = { data: {}, getItem(k) { return this.data[k] || null; }, setItem(k, v) { this.data[k] = v; }, removeItem(k) { delete this.data[k]; } };
+    storage.setItem('precimind-morningqc-attempts-v1', JSON.stringify([buildSyntheticCohort()[0], buildMalformedFixture()]));
+    const inspection = inspectStoredAttempts(storage);
+    assert('QUARANTINE-TOTAL-ENCOUNTERED', inspection.totalEncountered === 2, 'inspectStoredAttempts() reports 2 raw records encountered');
+    assert('QUARANTINE-VALID-COUNT', inspection.validAttemptCount === 1, 'inspectStoredAttempts() reports exactly 1 valid record');
+    assert('QUARANTINE-COUNT', inspection.quarantinedCount === 1, 'inspectStoredAttempts() reports exactly 1 quarantined record');
+    const { listAttempts } = await import('file://' + path.join(MQC, 'adaptive', 'attempt-store.js'));
+    assert('QUARANTINE-LISTATTEMPTS-UNCHANGED', listAttempts(storage).length === 1, 'listAttempts() semantics remain completely unchanged (still 1)');
+
+    const bundleFromInspection = buildResearchExportBundle(inspection, { syntheticFlag: false });
+    assert('QUARANTINE-EXPORT-TRUTH-VALID', bundleFromInspection.manifest.validAttemptCount === 1, 'Export manifest built from the raw-storage inspection reports the TRUE valid count (1)');
+    assert('QUARANTINE-EXPORT-TRUTH-EXCLUDED', bundleFromInspection.manifest.excludedRecordCount === 1, 'Export manifest built from the raw-storage inspection reports the TRUE excluded count (1) — closing the exact gap the audit reproduced (previously 0)');
+  }
+
+  console.log('\n=== CORRECTIVE CLOSURE Section 2: canonical event export parity + duplicate confidence preservation ===');
+  {
+    const { projectEventsFromAttempt } = await import('file://' + path.join(MQC, 'analytics', 'analytics-model.js'));
+    for (const record of buildSyntheticCohort()) {
+      const canonicalEvents = projectEventsFromAttempt(record);
+      const bundle = buildResearchExportBundle([record]);
+      const exportedEvents = bundle.eventsJsonl.split('\n').filter(Boolean).map(l => { const { rowKey, ...rest } = JSON.parse(l); return rest; });
+      assert(`EVENT-PARITY-${record.attemptId}`, JSON.stringify(canonicalEvents) === JSON.stringify(exportedEvents), `${record.attemptId}: exported event sequence exactly matches projectEventsFromAttempt() (count: canonical=${canonicalEvents.length}, exported=${exportedEvents.length})`);
+    }
+
+    // The exact adversarial regression: two confidenceSummary entries for the SAME decisionEventId.
+    const base = buildSyntheticCohort()[0];
+    const dupConfidenceRecord = { ...base, confidenceSummary: [
+      { decisionEventId: base.decisionSummary[0].decisionEventId, confidence: 'HIGH', category: 'CORRECT_CALIBRATED' },
+      { decisionEventId: base.decisionSummary[0].decisionEventId, confidence: 'LOW', category: 'CORRECT_UNDERCONFIDENT' },
+    ] };
+    const dupBundle = buildResearchExportBundle([dupConfidenceRecord]);
+    const confidenceEvents = dupBundle.eventsJsonl.split('\n').filter(l => l.includes('CONFIDENCE_RECORDED'));
+    assert('EVENT-DUPLICATE-CONFIDENCE-PRESERVED', confidenceEvents.length === 2, `Both duplicate CONFIDENCE_RECORDED events for the same decisionEventId survive export (found ${confidenceEvents.length}, previously lost one via Object.fromEntries collapse)`);
+    const parsedConfEvents = confidenceEvents.map(l => JSON.parse(l));
+    assert('EVENT-DUPLICATE-CONFIDENCE-DISTINCT-VALUES', parsedConfEvents[0].confidence === 'HIGH' && parsedConfEvents[1].confidence === 'LOW', 'Both distinct confidence values (HIGH and LOW) are preserved, not merged or overwritten');
+  }
+
+  console.log('\n=== CORRECTIVE CLOSURE Section 5: competency export + data dictionary ===');
+  {
+    const cohort = buildSyntheticCohort();
+    const bundle = buildResearchExportBundle(cohort);
+    const competencyLines = bundle.competenciesCsv.split('\n');
+    assert('COMPETENCY-EXPORT-HEADER', competencyLines[0] === 'rowKey,dimension,rating', 'competencies.csv has the expected long-form header');
+    const totalCompetencyEntries = cohort.reduce((s, r) => s + r.competencyProfile.length, 0);
+    assert('COMPETENCY-EXPORT-ROW-COUNT', competencyLines.length - 1 === totalCompetencyEntries, 'competencies.csv has exactly one row per (attempt, evaluated dimension) pair');
+
+    const { RESEARCH_DATA_DICTIONARY } = await import('file://' + path.join(MQC, 'research', 'data-dictionary.js'));
+    const REQUIRED_DICT_FIELDS = ['field', 'file', 'type', 'nullable', 'source', 'level', 'meaning', 'interpretation', 'limitations'];
+    for (const entry of RESEARCH_DATA_DICTIONARY) {
+      const missing = REQUIRED_DICT_FIELDS.filter(f => !(f in entry));
+      assert(`DICTIONARY-COMPLETE-${entry.file}-${entry.field}`, missing.length === 0, `${entry.file}.${entry.field} data-dictionary entry is complete`);
+    }
+    // Governance: every exported column has a corresponding dictionary entry.
+    const dictFieldsByFile = {};
+    for (const entry of RESEARCH_DATA_DICTIONARY) { (dictFieldsByFile[entry.file] = dictFieldsByFile[entry.file] || new Set()).add(entry.field); }
+    const attemptsCsvColumns = bundle.attemptsCsv.split('\n')[0].split(',');
+    for (const col of attemptsCsvColumns) {
+      assert(`DICTIONARY-COVERS-attempts.csv-${col}`, dictFieldsByFile['attempts.csv']?.has(col), `attempts.csv column "${col}" has a data-dictionary entry`);
+    }
+    const competencyCsvColumns = bundle.competenciesCsv.split('\n')[0].split(',');
+    for (const col of competencyCsvColumns) {
+      assert(`DICTIONARY-COVERS-competencies.csv-${col}`, dictFieldsByFile['competencies.csv']?.has(col), `competencies.csv column "${col}" has a data-dictionary entry`);
+    }
+  }
+
+  console.log('\n=== CORRECTIVE CLOSURE Section 6: privacy-minimised time fields ===');
+  {
+    const cohort = buildSyntheticCohort();
+    const bundle = buildResearchExportBundle(cohort);
+    assert('NO-EXACT-STARTEDAT-COLUMN', !bundle.attemptsCsv.split('\n')[0].split(',').includes('startedAt'), 'attempts.csv does not export exact startedAt epoch timestamp by default');
+    assert('NO-EXACT-COMPLETEDAT-COLUMN', !bundle.attemptsCsv.split('\n')[0].split(',').includes('completedAt'), 'attempts.csv does not export exact completedAt epoch timestamp by default');
+    assert('HAS-ATTEMPT-ORDINAL', bundle.attemptsCsv.split('\n')[0].split(',').includes('attemptOrdinal'), 'attempts.csv exports attemptOrdinal instead');
+    assert('HAS-DURATION-MS', bundle.attemptsCsv.split('\n')[0].split(',').includes('durationMs'), 'attempts.csv exports durationMs instead');
+    assert('MANIFEST-DOCUMENTS-TIMING-POLICY', typeof bundle.manifest.timingFieldsPolicy === 'string' && bundle.manifest.timingFieldsPolicy.length > 0, 'The manifest documents the timing-fields privacy policy explicitly');
   }
 
   const total = passed + failed;

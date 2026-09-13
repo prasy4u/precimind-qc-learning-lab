@@ -1,0 +1,130 @@
+{
+  "status": "PASS",
+  "passed": 24,
+  "failed": 0,
+  "total": 24,
+  "browserExecutable": "/opt/pw-browsers/chromium-1194/chrome-linux/chrome",
+  "browserEngine": "chromium",
+  "checkpoints": [
+    {
+      "id": "SENTINEL-PERSISTED",
+      "status": "PASS",
+      "detail": "Sentinel real attempt genuinely persisted before demo mode"
+    },
+    {
+      "id": "OVERVIEW-SHOWS-SENTINEL",
+      "status": "PASS",
+      "detail": "Dataset overview shows exactly the 1 real sentinel attempt before demo mode"
+    },
+    {
+      "id": "DEMO-BANNER-SHOWN",
+      "status": "PASS",
+      "detail": "The \"SYNTHETIC DEMONSTRATION DATA\" banner is shown while demo mode is active"
+    },
+    {
+      "id": "DEMO-SHOWS-SYNTHETIC-COUNT",
+      "status": "PASS",
+      "detail": "Dataset overview shows the 10-record synthetic cohort while demo mode is active"
+    },
+    {
+      "id": "SENTINEL-UNCHANGED-DURING-DEMO",
+      "status": "PASS",
+      "detail": "Real storage is BYTE-FOR-BYTE unchanged while demo mode is active — the exact defect the audit reproduced is closed"
+    },
+    {
+      "id": "OVERVIEW-RESTORED-AFTER-EXIT",
+      "status": "PASS",
+      "detail": "Exiting demo mode restores the view of genuine real history (1 attempt)"
+    },
+    {
+      "id": "SENTINEL-UNCHANGED-AFTER-EXIT",
+      "status": "PASS",
+      "detail": "Real storage remains byte-for-byte unchanged after exiting demo mode"
+    },
+    {
+      "id": "RESET-CANCEL-LEAVES-INTACT",
+      "status": "PASS",
+      "detail": "Cancelling the confirmation dialog leaves history completely intact"
+    },
+    {
+      "id": "RESET-CONFIRM-CLEARS",
+      "status": "PASS",
+      "detail": "Confirming the dialog clears the intended history"
+    },
+    {
+      "id": "QUARANTINE-TRUTH-IN-UI",
+      "status": "PASS",
+      "detail": "The UI reports the TRUE raw-storage quarantine count (1 valid, 1 quarantined), found: Dataset Overview | Valid attempts: 1 | Quarantined (rejected) records: 1 | Cases represented: 1"
+    },
+    {
+      "id": "COMPETENCY-DISTRIBUTION-RENDERS",
+      "status": "PASS",
+      "detail": "Competency distribution shows explicit evaluated/not-evaluated counts per dimension"
+    },
+    {
+      "id": "CASE-SUMMARY-RENDERS",
+      "status": "PASS",
+      "detail": "Per-case summary shows attempt count, family, and difficulty"
+    },
+    {
+      "id": "OVERFLOW-1920x1080-denominators",
+      "status": "PASS",
+      "detail": "No horizontal overflow at 1920x1080-denominators"
+    },
+    {
+      "id": "EXPORT-FILE-attempts.csv",
+      "status": "PASS",
+      "detail": "attempts.csv is individually downloadable with the correct filename"
+    },
+    {
+      "id": "EXPORT-FILE-competencies.csv",
+      "status": "PASS",
+      "detail": "competencies.csv is individually downloadable with the correct filename"
+    },
+    {
+      "id": "EXPORT-FILE-events.jsonl",
+      "status": "PASS",
+      "detail": "events.jsonl is individually downloadable with the correct filename"
+    },
+    {
+      "id": "EXPORT-FILE-metric_dictionary.json",
+      "status": "PASS",
+      "detail": "metric_dictionary.json is individually downloadable with the correct filename"
+    },
+    {
+      "id": "EXPORT-FILE-data_dictionary.json",
+      "status": "PASS",
+      "detail": "data_dictionary.json is individually downloadable with the correct filename"
+    },
+    {
+      "id": "EXPORT-FILE-dataset_manifest.json",
+      "status": "PASS",
+      "detail": "dataset_manifest.json is individually downloadable with the correct filename"
+    },
+    {
+      "id": "EXPORT-FILE-README.md",
+      "status": "PASS",
+      "detail": "README.md is individually downloadable with the correct filename"
+    },
+    {
+      "id": "OVERFLOW-1366x768",
+      "status": "PASS",
+      "detail": "No horizontal overflow at 1366x768"
+    },
+    {
+      "id": "OVERFLOW-390x844",
+      "status": "PASS",
+      "detail": "No horizontal overflow at 390x844"
+    },
+    {
+      "id": "MOBILE-VIEW-RENDERS",
+      "status": "PASS",
+      "detail": "Instructor workspace renders on mobile without horizontal overflow"
+    },
+    {
+      "id": "LEARNER-ROOM-LOADS",
+      "status": "PASS",
+      "detail": "Learner case room still loads correctly"
+    }
+  ]
+}

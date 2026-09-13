@@ -324,6 +324,60 @@ function readAll(storage) {
   }
 }
 
+/**
+ * Stage 12E CORRECTIVE CLOSURE Section 1: a narrowly-scoped, READ-ONLY
+ * interface addition for audit/research-storage inspection ONLY. Does
+ * NOT change readAll()/listAttempts()/getAttemptHistory() semantics
+ * (still silently filter to valid records for the recommender/runtime,
+ * completely unchanged), does NOT change recordAttempt() semantics, and
+ * never exposes malformed record CONTENT — only counts. This is the
+ * ONLY way the instructor/research path can truthfully report how many
+ * raw stored records existed versus how many were valid, closing the
+ * exact gap the corrective audit reproduced (2 raw records, 1 valid,
+ * but the export manifest previously reported 0 excluded because it
+ * only ever saw the already-filtered array).
+ */
+function inspectRawStorage(storage) {
+  const backend = getBackend(storage);
+  let totalEncountered = 0;
+  let validRecords = [];
+  let malformedContainer = false;
+  try {
+    const raw = backend.getItem(STORAGE_KEY);
+    if (!raw) return { totalEncountered: 0, validRecords: [], quarantinedCount: 0, malformedContainer: false };
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return { totalEncountered: 0, validRecords: [], quarantinedCount: 0, malformedContainer: true };
+    totalEncountered = parsed.length;
+    validRecords = parsed.filter(r => validateAttemptRecord(r).valid);
+  } catch {
+    return { totalEncountered: 0, validRecords: [], quarantinedCount: 0, malformedContainer: true };
+  }
+  return {
+    totalEncountered,
+    validRecords,
+    quarantinedCount: totalEncountered - validRecords.length,
+    malformedContainer,
+  };
+}
+
+/**
+ * Public read-only inspection entry point. Returns
+ * {totalEncountered, validAttemptCount, quarantinedCount, validRecords,
+ * malformedContainer} — never record CONTENT for quarantined entries,
+ * only the count. Intended for the Stage 12E instructor/research path
+ * only; never used by recommender or runtime logic.
+ */
+export function inspectStoredAttempts(storage) {
+  const { totalEncountered, validRecords, quarantinedCount, malformedContainer } = inspectRawStorage(storage);
+  return {
+    totalEncountered,
+    validAttemptCount: validRecords.length,
+    quarantinedCount,
+    validRecords,
+    malformedContainer,
+  };
+}
+
 function writeAll(records, storage) {
   const backend = getBackend(storage);
   backend.setItem(STORAGE_KEY, JSON.stringify(records));

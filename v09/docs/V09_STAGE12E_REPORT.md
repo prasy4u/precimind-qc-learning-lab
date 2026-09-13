@@ -153,3 +153,122 @@ audit pass, and the complete standalone README/release-checklist
 documents beyond this report. These are explicitly documented here as
 deferred rather than silently omitted, per Section 39's requirement to
 report accurately rather than fabricate completion.
+
+---
+
+## Stage 12E CORRECTIVE CLOSURE
+
+An independent audit of the actually-delivered repository ZIP found 13
+defects. All resolved, each independently reproduced before being
+fixed and reconfirmed after. **Documentation correction**: Section L
+above stated the governance suite was 13/13 at the time of the first
+delivery; after this closure's additions the actual, current total is
+**22/22** (see Section 5 below) — the original count is left in place
+above as an accurate historical record of that delivery, corrected
+here rather than silently edited.
+
+### 1. Raw-storage/quarantine truth boundary (CRITICAL)
+Independently reproduced the exact gap: 2 raw stored records (1
+canonical + 1 malformed), `listAttempts()` correctly returned 1, but
+the export manifest reported `excludedRecordCount: 0` because it only
+ever saw the already-filtered array. Added a narrow, read-only
+`inspectStoredAttempts()` to `attempt-store.js` (the one narrowly
+justified Stage 12D-frozen-interface addition this closure makes) that
+returns `{totalEncountered, validAttemptCount, quarantinedCount,
+validRecords}` without changing `listAttempts()`/`getAttemptHistory()`/
+`recordAttempt()` semantics at all, and without ever exposing quarantined
+record CONTENT. Verified the exact required scenario now gives
+`validAttemptCount=1, quarantinedCount=1` in both the export manifest
+and the instructor UI.
+
+### 2. Canonical event export (CRITICAL)
+The prior export reconstructed decision rows independently and merged
+confidence into them via `Object.fromEntries()`, which silently
+collapsed duplicate `confidenceSummary` entries for the same
+`decisionEventId`. Replaced entirely with the accepted
+`projectEventsFromAttempt()` as the sole event source, exported as
+`events.jsonl` (one JSON object per line, preserving the genuinely
+heterogeneous event schema) with only an added `rowKey` for linkage —
+no canonical event field is altered. Verified event-sequence parity
+against `projectEventsFromAttempt()` for all 10 synthetic fixtures, and
+directly reproduced-then-fixed the duplicate-confidence adversarial
+case (both HIGH and LOW confidence events for the same decisionEventId
+now survive export).
+
+### 3. Non-destructive synthetic fixtures (CRITICAL)
+Independently reproduced the exact defect: "Load synthetic fixtures"
+called `resetHistory()` then wrote synthetic records into the REAL
+canonical storage key — a single click could erase genuine local
+learner history. Redesigned entirely: the synthetic cohort is now held
+solely in React component state (`useMemo`, deterministic), never
+read from or written to `localStorage` under any circumstance. A
+prominent "SYNTHETIC DEMONSTRATION DATA" banner is shown throughout
+demo mode. Verified end-to-end in a real browser with a sentinel real
+attempt: the sentinel's storage value is confirmed **byte-for-byte
+identical** before entering demo mode, while demo mode is active, and
+after exiting demo mode.
+
+### 4. Reset safety
+The dev-only "Clear learning history" control had no confirmation at
+all. Given equivalent explicit, cancelable confirmation semantics to
+the accepted production reset (`window.confirm`, stating the action is
+permanent and irreversible). Verified directly: cancelling leaves
+history completely intact; confirming clears exactly the intended key.
+
+### 5. Competency export + data dictionary
+Added `competencies.csv` (long-form: `rowKey, dimension, rating`, one
+row per attempt×evaluated-dimension pair) so unevaluated (blank) ratings
+remain distinguishable from `NEEDS_IMPROVEMENT`. Added
+`data-dictionary.js`/`data_dictionary.json` documenting every exported
+field's type, nullability, allowed values, source, level, meaning,
+interpretation, and limitations — verified via a governance test that
+every column actually emitted by `attempts.csv`/`competencies.csv` has
+a corresponding dictionary entry.
+
+### 6. Privacy-minimised time fields
+`attempts.csv` no longer exports exact `startedAt`/`completedAt` epoch
+timestamps by default (a quasi-identifier risk when combined with
+external schedules/logs) — exports `attemptOrdinal` and `durationMs`
+instead. The manifest documents this policy explicitly
+(`timingFieldsPolicy`).
+
+### 7-8. Completed denominator-governed instructor analytics
+Added a full per-case summary (attempt count, family, difficulty) and
+a complete denominator-governed competency-distribution display
+(evaluated/not-evaluated counts plus all 4 rating proportions, each
+using that dimension's own evaluated count as denominator) as the
+PRIMARY competency view, with the prior "Common Low-Rated
+Competencies" list retained underneath as a supplementary summary —
+verified rendering correctly in a real browser.
+
+### 9. Export-delivery robustness
+Replaced the prior "click once, several silent downloads happen"
+design with an explicit two-step flow: "Prepare research export"
+computes the bundle, then a real, individually-clickable download
+button is rendered for each of the 7 generated files. Verified all 7
+files are individually downloadable with the correct filename in a
+real browser.
+
+### 10. Deferred documentation completed
+Added `V09_README.md` (how to run, Morning QC, local history, privacy,
+instructor workspace, synthetic demo, research export, limitations) and
+`V09_STAGE12E_RELEASE_CHECKLIST.md` (with unperformed items honestly
+left unchecked — full cross-browser QA and a formal WCAG audit were not
+performed and are marked as such, not fabricated).
+
+### 11. Targeted accessibility closure
+A focused source- and browser-verified pass over the NEW Stage 12E
+controls only (heading hierarchy, `role="status"`/`role="alert"`,
+`aria-labelledby`, explicit `type="button"`, real button text content,
+no horizontal overflow at any tested viewport) — not a broad redesign,
+and not a claim of full WCAG conformance.
+
+### Updated Stage 12E test totals
+`research.test.cjs`: **140/140** (was 59, +81: raw-storage/quarantine
+truth, event-parity for all 10 fixtures, duplicate-confidence
+adversarial replay, competency-export/data-dictionary governance,
+privacy-minimised-timing checks). `stage12e-storage-robustness.test.cjs`:
+**52/52** (unchanged). `stage12e-research-instrumentation.test.js`
+(governance): **22/22** (was 13, +9: accessibility audit). Real browser
+E2E (rewritten, evidence moved to a new `stage12e-corrective`
+directory): **24/24**.

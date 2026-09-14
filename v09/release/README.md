@@ -1,0 +1,76 @@
+# PreciMind QC Learning Lab
+
+**Version 0.9.0 (release candidate)**
+
+An educational simulation platform for laboratory-medicine
+quality-control (QC) decision-making.
+
+## What this is
+
+PreciMind QC Learning Lab helps learners practice QC reasoning across
+eleven tracked interactive laboratories (statistics, Westgard rules,
+operating characteristics, QC strategy, risk-based frequency,
+investigation methodology, EQA, BV/RCV, and PBRTQC), integrated by a
+**Morning QC** capstone simulation where learners investigate a
+realistic QC scenario end-to-end: recognize the signal, gather
+evidence selectively, decide whether to intervene, verify recovery,
+and reach a final disposition — then review a full debrief.
+
+This is **educational simulation software**. See `DISCLAIMER.md` for
+important limitations — it is not a medical device, not clinical
+decision-support software, and not a certification tool.
+
+## Intended audience
+
+Laboratory-medicine and clinical-chemistry learners, educators, and
+programs seeking a hands-on, low-stakes way to practice QC reasoning.
+
+## Privacy by design
+
+No learner name, email, staff ID, institution, or any other identity
+field is ever required or collected. All learning history is stored
+locally in your own browser. See `PRIVACY.md` for full detail.
+
+## How to run it
+
+### Online / web deployment
+Serve the contents of this package's application files with any static
+web server and open the served URL in a modern Chromium-based browser.
+See "Supported execution method" below.
+
+### Offline use
+See the separate Offline distribution package and its own instructions
+— "offline" means no internet connection is required *after* download,
+which is not necessarily the same as double-clicking an HTML file
+directly (see that package's README for the actual tested method).
+
+## Supported execution method / browser support actually tested
+
+This release candidate was validated with a real **Chromium** browser
+at desktop (1920×1080, 1366×768) and mobile (390×844) viewports.
+Firefox and WebKit/Safari were not available for testing in this
+validation environment — this is reported honestly as untested, not
+claimed as unsupported.
+
+## Research/instructor analytics status
+
+An instructor/research analytics workspace exists in the development
+build for use by programs studying their own local learner data; it is
+not part of this learner-facing distribution. See the audit repository
+package if you need that workspace.
+
+## Educational-use limitation
+
+Completing PreciMind exercises does not certify clinical competence,
+does not establish readiness for independent professional practice,
+and must not be used for employment-performance evaluation.
+
+## Citation
+
+See `CITATION_TEMPLATE.cff` (final author/citation metadata is pending
+project-owner confirmation — see that file for detail).
+
+## Version and provenance
+
+Version: **0.9.0**. See `RELEASE_PROVENANCE.json` for the exact source
+commit, build hashes, and schema versions this package was built from.

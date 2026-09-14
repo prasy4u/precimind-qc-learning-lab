@@ -1,0 +1,25 @@
+{
+  "_blocker_note": "PREPARATION ONLY. This template is NOT uploaded to Zenodo and Zenodo has not been contacted. Fields marked PENDING require project-owner/PI confirmation before any real deposition. No DOI, repository URL, institutional ownership, funding attribution, or license has been invented.",
+  "title": "PreciMind QC Learning Lab",
+  "version": "0.9.0",
+  "upload_type": "software",
+  "description": "PreciMind QC Learning Lab is an educational simulation platform for laboratory-medicine quality-control (QC) decision-making, covering eleven tracked interactive QC laboratories plus a Morning QC capstone scenario. Simulation-learning software; not a medical device and not intended for clinical decision-making.",
+  "creators": [
+    {
+      "name": "PENDING — to be confirmed by project owner/PI",
+      "affiliation": "PENDING — to be confirmed"
+    }
+  ],
+  "access_right": "PENDING — to be decided alongside the license (see LICENSE_STATUS.md)",
+  "license": "PENDING — see LICENSE_STATUS.md; do not assume a license here",
+  "doi": null,
+  "related_identifiers": [],
+  "keywords": [
+    "laboratory medicine",
+    "quality control",
+    "educational simulation",
+    "clinical chemistry education"
+  ],
+  "language": "eng",
+  "publication_date": "PENDING — set to actual deposition date"
+}

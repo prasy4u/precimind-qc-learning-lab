@@ -1,0 +1,84 @@
+# v0.9.0 Release Checklist
+
+States used: `PASS`, `FAIL`, `BLOCKED`, `NOT APPLICABLE`, `NOT TESTED`.
+
+## Scientific integrity
+- Stage 12A engine/pilot-paths/progression-invariants/governance (268/268): **PASS**
+- Stage 12D case-bank/expanded-paths/adaptive/analytics/numeric-audit: **PASS**
+- Historical v0.8 regression (3849/3849) + Stage 11A-11C2: **PASS**
+- No scientific arithmetic drift (verified via `git diff` against every prior accepted baseline this stage): **PASS**
+- Case bank / QC mathematics / Westgard doctrine unchanged: **PASS**
+
+## Runtime integrity
+- Production build succeeds: **PASS**
+- Production build hash byte-identical to the pre-Stage-12F accepted hash (`04fa0a3222...`): **PASS**
+- No console errors in clean-room web validation (aside from the browser's own harmless automatic favicon request): **PASS**
+- No unhandled page exceptions in clean-room web/offline validation: **PASS**
+- No unexpected (non-localhost) network requests: **PASS**
+
+## Browser validation
+- Chromium, desktop 1920×1080 / 1366×768, mobile 390×844: **PASS**
+- Firefox: **NOT TESTED** — browser engine unavailable in this validation environment
+- WebKit: **NOT TESTED** — browser engine unavailable in this validation environment
+
+## Accessibility
+- Targeted verification performed (keyboard reachability/Tab traversal, visible focus, accessible names, heading structure, `role="status"`/`role="alert"`, non-color-only meaning, ≥44px touch targets, mobile overflow): **PASS**
+- Formal WCAG conformance certification: **NOT APPLICABLE** — not claimed; only targeted verification was performed, and this is stated explicitly rather than implied
+
+## Privacy
+- No PII field exists in the canonical schema (structural, not just tested): **PASS**
+- No external network transmission of learner data: **PASS**
+- Malformed-container status surfaced truthfully (never coerced to a false "0 excluded"): **PASS**
+- Exact wall-clock timestamps absent from default research export (attempts + events): **PASS**
+- Secret/local-path scan of repository and public packages: **PASS** (no secrets, no personal filesystem paths found in delivered packages)
+
+## Research export (regression check only, no new features)
+- Valid/malformed-record handling, malformed-container handling, canonical event non-timing parity, relative timing, 7-file completeness, data/metric dictionary coverage, synthetic-fixture isolation, genuine learner storage unchanged during demo mode: **PASS** (re-run of the Stage 12E accepted suites: research.test.cjs 242/242, storage-robustness 52/52, governance 26/26)
+
+## Offline execution
+- Documented method (local static HTTP server) verified working in clean-room re-extraction: **PASS**
+- Direct `file://` double-click launch: **FAIL** (tested and confirmed non-functional due to absolute asset paths) — documented honestly in `release/offline-package/README.md`, not claimed as supported
+
+## Web deployment
+- Root-path deployment: **PASS** (clean-room verified)
+- Non-root subpath deployment: **FAIL** (tested and confirmed non-functional) — documented as a deployment constraint, not silently patched into the frozen production build
+
+## Historical evidence
+- Stage 12B/12C evidence 27/27 byte-identical: **PASS**
+
+## Production navigation
+- Exactly 14 primary destinations: **PASS**
+- Morning QC labeled CAPSTONE, never QC-13: **PASS**
+- No instructor primary-nav item: **PASS**
+
+## Reproducibility
+- Production build file-tree hash reproducible (verified via 2 independent rebuilds): **PASS**
+- Development build file-tree hash reproducible: **PASS**
+- Byte-for-byte ZIP reproducibility: **NOT APPLICABLE** — not claimed; `SHA256SUMS.txt` pins the exact delivered bytes instead (see `REPRODUCIBILITY.md`)
+
+## Dependencies/assets
+- Third-party runtime/build/test dependency inventory complete: **PASS** (`THIRD_PARTY_NOTICES.md`)
+- No unresolved license/provenance on any inventoried asset: **PASS**
+
+## Citation
+- `CITATION_TEMPLATE.cff` present and YAML-valid: **PASS**
+- Real, confirmed author/institution metadata: **BLOCKED** — pending PI confirmation
+
+## Licensing
+- Source-code license decided and documented: **BLOCKED** — pending project-owner decision (`LICENSE_STATUS.md`)
+
+## Security contact
+- Real public security-reporting channel published: **BLOCKED** — pending project-owner action (`SECURITY.md`)
+
+## Documentation
+- Public README, DISCLAIMER, PRIVACY, SECURITY, RELEASE_NOTES, SCIENTIFIC_BASIS, THIRD_PARTY_NOTICES, REPRODUCIBILITY: **PASS** (all present, reviewed for accuracy against actual tested behavior)
+
+## Public artifact content
+- Web/Offline packages free of tests, fixtures, instructor workspace, `.git`, browser evidence, internal audit docs: **PASS** (verified via automated content scan of the packaged directories)
+
+## Provenance
+- `RELEASE_PROVENANCE.json` present with source commit, build hashes, all schema versions: **PASS**
+- Git state clean, correct HEAD/commit count at delivery: **PASS**
+
+## Checksums
+- `SHA256SUMS.txt` covering all 3 external artifacts + production/dev tree hashes: **PASS**

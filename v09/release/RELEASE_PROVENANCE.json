@@ -1,0 +1,20 @@
+{
+  "productName": "PreciMind QC Learning Lab",
+  "releaseVersion": "0.9.0",
+  "releaseStage": "Stage 12F release candidate (not yet tagged or published)",
+  "sourceBranch": "v0.9-development",
+  "sourceCommit": "813596f920af907fb13dfb731b4db9d48dfc1044",
+  "sourceCommitCount": 78,
+  "productionBuildHash": "04fa0a3222150b7d07300617685eaf3ccc46fd08dd3f0129fe027377ce2b2ed1",
+  "developmentBuildHash": "c625fa7b53beac8481e24a2e0815843f85c55a0d993e1b3fd4c5bfc25ddc527a",
+  "caseSchemaVersion": "1.1.0",
+  "analyticsSchemaVersion": "1.0.0",
+  "researchExportSchemaVersion": "2.2.0",
+  "metricDefinitionVersion": "1.0.0",
+  "dataDictionaryVersion": "2.1.0",
+  "historicalEvidenceFreezeStatus": "27/27 byte-identical (Stage 12B/12C evidence)",
+  "productionNavigationCount": 14,
+  "morningQcRole": "CAPSTONE",
+  "buildMethod": "vite build (production-integrated config); see REPRODUCIBILITY.md",
+  "note": "sourceCommit above is the immutable Stage 12E-accepted baseline this Stage 12F candidate is built from. This file intentionally omits an unstable generation timestamp; source commit + build hashes are the authoritative, reproducible provenance anchors for this artifact."
+}

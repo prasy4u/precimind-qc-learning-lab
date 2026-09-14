@@ -1,0 +1,85 @@
+{
+  "status": "PASS",
+  "passed": 15,
+  "failed": 0,
+  "total": 15,
+  "browserExecutable": "/opt/pw-browsers/chromium-1194/chrome-linux/chrome",
+  "browserEngine": "chromium",
+  "checkpoints": [
+    {
+      "id": "NAV-COUNT-14",
+      "status": "PASS",
+      "detail": "Production navigation shows exactly 14 destinations (found 14)"
+    },
+    {
+      "id": "CAPSTONE-LABEL",
+      "status": "PASS",
+      "detail": "Morning QC is labeled CAPSTONE on the Competency Map"
+    },
+    {
+      "id": "NO-QC13-LABEL",
+      "status": "PASS",
+      "detail": "Morning QC is never labeled QC-13"
+    },
+    {
+      "id": "NO-INSTRUCTOR-NAV",
+      "status": "PASS",
+      "detail": "No instructor-analytics destination appears in the learner-facing navigation"
+    },
+    {
+      "id": "HOME-LOADS",
+      "status": "PASS",
+      "detail": "Home screen loads"
+    },
+    {
+      "id": "COMPETENCY-MAP-LOADS",
+      "status": "PASS",
+      "detail": "Competency Map screen loads"
+    },
+    {
+      "id": "STATS-LAB-LOADS",
+      "status": "PASS",
+      "detail": "Statistics Playground laboratory loads"
+    },
+    {
+      "id": "EVIDENCE-SCREEN-LOADS",
+      "status": "PASS",
+      "detail": "Evidence screen loads"
+    },
+    {
+      "id": "CAPSTONE-LAUNCHES",
+      "status": "PASS",
+      "detail": "Morning QC capstone launches from the Home screen"
+    },
+    {
+      "id": "CASE-ROOM-LOADS",
+      "status": "PASS",
+      "detail": "A Morning QC case room loads after selection"
+    },
+    {
+      "id": "NO-CONSOLE-ERRORS",
+      "status": "PASS",
+      "detail": "No unexpected console errors across this flow (found 0: [])"
+    },
+    {
+      "id": "NO-PAGE-EXCEPTIONS",
+      "status": "PASS",
+      "detail": "No unhandled page exceptions (found 0)"
+    },
+    {
+      "id": "NO-EXTERNAL-REQUESTS",
+      "status": "PASS",
+      "detail": "No non-localhost network requests (found 0: [])"
+    },
+    {
+      "id": "NO-OVERFLOW-1366x768",
+      "status": "PASS",
+      "detail": "No horizontal overflow at 1366x768"
+    },
+    {
+      "id": "NO-OVERFLOW-390x844",
+      "status": "PASS",
+      "detail": "No horizontal overflow at 390x844"
+    }
+  ]
+}

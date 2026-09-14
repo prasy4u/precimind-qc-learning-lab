@@ -523,3 +523,48 @@ A sixth independent audit found 5 remaining defects, all resolved: `caseLevelSum
 A seventh independent audit found 4 remaining gaps, the first acceptance-blocking: `events.jsonl` was leaking exact epoch-millisecond wall-clock timestamps (derived directly from `record.startedAt`/`completedAt`) despite documentation claiming exact timestamps were excluded by default — fixed strictly at the research-export layer (the canonical `projectEventsFromAttempt()` itself untouched) by replacing each event's absolute `timestamp` with a `relativeTimestampMs` field computed after projection, verified with realistic epoch values to confirm neither exact value appears anywhere in the export and the relative timing is correct; a privacy-scan typo (`bundle.eventsCsv`, a field that never existed) meant event content was never actually being scanned for forbidden patterns at all — fixed to scan all 7 export files, with an explicit test proving `events.jsonl` now participates; the export schema version was missing from the instructor Dataset Overview — added and verified in both source and browser; and a metric the UI already displayed (`appropriate_disposition_rate`) had no backing registry definition — added, and the prior `.focus()`-only keyboard test was replaced with genuine Tab-key traversal, Tab+Enter activation, a measured `:focus-visible` outline, and confirmation that all 9 Stage 12E buttons meet the `.mqc-btn` 44px touch-target contract.
 
 **Testing**: `research.test.cjs` 242/242, Stage 12E governance 26/26 (was 23), new dedicated browser E2E 14/14 (fresh `stage12e-privacy-governance-patch` evidence directory, no prior evidence touched). All Stage 12A-12D suites reconfirmed unchanged; zero changes to any case/engine/schema/analytics-model/adaptive file, and `projectEventsFromAttempt()` itself specifically confirmed untouched via `git diff`. All historical regressions, frozen SHAs, and the 27/27 evidence freeze reconfirmed unchanged. Production build hash remains byte-identical. Still a release-candidate CANDIDATE — no `v0.9` tag created.
+
+## 0.9.0 (release candidate)
+
+Stage 12F prepared the first public release candidate from the
+Stage 12E-accepted baseline. This stage is release validation,
+packaging, and governance only — **zero changes to any learner-facing
+application source file** (verified via `git diff` against the
+Stage 12E baseline: nothing under `app/` or `dev/` changed), and the
+production build hash remains byte-identical to the Stage 12E-accepted
+value.
+
+**Release documentation added**: `README.md`, `DISCLAIMER.md`,
+`PRIVACY.md`, `SECURITY.md`, `SCIENTIFIC_BASIS.md`,
+`THIRD_PARTY_NOTICES.md`, `RELEASE_NOTES_v0.9.0.md`,
+`REPRODUCIBILITY.md`, `RELEASE_PROVENANCE.json`, `VERSION`,
+`V09_RELEASE_CHECKLIST.md`, and `RELEASE_BLOCKERS.md`. Governance items
+that require a project-owner/institutional decision — software license,
+a real security-reporting contact, and confirmed citation/authorship
+metadata — are documented honestly as pending (`LICENSE_STATUS.md`,
+`CITATION_TEMPLATE.cff`) rather than invented.
+
+**Three distribution packages prepared**: a complete audit-repository
+package (including `.git`, for provenance and independent
+reconstruction), and Web/Offline learner-facing packages containing
+only the frozen production build plus public documentation — verified
+via automated content scan to be free of tests, fixtures, the
+instructor workspace, and internal audit material.
+
+**Clean-room validation performed** (not assumed): confirmed via real
+testing that direct `file://` launch does not work (documented
+honestly, not claimed as supported); confirmed root-path web deployment
+works and non-root subpath deployment does not (both genuinely tested);
+verified the documented local-server offline method works with zero
+page exceptions and zero external network requests; a real Chromium
+browser test exercised Home, multiple laboratories, Competency Map,
+Evidence, and the full Morning QC capstone launch/case-room flow at
+desktop and mobile viewports, confirming exactly 14 navigation
+destinations, the CAPSTONE label, and zero unexpected console errors,
+page exceptions, or external network calls.
+
+**Testing**: full Stage 12A-12E regression reconfirmed unchanged, full
+historical regression (v0.8 3849/3849, 11A-11C2) reconfirmed unchanged,
+frozen SHAs and the 27/27 historical evidence freeze reconfirmed
+unchanged, new Stage 12F browser E2E 15/15. No `v0.9.0` tag created —
+this remains a release candidate pending independent Stage 12F audit.

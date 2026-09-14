@@ -30,7 +30,7 @@
 import React, { useState, useCallback } from 'react';
 import { buildInstructorSummary } from '../app/morning-qc/analytics/instructor-projection.js';
 import { dimensionLabel } from '../app/morning-qc/debrief/debrief-model-ui.js';
-import { computeInstructorMetrics, formatRatioForDisplay, buildResearchExportBundle, METRIC_REGISTRY_VERSION, DATA_DICTIONARY_VERSION } from '../app/morning-qc/research/index.js';
+import { computeInstructorMetrics, formatRatioForDisplay, buildResearchExportBundle, METRIC_REGISTRY_VERSION, DATA_DICTIONARY_VERSION, EXPORT_SCHEMA_VERSION } from '../app/morning-qc/research/index.js';
 import { CASE_SCHEMA_VERSION } from '../app/morning-qc/case-schema.js';
 import { ANALYTICS_SCHEMA_VERSION } from '../app/morning-qc/analytics/analytics-types.js';
 
@@ -97,6 +97,7 @@ export function InstructorAnalyticsView({ attemptsByLearner, allValidAttempts, i
           <li>Analytics schema version: {ANALYTICS_SCHEMA_VERSION}</li>
           <li>Metric-definition version: {METRIC_REGISTRY_VERSION}</li>
           <li>Data-dictionary version: {DATA_DICTIONARY_VERSION}</li>
+          <li data-testid="export-schema-version-line">Export schema version: {EXPORT_SCHEMA_VERSION}</li>
           <li>
             {denomMetrics.datasetOverview.temporalSummary.attemptOrdinalSpan
               ? `Attempt span: #${denomMetrics.datasetOverview.temporalSummary.attemptOrdinalSpan.first}\u2013#${denomMetrics.datasetOverview.temporalSummary.attemptOrdinalSpan.last}`

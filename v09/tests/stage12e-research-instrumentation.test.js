@@ -126,6 +126,19 @@ async function main() {
       assert('8b', result.status === 'PASS', `Latest Stage 12E browser E2E result is genuinely PASS (found ${result.status})`);
     }
     assert('8c', fs.existsSync(priorResultPath), 'The prior Stage 12E corrective-closure evidence remains preserved (not deleted/overwritten)');
+
+    const patchResultPath = path.join(V09, 'tests', 'browser', 'evidence', 'stage12e-privacy-governance-patch', 'result.json');
+    assert('8e', fs.existsSync(patchResultPath), 'A real browser-run result.json exists for the FINAL PRIVACY/GOVERNANCE MICRO-PATCH');
+    if (fs.existsSync(patchResultPath)) {
+      const patchResult = JSON.parse(fs.readFileSync(patchResultPath, 'utf8'));
+      assert('8f', patchResult.status === 'PASS', `FINAL PRIVACY/GOVERNANCE MICRO-PATCH browser E2E result is genuinely PASS (found ${patchResult.status})`);
+    }
+  }
+
+  console.log('\n=== 8d. Export schema version visible in Dataset Overview (Item 3) ===');
+  {
+    const viewSrc = fs.readFileSync(path.join(V09, 'dev', 'instructor-analytics-view.jsx'), 'utf8');
+    assert('8d', /EXPORT_SCHEMA_VERSION/.test(viewSrc) && /Export schema version:/.test(viewSrc), 'instructor-analytics-view.jsx imports and renders the export schema version in Dataset Overview');
   }
 
   console.log('\n=== 9. Targeted accessibility audit of new Stage 12E controls (Section 11) ===');

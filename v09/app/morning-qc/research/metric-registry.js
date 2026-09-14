@@ -179,6 +179,22 @@ export const METRIC_REGISTRY = [
     possibleValues: '[0,1] or not-applicable',
     schemaVersion: METRIC_REGISTRY_VERSION,
   },
+  {
+    metricId: 'appropriate_disposition_rate',
+    displayName: 'Appropriate final disposition rate',
+    definition: 'The proportion of attempts whose executed final disposition (RESUME_SERVICE, HOLD_RESULTS, DOCUMENT, etc.) was the appropriate action, among attempts that reached a genuine, canonical, non-null final disposition.',
+    numerator: 'Count of attempts with executedFinalDisposition.outcomeAppropriate === true',
+    denominator: 'Count of attempts with a genuine non-null executedFinalDisposition',
+    eligibilityCriteria: 'executedFinalDisposition is present and non-null (a real disposition decision was genuinely reached)',
+    exclusions: 'Attempts where executedFinalDisposition is null (no disposition decision was reached at all, e.g. an incomplete or in-progress attempt) are excluded from this denominator entirely',
+    missingDataHandling: 'If denominator is 0 (no attempts reached a genuine disposition), display "not applicable", never "0%"',
+    sourceFields: ['executedFinalDisposition.outcomeAppropriate', 'executedFinalDisposition.actionType'],
+    interpretation: 'Reflects whether the learner\u2019s final action (resume, hold, escalate, document) was the scientifically/procedurally correct one for the case, independent of how they got there.',
+    nonInterpretation: 'Does not assess reasoning quality on its own — see unsupported_decision_rate and confidence_calibration_distribution for that axis; an appropriate disposition reached via unsupported reasoning is still a distinct, tracked pattern (Section 7 doctrine).',
+    unit: 'percentage or count', aggregationLevel: 'dataset or per-case',
+    possibleValues: '[0,1] or not-applicable',
+    schemaVersion: METRIC_REGISTRY_VERSION,
+  },
 ];
 
 export function getMetricDefinition(metricId) {

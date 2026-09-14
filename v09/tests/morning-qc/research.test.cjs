@@ -129,12 +129,24 @@ async function main() {
     assert('EXPORT-SYNTHETIC-FLAG', bundle.manifest.syntheticData === true, 'Export manifest correctly flags synthetic data as synthetic');
     assert('EXPORT-SCHEMA-VERSIONS-PRESENT', !!bundle.manifest.exportSchemaVersion && !!bundle.manifest.analyticsSchemaVersion && !!bundle.manifest.caseSchemaVersion && !!bundle.manifest.metricDefinitionVersion, 'Export manifest includes all required schema versions');
 
-    const allExportText = bundle.attemptsCsv + bundle.eventsCsv + bundle.metricDictionaryJson + bundle.manifestJson + bundle.readme;
+    const allExportText = bundle.attemptsCsv + bundle.competenciesCsv + bundle.eventsJsonl + bundle.metricDictionaryJson + bundle.dataDictionaryJson + bundle.manifestJson + bundle.readme;
     const FORBIDDEN_PATTERNS = [/groundTruth/i, /learnerName/i, /patientId/i, /\bemail\b/i, /staffId/i, /institution/i, /deviceId/i, /ipAddress/i];
     for (const pattern of FORBIDDEN_PATTERNS) {
       assert(`EXPORT-NO-${pattern.source.replace(/\W/g, '')}`, !pattern.test(allExportText), `Export bundle contains no "${pattern.source}"-matching content`);
     }
     assert('EXPORT-DECISIONEVENTID-PRESERVED', bundle.eventsJsonl.includes('syn01-d1#1'), 'events.jsonl preserves the genuine decisionEventId for linkage');
+
+    // Item 2 (FINAL PRIVACY MICRO-PATCH): explicit proof that events.jsonl
+    // genuinely participates in the privacy scan (the prior scan used
+    // the nonexistent `bundle.eventsCsv`, silently concatenating
+    // `undefined` and never actually inspecting event content at all).
+    assert('PRIVACY-SCAN-INCLUDES-EVENTS', allExportText.includes(bundle.eventsJsonl) && bundle.eventsJsonl.length > 0, 'The privacy scan\u2019s combined text genuinely includes non-empty events.jsonl content, not a silently-skipped undefined');
+    const eventsWithInjectedPII = buildResearchExportBundle([{ ...cohort[0], caseId: 'groundTruth-injected-case' }]);
+    // (This is a deliberately-invalid record — caseId must be a real case
+    // ID — included only to prove the scan would catch such content if
+    // it reached events.jsonl; a genuinely valid record never contains
+    // a forbidden pattern in the first place.)
+    assert('PRIVACY-SCAN-WOULD-CATCH-INJECTION', /groundTruth/i.test(eventsWithInjectedPII.eventsJsonl) || eventsWithInjectedPII.manifest.excludedRecordCount === 1, 'A forbidden-pattern injection either reaches (and would be caught by) the scan, or is correctly excluded by validation before ever reaching events.jsonl');
 
     // Deterministic structure: identical input produces identical output.
     const bundle2 = buildResearchExportBundle([...cohort, malformed], { syntheticFlag: true });
@@ -158,14 +170,24 @@ async function main() {
     assert('QUARANTINE-EXPORT-TRUTH-EXCLUDED', bundleFromInspection.manifest.excludedRecordCount === 1, 'Export manifest built from the raw-storage inspection reports the TRUE excluded count (1) — closing the exact gap the audit reproduced (previously 0)');
   }
 
-  console.log('\n=== CORRECTIVE CLOSURE Section 2: canonical event export parity + duplicate confidence preservation ===');
+  console.log('\n=== FINAL PRIVACY MICRO-PATCH Section 1: canonical event export parity (non-timing) + privacy-normalised timing ===');
   {
     const { projectEventsFromAttempt } = await import('file://' + path.join(MQC, 'analytics', 'analytics-model.js'));
     for (const record of buildSyntheticCohort()) {
       const canonicalEvents = projectEventsFromAttempt(record);
       const bundle = buildResearchExportBundle([record]);
       const exportedEvents = bundle.eventsJsonl.split('\n').filter(Boolean).map(l => { const { rowKey, ...rest } = JSON.parse(l); return rest; });
-      assert(`EVENT-PARITY-${record.attemptId}`, JSON.stringify(canonicalEvents) === JSON.stringify(exportedEvents), `${record.attemptId}: exported event sequence exactly matches projectEventsFromAttempt() (count: canonical=${canonicalEvents.length}, exported=${exportedEvents.length})`);
+      assert(`EVENT-COUNT-PARITY-${record.attemptId}`, canonicalEvents.length === exportedEvents.length, `${record.attemptId}: identical event count (canonical=${canonicalEvents.length}, exported=${exportedEvents.length})`);
+      let sequenceAndNonTimingMatch = true, timingCorrect = true;
+      for (let i = 0; i < canonicalEvents.length; i++) {
+        const { timestamp: canonicalTimestamp, ...canonicalNonTiming } = canonicalEvents[i];
+        const { relativeTimestampMs, ...exportedNonTiming } = exportedEvents[i];
+        if (JSON.stringify(canonicalNonTiming) !== JSON.stringify(exportedNonTiming)) sequenceAndNonTimingMatch = false;
+        const expectedRelative = (typeof canonicalTimestamp === 'number' && typeof record.startedAt === 'number') ? canonicalTimestamp - record.startedAt : null;
+        if (relativeTimestampMs !== expectedRelative) timingCorrect = false;
+      }
+      assert(`EVENT-SEQUENCE-NONTIMING-PARITY-${record.attemptId}`, sequenceAndNonTimingMatch, `${record.attemptId}: identical event sequence and identical canonical non-timing fields (type, decisionEventId, decisionId, quadrant, confidence, category, wasSuccessful, finalServiceState, competencyProfile, caseId, caseFamily, difficulty)`);
+      assert(`EVENT-TIMING-TRANSFORM-CORRECT-${record.attemptId}`, timingCorrect, `${record.attemptId}: exported relativeTimestampMs exactly equals canonicalTimestamp - record.startedAt for every event`);
     }
 
     // The exact adversarial regression: two confidenceSummary entries for the SAME decisionEventId.
@@ -179,6 +201,18 @@ async function main() {
     assert('EVENT-DUPLICATE-CONFIDENCE-PRESERVED', confidenceEvents.length === 2, `Both duplicate CONFIDENCE_RECORDED events for the same decisionEventId survive export (found ${confidenceEvents.length}, previously lost one via Object.fromEntries collapse)`);
     const parsedConfEvents = confidenceEvents.map(l => JSON.parse(l));
     assert('EVENT-DUPLICATE-CONFIDENCE-DISTINCT-VALUES', parsedConfEvents[0].confidence === 'HIGH' && parsedConfEvents[1].confidence === 'LOW', 'Both distinct confidence values (HIGH and LOW) are preserved, not merged or overwritten');
+
+    // The exact required adversarial test: realistic epoch timestamps.
+    const realisticRecord = { ...base, startedAt: 1789365600000, completedAt: 1789365660000 };
+    const realisticBundle = buildResearchExportBundle([realisticRecord]);
+    const fullExportText = realisticBundle.attemptsCsv + realisticBundle.competenciesCsv + realisticBundle.eventsJsonl + realisticBundle.metricDictionaryJson + realisticBundle.dataDictionaryJson + realisticBundle.manifestJson + realisticBundle.readme;
+    assert('NO-EXACT-STARTEDAT-EPOCH-ANYWHERE', !fullExportText.includes('1789365600000'), 'The exact startedAt epoch value (1789365600000) appears nowhere in the default export bundle');
+    assert('NO-EXACT-COMPLETEDAT-EPOCH-ANYWHERE', !fullExportText.includes('1789365660000'), 'The exact completedAt epoch value (1789365660000) appears nowhere in the default export bundle');
+    const realisticEvents = realisticBundle.eventsJsonl.split('\n').filter(Boolean).map(l => JSON.parse(l));
+    const caseStartedEvent = realisticEvents.find(e => e.type === 'CASE_STARTED');
+    assert('REALISTIC-RELATIVE-TIMING-CORRECT', caseStartedEvent.relativeTimestampMs === 0, `CASE_STARTED\u2019s relativeTimestampMs is exactly 0 (the event at startedAt itself) — found ${caseStartedEvent.relativeTimestampMs}`);
+    const caseCompletedEvent = realisticEvents.find(e => e.type === 'CASE_COMPLETED');
+    assert('REALISTIC-RELATIVE-TIMING-DURATION', caseCompletedEvent.relativeTimestampMs === (realisticRecord.completedAt - realisticRecord.startedAt), `CASE_COMPLETED\u2019s relativeTimestampMs equals the attempt\u2019s full duration (60000ms) — found ${caseCompletedEvent.relativeTimestampMs}`);
   }
 
   console.log('\n=== CORRECTIVE CLOSURE Section 5: competency export + data dictionary ===');
@@ -213,7 +247,7 @@ async function main() {
     // plus the export-added rowKey and the type discriminator itself,
     // must have an individual dictionary entry — no generic placeholder.
     const { EVENT_FIELD_SCHEMA } = await import('file://' + path.join(MQC, 'analytics', 'analytics-types.js'));
-    const allEventFields = new Set(['rowKey', 'type']);
+    const allEventFields = new Set(['rowKey', 'type', 'relativeTimestampMs']);
     for (const schema of Object.values(EVENT_FIELD_SCHEMA)) {
       for (const f of [...schema.required, ...schema.optional]) allEventFields.add(f);
     }

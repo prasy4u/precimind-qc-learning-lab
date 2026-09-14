@@ -301,3 +301,24 @@ Corrected the stale `V09_STAGE12E_ANALYTICS_SCHEMA` reference in `V09_README.md`
 `research.test.cjs` **213/213** (was 140, +73: malformed-container A-E scenarios, per-case analytics completeness/consistency, complete event-field and manifest-field dictionary-coverage governance). Real browser E2E (new `stage12e-final-micro-closure` evidence directory): **24/24** (per-case UI rendering, malformed-container UI truth, keyboard reachability/operability, mobile touch targets, and full 7-file content verification).
 
 Note: this session recovered from an environment reset partway through implementation, by re-extracting the prior corrective-closure delivery ZIP and independently re-verifying its Git state (branch, HEAD, commit count, clean tree) matched the expected starting baseline exactly before redoing the in-progress work.
+
+---
+
+## Stage 12E FINAL PRIVACY/GOVERNANCE MICRO-PATCH
+
+A seventh, narrowly-scoped independent audit found 4 remaining gaps, all acceptance-blocking or governance-relevant. All resolved.
+
+### 1. Exact timestamp leakage from events.jsonl (acceptance-blocking)
+Independently reproduced the exact defect: `events.jsonl` used the raw output of `projectEventsFromAttempt(record)`, whose `timestamp` field is a genuine epoch-millisecond value derived from `record.startedAt`/`completedAt` — contradicting the documented "no exact timestamps" policy. Fixed strictly at the research-export layer (`projectEventsFromAttempt()` itself untouched — verified via `git diff`): every event's absolute `timestamp` is replaced with `relativeTimestampMs` (timestamp minus that attempt's own `startedAt`) after canonical projection. Verified with the exact required adversarial test (realistic epoch values `1789365600000`/`1789365660000`): neither appears anywhere in the default export bundle, and the relative timing is correct (`CASE_STARTED` → 0, `CASE_COMPLETED` → the full 60000ms duration) — confirmed both at the module level and via genuinely downloaded browser content. `EXPORT_SCHEMA_VERSION` bumped to `2.2.0`, `DATA_DICTIONARY_VERSION` to `2.1.0`. Documentation (manifest `timingFieldsPolicy`, README, this report) now describes exported events as "canonical Stage 12D analytics events with a deterministic, privacy-minimised timing projection" — never as byte-identical, since the timing field is deliberately transformed.
+
+### 2. Privacy scan typo fixed
+Found the exact bug: the export privacy scan referenced `bundle.eventsCsv`, a field that has never existed (the real field is `eventsJsonl`) — the scan silently concatenated `undefined` and never actually inspected any event content. Fixed to scan all 7 export outputs; added an explicit test proving `events.jsonl` genuinely participates.
+
+### 3. Export schema version added to Dataset Overview
+`EXPORT_SCHEMA_VERSION` is now imported and rendered in the instructor Dataset Overview alongside the other version fields, verified via both source-level and browser-level checks.
+
+### 4. Metric-registry and accessibility evidence gaps closed
+Added a full `appropriate_disposition_rate` metric definition (the rate the UI already displayed had no backing registry entry). Replaced the prior `.focus()`-only keyboard test with genuine `page.keyboard.press('Tab')` traversal from a known starting point, verifying the demo toggle, prepare-export button, and clear-history control are all reached in sensible order, that Tab+Enter genuinely activates controls (including the first file-download button), that `:focus-visible` produces a measurably real outline (`outlineStyle: solid, outlineWidth: 2px`), and that all 9 Stage 12E buttons meet the existing `.mqc-btn` ≥44px min-height touch-target contract.
+
+### Updated test totals
+`research.test.cjs` **242/242** (was 213 before this micro-patch's Item 1/2 fixes — the prior `EVENT-PARITY` test was restructured into separate count/sequence-non-timing/timing-transform assertions per event, and new tests were added for the privacy-scan participation proof and the realistic-epoch adversarial scenario). Stage 12E governance **26/26** (was 23, +3: new evidence-directory and export-schema-version checks). New dedicated browser E2E (`stage12e-privacy-governance-patch`): **14/14**.

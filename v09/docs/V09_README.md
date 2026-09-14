@@ -90,9 +90,12 @@ a manifest) derived only from valid, already-anonymized attempt
 records. Every record is independently re-validated before export;
 malformed/legacy records are excluded and the exclusion count is
 reported in the manifest, never silently hidden. Exact timestamps are
-not included by default — a relative attempt ordinal and duration are
-used instead, to avoid the quasi-identifier risk of exact wall-clock
-times combined with external schedules.
+not included anywhere by default — `attempts.csv` uses a relative
+attempt ordinal and duration, and `events.jsonl` uses a
+`relativeTimestampMs` field (each event's time relative to that
+attempt's own start) in place of the underlying analytics event's
+absolute timestamp — to avoid the quasi-identifier risk of exact
+wall-clock times combined with external schedules.
 
 ## Limitations
 

@@ -35,6 +35,23 @@
    — an export-scoped rowKey field is added to each event without
    altering any of the event's own canonical fields).
 
+   FINAL PRIVACY MICRO-PATCH (Section 1): independently reproduced that
+   the canonical projection's `timestamp` field — derived directly from
+   record.startedAt/completedAt, genuine epoch-millisecond wall-clock
+   values — was leaking unchanged into events.jsonl, contradicting the
+   documented "no exact timestamps" policy. Fixed at THIS layer only:
+   projectEventsFromAttempt() itself is not modified (frozen Stage 12D
+   canonical semantics). Every event's absolute `timestamp` is replaced
+   with `relativeTimestampMs` (that timestamp minus the attempt's own
+   startedAt) after projection — every other canonical field (type,
+   decisionEventId, decisionId, quadrant, confidence, category,
+   wasSuccessful, finalServiceState, competencyProfile, caseId,
+   caseFamily, difficulty) is preserved exactly. Exported events are
+   therefore accurately described as "canonical Stage 12D analytics
+   events with a deterministic, privacy-minimised timing projection" —
+   never as "byte-identical," since the timing field is deliberately
+   transformed.
+
    Section 5: adds competencies.csv (long-form, one row per dimension
    per attempt) so unevaluated/null competencies remain distinguishable
    from NEEDS_IMPROVEMENT, and a machine-checkable research data
@@ -53,7 +70,7 @@ import { ANALYTICS_SCHEMA_VERSION } from '../analytics/analytics-types.js';
 import { METRIC_REGISTRY_VERSION, METRIC_REGISTRY } from './metric-registry.js';
 import { RESEARCH_DATA_DICTIONARY, DATA_DICTIONARY_VERSION } from './data-dictionary.js';
 
-export const EXPORT_SCHEMA_VERSION = '2.1.0'; // bumped: malformedContainer/recordCountsReliable/dataDictionaryVersion added to the manifest contract
+export const EXPORT_SCHEMA_VERSION = '2.2.0'; // bumped: events.jsonl timestamp field replaced with relativeTimestampMs (privacy fix — absolute epoch timestamps no longer leak into the default export)
 export const APPLICATION_VERSION = 'PreciMind QC Learning Lab v0.9';
 
 function anonymousRowKey(index) {
@@ -137,10 +154,28 @@ export function buildResearchExportBundle(storedRecordsOrInspection, { synthetic
 
   const attemptRows = validRecords.map((r, i) => recordToAttemptRow(r, i));
   const competencyRows = validRecords.flatMap((r, i) => recordToCompetencyRows(r, i));
-  // Section 2: the SOLE authoritative event projection — never reinterpreted.
+  // Section 2: the SOLE authoritative event projection — never
+  // reinterpreted. Section 1 (FINAL PRIVACY MICRO-PATCH): the canonical
+  // projection's `timestamp` field is derived directly from
+  // record.startedAt/completedAt — genuine epoch-millisecond wall-clock
+  // values in the real attempt schema. Independently reproduced this
+  // leaking unchanged into the prior export. projectEventsFromAttempt()
+  // itself is NOT modified (frozen Stage 12D canonical semantics); a
+  // privacy-normalisation step is applied strictly AFTER projection,
+  // replacing each event's absolute timestamp with a relative offset
+  // from that attempt's own startedAt. Every other canonical field
+  // (type, decisionEventId, decisionId, quadrant, confidence, category,
+  // wasSuccessful, finalServiceState, competencyProfile, caseId,
+  // caseFamily, difficulty) is preserved byte-for-byte from the
+  // canonical projection.
   const eventLines = validRecords.flatMap((r, i) => {
     const rowKey = anonymousRowKey(i);
-    return projectEventsFromAttempt(r).map(ev => JSON.stringify({ rowKey, ...ev }));
+    const canonicalEvents = projectEventsFromAttempt(r);
+    return canonicalEvents.map(ev => {
+      const { timestamp, ...rest } = ev;
+      const relativeTimestampMs = (typeof timestamp === 'number' && typeof r.startedAt === 'number') ? timestamp - r.startedAt : null;
+      return JSON.stringify({ rowKey, ...rest, relativeTimestampMs });
+    });
   });
 
   const attemptsCsv = rowsToCsv(ATTEMPT_CSV_COLUMNS, attemptRows);
@@ -162,7 +197,7 @@ export function buildResearchExportBundle(storedRecordsOrInspection, { synthetic
     recordCountsReliable,
     generatedFiles: ['attempts.csv', 'competencies.csv', 'events.jsonl', 'metric_dictionary.json', 'data_dictionary.json', 'dataset_manifest.json', 'README.md'],
     syntheticData: syntheticFlag,
-    timingFieldsPolicy: 'Exact wall-clock timestamps are NOT exported by default; attemptOrdinal and durationMs are used instead (see data_dictionary.json for rationale).',
+    timingFieldsPolicy: 'Exact wall-clock timestamps are NOT exported by default. attempts.csv uses attemptOrdinal and durationMs; events.jsonl uses relativeTimestampMs (each event\u2019s canonical timestamp minus that attempt\u2019s own startedAt) in place of the canonical projection\u2019s absolute timestamp field (see data_dictionary.json for rationale).',
     generatedAtEpochMs: null, // set by caller if a real timestamp is desired — never fabricated here
   };
 
@@ -176,7 +211,7 @@ export function buildResearchExportBundle(storedRecordsOrInspection, { synthetic
     'Files:',
     '- attempts.csv: one row per valid attempt (anonymous rowKey, no learner identity, no exact timestamps by default).',
     '- competencies.csv: one row per (attempt, evaluated-or-not dimension) pair — unevaluated dimensions are distinguishable from any rating.',
-    '- events.jsonl: the SAME canonical safe analytics events the accepted projectEventsFromAttempt() produces, one JSON object per line, with an added rowKey for linkage only.',
+    '- events.jsonl: canonical Stage 12D analytics events (from the accepted projectEventsFromAttempt()) with a deterministic, privacy-minimised timing projection — every non-timing field is preserved exactly; the absolute timestamp is replaced with relativeTimestampMs (milliseconds since that attempt\u2019s own start), plus an added rowKey for linkage only.',
     '- metric_dictionary.json: the authoritative definition of every instructor/research metric.',
     '- data_dictionary.json: field-level documentation for every exported column/field.',
     '- dataset_manifest.json: schema versions, valid/excluded record counts, and generation metadata.',

@@ -1,0 +1,80 @@
+{
+  "status": "PASS",
+  "passed": 14,
+  "failed": 0,
+  "total": 14,
+  "browserExecutable": "/opt/pw-browsers/chromium-1194/chrome-linux/chrome",
+  "browserEngine": "chromium",
+  "checkpoints": [
+    {
+      "id": "BROWSER-NO-EXACT-STARTEDAT",
+      "status": "PASS",
+      "detail": "Downloaded events.jsonl content does not contain the exact startedAt epoch value"
+    },
+    {
+      "id": "BROWSER-NO-EXACT-COMPLETEDAT",
+      "status": "PASS",
+      "detail": "Downloaded events.jsonl content does not contain the exact completedAt epoch value"
+    },
+    {
+      "id": "BROWSER-HAS-RELATIVE-TIMESTAMP",
+      "status": "PASS",
+      "detail": "Downloaded events.jsonl content genuinely uses relativeTimestampMs"
+    },
+    {
+      "id": "EXPORT-SCHEMA-VERSION-VISIBLE",
+      "status": "PASS",
+      "detail": "Dataset Overview shows the export schema version line (found: Export schema version: 2.2.0)"
+    },
+    {
+      "id": "TAB-REACHES-DEMO-TOGGLE",
+      "status": "PASS",
+      "detail": "Genuine Tab traversal (not .focus()) reaches the demo toggle"
+    },
+    {
+      "id": "TAB-REACHES-EXPORT",
+      "status": "PASS",
+      "detail": "Genuine Tab traversal reaches the prepare-export button"
+    },
+    {
+      "id": "TAB-REACHES-CLEAR-HISTORY",
+      "status": "PASS",
+      "detail": "Genuine Tab traversal reaches the clear-history button"
+    },
+    {
+      "id": "TAB-ORDER-SENSIBLE",
+      "status": "PASS",
+      "detail": "Demo toggle is reached before prepare-export in Tab order (sensible left-to-right, top-to-bottom order)"
+    },
+    {
+      "id": "FOCUS-VISIBLE-OUTLINE",
+      "status": "PASS",
+      "detail": ":focus-visible produces a measurable visible outline (found outlineStyle=solid, outlineWidth=2px)"
+    },
+    {
+      "id": "TAB-ENTER-ACTIVATES-DEMO",
+      "status": "PASS",
+      "detail": "Tab-then-Enter genuinely activates the demo toggle"
+    },
+    {
+      "id": "TAB-REACHES-FIRST-DOWNLOAD",
+      "status": "PASS",
+      "detail": "Genuine Tab traversal reaches the first file-download control (download-attempts.csv)"
+    },
+    {
+      "id": "TAB-ENTER-ACTIVATES-DOWNLOAD",
+      "status": "PASS",
+      "detail": "Tab-then-Enter genuinely triggers the first file download"
+    },
+    {
+      "id": "TOUCH-TARGET-COUNT",
+      "status": "PASS",
+      "detail": "Found 9 Stage 12E .mqc-btn controls to measure"
+    },
+    {
+      "id": "TOUCH-TARGET-MINIMUM",
+      "status": "PASS",
+      "detail": "All measured Stage 12E buttons meet the >=44px min-height contract (found: [{\"testid\":\"toggle-demo-mode-button\",\"height\":44},{\"testid\":\"prepare-export-button\",\"height\":44},{\"testid\":\"download-attempts.csv\",\"height\":44},{\"testid\":\"download-competencies.csv\",\"height\":44},{\"testid\":\"download-events.jsonl\",\"height\":44},{\"testid\":\"download-metric_dictionary.json\",\"height\":44},{\"testid\":\"download-data_dictionary.json\",\"height\":44},{\"testid\":\"download-dataset_manifest.json\",\"height\":44},{\"testid\":\"download-README.md\",\"height\":44}])"
+    }
+  ]
+}

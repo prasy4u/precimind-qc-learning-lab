@@ -52,7 +52,10 @@ No name, email, staff ID, institution, patient identifier, IP address,
 or device fingerprint is ever collected, stored, or exported — the
 underlying data schema does not have fields for any of these, and
 every attempt record is validated against a strict allowlist before
-being persisted or exported. See `V09_STAGE12E_ANALYTICS_SCHEMA` and
+being persisted or exported. See `docs/V09_STAGE12D_ANALYTICS_SCHEMA.md`
+(the accepted analytics-schema document — there is no separate
+Stage 12E analytics schema; Stage 12E's research module documents its
+own additional export fields in `data_dictionary.json`) and
 the research data dictionary for exact field-level detail.
 
 ## Instructor / development workspace

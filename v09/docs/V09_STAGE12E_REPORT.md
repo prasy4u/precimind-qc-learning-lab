@@ -272,3 +272,32 @@ privacy-minimised-timing checks). `stage12e-storage-robustness.test.cjs`:
 (governance): **22/22** (was 13, +9: accessibility audit). Real browser
 E2E (rewritten, evidence moved to a new `stage12e-corrective`
 directory): **24/24**.
+
+---
+
+## Stage 12E FINAL MICRO-CLOSURE
+
+A sixth independent audit found 5 remaining defects (2 substantive gaps, plus documentation/test completeness items). All addressed.
+
+### 1. Complete per-case denominator-governed analytics
+The prior `caseLevelSummary` reduced each case to `{attemptCount, caseFamily, difficulty}` only — metadata, not the denominator-governed per-case analytics the corrective specification required. Refactored `instructor-metrics.js` to extract a single shared `computeAggregateMetrics()` function (final disposition, decision quality, confidence calibration, evidence use, verification behavior — all denominator-governed exactly as at the dataset level) and apply it identically per-case, so per-case and dataset-level metrics can never drift from separate definitions. Verified every case's summary includes all 8 required sections, and that summing per-case totals reproduces the dataset-level totals exactly (no double-counting or omission). Rendered in the instructor UI as the primary per-case view, verified in a real browser.
+
+### 2. Field-complete research data dictionary
+Replaced the generic `"(other canonical event fields)"` placeholder with an individual dictionary entry for every field genuinely allowed by `EVENT_FIELD_SCHEMA` (16 distinct fields across all 10 event types, plus the export-added `rowKey` and `type`), and added entries for the 3 new manifest fields (`dataDictionaryVersion`, `malformedContainer`, `recordCountsReliable`). Strengthened governance with a test that programmatically verifies every field actually emitted by `attempts.csv`, `competencies.csv`, every field in `EVENT_FIELD_SCHEMA`, and every field in the manifest has a corresponding dictionary entry — the test fails if any exported field lacks documentation.
+
+### 3. Truthful malformed-container propagation
+Independently reproduced the exact gap: `inspectStoredAttempts()` already correctly computed `malformedContainer: true` for corrupted storage, but `buildResearchExportBundle()` never surfaced it, making malformed JSON indistinguishable from a clean empty dataset (both showed `excludedRecordCount: 0`). Fixed: the manifest now includes `malformedContainer`/`recordCountsReliable`, and `excludedRecordCount` is `null` (never a fabricated `0`) whenever the raw container itself could not be parsed. Verified all 5 required scenarios (no entry, clean empty array, one valid + one invalid, malformed JSON, valid-but-non-array) are correctly and mutually distinguishable. The instructor UI now shows an explicit "Storage container status: VALID / MALFORMED" line and "Unknown (storage container unreadable)" instead of a fabricated zero.
+
+### 4. Dataset overview completion
+Added attempt-record/case schema version, analytics schema version, metric-definition version, and data-dictionary version to the dataset overview, plus a privacy-minimised temporal summary (attempt-ordinal span and duration-range — never an exact wall-clock date range, and never computed internally merely to discard it).
+
+### 5. Accessibility/download-content test gaps closed
+Added a dedicated browser test verifying keyboard reachability and operability (Tab/Enter) for the demo toggle, prepare-export button, individual file-download buttons, and the clear-history control including a keyboard-triggered cancel; mobile touch-target practicality and no-overflow at 390×844 with per-case analytics populated; and — critically — genuine CONTENT verification for all 7 downloaded files (parsed and checked against expected structure/values), not merely correct filenames as the prior closure's test had done.
+
+### 6. Documentation consistency
+Corrected the stale `V09_STAGE12E_ANALYTICS_SCHEMA` reference in `V09_README.md` to point to the actual accepted `V09_STAGE12D_ANALYTICS_SCHEMA.md`.
+
+### Updated test totals
+`research.test.cjs` **213/213** (was 140, +73: malformed-container A-E scenarios, per-case analytics completeness/consistency, complete event-field and manifest-field dictionary-coverage governance). Real browser E2E (new `stage12e-final-micro-closure` evidence directory): **24/24** (per-case UI rendering, malformed-container UI truth, keyboard reachability/operability, mobile touch targets, and full 7-file content verification).
+
+Note: this session recovered from an environment reset partway through implementation, by re-extracting the prior corrective-closure delivery ZIP and independently re-verifying its Git state (branch, HEAD, commit count, clean tree) matched the expected starting baseline exactly before redoing the in-progress work.

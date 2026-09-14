@@ -207,6 +207,26 @@ async function main() {
     for (const col of competencyCsvColumns) {
       assert(`DICTIONARY-COVERS-competencies.csv-${col}`, dictFieldsByFile['competencies.csv']?.has(col), `competencies.csv column "${col}" has a data-dictionary entry`);
     }
+
+    // Item 2 (FINAL MICRO-closure): every field allowed/emitted through
+    // EVENT_FIELD_SCHEMA (required + optional, across ALL event types),
+    // plus the export-added rowKey and the type discriminator itself,
+    // must have an individual dictionary entry — no generic placeholder.
+    const { EVENT_FIELD_SCHEMA } = await import('file://' + path.join(MQC, 'analytics', 'analytics-types.js'));
+    const allEventFields = new Set(['rowKey', 'type']);
+    for (const schema of Object.values(EVENT_FIELD_SCHEMA)) {
+      for (const f of [...schema.required, ...schema.optional]) allEventFields.add(f);
+    }
+    for (const field of allEventFields) {
+      assert(`DICTIONARY-COVERS-events.jsonl-${field}`, dictFieldsByFile['events.jsonl']?.has(field), `events.jsonl field "${field}" (from EVENT_FIELD_SCHEMA) has an individual data-dictionary entry`);
+    }
+    assert('DICTIONARY-NO-GENERIC-PLACEHOLDER', !dictFieldsByFile['events.jsonl']?.has('(other canonical event fields)'), 'The generic "(other canonical event fields)" placeholder has been removed now that explicit coverage exists');
+
+    // Every manifest field ACTUALLY emitted has a dictionary entry.
+    const manifestFields = Object.keys(bundle.manifest);
+    for (const field of manifestFields) {
+      assert(`DICTIONARY-COVERS-manifest-${field}`, dictFieldsByFile['dataset_manifest.json']?.has(field), `dataset_manifest.json field "${field}" (actually emitted) has a data-dictionary entry`);
+    }
   }
 
   console.log('\n=== CORRECTIVE CLOSURE Section 6: privacy-minimised time fields ===');
@@ -218,6 +238,47 @@ async function main() {
     assert('HAS-ATTEMPT-ORDINAL', bundle.attemptsCsv.split('\n')[0].split(',').includes('attemptOrdinal'), 'attempts.csv exports attemptOrdinal instead');
     assert('HAS-DURATION-MS', bundle.attemptsCsv.split('\n')[0].split(',').includes('durationMs'), 'attempts.csv exports durationMs instead');
     assert('MANIFEST-DOCUMENTS-TIMING-POLICY', typeof bundle.manifest.timingFieldsPolicy === 'string' && bundle.manifest.timingFieldsPolicy.length > 0, 'The manifest documents the timing-fields privacy policy explicitly');
+  }
+
+  console.log('\n=== FINAL MICRO-CLOSURE Item 3: malformed-container truth (A-E scenarios) ===');
+  {
+    function mkStorage(val) { return { data: val !== undefined ? { 'precimind-morningqc-attempts-v1': val } : {}, getItem(k) { return this.data[k] || null; }, setItem(k, v) { this.data[k] = v; }, removeItem(k) { delete this.data[k]; } }; }
+    const { inspectStoredAttempts } = await import('file://' + path.join(MQC, 'adaptive', 'attempt-store.js'));
+
+    const bundleA = buildResearchExportBundle(inspectStoredAttempts(mkStorage()));
+    assert('MALFORMED-A-NO-ENTRY', bundleA.manifest.malformedContainer === false && bundleA.manifest.recordCountsReliable === true && bundleA.manifest.excludedRecordCount === 0, 'A: no storage entry is clean, not malformed');
+
+    const bundleB = buildResearchExportBundle(inspectStoredAttempts(mkStorage('[]')));
+    assert('MALFORMED-B-EMPTY-ARRAY', bundleB.manifest.malformedContainer === false && bundleB.manifest.recordCountsReliable === true && bundleB.manifest.excludedRecordCount === 0, 'B: a clean empty array is not malformed');
+
+    const storageC = mkStorage();
+    storageC.setItem('precimind-morningqc-attempts-v1', JSON.stringify([buildSyntheticCohort()[0], buildMalformedFixture()]));
+    const bundleC = buildResearchExportBundle(inspectStoredAttempts(storageC));
+    assert('MALFORMED-C-MIXED', bundleC.manifest.malformedContainer === false && bundleC.manifest.validAttemptCount === 1 && bundleC.manifest.excludedRecordCount === 1, 'C: one valid + one invalid record is a reliable count (1 valid, 1 excluded), not malformed');
+
+    const bundleD = buildResearchExportBundle(inspectStoredAttempts(mkStorage('{not valid json')));
+    assert('MALFORMED-D-BAD-JSON', bundleD.manifest.malformedContainer === true && bundleD.manifest.recordCountsReliable === false && bundleD.manifest.excludedRecordCount === null, 'D: malformed JSON is truthfully flagged malformed, with excludedRecordCount null (never fabricated as 0)');
+
+    const bundleE = buildResearchExportBundle(inspectStoredAttempts(mkStorage('{"foo":1}')));
+    assert('MALFORMED-E-NON-ARRAY', bundleE.manifest.malformedContainer === true && bundleE.manifest.recordCountsReliable === false && bundleE.manifest.excludedRecordCount === null, 'E: valid JSON but non-array is truthfully flagged malformed');
+
+    assert('MALFORMED-D-E-DISTINGUISHABLE-FROM-CLEAN', bundleD.manifest.malformedContainer !== bundleA.manifest.malformedContainer && bundleE.manifest.malformedContainer !== bundleB.manifest.malformedContainer, 'Malformed containers (D, E) are never indistinguishable from a clean empty dataset (A, B)');
+  }
+
+  console.log('\n=== FINAL MICRO-CLOSURE Item 1: per-case denominator-governed analytics ===');
+  {
+    const cohort = buildSyntheticCohort();
+    const metrics = computeInstructorMetrics(cohort);
+    const REQUIRED_CASE_FIELDS = ['attemptCount', 'caseFamily', 'difficulty', 'confidence', 'evidence', 'verification', 'disposition', 'decision'];
+    for (const [caseId, s] of Object.entries(metrics.caseLevelSummary)) {
+      const missing = REQUIRED_CASE_FIELDS.filter(f => !(f in s));
+      assert(`PERCASE-COMPLETE-${caseId}`, missing.length === 0, `${caseId}: per-case summary includes all required denominator-governed sections (missing: ${JSON.stringify(missing)})`);
+    }
+    // Per-case sums are internally consistent with the dataset-level aggregate.
+    const totalCaseDecisions = Object.values(metrics.caseLevelSummary).reduce((s, c) => s + c.decision.totalDecisionCount, 0);
+    assert('PERCASE-DECISION-SUM-CONSISTENT', totalCaseDecisions === metrics.decisionQuality.totalDecisions, 'Summing each case\u2019s totalDecisionCount equals the dataset-level total (single shared definition, no drift)');
+    const totalCaseDispositions = Object.values(metrics.caseLevelSummary).reduce((s, c) => s + c.disposition.dispositionEligibleCount, 0);
+    assert('PERCASE-DISPOSITION-SUM-CONSISTENT', totalCaseDispositions === metrics.finalDisposition.recordsWithDisposition, 'Summing each case\u2019s dispositionEligibleCount equals the dataset-level total');
   }
 
   const total = passed + failed;

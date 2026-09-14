@@ -51,9 +51,9 @@ import { projectEventsFromAttempt } from '../analytics/analytics-model.js';
 import { CASE_SCHEMA_VERSION } from '../case-schema.js';
 import { ANALYTICS_SCHEMA_VERSION } from '../analytics/analytics-types.js';
 import { METRIC_REGISTRY_VERSION, METRIC_REGISTRY } from './metric-registry.js';
-import { RESEARCH_DATA_DICTIONARY } from './data-dictionary.js';
+import { RESEARCH_DATA_DICTIONARY, DATA_DICTIONARY_VERSION } from './data-dictionary.js';
 
-export const EXPORT_SCHEMA_VERSION = '2.0.0'; // bumped: events.jsonl + competencies.csv + privacy-minimised timing are a genuine schema change
+export const EXPORT_SCHEMA_VERSION = '2.1.0'; // bumped: malformedContainer/recordCountsReliable/dataDictionaryVersion added to the manifest contract
 export const APPLICATION_VERSION = 'PreciMind QC Learning Lab v0.9';
 
 function anonymousRowKey(index) {
@@ -110,7 +110,7 @@ function recordToCompetencyRows(record, index) {
  * an already-filtered array — Section 1).
  */
 export function buildResearchExportBundle(storedRecordsOrInspection, { syntheticFlag = false } = {}) {
-  let validRecords, totalEncountered;
+  let validRecords, totalEncountered, malformedContainer = false;
   if (Array.isArray(storedRecordsOrInspection)) {
     validRecords = [];
     let excluded = 0;
@@ -121,11 +121,19 @@ export function buildResearchExportBundle(storedRecordsOrInspection, { synthetic
     }
     totalEncountered = validRecords.length + excluded;
   } else {
-    // Already-inspected shape: {totalEncountered, validRecords, quarantinedCount}.
+    // Already-inspected shape: {totalEncountered, validRecords, quarantinedCount, malformedContainer}.
     validRecords = storedRecordsOrInspection.validRecords || [];
     totalEncountered = storedRecordsOrInspection.totalEncountered ?? validRecords.length;
+    malformedContainer = !!storedRecordsOrInspection.malformedContainer;
   }
-  const excludedCount = totalEncountered - validRecords.length;
+  // Section 3 (Stage 12E FINAL MICRO-closure): when the raw storage
+  // container itself could not be parsed (malformed JSON, or valid JSON
+  // that isn't an array), the number of individual records it WOULD
+  // have held is genuinely UNKNOWABLE — never fabricate a precise
+  // excludedRecordCount of 0 in that case, which would make corrupted
+  // storage indistinguishable from a genuinely clean, empty dataset.
+  const recordCountsReliable = !malformedContainer;
+  const excludedCount = recordCountsReliable ? (totalEncountered - validRecords.length) : null;
 
   const attemptRows = validRecords.map((r, i) => recordToAttemptRow(r, i));
   const competencyRows = validRecords.flatMap((r, i) => recordToCompetencyRows(r, i));
@@ -143,12 +151,15 @@ export function buildResearchExportBundle(storedRecordsOrInspection, { synthetic
 
   const manifest = {
     exportSchemaVersion: EXPORT_SCHEMA_VERSION,
+    dataDictionaryVersion: DATA_DICTIONARY_VERSION,
     analyticsSchemaVersion: ANALYTICS_SCHEMA_VERSION,
     caseSchemaVersion: CASE_SCHEMA_VERSION,
     metricDefinitionVersion: METRIC_REGISTRY_VERSION,
     applicationVersion: APPLICATION_VERSION,
     validAttemptCount: validRecords.length,
     excludedRecordCount: excludedCount,
+    malformedContainer,
+    recordCountsReliable,
     generatedFiles: ['attempts.csv', 'competencies.csv', 'events.jsonl', 'metric_dictionary.json', 'data_dictionary.json', 'dataset_manifest.json', 'README.md'],
     syntheticData: syntheticFlag,
     timingFieldsPolicy: 'Exact wall-clock timestamps are NOT exported by default; attemptOrdinal and durationMs are used instead (see data_dictionary.json for rationale).',

@@ -118,12 +118,14 @@ async function main() {
 
   console.log('\n=== 8. Stage 12E browser evidence ===');
   {
-    const resultPath = path.join(V09, 'tests', 'browser', 'evidence', 'stage12e-corrective', 'result.json');
-    assert('8a', fs.existsSync(resultPath), 'A real browser-run result.json exists for Stage 12E');
+    const resultPath = path.join(V09, 'tests', 'browser', 'evidence', 'stage12e-final-micro-closure', 'result.json');
+    const priorResultPath = path.join(V09, 'tests', 'browser', 'evidence', 'stage12e-corrective', 'result.json');
+    assert('8a', fs.existsSync(resultPath), 'A real browser-run result.json exists for the latest Stage 12E closure');
     if (fs.existsSync(resultPath)) {
       const result = JSON.parse(fs.readFileSync(resultPath, 'utf8'));
-      assert('8b', result.status === 'PASS', `Stage 12E browser E2E result is genuinely PASS (found ${result.status})`);
+      assert('8b', result.status === 'PASS', `Latest Stage 12E browser E2E result is genuinely PASS (found ${result.status})`);
     }
+    assert('8c', fs.existsSync(priorResultPath), 'The prior Stage 12E corrective-closure evidence remains preserved (not deleted/overwritten)');
   }
 
   console.log('\n=== 9. Targeted accessibility audit of new Stage 12E controls (Section 11) ===');

@@ -30,7 +30,9 @@
 import React, { useState, useCallback } from 'react';
 import { buildInstructorSummary } from '../app/morning-qc/analytics/instructor-projection.js';
 import { dimensionLabel } from '../app/morning-qc/debrief/debrief-model-ui.js';
-import { computeInstructorMetrics, formatRatioForDisplay, buildResearchExportBundle } from '../app/morning-qc/research/index.js';
+import { computeInstructorMetrics, formatRatioForDisplay, buildResearchExportBundle, METRIC_REGISTRY_VERSION, DATA_DICTIONARY_VERSION } from '../app/morning-qc/research/index.js';
+import { CASE_SCHEMA_VERSION } from '../app/morning-qc/case-schema.js';
+import { ANALYTICS_SCHEMA_VERSION } from '../app/morning-qc/analytics/analytics-types.js';
 
 const EXPORT_FILES = [
   ['attempts.csv', 'attemptsCsv', 'text/csv'],
@@ -57,7 +59,7 @@ export function InstructorAnalyticsView({ attemptsByLearner, allValidAttempts, i
   const { aggregate } = summary;
   const flatAttempts = allValidAttempts || Object.values(attemptsByLearner || {}).flat();
   const quarantinedCount = inspection?.quarantinedCount ?? 0;
-  const denomMetrics = computeInstructorMetrics(flatAttempts, { quarantinedCount });
+  const denomMetrics = computeInstructorMetrics(flatAttempts, { quarantinedCount, malformedContainer: inspection?.malformedContainer ?? false });
   const [exportBundle, setExportBundle] = useState(null);
 
   const handlePrepareExport = useCallback(() => {
@@ -84,8 +86,26 @@ export function InstructorAnalyticsView({ attemptsByLearner, allValidAttempts, i
         <h2 id="iav-dataset-overview-heading">Dataset Overview</h2>
         <ul>
           <li>Valid attempts: {denomMetrics.datasetOverview.validAttemptCount}</li>
-          <li>Quarantined (rejected) records: {denomMetrics.datasetOverview.quarantinedRecordCount}</li>
+          <li>
+            Quarantined (rejected) records: {denomMetrics.datasetOverview.recordCountsReliable ? denomMetrics.datasetOverview.quarantinedRecordCount : 'Unknown (storage container unreadable)'}
+          </li>
+          <li data-testid="storage-container-status">
+            Storage container status: {denomMetrics.datasetOverview.malformedContainer ? 'MALFORMED / UNREADABLE' : 'VALID'}
+          </li>
           <li>Cases represented: {denomMetrics.datasetOverview.casesRepresented.length}</li>
+          <li>Attempt-record / case schema version: {CASE_SCHEMA_VERSION}</li>
+          <li>Analytics schema version: {ANALYTICS_SCHEMA_VERSION}</li>
+          <li>Metric-definition version: {METRIC_REGISTRY_VERSION}</li>
+          <li>Data-dictionary version: {DATA_DICTIONARY_VERSION}</li>
+          <li>
+            {denomMetrics.datasetOverview.temporalSummary.attemptOrdinalSpan
+              ? `Attempt span: #${denomMetrics.datasetOverview.temporalSummary.attemptOrdinalSpan.first}\u2013#${denomMetrics.datasetOverview.temporalSummary.attemptOrdinalSpan.last}`
+              : 'Attempt span: n/a'}
+            {denomMetrics.datasetOverview.temporalSummary.durationMsRange
+              ? ` \u2014 duration range ${denomMetrics.datasetOverview.temporalSummary.durationMsRange.min}\u2013${denomMetrics.datasetOverview.temporalSummary.durationMsRange.max}ms`
+              : ''}
+            {' '}(exact wall-clock timestamps intentionally omitted for privacy)
+          </li>
         </ul>
       </section>
 
@@ -100,11 +120,18 @@ export function InstructorAnalyticsView({ attemptsByLearner, allValidAttempts, i
       </section>
 
       <section aria-labelledby="iav-case-summary-heading" data-testid="case-level-summary">
-        <h2 id="iav-case-summary-heading">Per-Case Summary</h2>
+        <h2 id="iav-case-summary-heading">Per-Case Summary (Denominator-Governed)</h2>
         <ul>
           {Object.entries(denomMetrics.caseLevelSummary).map(([caseId, s]) => (
-            <li key={caseId}>
-              {caseId}: {s.attemptCount} attempt(s), family {s.caseFamily || 'n/a'}, difficulty {s.difficulty || 'n/a'}
+            <li key={caseId} data-testid={`case-summary-${caseId}`}>
+              <strong>{caseId}</strong>: {s.attemptCount} attempt(s), family {s.caseFamily || 'n/a'}, difficulty {s.difficulty || 'n/a'}
+              <ul>
+                <li>Appropriate final disposition: {formatRatioForDisplay(s.disposition.appropriateDispositionRate)} (of {s.disposition.dispositionEligibleCount} eligible)</li>
+                <li>Unsupported-reasoning rate: {formatRatioForDisplay(s.decision.unsupportedDecisionRate)} (of {s.decision.totalDecisionCount} decisions)</li>
+                <li>Confidence recorded: {s.confidence.recordedConfidenceDenominator} decision(s) (HIGH {s.confidence.levelCounts.HIGH}, MODERATE {s.confidence.levelCounts.MODERATE}, LOW {s.confidence.levelCounts.LOW})</li>
+                <li>Evidence efficiency: {formatRatioForDisplay(s.evidence.evidenceEfficiencyRatio)} (among {s.evidence.evidenceEligibleAttemptCount} eligible)</li>
+                <li>Verification: {s.verification.noVerificationAttemptCaseCount} no-attempt, {s.verification.successfulVerificationCaseCount} successful of {s.verification.verificationAttemptedCaseCount} attempted (success rate {formatRatioForDisplay(s.verification.verificationSuccessRateAmongAttempted)}), {s.verification.failedVerificationAttemptTotal} total failed attempts</li>
+              </ul>
             </li>
           ))}
         </ul>
@@ -198,7 +225,10 @@ export function InstructorAnalyticsView({ attemptsByLearner, allValidAttempts, i
         </button>
         {exportBundle && (
           <div data-testid="export-file-links" role="status">
-            <p>{exportBundle.manifest.validAttemptCount} valid attempt(s), {exportBundle.manifest.excludedRecordCount} excluded record(s). Download each file:</p>
+            <p>{exportBundle.manifest.validAttemptCount} valid attempt(s), {exportBundle.manifest.recordCountsReliable ? `${exportBundle.manifest.excludedRecordCount} excluded record(s)` : 'excluded-record count unknown (storage container unreadable)'}. Download each file:</p>
+            {exportBundle.manifest.malformedContainer && (
+              <p role="alert" data-testid="export-malformed-warning">Warning: the raw storage container could not be parsed. Only genuinely readable data (if any) is included in this export.</p>
+            )}
             <ul>
               {EXPORT_FILES.map(([filename, contentKey, mimeType]) => (
                 <li key={filename}>

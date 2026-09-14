@@ -1,0 +1,130 @@
+{
+  "status": "PASS",
+  "passed": 24,
+  "failed": 0,
+  "total": 24,
+  "browserExecutable": "/opt/pw-browsers/chromium-1194/chrome-linux/chrome",
+  "browserEngine": "chromium",
+  "checkpoints": [
+    {
+      "id": "PERCASE-UI-DISPOSITION",
+      "status": "PASS",
+      "detail": "Per-case summary shows appropriate-disposition rate in the UI"
+    },
+    {
+      "id": "PERCASE-UI-VERIFICATION",
+      "status": "PASS",
+      "detail": "Per-case summary shows full verification breakdown in the UI"
+    },
+    {
+      "id": "PERCASE-UI-EVIDENCE",
+      "status": "PASS",
+      "detail": "Per-case summary shows evidence efficiency in the UI"
+    },
+    {
+      "id": "PERCASE-UI-CONFIDENCE",
+      "status": "PASS",
+      "detail": "Per-case summary shows confidence breakdown in the UI"
+    },
+    {
+      "id": "MALFORMED-UI-STATUS",
+      "status": "PASS",
+      "detail": "Storage container status shows MALFORMED (found: \"Storage container status: MALFORMED / UNREADABLE\")"
+    },
+    {
+      "id": "MALFORMED-UI-UNKNOWN-COUNT",
+      "status": "PASS",
+      "detail": "Quarantined count shows \"Unknown\", never a fabricated 0"
+    },
+    {
+      "id": "KEYBOARD-FOCUS-VISIBLE-TOGGLE",
+      "status": "PASS",
+      "detail": "Demo-mode toggle can receive keyboard focus"
+    },
+    {
+      "id": "KEYBOARD-ACTIVATE-TOGGLE",
+      "status": "PASS",
+      "detail": "Demo mode can be activated via keyboard (Enter)"
+    },
+    {
+      "id": "KEYBOARD-FOCUS-EXPORT",
+      "status": "PASS",
+      "detail": "Prepare-export button can receive keyboard focus"
+    },
+    {
+      "id": "KEYBOARD-ACTIVATE-EXPORT",
+      "status": "PASS",
+      "detail": "Export can be prepared via keyboard (Enter)"
+    },
+    {
+      "id": "KEYBOARD-FOCUS-DOWNLOAD",
+      "status": "PASS",
+      "detail": "Individual file-download buttons can receive keyboard focus"
+    },
+    {
+      "id": "KEYBOARD-ACTIVATE-DOWNLOAD",
+      "status": "PASS",
+      "detail": "A file download can be triggered via keyboard (Enter)"
+    },
+    {
+      "id": "KEYBOARD-FOCUS-CLEAR",
+      "status": "PASS",
+      "detail": "Clear-history button can receive keyboard focus"
+    },
+    {
+      "id": "KEYBOARD-CLEAR-CANCEL-CORRECT",
+      "status": "PASS",
+      "detail": "Keyboard-triggered clear, then cancel, leaves history intact"
+    },
+    {
+      "id": "MOBILE-NO-OVERFLOW",
+      "status": "PASS",
+      "detail": "No horizontal overflow at 390x844 with per-case analytics populated"
+    },
+    {
+      "id": "MOBILE-TOUCH-TARGET",
+      "status": "PASS",
+      "detail": "Demo toggle has a practical touch-target height (found 44px)"
+    },
+    {
+      "id": "CONTENT-attempts.csv",
+      "status": "PASS",
+      "detail": "attempts.csv content has the genuine expected header (not empty/wrong)"
+    },
+    {
+      "id": "CONTENT-attempts.csv-rows",
+      "status": "PASS",
+      "detail": "attempts.csv has exactly 10 data rows + 1 header (matches the 10-record synthetic cohort)"
+    },
+    {
+      "id": "CONTENT-competencies.csv",
+      "status": "PASS",
+      "detail": "competencies.csv content has the genuine expected header"
+    },
+    {
+      "id": "CONTENT-events.jsonl",
+      "status": "PASS",
+      "detail": "events.jsonl content is genuinely parseable JSONL with real event objects"
+    },
+    {
+      "id": "CONTENT-metric_dictionary.json",
+      "status": "PASS",
+      "detail": "metric_dictionary.json content is genuinely parseable and non-empty"
+    },
+    {
+      "id": "CONTENT-data_dictionary.json",
+      "status": "PASS",
+      "detail": "data_dictionary.json content genuinely includes the malformedContainer entry"
+    },
+    {
+      "id": "CONTENT-dataset_manifest.json",
+      "status": "PASS",
+      "detail": "dataset_manifest.json content genuinely reflects the 10-record cohort and includes malformedContainer"
+    },
+    {
+      "id": "CONTENT-README.md",
+      "status": "PASS",
+      "detail": "README.md content genuinely reflects synthetic-data status"
+    }
+  ]
+}

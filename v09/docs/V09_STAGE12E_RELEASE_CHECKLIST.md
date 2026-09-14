@@ -44,7 +44,7 @@ marked accordingly rather than assumed.
 ## Accessibility
 - [x] Targeted audit of the new Stage 12E instructor/research controls (heading hierarchy, accessible names, `role="status"`/`role="alert"`, `aria-labelledby`, explicit `type="button"`)
 - [x] No horizontal overflow at 1920×1080, 1366×768, or 390×844 with the instructor workspace populated
-- [ ] Full formal WCAG conformance audit — **not performed**; only a targeted, source- and browser-verified pass over the new controls was conducted, per the corrective closure's explicit narrow scope
+- [ ] Full formal WCAG conformance audit — **not performed**; only a targeted, source- and browser-verified pass over the new controls was conducted (now including keyboard reachability/operability of every new Stage 12E control, verified in a real browser), per the corrective closure's explicit narrow scope
 
 ## Provenance
 - [x] Correct Git state (branch, HEAD, commit count all verified before and after)

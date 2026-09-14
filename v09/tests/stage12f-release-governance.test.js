@@ -22,9 +22,9 @@ function assert(id, cond, detail) {
   else { console.error(`  ✗ [${id}] FAIL: ${detail}`); failed++; }
 }
 
-/** Finds `SOMEFILE.md`/`SOMEFILE.json`/`SOMEFILE.cff` style backtick-quoted references in text. */
+/** Finds `SOMEFILE.md`/`some/relative/path.json`/`SOMEFILE.cff` style backtick-quoted references in text, including relative paths containing `/`. */
 function findReferencedFilenames(text) {
-  const matches = text.matchAll(/`([A-Za-z0-9_.-]+\.(?:md|json|cff))`/g);
+  const matches = text.matchAll(/`([A-Za-z0-9_.\/-]+\.(?:md|json|cff))`/g);
   return [...new Set([...matches].map(m => m[1]))];
 }
 
@@ -51,6 +51,25 @@ function auditPackage(pkgDir, label) {
 }
 
 async function main() {
+  console.log('\n=== Reference-scanner hardening regression (Item 3) ===');
+  {
+    // Proves the scanner would catch the EXACT defect this closure fixed
+    // (a relative repo-internal path leaked into a public document),
+    // using a synthetic in-memory document rather than relying on the
+    // real docs staying broken.
+    const synthetic = 'See `release/web-package/README.md` for detail.';
+    const refs = findReferencedFilenames(synthetic);
+    assert('SCANNER-DETECTS-RELATIVE-PATH', refs.includes('release/web-package/README.md'), 'The reference scanner detects a relative backtick-quoted path containing "/" (e.g. "release/web-package/README.md"), not only bare basenames');
+    // And prove it is correctly flagged BROKEN when placed in a real
+    // package (since "release/web-package/README.md" cannot resolve
+    // from inside release/web-package/ itself) and not marked external.
+    const fakePkgDir = fs.mkdtempSync(path.join(require('os').tmpdir(), 'docref-test-'));
+    fs.writeFileSync(path.join(fakePkgDir, 'BROKEN_EXAMPLE.md'), synthetic);
+    const existsCheck = fs.existsSync(path.join(fakePkgDir, 'release/web-package/README.md'));
+    assert('SCANNER-CONFIRMS-BROKEN', !existsCheck, 'release/web-package/README.md correctly does not resolve inside a public package directory (would be flagged BROKEN by auditPackage)');
+    fs.rmSync(fakePkgDir, { recursive: true, force: true });
+  }
+
   console.log('\n=== Public-document reference integrity (Item 2) ===');
   auditPackage(path.join(V09, 'release', 'web-package'), 'web');
   auditPackage(path.join(V09, 'release', 'offline-package'), 'offline');

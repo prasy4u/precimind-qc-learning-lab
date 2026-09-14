@@ -3,7 +3,7 @@
 ## Overview
 
 PreciMind QC Learning Lab v0.9.0 is the first stable public release
-candidate of an educational simulation platform for laboratory-medicine
+of an educational simulation platform for laboratory-medicine
 quality-control (QC) decision-making.
 
 ## What's included

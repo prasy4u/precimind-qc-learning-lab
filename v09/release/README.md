@@ -34,9 +34,13 @@ locally in your own browser. See `PRIVACY.md` for full detail.
 ## How to run it
 
 ### Online / web deployment
-Serve the contents of this package's application files with any static
-web server and open the served URL in a modern Chromium-based browser.
-See "Supported execution method" below.
+The planned public application URL is
+**https://precimind.drprasenjitmitra.com/** (hosted at the root of its
+own subdomain — not yet deployed as of this release candidate). To
+self-host, serve the contents of this package's application files with
+any static web server from the host/domain **root** and open the
+served URL in a modern Chromium-based browser. See "Supported
+execution method" below for the tested root-vs-subpath constraint.
 
 ### Offline use
 See the separate Offline distribution package and its own instructions
@@ -65,10 +69,17 @@ Completing PreciMind exercises does not certify clinical competence,
 does not establish readiness for independent professional practice,
 and must not be used for employment-performance evaluation.
 
+## Source repository
+
+Planned public repository at release:
+**https://github.com/prasy4u/precimind-qc-learning-lab** (not yet
+publicly created as of this release candidate).
+
 ## Citation
 
-See `CITATION_TEMPLATE.cff` (final author/citation metadata is pending
-project-owner confirmation — see that file for detail).
+See `CITATION.cff` for citation metadata (author, ORCID, repository,
+license). A DOI is not yet available — it will be added after Zenodo
+deposition, which has not yet occurred.
 
 ## Version and provenance
 

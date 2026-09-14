@@ -61,14 +61,15 @@ States used: `PASS`, `FAIL`, `BLOCKED`, `NOT APPLICABLE`, `NOT TESTED`.
 - No unresolved license/provenance on any inventoried asset: **PASS**
 
 ## Citation
-- `CITATION_TEMPLATE.cff` present and YAML-valid: **PASS**
-- Real, confirmed author/institution metadata: **BLOCKED** — pending PI confirmation
+- `CITATION.cff` present and YAML-valid: **PASS**
+- Real, confirmed author/ORCID/repository/license metadata: **PASS** — resolved by the project owner (Prasenjit Mitra; ORCID 0000-0003-4826-1587)
+- DOI: **PENDING RELEASE ACTION** — naturally inapplicable until Zenodo deposition occurs; not a software blocker
 
 ## Licensing
-- Source-code license decided and documented: **BLOCKED** — pending project-owner decision (`LICENSE_STATUS.md`)
+- Source-code license decided and documented: **PASS** — Apache License 2.0, resolved by the project owner (`LICENSE`, `NOTICE`, `LICENSE_STATUS.md`, `package.json`)
 
 ## Security contact
-- Real public security-reporting channel published: **BLOCKED** — pending project-owner action (`SECURITY.md`)
+- Real public security-reporting channel published: **PASS** — `drmitraprasenjit@gmail.com` (`SECURITY.md`)
 
 ## Documentation
 - Public README, DISCLAIMER, PRIVACY, SECURITY, RELEASE_NOTES, SCIENTIFIC_BASIS, THIRD_PARTY_NOTICES, REPRODUCIBILITY: **PASS** (all present, reviewed for accuracy against actual tested behavior)
@@ -85,8 +86,11 @@ States used: `PASS`, `FAIL`, `BLOCKED`, `NOT APPLICABLE`, `NOT TESTED`.
 
 ## Overall classification
 
-**CONDITIONAL RELEASE CANDIDATE** — see `RELEASE_BLOCKERS.md` for the
-governance items (license, citation/authorship, security contact) that
-must be resolved before public release. Every software/scientific/
-runtime/privacy item above is **PASS**; the software itself has no
-known release-blocking defect.
+**READY FOR INDEPENDENT RELEASE AUDIT** — see `RELEASE_BLOCKERS.md`.
+Ownership, copyright, authorship, ORCID, software license, and the
+security-reporting contact are all now resolved by the project owner.
+Every software/scientific/runtime/privacy item above is **PASS**.
+Remaining items (creating the public GitHub repository, pushing,
+tagging, enabling GitHub Pages, DNS/HTTPS configuration, Zenodo
+deposition and DOI) are publication/deployment actions, not defects in
+this candidate — see `RELEASE_BLOCKERS.md` for their sequencing.

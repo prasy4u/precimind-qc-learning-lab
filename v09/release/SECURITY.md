@@ -8,15 +8,15 @@
 
 ## Reporting a vulnerability
 
-**RELEASE BLOCKER — SECURITY CONTACT UNRESOLVED.** No public
-security-reporting email address or issue tracker has been
-authoritatively supplied for this project as of this release
-candidate. Before public release, the project owner must configure and
-publish an actual reporting channel (e.g. a dedicated security email
-address, or a private vulnerability-reporting feature on a public
-repository host). This document must be updated with that real contact
-information at that time — no placeholder contact should be invented
-in the interim.
+Security vulnerabilities should be reported **privately** to:
+
+**drmitraprasenjit@gmail.com**
+
+Please do **not** disclose suspected vulnerabilities through public
+GitHub issues. Once the public GitHub repository
+(`https://github.com/prasy4u/precimind-qc-learning-lab`) exists,
+GitHub Private Vulnerability Reporting may also be enabled and used as
+an additional reporting channel alongside this email address.
 
 ## Architecture-relevant security notes
 
@@ -38,5 +38,5 @@ in the interim.
 
 This document describes the security posture of the PreciMind
 **application** as shipped. It does not describe, and cannot vouch
-for, the security practices of any future hosting provider, browser,
-or operating system used to run it.
+for, the security practices of GitHub, any DNS provider, or any
+browser/operating system used to run the application.

@@ -1,10 +1,16 @@
 {
-  "_templateNote": "This is the TRACKED, source-neutral provenance TEMPLATE committed to the repository. It cannot self-reference the exact final commit that includes this very file (that would be a self-referential impossibility). The GENERATED distribution provenance actually shipped inside the Web/Offline/Audit Repository packages is produced AFTER the closing commit exists, with releaseCommit/releaseCommitCount filled in to that exact final commit. See GENERATION_STEPS below.",
+  "_templateNote": "This is the TRACKED, source-neutral provenance TEMPLATE committed to the repository. It cannot self-reference the exact final commit that includes this very file (that would be a self-referential impossibility). The GENERATED distribution provenance actually shipped inside the Web/Offline packages is produced AFTER the closing commit exists, with releaseCommit/releaseCommitCount filled in to that exact final commit. See GENERATION_STEPS below. CRITICAL: the generated distribution file must NEVER be written inside this Git worktree (v09/release/ or anywhere else under v09/) — doing so previously left an untracked file inside the Audit Repository package, which is a defect. Generate it in a location entirely outside the tracked worktree, then copy it only into the Web/Offline package STAGING directories (which are themselves excluded from the Audit Repository ZIP).",
   "productName": "PreciMind QC Learning Lab",
   "releaseVersion": "0.9.0",
   "releaseStage": "Stage 12F release candidate (not yet tagged or published)",
+  "softwareOwner": "Prasenjit Mitra",
+  "copyrightNotice": "Copyright 2026 Prasenjit Mitra",
+  "softwareLicense": "Apache-2.0",
+  "authorOrcid": "https://orcid.org/0000-0003-4826-1587",
+  "plannedPublicRepository": "https://github.com/prasy4u/precimind-qc-learning-lab",
+  "plannedPublicApplicationUrl": "https://precimind.drprasenjitmitra.com/",
   "sourceBranch": "v0.9-development",
-  "releaseCommit": "GENERATED-AT-PACKAGING-TIME — see the actual RELEASE_PROVENANCE.json inside the delivered Web/Offline/Audit Repository ZIPs for the exact commit this specific release candidate was packaged from",
+  "releaseCommit": "GENERATED-AT-PACKAGING-TIME — see the actual RELEASE_PROVENANCE.json inside the delivered Web/Offline ZIPs for the exact commit this specific release candidate was packaged from",
   "releaseCommitCount": "GENERATED-AT-PACKAGING-TIME",
   "runtimeBaselineCommit": "813596f920af907fb13dfb731b4db9d48dfc1044",
   "runtimeBaselineCommitCount": 78,
@@ -24,8 +30,9 @@
     "1. Complete all source/document changes for this closure.",
     "2. Create the closure commit.",
     "3. Read the resulting final HEAD and commit count via git.",
-    "4. Regenerate this file's distribution copy (releaseCommit/releaseCommitCount filled in to that exact final HEAD/count) and copy it into release/web-package/, release/offline-package/, and the Audit Repository ZIP's own v09/release/ path before packaging.",
-    "5. The tracked template committed to git (this file) intentionally keeps releaseCommit/releaseCommitCount as GENERATED-AT-PACKAGING-TIME placeholders, since it cannot self-reference its own future commit hash."
+    "4. Generate the distribution copy of this file (releaseCommit/releaseCommitCount filled in to that exact final HEAD/count) OUTSIDE the Git worktree entirely (e.g. a scratch/temp location) — never inside v09/ or any tracked path.",
+    "5. Copy that generated file only into the Web/Offline package STAGING directories (release/web-package/RELEASE_PROVENANCE.json, release/offline-package/RELEASE_PROVENANCE.json) — both of which are themselves excluded from the Audit Repository ZIP and are not tracked by Git.",
+    "6. Verify the Audit Repository ZIP's extracted worktree shows a clean `git status --porcelain` (no output) before delivery."
   ],
   "note": "runtimeBaselineCommit above is the immutable Stage 12E-accepted baseline whose production build this release candidate ships. This file intentionally omits an unstable generation timestamp; commit hashes + build hashes are the authoritative, reproducible provenance anchors for this artifact."
 }

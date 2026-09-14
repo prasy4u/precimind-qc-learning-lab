@@ -1,44 +1,41 @@
 # License Status
 
-**RELEASE-GOVERNANCE BLOCKER — LICENSE DECISION PENDING.**
+**RESOLVED.**
 
-No authoritative software license file (e.g. a file named LICENSE,
-LICENSE.md, or LICENSE.txt) was found anywhere in this repository, and
-no "license" field is present in this project's own package.json. This
-repository therefore has **no established open-source (or other)
-license for its source code** as of this release candidate.
+- **Software owner:** Prasenjit Mitra
+- **Copyright owner:** Prasenjit Mitra
+- **Software license:** Apache License 2.0
+- **Licensing decision:** resolved by the project owner, who holds the
+  authority (including under applicable institutional IPR policy) to
+  license this software.
+- **Source release:** permitted by the owner under the terms of the
+  Apache License 2.0.
 
-This is treated here as a **release-governance blocker**, not a
-software defect: the licensing/ownership decision for the source code
-is a project-owner/institutional decision that Stage 12F does not have
-the authority to make. In particular, this document does **not**:
+The full, standard, unmodified Apache License 2.0 text is provided in
+the `LICENSE` file at the repository root. A companion `NOTICE` file
+carries the copyright attribution:
 
-- invent or apply an open-source license (MIT, Apache-2.0, GPL, or
-  otherwise) to the source code;
-- apply a Creative Commons license to the source code (Creative
-  Commons licenses are designed for creative/content works, not
-  software, and are not appropriate for source code regardless);
-- assume any default license.
+```
+PreciMind QC Learning Lab
+Copyright 2026 Prasenjit Mitra
+```
 
-## What this means for release
+This project's own `package.json` declares `"license": "Apache-2.0"`,
+synchronized in `package-lock.json` (both available in the
+source/Audit Repository package, not part of this learner-facing
+distribution).
 
-- The compiled learner-facing static application (the "Web" and
-  "Offline" distribution packages) may eventually be distributed under
-  whatever terms the project owner/institution approves, once decided.
-- Until a license decision is made and documented, this source
-  repository should be treated as **all rights reserved** by default
-  (the standard legal default in the absence of an explicit license
-  grant).
-- Any educational documentation or content assets that might later
-  receive a separate Creative-Commons-style content license are a
-  distinct decision from the source-code license, and are likewise not
-  decided here.
+## Educational content licensing
 
-## Action required before public release
+This release does not separately license specific educational content
+under Creative Commons or any other content license. Apache-2.0 is the
+authoritative license for the software source code. A separate content
+license for educational materials may be decided later if desired —
+that is a distinct, future decision, not part of this release closure.
 
-A project owner or institutional authority must:
-1. Decide the intended software license (or confirm "all rights
-   reserved" is intentional).
-2. Add the corresponding LICENSE file at the repository root.
-3. Add the corresponding "license" field to this project's package.json.
-4. Update this document to reflect the decision.
+## Third-party components
+
+This project's own Apache-2.0 license does not supersede the
+individual licenses of third-party components it depends on. See
+`THIRD_PARTY_NOTICES.md` for the full dependency/asset inventory and
+their respective licenses (all MIT or Apache-2.0 as of this release).

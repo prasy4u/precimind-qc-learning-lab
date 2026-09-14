@@ -39,7 +39,7 @@ function auditPackage(pkgDir, label) {
       const existsInPackage = fs.existsSync(path.join(pkgDir, ref));
       // Explicit "external" language nearby is acceptable even if the file is absent.
       const refIndex = text.indexOf('`' + ref + '`');
-      const context = text.slice(Math.max(0, refIndex - 20), refIndex + ref.length + 100);
+      const context = text.slice(Math.max(0, refIndex - 20), refIndex + ref.length + 200);
       const explicitlyExternal = /available in the source\/?Audit Repository package|also in the Audit Repository package|external to this package/i.test(context);
       assert(
         `DOCREF-${label}-${file}-${ref}`,
@@ -67,6 +67,46 @@ async function main() {
     assert('LOCK-ROOT-PKG-NAME', lock.packages[''].name === 'precimind-qc-learning-lab', 'package-lock.json root package entry name is current');
     // Dependencies genuinely unchanged (metadata-only change).
     assert('PKG-DEPS-UNCHANGED', JSON.stringify(pkg.dependencies) === JSON.stringify({ react: '^19.2.8', 'react-dom': '^19.2.8' }), 'Dependencies are genuinely unchanged (metadata-only edit)');
+    assert('PKG-LICENSE-FIELD', pkg.license === 'Apache-2.0', `package.json declares the resolved license (found "${pkg.license}")`);
+    const lock2 = JSON.parse(fs.readFileSync(path.join(V09, 'package-lock.json'), 'utf8'));
+    assert('LOCK-LICENSE-FIELD', lock2.packages[''].license === 'Apache-2.0', 'package-lock.json root entry declares the resolved license');
+  }
+
+  console.log('\n=== Ownership / licensing / citation / security resolution (final closure) ===');
+  {
+    assert('LICENSE-FILE-EXISTS', fs.existsSync(path.join(V09, 'LICENSE')), 'A LICENSE file exists at the repository root');
+    const licenseText = fs.readFileSync(path.join(V09, 'LICENSE'), 'utf8');
+    assert('LICENSE-IS-APACHE2', /Apache License/.test(licenseText) && /Version 2\.0/.test(licenseText), 'LICENSE contains the standard Apache License 2.0 text');
+    assert('NOTICE-FILE-EXISTS', fs.existsSync(path.join(V09, 'NOTICE')), 'A NOTICE file exists with copyright attribution');
+    const noticeText = fs.readFileSync(path.join(V09, 'NOTICE'), 'utf8');
+    assert('NOTICE-HAS-COPYRIGHT', /Copyright 2026 Prasenjit Mitra/.test(noticeText), 'NOTICE carries the correct copyright attribution');
+
+    assert('CITATION-CFF-EXISTS', fs.existsSync(path.join(V09, 'CITATION.cff')), 'CITATION.cff exists (replacing the prior template)');
+    assert('CITATION-TEMPLATE-REMOVED', !fs.existsSync(path.join(V09, 'release', 'CITATION_TEMPLATE.cff')), 'The obsolete CITATION_TEMPLATE.cff has been removed from release/');
+    const citationText = fs.readFileSync(path.join(V09, 'CITATION.cff'), 'utf8');
+    assert('CITATION-HAS-ORCID', citationText.includes('0000-0003-4826-1587'), 'CITATION.cff includes the confirmed ORCID');
+    assert('CITATION-HAS-REPO', citationText.includes('github.com/prasy4u/precimind-qc-learning-lab'), 'CITATION.cff includes the confirmed repository URL');
+    assert('CITATION-NO-DOI', !citationText.includes('doi:'), 'CITATION.cff does not invent a DOI');
+    assert('CITATION-NO-DATE-RELEASED', !citationText.includes('date-released'), 'CITATION.cff does not invent a release date');
+
+    // Zero stale "LICENSE DECISION PENDING" wording anywhere in release docs.
+    const releaseDir = path.join(V09, 'release');
+    const docsDir = path.join(V09, 'docs');
+    let staleFound = [];
+    for (const dir of [releaseDir, docsDir]) {
+      for (const f of fs.readdirSync(dir)) {
+        const full = path.join(dir, f);
+        if (fs.statSync(full).isFile() && /\.(md|json)$/.test(f)) {
+          const text = fs.readFileSync(full, 'utf8');
+          if (/LICENSE DECISION PENDING/i.test(text)) staleFound.push(full);
+        }
+      }
+    }
+    assert('NO-STALE-LICENSE-PENDING', staleFound.length === 0, `Zero "LICENSE DECISION PENDING" statements remain in release/docs (found in: ${JSON.stringify(staleFound)})`);
+
+    const securityText = fs.readFileSync(path.join(V09, 'release', 'SECURITY.md'), 'utf8');
+    assert('SECURITY-CONTACT-RESOLVED', securityText.includes('drmitraprasenjit@gmail.com'), 'SECURITY.md includes the resolved security contact');
+    assert('SECURITY-NO-INVENTED-DOMAIN', !securityText.includes('security@drprasenjitmitra.com'), 'SECURITY.md does not include the non-existent invented domain mailbox');
   }
 
   console.log('\n=== Production tree hash unchanged (Item 6) ===');

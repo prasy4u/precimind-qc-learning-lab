@@ -51,12 +51,12 @@ sensitive research material and handle it accordingly.
 ## Hosting distinction
 
 The PreciMind application itself does not transmit learner analytics
-to any server. However, if and when this software is hosted on a
-public web server, that hosting provider will necessarily process
-ordinary HTTP/security logs (e.g., IP addresses, request timestamps)
-according to **that provider's own policies** — this is a property of
-web hosting in general, not of the PreciMind application. No specific
-hosting provider has been selected as of this release candidate, so
-this document cannot describe that provider's specific log-retention
-practices; it will need to be updated once a hosting provider is
-chosen.
+to any server. The planned public application URL is
+`https://precimind.drprasenjitmitra.com/`, hosted at the root of its
+own subdomain (root-path hosting is required — see `release/web-package/README.md`
+for the documented deployment constraint). Once actually deployed,
+that hosting provider will necessarily process ordinary HTTP/security
+logs (e.g., IP addresses, request timestamps) according to **that
+provider's own policies** — this is a property of web hosting in
+general, not of the PreciMind application, and this document does not
+claim otherwise before deployment actually occurs.

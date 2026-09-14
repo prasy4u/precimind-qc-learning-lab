@@ -1,8 +1,8 @@
 {
-  "name": "precimind-v09-bridge",
-  "version": "0.9.0-bridge",
+  "name": "precimind-qc-learning-lab",
+  "version": "0.9.0",
   "private": true,
-  "description": "PreciMind QC Learning Lab v0.9 - Stage 11C1 Vite migration bridge. Wraps the accepted Stage 11B application source (34 modules, 19 historical mount calls) in a package-managed React/Vite build without converting module architecture.",
+  "description": "PreciMind QC Learning Lab \u2014 browser-based educational simulation for clinical laboratory quality control and laboratory-management decision-making.",
   "scripts": {
     "bridge:generate": "node tools/generate-vite-bridge.cjs",
     "build:bridge": "npm run bridge:generate && vite build",

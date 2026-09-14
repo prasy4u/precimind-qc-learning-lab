@@ -10,6 +10,19 @@ passed. See `V09_RELEASE_CHECKLIST.md` for the full item-by-item state.
 
 ## Governance blockers (require project-owner/institutional decision)
 
+**Sequencing.** These are not equivalent in urgency or nature:
+- **Must be resolved before public release**: software licensing,
+  citation/authorship confirmation, and a real security-reporting
+  channel. These are prerequisites to responsibly publishing source
+  code and accepting public reports.
+- **Deployment-time decisions**: public repository URL and hosting
+  provider selection. These naturally cannot be finalized until an
+  actual hosting/publication venue is chosen, and do not block
+  preparing the release candidate itself.
+- **Naturally sequenced after deposition**: a Zenodo DOI cannot exist
+  until archival deposition actually occurs. This is not a software
+  defect or a governance failure — it is simply not yet applicable.
+
 - **Software licensing decision pending.** No authoritative license
   file or `package.json` license field exists. See `LICENSE_STATUS.md`.
 - **Public security-reporting contact pending.** No real
@@ -40,3 +53,17 @@ passed. See `V09_RELEASE_CHECKLIST.md` for the full item-by-item state.
 - A full formal WCAG conformance audit was not performed; only
   targeted accessibility verification (documented in
   `V09_RELEASE_CHECKLIST.md`).
+
+## Classification
+
+Given the genuinely unresolved governance blockers above (license,
+citation/authorship, security contact — all required before public
+release), this candidate is classified as a
+**CONDITIONAL RELEASE CANDIDATE**, not "ready for release" outright.
+
+This classification concerns external/governance readiness only. The
+**software/runtime itself has no known release-blocking defect**: all
+scientific, privacy, and clean-room validation gates pass (see
+`V09_RELEASE_CHECKLIST.md`), and the production build remains
+byte-identical to the Stage 12E-accepted baseline.
+

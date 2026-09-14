@@ -69,8 +69,10 @@ recomputed numeric verification of every scientific invariant from
 first principles, deep schema/privacy validation of all persisted and
 exported data, real-browser end-to-end testing (desktop and mobile
 viewports), and multiple rounds of independent audit and corrective
-closure. See `CHANGELOG.md` for the detailed stage-by-stage history and
-`V09_RELEASE_CHECKLIST.md` for the current release-readiness state.
+closure. See `CHANGELOG.md` (available in the source/Audit Repository
+package) for the detailed stage-by-stage history and
+`V09_RELEASE_CHECKLIST.md` (also in the Audit Repository package) for
+the current release-readiness state.
 
 ## Known limitations
 
@@ -85,4 +87,4 @@ closure. See `CHANGELOG.md` for the detailed stage-by-stage history and
   robust educational-research conclusions.
 - Software licensing, a public security-reporting contact, and formal
   citation/archival metadata remain pending project-owner decisions —
-  see `RELEASE_BLOCKERS.md`.
+  see `RELEASE_BLOCKERS.md` (available in the source/Audit Repository package).

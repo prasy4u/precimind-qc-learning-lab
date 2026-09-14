@@ -82,3 +82,11 @@ States used: `PASS`, `FAIL`, `BLOCKED`, `NOT APPLICABLE`, `NOT TESTED`.
 
 ## Checksums
 - `SHA256SUMS.txt` covering all 3 external artifacts + production/dev tree hashes: **PASS**
+
+## Overall classification
+
+**CONDITIONAL RELEASE CANDIDATE** — see `RELEASE_BLOCKERS.md` for the
+governance items (license, citation/authorship, security contact) that
+must be resolved before public release. Every software/scientific/
+runtime/privacy item above is **PASS**; the software itself has no
+known release-blocking defect.

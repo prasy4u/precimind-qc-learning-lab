@@ -1,10 +1,14 @@
 {
+  "_templateNote": "This is the TRACKED, source-neutral provenance TEMPLATE committed to the repository. It cannot self-reference the exact final commit that includes this very file (that would be a self-referential impossibility). The GENERATED distribution provenance actually shipped inside the Web/Offline/Audit Repository packages is produced AFTER the closing commit exists, with releaseCommit/releaseCommitCount filled in to that exact final commit. See GENERATION_STEPS below.",
   "productName": "PreciMind QC Learning Lab",
   "releaseVersion": "0.9.0",
   "releaseStage": "Stage 12F release candidate (not yet tagged or published)",
   "sourceBranch": "v0.9-development",
-  "sourceCommit": "813596f920af907fb13dfb731b4db9d48dfc1044",
-  "sourceCommitCount": 78,
+  "releaseCommit": "GENERATED-AT-PACKAGING-TIME — see the actual RELEASE_PROVENANCE.json inside the delivered Web/Offline/Audit Repository ZIPs for the exact commit this specific release candidate was packaged from",
+  "releaseCommitCount": "GENERATED-AT-PACKAGING-TIME",
+  "runtimeBaselineCommit": "813596f920af907fb13dfb731b4db9d48dfc1044",
+  "runtimeBaselineCommitCount": 78,
+  "runtimeBaselineNote": "The learner-facing production runtime itself (dist-vite-production/) is the Stage 12E-accepted build, unchanged since runtimeBaselineCommit. Stage 12F and later release-governance-only closures may advance releaseCommit without altering the runtime baseline or its build hash.",
   "productionBuildHash": "04fa0a3222150b7d07300617685eaf3ccc46fd08dd3f0129fe027377ce2b2ed1",
   "developmentBuildHash": "c625fa7b53beac8481e24a2e0815843f85c55a0d993e1b3fd4c5bfc25ddc527a",
   "caseSchemaVersion": "1.1.0",
@@ -16,5 +20,12 @@
   "productionNavigationCount": 14,
   "morningQcRole": "CAPSTONE",
   "buildMethod": "vite build (production-integrated config); see REPRODUCIBILITY.md",
-  "note": "sourceCommit above is the immutable Stage 12E-accepted baseline this Stage 12F candidate is built from. This file intentionally omits an unstable generation timestamp; source commit + build hashes are the authoritative, reproducible provenance anchors for this artifact."
+  "GENERATION_STEPS": [
+    "1. Complete all source/document changes for this closure.",
+    "2. Create the closure commit.",
+    "3. Read the resulting final HEAD and commit count via git.",
+    "4. Regenerate this file's distribution copy (releaseCommit/releaseCommitCount filled in to that exact final HEAD/count) and copy it into release/web-package/, release/offline-package/, and the Audit Repository ZIP's own v09/release/ path before packaging.",
+    "5. The tracked template committed to git (this file) intentionally keeps releaseCommit/releaseCommitCount as GENERATED-AT-PACKAGING-TIME placeholders, since it cannot self-reference its own future commit hash."
+  ],
+  "note": "runtimeBaselineCommit above is the immutable Stage 12E-accepted baseline whose production build this release candidate ships. This file intentionally omits an unstable generation timestamp; commit hashes + build hashes are the authoritative, reproducible provenance anchors for this artifact."
 }

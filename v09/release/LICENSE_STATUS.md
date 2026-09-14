@@ -2,11 +2,11 @@
 
 **RELEASE-GOVERNANCE BLOCKER — LICENSE DECISION PENDING.**
 
-No authoritative software license file (e.g. `LICENSE`, `LICENSE.md`,
-`LICENSE.txt`) was found anywhere in this repository, and no `license`
-field is present in `package.json`. This repository therefore has
-**no established open-source (or other) license for its source code**
-as of this release candidate.
+No authoritative software license file (e.g. a file named LICENSE,
+LICENSE.md, or LICENSE.txt) was found anywhere in this repository, and
+no "license" field is present in this project's own package.json. This
+repository therefore has **no established open-source (or other)
+license for its source code** as of this release candidate.
 
 This is treated here as a **release-governance blocker**, not a
 software defect: the licensing/ownership decision for the source code
@@ -39,6 +39,6 @@ the authority to make. In particular, this document does **not**:
 A project owner or institutional authority must:
 1. Decide the intended software license (or confirm "all rights
    reserved" is intentional).
-2. Add the corresponding `LICENSE` file at the repository root.
-3. Add the corresponding `license` field to `package.json`.
+2. Add the corresponding LICENSE file at the repository root.
+3. Add the corresponding "license" field to this project's package.json.
 4. Update this document to reflect the decision.

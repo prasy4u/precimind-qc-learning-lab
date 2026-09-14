@@ -44,8 +44,8 @@ declaration only, not a distributed or externally-loaded asset.
 ## Icons / images / illustrations
 
 No bundled third-party icon sets, image libraries, or illustration
-assets were found in the production build's asset directory as of this
-release candidate.
+assets were found in the production build's asset directory for the
+v0.9.0 release.
 
 ## Scientific literature references (not software dependencies)
 

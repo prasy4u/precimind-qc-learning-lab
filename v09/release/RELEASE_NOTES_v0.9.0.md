@@ -85,6 +85,10 @@ the current release-readiness state.
 - The 12-case Morning QC bank, while covering 11 distinct reasoning
   families, is not large enough on its own to support statistically
   robust educational-research conclusions.
-- Software licensing, a public security-reporting contact, and formal
-  citation/archival metadata remain pending project-owner decisions —
-  see `RELEASE_BLOCKERS.md` (available in the source/Audit Repository package).
+- Software ownership, copyright, software license (Apache License
+  2.0), sole authorship (Prasenjit Mitra, ORCID 0000-0003-4826-1587),
+  the public security-reporting contact, and citation metadata are all
+  resolved (see `LICENSE`, `NOTICE`, `CITATION.cff`, `SECURITY.md`).
+  Formal archival DOI metadata will be added after the v0.9.0 release
+  is deposited in Zenodo — see `RELEASE_BLOCKERS.md` (available in the
+  source/Audit Repository package).

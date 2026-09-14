@@ -1,6 +1,6 @@
 # PreciMind QC Learning Lab
 
-**Version 0.9.0 (release candidate)**
+**Version 0.9.0**
 
 An educational simulation platform for laboratory-medicine
 quality-control (QC) decision-making.
@@ -34,12 +34,11 @@ locally in your own browser. See `PRIVACY.md` for full detail.
 ## How to run it
 
 ### Online / web deployment
-The planned public application URL is
+The intended public application URL at release is
 **https://precimind.drprasenjitmitra.com/** (hosted at the root of its
-own subdomain — not yet deployed as of this release candidate). To
-self-host, serve the contents of this package's application files with
-any static web server from the host/domain **root** and open the
-served URL in a modern Chromium-based browser. See "Supported
+own subdomain). To self-host, serve the contents of this package's
+application files with any static web server from the host/domain
+**root** and open the served URL in a modern Chromium-based browser. See "Supported
 execution method" below for the tested root-vs-subpath constraint.
 
 ### Offline use
@@ -50,7 +49,7 @@ directly (see that package's README for the actual tested method).
 
 ## Supported execution method / browser support actually tested
 
-This release candidate was validated with a real **Chromium** browser
+This v0.9.0 release was validated with a real **Chromium** browser
 at desktop (1920×1080, 1366×768) and mobile (390×844) viewports.
 Firefox and WebKit/Safari were not available for testing in this
 validation environment — this is reported honestly as untested, not
@@ -72,8 +71,7 @@ and must not be used for employment-performance evaluation.
 ## Source repository
 
 Planned public repository at release:
-**https://github.com/prasy4u/precimind-qc-learning-lab** (not yet
-publicly created as of this release candidate).
+**https://github.com/prasy4u/precimind-qc-learning-lab**.
 
 ## Citation
 

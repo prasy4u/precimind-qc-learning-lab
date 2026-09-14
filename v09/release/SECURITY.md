@@ -4,7 +4,7 @@
 
 | Version | Supported |
 |---|---|
-| 0.9.0 (release candidate) | Yes |
+| 0.9.0 | Yes |
 
 ## Reporting a vulnerability
 

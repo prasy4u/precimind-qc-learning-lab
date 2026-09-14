@@ -109,6 +109,36 @@ async function main() {
     assert('SECURITY-NO-INVENTED-DOMAIN', !securityText.includes('security@drprasenjitmitra.com'), 'SECURITY.md does not include the non-existent invented domain mailbox');
   }
 
+  console.log('\n=== Publication-stamp closure: stale governance/wording fixes ===');
+  {
+    const releaseNotesText = fs.readFileSync(path.join(V09, 'release', 'RELEASE_NOTES_v0.9.0.md'), 'utf8');
+    assert('NOTES-NO-STALE-PENDING', !/remain pending project-owner decisions/i.test(releaseNotesText), 'RELEASE_NOTES_v0.9.0.md no longer claims license/security/citation remain pending project-owner decisions');
+    assert('NOTES-MENTIONS-RESOLVED', /resolved/i.test(releaseNotesText), 'RELEASE_NOTES_v0.9.0.md states the governance items are resolved');
+    assert('NOTES-DOI-STILL-PENDING', /Zenodo/i.test(releaseNotesText), 'RELEASE_NOTES_v0.9.0.md still correctly notes Zenodo DOI as a distinct future action');
+
+    for (const pkg of ['web-package', 'offline-package']) {
+      const webReadme = fs.readFileSync(path.join(V09, 'release', pkg, 'README.md'), 'utf8');
+      assert(`README-${pkg}-NO-ORPHAN-PARAGRAPH`, !/or rebuild from\s*\n\s*\n?##/.test(webReadme), `${pkg}/README.md deployment paragraph is not interrupted mid-sentence by the table`);
+    }
+    const webReadmeText = fs.readFileSync(path.join(V09, 'release', 'web-package', 'README.md'), 'utf8');
+    assert('WEB-README-PARAGRAPH-COMPLETE', /Rebuilding from\s+source with a configured base path/.test(webReadmeText.replace(/\n/g, ' ')), 'Web README deployment paragraph completes its sentence before the deployment-summary table');
+
+    for (const pkg of ['web-package', 'offline-package']) {
+      const secText = fs.readFileSync(path.join(V09, 'release', pkg, 'SECURITY.md'), 'utf8');
+      assert(`SECURITY-${pkg}-NEUTRAL-VERSION`, !/0\.9\.0 \(release candidate\)/.test(secText), `${pkg}/SECURITY.md version line is release-neutral (no "(release candidate)" suffix)`);
+    }
+
+    // Systematic scan: zero stale unresolved-governance claims anywhere in public packages.
+    for (const pkg of ['web-package', 'offline-package']) {
+      const pkgDir = path.join(V09, 'release', pkg);
+      for (const f of fs.readdirSync(pkgDir).filter(f => /\.md$/i.test(f))) {
+        const text = fs.readFileSync(path.join(pkgDir, f), 'utf8');
+        const staleMatches = text.match(/license[^.]{0,40}pending|ownership[^.]{0,40}pending|authorship[^.]{0,40}pending|ORCID[^.]{0,40}pending|security contact[^.]{0,40}pending|citation[^.]{0,40}pending/gi) || [];
+        assert(`NO-STALE-GOVERNANCE-${pkg}-${f}`, staleMatches.length === 0, `${pkg}/${f} contains no stale unresolved license/ownership/authorship/ORCID/security/citation claims (found: ${JSON.stringify(staleMatches)})`);
+      }
+    }
+  }
+
   console.log('\n=== Production tree hash unchanged (Item 6) ===');
   {
     const { execSync } = require('child_process');

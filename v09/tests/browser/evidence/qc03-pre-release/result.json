@@ -1,0 +1,120 @@
+{
+  "status": "PASS",
+  "passed": 22,
+  "failed": 0,
+  "total": 22,
+  "browserExecutable": "/opt/pw-browsers/chromium-1194/chrome-linux/chrome",
+  "browserEngine": "chromium",
+  "checkpoints": [
+    {
+      "id": "MAP-SHOWS-AVAILABLE",
+      "status": "PASS",
+      "detail": "QC-03 no longer shows \"Coming later\" on the Competency Map"
+    },
+    {
+      "id": "OPENS-FROM-MAP",
+      "status": "PASS",
+      "detail": "QC-03 opens from the Competency Map"
+    },
+    {
+      "id": "NO-CONSOLE-ERRORS-ENTRY",
+      "status": "PASS",
+      "detail": "No unexpected console errors (found 0)"
+    },
+    {
+      "id": "NO-EXCEPTIONS-ENTRY",
+      "status": "PASS",
+      "detail": "No page exceptions (found 0)"
+    },
+    {
+      "id": "404S-ARE-ONLY-FAVICON",
+      "status": "PASS",
+      "detail": "All 404 responses are genuinely only the harmless automatic favicon request (found: [])"
+    },
+    {
+      "id": "DIRECT-ROUTE-WORKS",
+      "status": "PASS",
+      "detail": "Direct #/qc-materials routing renders the module"
+    },
+    {
+      "id": "STATION1-FEEDBACK",
+      "status": "PASS",
+      "detail": "Station 1 classification gives feedback"
+    },
+    {
+      "id": "STATION2-CALC",
+      "status": "PASS",
+      "detail": "Station 2 show-calculation works"
+    },
+    {
+      "id": "STATION3-EXCLUSION-FLOW",
+      "status": "PASS",
+      "detail": "Station 3 investigate-then-compare exclusion flow works"
+    },
+    {
+      "id": "STATION4-CHART",
+      "status": "PASS",
+      "detail": "Station 4 renders the LJChart"
+    },
+    {
+      "id": "STATION5-LOT-RESULT",
+      "status": "PASS",
+      "detail": "Station 5 lot-transition decision works"
+    },
+    {
+      "id": "LEARNING-CHECK-SCORE",
+      "status": "PASS",
+      "detail": "Learning check submits and shows a score"
+    },
+    {
+      "id": "NO-CONSOLE-ERRORS-STATIONS",
+      "status": "PASS",
+      "detail": "No unexpected console errors across all stations (found 0)"
+    },
+    {
+      "id": "NO-EXCEPTIONS-STATIONS",
+      "status": "PASS",
+      "detail": "No page exceptions across all stations (found 0)"
+    },
+    {
+      "id": "PREV-GOES-TO-STATS",
+      "status": "PASS",
+      "detail": "Previous navigates to Statistics Playground"
+    },
+    {
+      "id": "BACK-RETURNS-TO-QC03",
+      "status": "PASS",
+      "detail": "Browser Back returns to QC-03"
+    },
+    {
+      "id": "NEXT-GOES-TO-LJ",
+      "status": "PASS",
+      "detail": "Next navigates to Levey-Jennings Laboratory"
+    },
+    {
+      "id": "KEYBOARD-REACHES-TAB",
+      "status": "PASS",
+      "detail": "Genuine Tab traversal reaches a station tab control"
+    },
+    {
+      "id": "NO-OVERFLOW-1366x768",
+      "status": "PASS",
+      "detail": "No horizontal overflow at 1366x768"
+    },
+    {
+      "id": "NO-OVERFLOW-390x844",
+      "status": "PASS",
+      "detail": "No horizontal overflow at 390x844"
+    },
+    {
+      "id": "NAV-STILL-14",
+      "status": "PASS",
+      "detail": "Production navigation remains exactly 14 destinations (found 14)"
+    },
+    {
+      "id": "QC04-LJ-LAB-STILL-WORKS",
+      "status": "PASS",
+      "detail": "QC-04 (LJ Laboratory) still loads and functions correctly"
+    }
+  ]
+}

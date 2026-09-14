@@ -17,7 +17,7 @@ export function Disclaimer() {
    crowded row. DOM order is preserved within each phase so relative-order
    assertions remain meaningful; a phase label precedes each group's steps. */
 export const PATHWAY_PHASES = [
-  { phase: "Understand", steps: [{ label: "Statistics", screen: "stats" }, { label: "QC charts", screen: "lj" }, { label: "Patterns", screen: "pattern" }] },
+  { phase: "Understand", steps: [{ label: "Statistics", screen: "stats" }, { label: "QC Materials", screen: "qc-materials" }, { label: "QC charts", screen: "lj" }, { label: "Patterns", screen: "pattern" }] },
   { phase: "Control", steps: [{ label: "Rules", screen: "rules" }, { label: "APS", screen: "strategy" }, { label: "Sigma", screen: "sigma" }, { label: "QC strategy", screen: "strategy" }, { label: "Biological Variation & RCV", screen: "bv-rcv" }] },
   { phase: "Govern", steps: [{ label: "Risk-based QC", screen: "risk" }, { label: "Investigation & Recovery", screen: "investigation" }, { label: "External Assurance", screen: "external-assurance" }, { label: "Patient Surveillance", screen: "pbrtqc" }] }
 ];

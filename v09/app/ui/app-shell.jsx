@@ -5,6 +5,7 @@ import { PatientSurveillanceLabScreen } from "../pbrtqc/screens.jsx";
 import { RiskFrequencyLabScreen } from "../risk/screens.jsx";
 import { RuleLaboratoryScreen } from "../rules/screens.jsx";
 import { QCStrategyLabScreen } from "../strategy/screens.jsx";
+import { QCMaterialsScreen } from "../qc-materials/screens.jsx";
 import { LEVELS, LEVEL_LABELS } from "./app-data.js";
 import { AboutModal, CompetencyMapScreen, DiagnosticModal, EvidenceScreen, GlossaryModal, HomeScreen, LJLabScreen, PatternChallengeScreen, SigmaSandboxScreen, StatsPlaygroundScreen } from "./core-screens.jsx";
 import { useState, useMemo, useRef, useEffect } from "react";
@@ -48,7 +49,11 @@ export const NAV_ITEMS = [
 // Stage 12B's controller remains active-case authority, and no
 // case/evidence/decision/confidence/ground-truth data is ever encoded
 // in the hash or read from it.
-const ALL_SCREEN_KEYS = new Set([...NAV_ITEMS.map(i => i.key), "morning-qc"]);
+// Section 3 (QC-03 pre-release content closure): QC Materials & Control
+// Statistics is mounted the same way Morning QC is — an internal screen
+// reachable via its own hash route, deliberately absent from NAV_ITEMS
+// (never a 15th primary destination).
+const ALL_SCREEN_KEYS = new Set([...NAV_ITEMS.map(i => i.key), "morning-qc", "qc-materials"]);
 
 function screenFromHash() {
   const raw = (typeof window !== "undefined" ? window.location.hash : "") || "";
@@ -110,6 +115,7 @@ export function App() {
   else if (screen === "bv-rcv") body = <BvRcvLabScreen level={level} markProgress={markProgress} goto={goto} />;
   else if (screen === "pbrtqc") body = <PatientSurveillanceLabScreen level={level} markProgress={markProgress} goto={goto} />;
   else if (screen === "evidence") body = <EvidenceScreen />;
+  else if (screen === "qc-materials") body = <QCMaterialsScreen level={level} goto={goto} />;
   else if (screen === "morning-qc") body = (
     <ProductionCaseSelect
       cases={ALL_CASES}

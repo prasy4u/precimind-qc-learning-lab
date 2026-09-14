@@ -8,6 +8,14 @@ quality-control (QC) decision-making.
 
 ## What's included
 
+**A complete QC-01 through QC-12 competency pathway**, including the
+interactive **QC Materials & Control Statistics** module (QC-03) —
+covering calibrator vs. QC material, assayed/unassayed and
+manufacturer/third-party control sourcing, establishing representative
+control statistics, an investigate-before-excluding outlier doctrine,
+how SD estimation quality affects chart interpretation, and QC-lot
+transition reasoning.
+
 **Eleven tracked interactive QC laboratories** covering: core
 statistics, the statistical QC rule engine (Westgard rules), operating
 characteristics, QC strategy, risk-based frequency, investigation

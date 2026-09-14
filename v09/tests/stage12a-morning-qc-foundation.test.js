@@ -48,7 +48,12 @@ async function main() {
   // Verified via a precise diff-subset check, not a blanket "unchanged"
   // claim — anything OUTSIDE this exact sanctioned set still fails.
   {
-    const STAGE12C_SANCTIONED = new Set(['v09/app/ui/app-shell.jsx', 'v09/app/ui/core-screens.jsx', 'v09/app/main.jsx']);
+    // QC-03 pre-release content closure (Section 5): app-data.js is now
+    // also an authorized integration point, since the Competency Map's
+    // QC-03 entry (status/screen) genuinely lives there. This is an
+    // explicitly authorized addition to the sanctioned set, not scope
+    // creep — QC-03 does not touch any other file in this directory.
+    const STAGE12C_SANCTIONED = new Set(['v09/app/ui/app-shell.jsx', 'v09/app/ui/core-screens.jsx', 'v09/app/main.jsx', 'v09/app/ui/app-data.js']);
     const uiDiff = (() => { try { return execSync(`git diff ${BASE_REF} --name-only -- v09/app/ui`, { cwd: ROOT }).toString().trim().split('\n').filter(Boolean); } catch { return null; } })();
     const mainDiff = (() => { try { return execSync(`git diff ${BASE_REF} --name-only -- v09/app/main.jsx`, { cwd: ROOT }).toString().trim().split('\n').filter(Boolean); } catch { return null; } })();
     const allDiffs = [...(uiDiff || []), ...(mainDiff || [])];

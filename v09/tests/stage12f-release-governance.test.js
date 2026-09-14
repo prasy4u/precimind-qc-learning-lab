@@ -163,7 +163,16 @@ async function main() {
     const { execSync } = require('child_process');
     const output = execSync(`node ${path.join(V09, 'tools', 'hash-build-tree.cjs')} ${path.join(V09, 'dist-vite-production')}`).toString();
     const hash = output.match(/TREE HASH \(SHA-256 of canonical manifest\): (\S+)/)?.[1];
-    assert('PROD-HASH-UNCHANGED', hash === '04fa0a3222150b7d07300617685eaf3ccc46fd08dd3f0129fe027377ce2b2ed1', `Production tree hash remains byte-identical (found ${hash})`);
+    // Section 39 (QC-03 pre-release content closure): the production
+    // hash legitimately changed when QC-03 was added to learner-facing
+    // production source — this is an authorized, expected, and
+    // independently-reproducibility-verified change, not a defect. The
+    // hash below is the new accepted invariant for all FUTURE
+    // closures that do not themselves modify production source
+    // (04fa0a3222... remains the historical Stage 12E/12F-ownership-closure
+    // baseline, documented in RELEASE_PROVENANCE.json's history, not a
+    // value this test should keep re-asserting after an authorized change).
+    assert('PROD-HASH-UNCHANGED', hash === '23abd76bfd17096a25ae9bd259dc193def12960b404b9a97920768516d4c4390', `Production tree hash matches the current accepted (QC-03-inclusive) invariant (found ${hash})`);
   }
 
   const total = passed + failed;

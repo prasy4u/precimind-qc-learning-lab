@@ -28,7 +28,7 @@ export const LEVEL_HOME_DESC = {
 export const COMPETENCY_MODULES = [
   { id: "QC-01", title: "Statistical Foundations", stage: "Understand", status: "available", screen: "stats" },
   { id: "QC-02", title: "Analytical Variation, Precision & Bias", stage: "Understand", status: "available", screen: "stats" },
-  { id: "QC-03", title: "QC Materials & Control Statistics", stage: "Understand", status: "coming-later" },
+  { id: "QC-03", title: "QC Materials & Control Statistics", stage: "Understand", status: "available", screen: "qc-materials" },
   { id: "QC-04", title: "Levey-Jennings Interpretation", stage: "Interpret", status: "available", screen: "lj" },
   { id: "QC-05", title: "Statistical Control Rules", stage: "Interpret", status: "available", screen: "rules" },
   { id: "QC-06", title: "Analytical Performance Specifications", stage: "Apply", status: "available", screen: "strategy" },

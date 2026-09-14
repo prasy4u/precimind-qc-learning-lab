@@ -50,6 +50,8 @@ async function main() {
       'v09/app/morning-qc/ui/dev-launcher.jsx',            // instructor dev view toggle (Section 15)
       'v09/app/morning-qc/debrief/debrief-adapter.js',    // caseIdentity leak fix
       'v09/app/ui/app-shell.jsx',                          // ALL_CASES import
+      'v09/app/ui/app-data.js',                            // QC-03 pre-release content closure: Competency Map entry
+      'v09/app/ui/core-screens.jsx',                       // QC-03 pre-release content closure: Home pathway step
     ]);
     let diffNames = [];
     try {

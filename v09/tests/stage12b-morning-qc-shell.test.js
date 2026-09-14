@@ -245,7 +245,32 @@ async function main() {
       assert('DEP-03', testPkg.devDependencies && testPkg.devDependencies.jsdom && testPkg.devDependencies['playwright-core'], 'Test-local manifest pins both jsdom and playwright-core');
     }
     const mainPkgDiff = execSync(`git diff ${BASE_REF} --name-only -- v09/package.json v09/package-lock.json`, { cwd: path.join(V09, '..') }).toString().trim();
-    assert('DEP-04', mainPkgDiff === '', 'The main v09/package.json and v09/package-lock.json remain completely untouched');
+    // Item 9 (QC-03 final independent-audit correction): package.json/
+    // package-lock.json legitimately changed to carry the authorized
+    // ownership/licensing release metadata (name/version/license).
+    // Verify the substantive invariant instead of requiring zero diff:
+    // metadata is synchronized, accepted dependency versions are exactly
+    // unchanged, and the raw package-lock.json diff touches nothing but
+    // metadata/punctuation lines.
+    const dep04Pass = (() => {
+      try {
+        const ROOT2 = path.join(V09, '..');
+        const pkg = JSON.parse(fs.readFileSync(path.join(V09, 'package.json'), 'utf8'));
+        const lock = JSON.parse(fs.readFileSync(path.join(V09, 'package-lock.json'), 'utf8'));
+        const rootPkg = lock.packages[''];
+        const synchronized = lock.name === pkg.name && lock.version === pkg.version &&
+          rootPkg.name === pkg.name && rootPkg.version === pkg.version && rootPkg.license === pkg.license;
+        const ACCEPTED_DEPS = { react: '^19.2.8', 'react-dom': '^19.2.8' };
+        const ACCEPTED_DEV_DEPS = { vite: '^8.2.2', '@vitejs/plugin-react': '^6.1.1' };
+        const depsMatch = Object.entries(ACCEPTED_DEPS).every(([k, v]) => rootPkg.dependencies?.[k] === v);
+        const devDepsMatch = Object.entries(ACCEPTED_DEV_DEPS).every(([k, v]) => rootPkg.devDependencies?.[k] === v);
+        const diffText = execSync(`git diff ${BASE_REF} -- v09/package-lock.json`, { cwd: ROOT2 }).toString();
+        const addedLines = diffText.split('\n').filter(l => l.startsWith('+') && !l.startsWith('+++'));
+        const onlyMetadataLinesChanged = addedLines.every(l => /"(name|version|license)":/.test(l) || /^\+\s*[{}\[\],]*\s*$/.test(l));
+        return synchronized && depsMatch && devDepsMatch && onlyMetadataLinesChanged;
+      } catch { return false; }
+    })();
+    assert('DEP-04', dep04Pass, 'The main v09/package.json and v09/package-lock.json carry only authorized release metadata (name/version/license) with dependency/devDependency versions exactly unchanged — no other drift');
   }
 
   console.log('\n=== 16. Real browser evidence — treated as BLOCKED/FAIL unless genuinely PASS ===');

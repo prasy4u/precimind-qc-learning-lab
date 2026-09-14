@@ -80,7 +80,27 @@ assert('4e', bridgeMountCount === 19, `Stage 11C1 bridge still has 19 mounts in 
    5. Package versions unchanged
    ----------------------------------------------------------------------- */
 console.log('\n=== 5. Package versions unchanged ===');
-assert('5a', unchangedSince('v09/package-lock.json', BASE_REF), 'package-lock.json unchanged since 75a863f');
+assert('5a', (() => {
+  // Item 9 (QC-03 final independent-audit correction): package-lock.json
+  // legitimately changed to carry the authorized ownership/licensing
+  // release metadata (name/version/license). Verify the substantive
+  // invariant instead of requiring zero diff.
+  try {
+    const pkg = JSON.parse(fs.readFileSync(path.join(V09, 'package.json'), 'utf8'));
+    const lock = JSON.parse(fs.readFileSync(path.join(V09, 'package-lock.json'), 'utf8'));
+    const rootPkg = lock.packages[''];
+    const synchronized = lock.name === pkg.name && lock.version === pkg.version &&
+      rootPkg.name === pkg.name && rootPkg.version === pkg.version && rootPkg.license === pkg.license;
+    const ACCEPTED_DEPS = { react: '^19.2.8', 'react-dom': '^19.2.8' };
+    const ACCEPTED_DEV_DEPS = { vite: '^8.2.2', '@vitejs/plugin-react': '^6.1.1' };
+    const depsMatch = Object.entries(ACCEPTED_DEPS).every(([k, v]) => rootPkg.dependencies?.[k] === v);
+    const devDepsMatch = Object.entries(ACCEPTED_DEV_DEPS).every(([k, v]) => rootPkg.devDependencies?.[k] === v);
+    const diffText = execSync(`git diff ${BASE_REF} -- v09/package-lock.json`, { cwd: ROOT }).toString();
+    const addedLines = diffText.split('\n').filter(l => l.startsWith('+') && !l.startsWith('+++'));
+    const onlyMetadataLinesChanged = addedLines.every(l => /"(name|version|license)":/.test(l) || /^\+\s*[{}\[\],]*\s*$/.test(l));
+    return synchronized && depsMatch && devDepsMatch && onlyMetadataLinesChanged;
+  } catch { return false; }
+})(), 'package-lock.json carries only authorized release metadata (name/version/license) since 75a863f — dependency/devDependency versions remain exactly the accepted versions, no other drift');
 const pkg = JSON.parse(fs.readFileSync(path.join(V09, 'package.json'), 'utf8'));
 assert('5b', pkg.dependencies.react === '^19.2.8' && pkg.dependencies['react-dom'] === '^19.2.8', 'React/ReactDOM versions unchanged in package.json');
 assert('5c', pkg.devDependencies.vite === '^8.2.2' && pkg.devDependencies['@vitejs/plugin-react'] === '^6.1.1', 'Vite/plugin-react versions unchanged in package.json');

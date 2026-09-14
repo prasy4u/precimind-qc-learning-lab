@@ -122,6 +122,7 @@ async function main() {
     // Station 1
     await page.locator('[data-testid="qc03-station1"] .option-btn').first().click();
     assert('STATION1-FEEDBACK', await page.locator('[data-testid="qc03-station1"] .prompt-box').count() > 0, 'Station 1 classification gives feedback');
+    assert('STATION1-HANDLING-DOCTRINE-VISIBLE', await page.locator('[data-testid="qc03-handling-doctrine"]').count() === 1, 'Station 1 renders the handling/stability doctrine block');
 
     // Station 2
     await tabbar.getByRole('tab', { name: /Establish the Statistics/ }).click();
@@ -141,6 +142,7 @@ async function main() {
     await tabbar.getByRole('tab', { name: /See What the SD Does/ }).click();
     await page.waitForTimeout(150);
     assert('STATION4-CHART', await page.locator('[data-testid="qc03-station4"] svg.ljchart-svg').count() === 1, 'Station 4 renders the LJChart');
+    assert('STATION4-APS-DISTINCTION-VISIBLE', await page.locator('[data-testid="qc03-control-limit-vs-aps"]').count() === 1, 'Station 4 renders the control-limit-vs-APS distinction');
     await page.locator('[data-testid="qc03-station4"] .tabbar').getByRole('tab', { name: /Too-wide/ }).click();
     await page.waitForTimeout(150);
     await page.screenshot({ path: path.join(EVIDENCE_DIR, 'qc03-station4-sd-comparison-1920x1080.png'), fullPage: true });

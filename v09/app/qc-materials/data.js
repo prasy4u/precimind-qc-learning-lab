@@ -30,7 +30,7 @@ export const QC03_INTRO =
    classification; `explain` is shown after the learner answers. */
 export const QC03_CLASSIFICATION_ITEMS = [
   { id: "cal-1", text: "A manufacturer-provided material with an assigned value, used to establish or adjust the measurement relationship on an analyser.", correct: "calibrator", explain: "This is a calibrator: its purpose is to establish/adjust the assay's response, not to monitor ongoing performance." },
-  { id: "qc-1", text: "A stable, commutable-intent material run at defined intervals specifically to monitor whether the analytical process remains in control.", correct: "qc-material", explain: "This is QC material: it monitors ongoing analytical performance rather than establishing the measurement relationship." },
+  { id: "qc-1", text: "A stable control material intended for internal quality control, run at defined intervals specifically to monitor whether the analytical process remains in control.", correct: "qc-material", explain: "This is QC material: it monitors ongoing analytical performance rather than establishing the measurement relationship." },
   { id: "pt-1", text: "A blood sample collected from an individual for diagnostic testing and clinical decision-making.", correct: "patient-specimen", explain: "This is a patient specimen: real clinical material, never QC or calibration material." },
   { id: "qc-2", text: "A third-party, independent control material run alongside routine testing to check analytical stability over time.", correct: "qc-material", explain: "Still QC material — independence from the reagent/instrument manufacturer does not change its fundamental role." },
   { id: "cal-2", text: "A set of materials with assigned target values used during instrument setup to define the calibration curve.", correct: "calibrator", explain: "Calibration materials establish the measurement relationship; they are not used to monitor day-to-day performance." },
@@ -68,6 +68,32 @@ export const QC03_MATRIX_CAUTION =
   "Commutability \u2014 whether a control material behaves like a genuine patient specimen for a given method \u2014 is not automatic. " +
   "Do not assume commercial QC material is commutable merely because it is commercially available. At the same time, the absence of " +
   "established commutability data does not itself prove a material is noncommutable \u2014 it simply means commutability has not been established.";
+
+/* Item 1 (QC-03 final independent-audit correction): handling/stability
+   doctrine, taught explicitly rather than merely mentioned in passing.
+   No universal temperature, stability period, or freeze/thaw limit is
+   invented \u2014 the module defers to manufacturer instructions and
+   local procedure, exactly as required. */
+export const QC03_HANDLING_HEADING = "Handling is part of the control system";
+export const QC03_HANDLING_FACTORS = [
+  "storage conditions",
+  "reconstitution",
+  "mixing",
+  "aliquoting",
+  "open-vial stability",
+  "freeze/thaw exposure where relevant",
+  "contamination",
+  "preparation timing",
+];
+export const QC03_HANDLING_DOCTRINE =
+  "A QC material's observed behaviour can be influenced by how it is stored, reconstituted, mixed, aliquoted, its open-vial stability, " +
+  "freeze/thaw exposure where relevant, contamination, and the timing of preparation relative to testing. Follow the control-material " +
+  "manufacturer's instructions and the laboratory's validated local procedure \u2014 this module does not invent universal storage " +
+  "temperatures, universal stability periods, or universal freeze/thaw limits, because none apply uniformly across all control materials.";
+export const QC03_HANDLING_SYNTHETIC_EXAMPLE =
+  "Synthetic teaching example (not universal manufacturer guidance): \u201cStore at 2\u20138\u00b0C; use reconstituted material within the " +
+  "manufacturer-specified window; mix gently by inversion \u2014 do not vortex.\u201d Any real control material's actual instructions for " +
+  "use must be followed instead of this illustrative example.";
 
 /* -------------------------------------------------------------------------
    Station 2 — Establish the Statistics
@@ -134,6 +160,15 @@ export const QC03_SD_EXPLANATION =
   "a genuine change less conspicuous because the control scale is too broad; an unrealistically narrow SD can make ordinary " +
   "analytical variation generate excessive alarms. The goal of establishing SD is a representative estimate of routine " +
   "analytical variation \u2014 not simply choosing the widest or narrowest value.";
+
+/* Item 2 (QC-03 final independent-audit correction): control-limit vs.
+   APS distinction. This exact text must render for EVERY level
+   (Beginner/Intermediate/Advanced/Expert) — never gated behind a
+   level-specific branch — per the explicit "visible to every learner"
+   requirement. */
+export const QC03_CONTROL_LIMIT_VS_APS =
+  "SD-based chart reference/control lines are not the same thing as an analytical performance specification (APS). " +
+  "Crossing an SD line is not by itself a universal patient-result release rule.";
 
 /* -------------------------------------------------------------------------
    Station 5 — New Lot, New Question
@@ -238,13 +273,9 @@ export const QC03_LEVEL_TEXT = {
   },
 };
 
-/* Glossary additions specific to QC-03 (merged into the app's glossary
-   from core-screens.jsx / app-data.js separately; kept here as the
-   authoritative QC-03 source list). */
-export const QC03_GLOSSARY_TERMS = [
-  { term: "Calibrator", def: "A material with an assigned value used to establish or adjust the measurement relationship of an assay; distinct from QC material, which monitors ongoing performance." },
-  { term: "Assayed control", def: "QC material for which the manufacturer provides an assigned target value (and often an expected range)." },
-  { term: "Unassayed control", def: "QC material without a manufacturer-assigned target; the laboratory establishes its own working statistics." },
-  { term: "Third-party control", def: "QC material sourced independently of the reagent/instrument manufacturer." },
-  { term: "Control lot", def: "A specific manufactured batch of QC material; a new lot may have different statistics from the previous one and should be evaluated before routine use." },
-];
+/* Item 4 (QC-03 final independent-audit correction): the QC-03-specific
+   glossary terms formerly declared here as an unused array have been
+   merged directly into the authoritative application GLOSSARY in
+   app/ui/app-data.js (Calibrator, Assayed control, Unassayed control,
+   Third-party control, Control lot) so they are genuinely reachable
+   through the real Glossary UI, per Option B. */

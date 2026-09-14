@@ -24,10 +24,11 @@ import { Badge, LJChart, MetricCard, ScientificBasisNote } from "../ui/shared-co
 import {
   QC03_TITLE, QC03_INTRO, QC03_LEVEL_TEXT,
   QC03_CLASSIFICATION_ITEMS, QC03_CLASSIFICATION_OPTIONS, QC03_COMPARISON_CARDS, QC03_MATRIX_CAUTION,
+  QC03_HANDLING_HEADING, QC03_HANDLING_FACTORS, QC03_HANDLING_DOCTRINE, QC03_HANDLING_SYNTHETIC_EXAMPLE,
   QC03_ESTABLISH_DATASET, QC03_ESTABLISH_UNIT, QC03_ESTABLISH_NOTE,
   QC03_OUTLIER_FULL_DATASET, QC03_OUTLIER_JUSTIFIED_DATASET, QC03_OUTLIER_CONSPICUOUS_VALUE,
   QC03_OUTLIER_CHOICES, QC03_OUTLIER_DOCUMENTED_EVIDENCE, QC03_OUTLIER_JUSTIFICATION_STATEMENT,
-  QC03_SD_DEMO_MEAN, QC03_SD_DEMO_FUTURE_RAW, QC03_SD_SCENARIOS, QC03_SD_EXPLANATION,
+  QC03_SD_DEMO_MEAN, QC03_SD_DEMO_FUTURE_RAW, QC03_SD_SCENARIOS, QC03_SD_EXPLANATION, QC03_CONTROL_LIMIT_VS_APS,
   QC03_OLD_LOT_DATASET, QC03_NEW_LOT_DATASET, QC03_LOT_CHOICES, QC03_LOT_CONCLUSION,
   QC03_LEARNING_CHECK,
 } from "./data.js";
@@ -125,6 +126,15 @@ function Station1({ levelText }) {
         ))}
       </div>
       <p className="callout">{QC03_MATRIX_CAUTION}</p>
+
+      <h2>{QC03_HANDLING_HEADING}</h2>
+      <div className="calc-panel" data-testid="qc03-handling-doctrine">
+        <p>{QC03_HANDLING_DOCTRINE}</p>
+        <ul>
+          {QC03_HANDLING_FACTORS.map(f => <li key={f}>{f}</li>)}
+        </ul>
+        <p className="prompt-box">{QC03_HANDLING_SYNTHETIC_EXAMPLE}</p>
+      </div>
     </div>
   );
 }
@@ -214,6 +224,7 @@ function Station4({ levelText }) {
   }));
   return (
     <div data-testid="qc03-station4">
+      <p className="callout" data-testid="qc03-control-limit-vs-aps">{QC03_CONTROL_LIMIT_VS_APS}</p>
       <p className="explain-text">{levelText}</p>
       <h2>Same future results, different SD</h2>
       <div className="tabbar" role="tablist" aria-label="SD scenario">

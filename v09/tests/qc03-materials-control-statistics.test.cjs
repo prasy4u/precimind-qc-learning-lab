@@ -96,7 +96,10 @@ async function main() {
     assert('CONTENT-HAS-SYNTHETIC-LABEL', /synthetic/i.test(allSrc), 'QC-03 source labels its data as synthetic');
     assert('CONTENT-HAS-N-MINUS-1', /Sample SD/.test(allSrc) && /never population SD/.test(allSrc), 'QC-03 source explicitly documents sample SD (n-1) as distinct from population SD');
     assert('CONTENT-HAS-DOCUMENTED-REASON', /documented/i.test(allSrc), 'QC-03 source requires a documented reason before exclusion');
-    assert('CONTENT-HAS-CONTROL-LIMIT-VS-APS', /performance specification/i.test(allSrc) === false || true, 'Control-limit-vs-APS distinction check (informational)');
+    assert('CONTENT-HAS-CONTROL-LIMIT-VS-APS', /analytical performance specification \(APS\)/i.test(allSrc) && /not.*universal patient-result release rule/i.test(allSrc), 'QC-03 source contains the genuine, level-independent control-limit-vs-APS distinction (Item 2)');
+    assert('CONTENT-HAS-HANDLING-DOCTRINE', /reconstitution/i.test(allSrc) && /aliquoting/i.test(allSrc) && /mixing/i.test(allSrc) && /stability/i.test(allSrc), 'QC-03 source teaches the handling/stability factors (storage/reconstitution/mixing/aliquoting/stability)');
+    assert('CONTENT-HANDLING-DEFERS-TO-MANUFACTURER', /manufacturer.s instructions/i.test(allSrc) && /local procedure/i.test(allSrc), 'QC-03 handling doctrine explicitly defers to manufacturer instructions and local procedure, never inventing universal limits');
+    assert('CONTENT-NO-INVENTED-STABILITY-LIMITS', !/must be stored at exactly|the universal (freeze.thaw|stability) limit is/i.test(allSrc), 'QC-03 source invents no universal storage/stability/freeze-thaw limit');
     assert('CONTENT-HAS-LOT-SHIFT-CAVEAT', /does not.*establish.*patient/i.test(allSrc), 'QC-03 source states a QC lot shift does not by itself establish patient bias');
     // Mentioning "certification test"/"competency examination" ONLY to explicitly deny them is fine and expected;
     // the defect would be using either as the actual feature label. Check for any use NOT preceded by a negation
@@ -140,6 +143,21 @@ async function main() {
       srcUntouched = diffOut.length === 0;
     } catch { srcUntouched = true; }
     assert('SRC-UNTOUCHED', srcUntouched, 'v09/src/** (frozen historical source) remains unmodified');
+  }
+
+  console.log('\n=== Glossary integration (Item 4) ===');
+  {
+    const { GLOSSARY } = await import('file://' + path.join(V09, 'app', 'ui', 'app-data.js'));
+    const REQUIRED_TERMS = ['Calibrator', 'Assayed control', 'Unassayed control', 'Third-party control', 'Control lot'];
+    for (const term of REQUIRED_TERMS) {
+      assert(`GLOSSARY-HAS-${term.replace(/\s+/g, '-')}`, GLOSSARY.some(g => g.term === term), `The real application GLOSSARY (reachable through the Glossary UI) includes "${term}"`);
+    }
+    const termCounts = {};
+    for (const g of GLOSSARY) termCounts[g.term] = (termCounts[g.term] || 0) + 1;
+    const duplicates = Object.entries(termCounts).filter(([, c]) => c > 1).map(([t]) => t);
+    assert('GLOSSARY-NO-DUPLICATES', duplicates.length === 0, `No duplicate glossary terms were introduced (found: ${JSON.stringify(duplicates)})`);
+    // The unused QC03_GLOSSARY_TERMS export has been removed (Option B) — confirm data.js no longer exports it.
+    assert('QC03-UNUSED-GLOSSARY-EXPORT-REMOVED', !('QC03_GLOSSARY_TERMS' in data), 'The unused QC03_GLOSSARY_TERMS export has been removed from data.js (terms merged directly into the real GLOSSARY)');
   }
 
   const total = passed + failed;

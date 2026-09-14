@@ -2,7 +2,7 @@
   "_templateNote": "This is the TRACKED, source-neutral provenance TEMPLATE committed to the repository. It cannot self-reference the exact final commit that includes this very file (that would be a self-referential impossibility). The GENERATED distribution provenance actually shipped inside the Web/Offline packages is produced AFTER the closing commit exists, with releaseCommit/releaseCommitCount filled in to that exact final commit. See GENERATION_STEPS below. CRITICAL: the generated distribution file must NEVER be written inside this Git worktree (v09/release/ or anywhere else under v09/) — doing so previously left an untracked file inside the Audit Repository package, which is a defect. Generate it in a location entirely outside the tracked worktree, then copy it only into the Web/Offline package STAGING directories (which are themselves excluded from the Audit Repository ZIP).",
   "productName": "PreciMind QC Learning Lab",
   "releaseVersion": "0.9.0",
-  "releaseStage": "Stage 12F release candidate (not yet tagged or published)",
+  "releaseStage": "v0.9.0 pre-release candidate after QC-03 content closure (not yet tagged or published)",
   "softwareOwner": "Prasenjit Mitra",
   "copyrightNotice": "Copyright 2026 Prasenjit Mitra",
   "softwareLicense": "Apache-2.0",
@@ -17,7 +17,7 @@
   "historicalRuntimeBaselineCommit": "813596f920af907fb13dfb731b4db9d48dfc1044",
   "historicalRuntimeBaselineCommitCount": 78,
   "runtimeBaselineNote": "813596f9... (commit 78) was the Stage 12E-accepted runtime baseline BEFORE the QC-03 pre-release content closure. QC-03 legitimately added learner-facing production source (a new competency module), so the production build hash genuinely changed and this file's runtimeBaselineCommit/runtimeBaselineCommitCount now converge with releaseCommit/releaseCommitCount at packaging time -- the historical Stage 12E baseline is retained above as historicalRuntimeBaselineCommit for provenance history only, never silently discarded.",
-  "productionBuildHash": "23abd76bfd17096a25ae9bd259dc193def12960b404b9a97920768516d4c4390",
+  "productionBuildHash": "587a0917f953708861df97735741de4b18460e54b0df21c1906b56ad19028bf9",
   "historicalProductionBuildHash": "04fa0a3222150b7d07300617685eaf3ccc46fd08dd3f0129fe027377ce2b2ed1",
   "developmentBuildHash": "c625fa7b53beac8481e24a2e0815843f85c55a0d993e1b3fd4c5bfc25ddc527a",
   "caseSchemaVersion": "1.1.0",
@@ -37,5 +37,5 @@
     "5. Copy that generated file only into the Web/Offline package STAGING directories (release/web-package/RELEASE_PROVENANCE.json, release/offline-package/RELEASE_PROVENANCE.json) — both of which are themselves excluded from the Audit Repository ZIP and are not tracked by Git.",
     "6. Verify the Audit Repository ZIP's extracted worktree shows a clean `git status --porcelain` (no output) before delivery."
   ],
-  "note": "runtimeBaselineCommit above is the immutable Stage 12E-accepted baseline whose production build this release candidate ships. This file intentionally omits an unstable generation timestamp; commit hashes + build hashes are the authoritative, reproducible provenance anchors for this artifact."
+  "note": "This release now includes the complete QC-01 through QC-12 competency pathway (QC-03 was the last remaining unimplemented module). productionBuildHash above is the CURRENT, QC-03-inclusive value; historicalProductionBuildHash is the earlier, superseded pre-QC-03 value, retained for provenance history only. This file intentionally omits an unstable generation timestamp; commit hashes + build hashes are the authoritative, reproducible provenance anchors for this artifact."
 }

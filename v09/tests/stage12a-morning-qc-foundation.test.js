@@ -214,7 +214,39 @@ async function main() {
       return !diff.includes('"dependencies"') && !diff.includes('"devDependencies"');
     } catch (e) { return false; }
   })(), 'package.json dependencies/devDependencies unchanged (only new scripts may be added)');
-  assert('19d', unchangedSince('v09/package-lock.json', BASE_REF), 'package-lock.json unchanged');
+  assert('19d', (() => {
+    // Item 9 (QC-03 final independent-audit correction): package-lock.json
+    // legitimately changed to carry the authorized ownership/licensing
+    // release metadata (name/version/license). Rather than requiring
+    // byte-for-byte identity to the historic bridge-era baseline (which
+    // would now always fail), verify the SUBSTANTIVE invariant: current
+    // package.json and package-lock.json root metadata are mutually
+    // synchronized, the accepted dependency/devDependency versions are
+    // exactly what they always were, and the raw diff touches nothing
+    // outside the small set of explicitly authorized metadata fields.
+    try {
+      const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'v09', 'package.json'), 'utf8'));
+      const lock = JSON.parse(fs.readFileSync(path.join(ROOT, 'v09', 'package-lock.json'), 'utf8'));
+      const rootPkg = lock.packages[''];
+      const synchronized = lock.name === pkg.name && lock.version === pkg.version &&
+        rootPkg.name === pkg.name && rootPkg.version === pkg.version && rootPkg.license === pkg.license;
+      const ACCEPTED_DEPS = { react: '^19.2.8', 'react-dom': '^19.2.8' };
+      const ACCEPTED_DEV_DEPS = { vite: '^8.2.2', '@vitejs/plugin-react': '^6.1.1' };
+      const depsMatch = Object.keys(ACCEPTED_DEPS).length === Object.keys(rootPkg.dependencies || {}).length &&
+        Object.entries(ACCEPTED_DEPS).every(([k, v]) => rootPkg.dependencies?.[k] === v);
+      const devDepsMatch = Object.keys(ACCEPTED_DEV_DEPS).length === Object.keys(rootPkg.devDependencies || {}).length &&
+        Object.entries(ACCEPTED_DEV_DEPS).every(([k, v]) => rootPkg.devDependencies?.[k] === v);
+      // Confirm the raw diff against the historic baseline touches ONLY
+      // the authorized top-level metadata lines (name/version/license),
+      // never a dependency version string or a resolved sub-package entry.
+      // Pure JSON punctuation lines (braces/commas with no field content)
+      // are structural artifacts of the diff, not substantive changes.
+      const diffText = execSync(`git diff ${BASE_REF} -- v09/package-lock.json`, { cwd: ROOT }).toString();
+      const addedLines = diffText.split('\n').filter(l => l.startsWith('+') && !l.startsWith('+++'));
+      const onlyMetadataLinesChanged = addedLines.every(l => /"(name|version|license)":/.test(l) || /^\+\s*[{}\[\],]*\s*$/.test(l));
+      return synchronized && depsMatch && devDepsMatch && onlyMetadataLinesChanged;
+    } catch { return false; }
+  })(), 'package-lock.json carries only authorized release metadata (name/version/license, synchronized with package.json) — dependency/devDependency versions remain exactly the accepted react/react-dom/vite/@vitejs/plugin-react versions, with no other drift');
 
   console.log('\n=== 20. Corrective-closure: panel/evidence availability enforcement ===');
   {

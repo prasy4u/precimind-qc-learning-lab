@@ -1,8 +1,8 @@
 {
   "status": "PASS",
-  "passed": 22,
+  "passed": 24,
   "failed": 0,
-  "total": 22,
+  "total": 24,
   "browserExecutable": "/opt/pw-browsers/chromium-1194/chrome-linux/chrome",
   "browserEngine": "chromium",
   "checkpoints": [
@@ -42,6 +42,11 @@
       "detail": "Station 1 classification gives feedback"
     },
     {
+      "id": "STATION1-HANDLING-DOCTRINE-VISIBLE",
+      "status": "PASS",
+      "detail": "Station 1 renders the handling/stability doctrine block"
+    },
+    {
       "id": "STATION2-CALC",
       "status": "PASS",
       "detail": "Station 2 show-calculation works"
@@ -55,6 +60,11 @@
       "id": "STATION4-CHART",
       "status": "PASS",
       "detail": "Station 4 renders the LJChart"
+    },
+    {
+      "id": "STATION4-APS-DISTINCTION-VISIBLE",
+      "status": "PASS",
+      "detail": "Station 4 renders the control-limit-vs-APS distinction"
     },
     {
       "id": "STATION5-LOT-RESULT",

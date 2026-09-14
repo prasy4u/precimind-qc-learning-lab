@@ -54,6 +54,38 @@ The software never collapses these distinct concepts into one another:
   simulation run failed to detect the introduced error at all, rather
   than silently averaging over only the detected runs.
 
+## QC-03: QC materials and control statistics
+- **Calibrator vs. QC material**: a calibrator establishes/adjusts the
+  measurement relationship; QC material monitors ongoing analytical
+  performance. They are never taught as interchangeable.
+- Control statistics use **sample SD (n − 1)** and **CV%** — the same
+  accepted formulas used throughout the application, computed via the
+  shared `core/statistics.js` functions rather than a second
+  implementation.
+- Laboratory control statistics should be **established or verified**
+  using representative local data and an appropriate documented
+  procedure — manufacturer-assigned values may be a useful starting/
+  reference point, but are never adopted uncritically as the
+  laboratory's own final statistics.
+- **No automatic outlier deletion**: a numerically extreme result may
+  be excluded from control-statistics establishment only when there is
+  an independently documented, nonrepresentative reason (e.g. a
+  recorded preparation error) — never for numerical extremeness alone.
+- **Control limits are distinct from an analytical performance
+  specification (APS)**: an SD-based control-chart line is not itself
+  an APS, and crossing it is not by itself a universal patient-result
+  release rule.
+- A **QC-material lot shift does not, by itself, establish
+  patient-result bias**, reagent failure, or a calibration problem —
+  a new lot should be evaluated and have its own statistics
+  established/verified before routine use.
+- **Handling and storage can affect QC-material behaviour** (storage
+  conditions, reconstitution, mixing, aliquoting, open-vial stability,
+  freeze/thaw exposure, contamination, preparation timing) — the
+  module defers to the actual manufacturer's instructions and the
+  laboratory's validated local procedure rather than asserting any
+  universal temperature, stability period, or freeze/thaw limit.
+
 ## Provenance and disagreement policy
 If this document and the actual accepted software behaviour ever
 disagree, that is reported as a discrepancy to resolve — this document

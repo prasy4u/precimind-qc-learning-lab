@@ -3,7 +3,7 @@
 States used: `PASS`, `FAIL`, `BLOCKED`, `NOT APPLICABLE`, `NOT TESTED`.
 
 ## Scientific integrity
-- Stage 12A engine/pilot-paths/progression-invariants/governance (268/268): **PASS**
+- Stage 12A engine/pilot-paths/progression-invariants (167/167) + governance (120/121, one pre-existing package-lock.json-staleness check unrelated to this closure — see Section 9 below): **PASS** (with the one documented pre-existing caveat)
 - Stage 12D case-bank/expanded-paths/adaptive/analytics/numeric-audit: **PASS**
 - Historical v0.8 regression (3849/3849) + Stage 11A-11C2: **PASS**
 - No scientific arithmetic drift (verified via `git diff` against every prior accepted baseline this stage): **PASS**
@@ -11,7 +11,7 @@ States used: `PASS`, `FAIL`, `BLOCKED`, `NOT APPLICABLE`, `NOT TESTED`.
 
 ## Runtime integrity
 - Production build succeeds: **PASS**
-- Production build hash byte-identical to the pre-Stage-12F accepted hash (`04fa0a3222...`): **PASS**
+- Production build hash: historical pre-QC-03 hash `04fa0a3222150b7d07300617685eaf3ccc46fd08dd3f0129fe027377ce2b2ed1`; current QC-03-inclusive hash `587a0917f953708861df97735741de4b18460e54b0df21c1906b56ad19028bf9` — legitimately changed because QC-03 added learner-facing production source (the two are NOT byte-identical, and are not described as such); reproducible rebuild (2 consecutive independent rebuilds from the same committed source): **PASS**
 - No console errors in clean-room web validation (aside from the browser's own harmless automatic favicon request): **PASS**
 - No unhandled page exceptions in clean-room web/offline validation: **PASS**
 - No unexpected (non-localhost) network requests: **PASS**

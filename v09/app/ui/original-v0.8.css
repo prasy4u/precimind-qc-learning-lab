@@ -182,7 +182,11 @@ a{color:var(--brand);}
 .btn-secondary{background:var(--surface);color:var(--text);border:1px solid var(--border);padding:.55rem 1.1rem;}
 .btn-secondary:hover{border-color:var(--accent);}
 .btn-link{background:transparent;border:none;color:var(--brand);padding:.3rem .2rem;text-decoration:underline;}
-.btn-icon{background:transparent;border:1px solid var(--border);width:2rem;height:2rem;color:var(--text);}
+/* Micro-correction Item 2: genuine interactive controls raised to the
+   practical touch-target minimum using the existing --target-min token.
+   Compact visual character is preserved via unchanged font-size and
+   horizontal padding — only the hit box grows, with flex centring. */
+.btn-icon{background:transparent;border:1px solid var(--border);width:var(--target-min);height:var(--target-min);min-width:var(--target-min);min-height:var(--target-min);color:var(--text);display:inline-flex;align-items:center;justify-content:center;}
 .btn-row{display:flex;gap:.6rem;margin-top:.7rem;flex-wrap:wrap;align-items:center;}
 
 /* Competency map */
@@ -240,7 +244,7 @@ a{color:var(--brand);}
 .field-hint{color:var(--text-faint);font-size:.82rem;}
 .field-hint-block{display:block;margin-top:.15rem;}
 .sign-quickset{display:flex;gap:.4rem;margin:.1rem 0 .2rem;}
-.btn-tiny{background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:.15rem .6rem;font-size:.74rem;color:var(--text-muted);cursor:pointer;}
+.btn-tiny{background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:.15rem .6rem;font-size:.74rem;color:var(--text-muted);cursor:pointer;min-height:var(--target-min);display:inline-flex;align-items:center;justify-content:center;}
 .btn-tiny:hover{border-color:var(--accent);color:var(--text);}
 input[type=range]{width:100%;accent-color:var(--brand);}
 .num-input{width:6rem;padding:.3rem .4rem;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-family:var(--font-mono);}
@@ -287,7 +291,7 @@ select{padding:.4rem .5rem;border-radius:var(--radius);border:1px solid var(--bo
 /* LJ chart */
 .lj-controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin:.8rem 0 1.2rem;align-items:end;}
 .segmented{display:flex;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;width:fit-content;}
-.seg{background:var(--surface);border:none;padding:.4rem .7rem;color:var(--text-muted);cursor:pointer;font-size:.84rem;}
+.seg{background:var(--surface);border:none;padding:.4rem .7rem;color:var(--text-muted);cursor:pointer;font-size:.84rem;min-height:var(--target-min);display:inline-flex;align-items:center;justify-content:center;}
 .seg-active{background:var(--brand);color:#fff;}
 .ljchart-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:var(--space-4);box-shadow:var(--shadow-sm);}
 .ljchart-svg{width:100%;height:auto;display:block;}
@@ -325,7 +329,7 @@ select{padding:.4rem .5rem;border-radius:var(--radius);border:1px solid var(--bo
 
 /* Pattern challenge */
 .challenge-nav{display:flex;flex-wrap:wrap;gap:.35rem;margin:.8rem 0;}
-.case-chip{border:1px solid var(--border);background:var(--surface);color:var(--text-muted);padding:.35rem .5rem;border-radius:var(--radius);cursor:pointer;font-size:.82rem;min-width:2.4rem;}
+.case-chip{border:1px solid var(--border);background:var(--surface);color:var(--text-muted);padding:.35rem .5rem;border-radius:var(--radius);cursor:pointer;font-size:.82rem;min-width:var(--target-min);min-height:var(--target-min);display:inline-flex;align-items:center;justify-content:center;}
 .case-chip-active{border-color:var(--brand);color:var(--brand-strong);font-weight:700;}
 .case-chip-done{background:var(--brand-tint);}
 .case-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.1rem;box-shadow:var(--shadow);min-width:0;max-width:100%;overflow-x:hidden;}

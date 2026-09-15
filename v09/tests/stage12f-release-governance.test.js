@@ -189,7 +189,7 @@ async function main() {
     // 23abd76bfd... (QC-03 initial) -> 587a0917f9... (QC-03 audit
     // correction) -> the value below (pre-release visual polish: CSS
     // tokens + presentational JSX only, no scientific change).
-    assert('PROD-HASH-UNCHANGED', hash === 'd3caa1532fd7635f533eebbbf5cd9cf51ef99d5aa011043b320a505c6246c958', `Production tree hash matches the current accepted invariant (found ${hash})`);
+    assert('PROD-HASH-UNCHANGED', hash === '6eb8b04dc63b9b03c97beb596433d19cf1b89079c2eb27949608175d220a9f11', `Production tree hash matches the current accepted invariant (found ${hash})`);
   }
 
   const total = passed + failed;

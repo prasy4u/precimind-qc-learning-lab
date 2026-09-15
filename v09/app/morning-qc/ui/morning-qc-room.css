@@ -346,9 +346,17 @@
 .mqc-case-select__title { font-size: 24px; font-weight: 600; margin-bottom: 8px; }
 .mqc-case-select__intro { color: var(--text-muted); margin-bottom: 28px; }
 .mqc-case-select__grid { display: flex; flex-direction: column; gap: 14px; }
+/* Visual-polish micro-correction Item 1: this is a <button> with a
+   themed background but previously no foreground colour, so the title
+   fell back to the UA default button colour (near-black) and became
+   illegible against the dark surface. Declaring --text lets the title
+   inherit correctly in both themes; the -focus / -difficulty / status
+   children keep their own muted/semantic colours and stay subordinate.
+   Not hardcoded white — theme token only. */
 .mqc-case-select__card {
   display: flex; flex-direction: column; gap: 4px; text-align: left; padding: 18px 20px;
   border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface);
+  color: var(--text);
   cursor: pointer; font-family: inherit; box-shadow: var(--shadow);
 }
 .mqc-case-select__card:hover { background: var(--surface-2); }

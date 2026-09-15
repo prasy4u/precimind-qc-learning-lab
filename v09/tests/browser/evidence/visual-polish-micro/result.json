@@ -1,0 +1,63 @@
+{
+  "status": "PASS",
+  "passed": 11,
+  "failed": 0,
+  "total": 11,
+  "checkpoints": [
+    {
+      "id": "DARK-TITLE-CONTRAST",
+      "status": "PASS",
+      "detail": "Dark-mode case title contrast is 14.24:1 against the card surface (title rgb(231, 237, 241) on rgb(23, 30, 37))"
+    },
+    {
+      "id": "DARK-ALL-TITLES-PRESENT",
+      "status": "PASS",
+      "detail": "All browse-case titles render (13 found) and share the corrected inherited colour"
+    },
+    {
+      "id": "DARK-SUPPORTING-SUBORDINATE",
+      "status": "PASS",
+      "detail": "Supporting text keeps its own muted colour and remains visually subordinate to the title (no unintended inheritance)"
+    },
+    {
+      "id": "TARGET-.seg",
+      "status": "PASS",
+      "detail": ".seg (segmented unit-mode control) rendered 81.4x44.0px — meets the 44px minimum in the applicable dimension(s)"
+    },
+    {
+      "id": "TARGET-.btn-tiny",
+      "status": "PASS",
+      "detail": ".btn-tiny (sign quick-set control) rendered 87.0x44.0px — meets the 44px minimum in the applicable dimension(s)"
+    },
+    {
+      "id": "TARGET-.case-chip",
+      "status": "PASS",
+      "detail": ".case-chip (case navigation chip) rendered 44.0x44.0px — meets the 44px minimum in the applicable dimension(s)"
+    },
+    {
+      "id": "TARGET-.btn-icon",
+      "status": "PASS",
+      "detail": ".btn-icon computes to 44.0x44.0px when rendered (measured via a live probe element, not a CSS source search)"
+    },
+    {
+      "id": "RESPONSIVE-1920x1080-light",
+      "status": "PASS",
+      "detail": "1920x1080 light: 0 horizontal overflow, 0 page exceptions/console errors (overflow=[], errors=0)"
+    },
+    {
+      "id": "RESPONSIVE-1366x768-light",
+      "status": "PASS",
+      "detail": "1366x768 light: 0 horizontal overflow, 0 page exceptions/console errors (overflow=[], errors=0)"
+    },
+    {
+      "id": "RESPONSIVE-390x844-light",
+      "status": "PASS",
+      "detail": "390x844 light: 0 horizontal overflow, 0 page exceptions/console errors (overflow=[], errors=0)"
+    },
+    {
+      "id": "RESPONSIVE-390x844-dark",
+      "status": "PASS",
+      "detail": "390x844 dark: 0 horizontal overflow, 0 page exceptions/console errors (overflow=[], errors=0)"
+    }
+  ]
+}

@@ -17,7 +17,7 @@
   "historicalRuntimeBaselineCommit": "813596f920af907fb13dfb731b4db9d48dfc1044",
   "historicalRuntimeBaselineCommitCount": 78,
   "runtimeBaselineNote": "813596f9... (commit 78) was the Stage 12E-accepted runtime baseline BEFORE the QC-03 pre-release content closure. QC-03 legitimately added learner-facing production source (a new competency module), so the production build hash genuinely changed and this file's runtimeBaselineCommit/runtimeBaselineCommitCount now converge with releaseCommit/releaseCommitCount at packaging time -- the historical Stage 12E baseline is retained above as historicalRuntimeBaselineCommit for provenance history only, never silently discarded.",
-  "productionBuildHash": "d3caa1532fd7635f533eebbbf5cd9cf51ef99d5aa011043b320a505c6246c958",
+  "productionBuildHash": "6eb8b04dc63b9b03c97beb596433d19cf1b89079c2eb27949608175d220a9f11",
   "historicalProductionBuildHash": "04fa0a3222150b7d07300617685eaf3ccc46fd08dd3f0129fe027377ce2b2ed1",
   "developmentBuildHash": "c625fa7b53beac8481e24a2e0815843f85c55a0d993e1b3fd4c5bfc25ddc527a",
   "caseSchemaVersion": "1.1.0",

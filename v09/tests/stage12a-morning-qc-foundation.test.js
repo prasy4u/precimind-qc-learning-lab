@@ -53,7 +53,11 @@ async function main() {
     // QC-03 entry (status/screen) genuinely lives there. This is an
     // explicitly authorized addition to the sanctioned set, not scope
     // creep — QC-03 does not touch any other file in this directory.
-    const STAGE12C_SANCTIONED = new Set(['v09/app/ui/app-shell.jsx', 'v09/app/ui/core-screens.jsx', 'v09/app/main.jsx', 'v09/app/ui/app-data.js']);
+    // Pre-release visual-polish closure: original-v0.8.css is the global
+    // design-token/stylesheet layer and is an authorized VISUAL-TOKENS /
+    // GLOBAL-CSS change class for that closure. It contains no scientific,
+    // engine, case, analytics, storage or research logic.
+    const STAGE12C_SANCTIONED = new Set(['v09/app/ui/app-shell.jsx', 'v09/app/ui/core-screens.jsx', 'v09/app/main.jsx', 'v09/app/ui/app-data.js', 'v09/app/ui/original-v0.8.css']);
     const uiDiff = (() => { try { return execSync(`git diff ${BASE_REF} --name-only -- v09/app/ui`, { cwd: ROOT }).toString().trim().split('\n').filter(Boolean); } catch { return null; } })();
     const mainDiff = (() => { try { return execSync(`git diff ${BASE_REF} --name-only -- v09/app/main.jsx`, { cwd: ROOT }).toString().trim().split('\n').filter(Boolean); } catch { return null; } })();
     const allDiffs = [...(uiDiff || []), ...(mainDiff || [])];

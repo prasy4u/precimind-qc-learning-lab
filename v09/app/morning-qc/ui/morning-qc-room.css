@@ -376,3 +376,50 @@
 .mqc-case-select__card-status--completed { color: var(--ok); border-color: var(--ok); }
 .mqc-case-select__card-status--repeat-recommended { color: var(--brand); border-color: var(--brand); }
 .mqc-case-select__card-status--not-attempted { color: var(--text-faint); }
+
+/* ---------------------------------------------------------------
+   Visual polish P1-10 — Morning QC visual re-weighting.
+   Presentation only. The three-column architecture, every state
+   label, all decision semantics, engine behaviour and information
+   availability are unchanged. The goal is to give the learner a
+   clear focal point rather than three equally-weighted columns.
+   --------------------------------------------------------------- */
+
+/* Rails recede to the secondary surface so the centre workspace —
+   whose panel body is the elevated --surface card — reads as primary.
+   Previously rails used --surface and competed with the workspace. */
+.mqc-dock,
+.mqc-reasoning { background: var(--surface-2); }
+
+/* The workspace panel body gains the md elevation tier so it clearly
+   sits above the receded rails. */
+.mqc-panel-viewer__body {
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+}
+
+/* Empty states read as genuinely quieter than populated content, so
+   filling them registers as progress. */
+.mqc-reasoning .mqc-empty,
+.mqc-reasoning__empty { color: var(--text-faint); font-style: italic; }
+
+/* Patient Impact is the most consequential field in the rail, so it
+   gets an identifiable status treatment — an accent rule and surface,
+   NOT an alarmist colour. It remains a neutral informational status:
+   no warning/danger tint, no iconography implying clinical urgency,
+   and no implication of medical-device decision support. */
+.mqc-patient-impact {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  padding: 12px 14px;
+}
+.mqc-patient-impact .mqc-reasoning__section-title { margin-bottom: 6px; }
+
+/* Reconnect the bottom action bar with the workspace it acts on. */
+.mqc-actions {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -1px 3px rgba(20,30,40,0.04);
+}

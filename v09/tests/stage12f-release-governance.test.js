@@ -184,8 +184,12 @@ async function main() {
     // This closure (QC-03 final independent-audit correction) added
     // genuine new content (handling doctrine, APS distinction, glossary
     // terms), so the hash legitimately advanced again from the prior
-    // QC-03-initial value (23abd76bfd...) to this new one.
-    assert('PROD-HASH-UNCHANGED', hash === '587a0917f953708861df97735741de4b18460e54b0df21c1906b56ad19028bf9', `Production tree hash matches the current accepted invariant (found ${hash})`);
+    // The production hash legitimately advances whenever learner-facing
+    // source changes. Lineage: 04fa0a3222... (pre-QC-03) ->
+    // 23abd76bfd... (QC-03 initial) -> 587a0917f9... (QC-03 audit
+    // correction) -> the value below (pre-release visual polish: CSS
+    // tokens + presentational JSX only, no scientific change).
+    assert('PROD-HASH-UNCHANGED', hash === 'd3caa1532fd7635f533eebbbf5cd9cf51ef99d5aa011043b320a505c6246c958', `Production tree hash matches the current accepted invariant (found ${hash})`);
   }
 
   const total = passed + failed;

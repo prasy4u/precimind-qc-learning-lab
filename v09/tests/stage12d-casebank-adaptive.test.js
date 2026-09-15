@@ -52,6 +52,9 @@ async function main() {
       'v09/app/ui/app-shell.jsx',                          // ALL_CASES import
       'v09/app/ui/app-data.js',                            // QC-03 pre-release content closure: Competency Map entry
       'v09/app/ui/core-screens.jsx',                       // QC-03 pre-release content closure: Home pathway step
+      // Pre-release visual-polish closure (presentation only, no logic):
+      'v09/app/morning-qc/ui/patient-impact-panel.jsx',    // .mqc-patient-impact status class
+      'v09/app/ui/original-v0.8.css',                      // global design tokens / stylesheet
     ]);
     let diffNames = [];
     try {

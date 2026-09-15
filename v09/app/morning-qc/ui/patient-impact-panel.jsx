@@ -20,7 +20,7 @@ import { PATIENT_IMPACT_TRANSITIONS } from '../states.js';
 export function PatientImpactPanel({ viewModel, onReview }) {
   const nextTargets = PATIENT_IMPACT_TRANSITIONS[viewModel.patientImpactState] || [];
   return (
-    <section aria-label="Patient impact">
+    <section aria-label="Patient impact" className="mqc-patient-impact">
       <div className="mqc-reasoning__section-title">Patient Impact</div>
       <p style={{ fontSize: 14 }}>{patientImpactLabel(viewModel.patientImpactState)}</p>
       {nextTargets.map(t => (

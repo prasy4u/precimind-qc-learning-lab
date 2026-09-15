@@ -54,13 +54,24 @@ export function QCMaterialsScreen({ level, goto }) {
       <p className="explain-text">{QC03_INTRO}</p>
       <ScientificBasisNote goto={goto} text="Internal QC material practice draws on ISO 15189 and established laboratory-medicine internal-QC recommendations; see Evidence for the full acknowledged source list. This module does not reproduce copyrighted standard text." />
 
-      <div className="tabbar" role="tablist" aria-label="QC-03 stations">
+      {/* Visual polish P1-9: station progression is presentational only.
+          "done"/"current"/"upcoming" are derived purely from the existing
+          stationIdx — there is no second source of truth, no persistence,
+          no write to the global 11-lab progress model, and no competency
+          state. Every station remains freely selectable, and role="tab" /
+          aria-selected semantics are unchanged. */}
+      <div className="tabbar qc03-stationbar" role="tablist" aria-label="QC-03 stations">
         {STATIONS.map((s, i) => (
           <button key={s.key} role="tab" aria-selected={stationIdx === i}
-            className={"tab" + (stationIdx === i ? " tab-active" : "")}
-            onClick={() => setStationIdx(i)}>{s.label}</button>
+            className={"tab qc03-station" + (stationIdx === i ? " tab-active qc03-station-current" : (i < stationIdx ? " qc03-station-done" : " qc03-station-upcoming"))}
+            onClick={() => setStationIdx(i)}>
+            <span className="qc03-station-label">{s.label}</span>
+          </button>
         ))}
       </div>
+      <p className="qc03-position muted small" data-testid="qc03-position">
+        Station {stationIdx + 1} of {STATIONS.length}
+      </p>
 
       {station === "station1" && <Station1 levelText={levelText.station1} />}
       {station === "station2" && <Station2 levelText={levelText.station2} />}
@@ -95,7 +106,7 @@ function Station1({ levelText }) {
         {QC03_CLASSIFICATION_ITEMS.map(item => {
           const chosen = answers[item.id];
           return (
-            <div key={item.id} className="calc-panel" style={{ fontFamily: "inherit" }}>
+            <div key={item.id} className="calc-panel-prose">
               <p>{item.text}</p>
               <div className="option-list-grid">
                 {QC03_CLASSIFICATION_OPTIONS.map(opt => (
@@ -117,18 +128,24 @@ function Station1({ levelText }) {
       <h2>Assayed / third-party / multi-level</h2>
       <div className="option-list">
         {QC03_COMPARISON_CARDS.map(card => (
-          <div key={card.title} className="calc-panel" style={{ fontFamily: "inherit" }}>
+          <div key={card.title} className="calc-panel-prose">
             <h3>{card.title}</h3>
-            <p><strong>{card.left.label}:</strong> {card.left.text}</p>
-            <p><strong>{card.right.label}:</strong> {card.right.text}</p>
-            <p className="prompt-box">{card.caution}</p>
+            <div className="qc03-compare">
+              <div className="qc03-compare-side">
+                <strong>{card.left.label}</strong>{card.left.text}
+              </div>
+              <div className="qc03-compare-side">
+                <strong>{card.right.label}</strong>{card.right.text}
+              </div>
+            </div>
+            <p className="info-note">{card.caution}</p>
           </div>
         ))}
       </div>
       <p className="callout">{QC03_MATRIX_CAUTION}</p>
 
       <h2>{QC03_HANDLING_HEADING}</h2>
-      <div className="calc-panel" data-testid="qc03-handling-doctrine">
+      <div className="calc-panel-prose" data-testid="qc03-handling-doctrine">
         <p>{QC03_HANDLING_DOCTRINE}</p>
         <ul>
           {QC03_HANDLING_FACTORS.map(f => <li key={f}>{f}</li>)}
@@ -289,7 +306,7 @@ function LearningCheck() {
         {QC03_LEARNING_CHECK.map(q => {
           const chosen = answers[q.id];
           return (
-            <div key={q.id} className="calc-panel" style={{ fontFamily: "inherit" }}>
+            <div key={q.id} className="calc-panel-prose">
               <p>{q.prompt}</p>
               <div className="option-list-grid">
                 {q.options.map(opt => (

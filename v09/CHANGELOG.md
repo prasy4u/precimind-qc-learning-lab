@@ -616,3 +616,23 @@ Closes the two accessibility findings from independent audit of the visual-polis
 **New browser QA** (`v09-visual-polish-touch-targets.e2e.js`, 11/11) asserts **real rendered geometry** via `getBoundingClientRect` and **computed colour** via WCAG contrast maths — not a CSS source search for "44px". Measured: `.seg` 81.4×44.0, `.btn-tiny` 87.0×44.0, `.case-chip` 44.0×44.0, `.btn-icon` 44.0×44.0. Responsive matrix completed at **1920×1080, 1366×768 and 390×844** (the 1366×768 evidence gap from the prior pass is now closed), plus dark-mode checks at desktop and mobile: 0 horizontal overflow, 0 page exceptions, 0 console errors throughout.
 
 Regression: QC-03 53/53, engine 49/49, case bank 221/221, numeric audit 28/28, UI 105/105, Stage 12A 121/121, 12D 48/48, 12E 26/26, 12F 89/89, integration/accessibility 30/30; historical evidence 27/27 byte-identical. Production hash `d3caa1532f… → 6eb8b04dc63b9b03c97beb596433d19cf1b89079c2eb27949608175d220a9f11`, reproducible across two consecutive rebuilds.
+
+### Authorship and Copyright Attribution
+
+Adds visible author and copyright attribution to the learner-facing application, and corrects stale pre-release strings in the About modal. Scientific, educational, navigation and case layers untouched — the freeze guard over `morning-qc/`, `core/`, QC-03 data and `src/` was verified empty.
+
+**Footer** now reads: product name, tagline, *Developed by Dr Prasenjit Mitra*, *© 2026 Prasenjit Mitra · Licensed under the Apache License 2.0*, then the existing Evidence / Glossary / About actions (the third relabelled from "About this prototype"). Styling reuses the accepted muted palette, spacing tokens and type scale so it reads as understated rather than as a copyright banner. No "All rights reserved" claim, since the software is Apache-2.0 licensed.
+
+**Home** gains a small *Created by Dr Prasenjit Mitra* byline, secondary to the product heading. No photograph, credentials list, affiliation or biography.
+
+**About modal** retitled *About PreciMind* and now shows the product name, **Version 0.9.0** (was a stale "Version 0.8 — PBRTQC & Patient Surveillance"), the author, a linked ORCID, the copyright notice and the Apache-2.0 licence — while retaining the full educational disclaimer and the privacy/runtime facts (no login, no analytics, no external connections, no in-app AI tutoring, local deterministic calculation). The About disclaimer no longer calls the release a "prototype".
+
+Display-name convention applied consistently: **Dr Prasenjit Mitra** for human-readable attribution, **Prasenjit Mitra** for copyright/legal metadata. `CITATION.cff`, `NOTICE`, `LICENSE` and `LICENSE_STATUS.md` were checked and required no change.
+
+**QA.** A contrast check caught the byline and copyright at **4.1:1** in light mode — below AA for small text — because they used `--text-faint` against the page background. Raised to `--text-muted`, giving **5.4:1** light and **8.5:1** dark. Verified at 1920×1080, 1366×768 and 390×844 in light plus desktop and mobile dark: 0 overflow, 0 clipping, 0 page exceptions; About modal shows all six required strings and closes via keyboard in both themes.
+
+New `v09-authorship-attribution.test.cjs` (19/19) asserts the required attribution is present and that no learner-facing "About this prototype" or "Version 0.8" string remains. Regression: engine 49/49, case bank 221/221, numeric audit 28/28, UI 105/105, QC-03 53/53, Stage 12A 121/121, 12B 65/65, 12C 48/48, 12D 48/48, 12E 26/26, 12F 89/89, integration 30/30; evidence freeze 27/27 byte-identical.
+
+Production hash `6eb8b04dc6… → b78a4ce76e6919ecb44f2494b8e209a7ee473eb2b0df092a8fb62402062fa8f9`, reproducible across two consecutive rebuilds. This commit becomes the final learner-runtime baseline for v0.9.0.
+
+**Noted for owner adjudication, deliberately not changed:** the word "prototype" also appears in Evidence-page provenance prose and in three lab end-of-session notes. Those are validated educational/scientific strings outside this closure's scope, so they were left intact rather than silently rewritten.

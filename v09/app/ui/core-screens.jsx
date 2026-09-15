@@ -31,6 +31,7 @@ export function HomeScreen({ level, setLevel, goto, openDiagnostic }) {
       <section className="hero">
         <h1>Learn Quality Control by Doing It</h1>
         <p className="hero-sub">Build analytical QC competence through interactive statistics, Levey-Jennings interpretation, pattern recognition and Sigma exploration.</p>
+        <p className="hero-byline">Created by Dr Prasenjit Mitra</p>
       </section>
       <Disclaimer />
 
@@ -742,9 +743,15 @@ export function GlossaryModal({ onClose }) {
 
 export function AboutModal({ onClose }) {
   return (
-    <Modal title="About this prototype" onClose={onClose}>
+    <Modal title="About PreciMind" onClose={onClose}>
+      <p><strong>PreciMind QC Learning Lab</strong><br />Version 0.9.0</p>
+      <p className="muted small">
+        Created and developed by Dr Prasenjit Mitra<br />
+        ORCID: <a href="https://orcid.org/0000-0003-4826-1587" target="_blank" rel="noopener noreferrer">0000-0003-4826-1587</a><br />
+        &copy; 2026 Prasenjit Mitra &middot; Licensed under the Apache License, Version 2.0
+      </p>
       <p>{ABOUT_TEXT}</p>
-      <p className="muted small">Version 0.8 — PBRTQC &amp; Patient Surveillance. No login, analytics, external data connections, or AI-generated tutoring are used within this application. All calculations run locally and deterministically.</p>
+      <p className="muted small">No login, analytics, external data connections, or AI-generated tutoring are used within this application. All calculations run locally and deterministically.</p>
     </Modal>
   );
 }

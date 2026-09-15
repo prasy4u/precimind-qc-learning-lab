@@ -408,7 +408,7 @@ export const NEXT_STEP_TEXT_BY_LEVEL = {
 /* Home / welcome disclaimer text (used verbatim in multiple places) */
 export const EDU_DISCLAIMER = "Educational simulation only. Examples use synthetic data and simplified teaching models. Laboratory QC procedures must follow validated local procedures, applicable standards, regulatory requirements, manufacturer instructions and professional judgement.";
 
-export const ABOUT_TEXT = "PreciMind QC Learning Lab is an interactive educational prototype designed to help laboratory professionals develop analytical quality-control reasoning through simulation. All datasets in this version are synthetic. It is not intended to replace validated laboratory procedures, applicable standards, regulatory requirements or professional judgement.";
+export const ABOUT_TEXT = "PreciMind QC Learning Lab is an interactive educational simulation platform designed to help laboratory professionals develop analytical quality-control reasoning through simulation. All datasets in this version are synthetic. It is not intended to replace validated laboratory procedures, applicable standards, regulatory requirements or professional judgement.";
 
 /* -------------------------------------------------------------------------
    Structured scientific provenance — Evidence & Scientific Basis page.

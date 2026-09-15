@@ -135,6 +135,8 @@ a{color:var(--brand);}
 .hero{padding:1.2rem 0 .4rem;}
 .hero h1{font-size:2rem;}
 .hero-sub{color:var(--text-muted);max-width:52ch;font-size:1.02rem;}
+/* Attribution closure: Home byline — secondary to the product heading. */
+.hero-byline{color:var(--text-muted);font-size:.875rem;margin-top:var(--space-2);}
 
 .section-title{margin-top:1.4rem;}
 .level-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.9rem;margin:1rem 0;}
@@ -400,7 +402,13 @@ select{padding:.4rem .5rem;border-radius:var(--radius);border:1px solid var(--bo
 /* Footer */
 .app-footer{border-top:1px solid var(--border);padding:1.2rem 0 .6rem;margin-top:2rem;color:var(--text-muted);font-size:.85rem;}
 .footer-brand{font-weight:650;color:var(--text);}
-.footer-links{display:flex;gap:1rem;margin-top:.5rem;flex-wrap:wrap;}
+/* Attribution closure: author and copyright/licence lines. Deliberately
+   understated — reuses the footer's existing muted colour and small type
+   so attribution is clearly visible without becoming a dominant banner.
+   Uses the accepted spacing tokens and inherits dark-mode automatically. */
+.footer-author{margin-top:var(--space-2);color:var(--text-muted);}
+.footer-copyright{margin-top:var(--space-1);color:var(--text-muted);font-size:.8rem;}
+.footer-links{display:flex;gap:1rem;margin-top:var(--space-3);flex-wrap:wrap;}
 
 /* Rule Laboratory */
 .rule-detail-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.1rem;box-shadow:var(--shadow);margin-top:.8rem;min-width:0;}

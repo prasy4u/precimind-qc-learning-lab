@@ -17,7 +17,7 @@
   "historicalRuntimeBaselineCommit": "813596f920af907fb13dfb731b4db9d48dfc1044",
   "historicalRuntimeBaselineCommitCount": 78,
   "runtimeBaselineNote": "Three distinct roles, deliberately not conflated. historicalRuntimeBaselineCommit 813596f9... (commit 78) was the Stage 12E-accepted runtime baseline BEFORE the QC-03 pre-release content closure. runtimeBaselineCommit is the FINAL v0.9.0 learner-runtime/visual baseline: the last commit that changed learner-facing runtime source or CSS, produced by the accepted pre-release visual-polish closure. releaseCommit is the final release-governance/packaging commit, which contains ONLY release documentation and provenance changes \u2014 no learner-facing source changed between the runtime baseline commit and the release commit, and the production build hash is identical across both.",
-  "productionBuildHash": "6eb8b04dc63b9b03c97beb596433d19cf1b89079c2eb27949608175d220a9f11",
+  "productionBuildHash": "b78a4ce76e6919ecb44f2494b8e209a7ee473eb2b0df092a8fb62402062fa8f9",
   "historicalProductionBuildHash": "04fa0a3222150b7d07300617685eaf3ccc46fd08dd3f0129fe027377ce2b2ed1",
   "developmentBuildHash": "c625fa7b53beac8481e24a2e0815843f85c55a0d993e1b3fd4c5bfc25ddc527a",
   "caseSchemaVersion": "1.1.0",

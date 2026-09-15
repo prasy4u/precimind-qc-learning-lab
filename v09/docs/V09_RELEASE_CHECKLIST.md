@@ -3,7 +3,7 @@
 States used: `PASS`, `FAIL`, `BLOCKED`, `NOT APPLICABLE`, `NOT TESTED`.
 
 ## Scientific integrity
-- Stage 12A engine/pilot-paths/progression-invariants (167/167) + governance (120/121, one pre-existing package-lock.json-staleness check unrelated to this closure — see Section 9 below): **PASS** (with the one documented pre-existing caveat)
+- Stage 12A engine/pilot-paths/progression-invariants (167/167) + governance (121/121): **PASS** (the earlier package-lock.json-staleness check was subsequently corrected to verify the substantive metadata/dependency invariant; no unresolved caveat remains)
 - Stage 12D case-bank/expanded-paths/adaptive/analytics/numeric-audit: **PASS**
 - Historical v0.8 regression (3849/3849) + Stage 11A-11C2: **PASS**
 - No scientific arithmetic drift (verified via `git diff` against every prior accepted baseline this stage): **PASS**

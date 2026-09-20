@@ -78,6 +78,15 @@ async function main() {
       'v09/app/risk/screens.jsx',        // heading levels only
       'v09/app/bv/screens.jsx',          // heading levels only
       'v09/app/pbrtqc/screens.jsx',      // heading levels only
+      // SC27 scientific owner adjudication (Dr Prasenjit Mitra + ChatGPT):
+      // learner-facing/doctrine WORDING only. The computational safeguard
+      // (anped remains undefined internally whenever any trial is
+      // undetected; never averaged over the detected-only subset) is
+      // asserted UNCHANGED immediately below, and the historical Stage
+      // 8A/8B/9E PBRTQC suites (166+261+86 assertions) were re-run and
+      // pass unchanged as independent confirmation.
+      'v09/app/pbrtqc/calc.js',          // "undefined" -> "Not estimable" wording; comments
+      'v09/app/pbrtqc/ui-components.jsx',// "Not reported" -> "Not estimable" display string
     ]);
     const inheritedDirs = ['core','rules','strategy','sigma','risk','investigation','eqa','bv','pbrtqc','opchar'];
     let inheritedDiff = [];
@@ -97,6 +106,19 @@ async function main() {
         `statistics.js still exports exactly the accepted function set (found ${JSON.stringify(exported)})`);
       assert('2a-stats-nminus1', statsSrc.includes('values.length - 1'), 'statistics.js still uses the n-1 sample SD denominator');
       assert('2a-stats-fixtures', /export const FIXTURE_RESULTS = runFixtureChecks\(\)/.test(statsSrc), 'the scientific fixture self-check still runs at import');
+    }
+    // SC27: confirm the underlying computational safeguard in
+    // summarizeNpedTrials is genuinely unchanged, independent of wording.
+    {
+      const pbSrc = fs.readFileSync(path.join(ROOT, 'v09', 'app', 'pbrtqc', 'calc.js'), 'utf8');
+      assert('2a-sc27-computation-unchanged', /anped: allTrialsDetected \? meanNpedAmongDetected : undefined/.test(pbSrc),
+        'summarizeNpedTrials still computes anped as undefined (never averaged detected-only) whenever any trial is undetected');
+      assert('2a-sc27-no-artificial-value', !/anped:.*horizon/i.test(pbSrc) && !/nped.*=.*horizon\s*\+\s*1/i.test(pbSrc),
+        'no artificial NPed (simulation horizon or horizon+1) is substituted for an undetected trial');
+      assert('2a-sc27-no-survival-fn', !/export function.*(kaplan|meier|survivalFit|survivalCurve|survivalFunction)/i.test(pbSrc),
+        'no survival-analysis function is exported (a doctrine comment may reference the concept by name only to explicitly disclaim it)');
+      assert('2a-sc27-wording', /not estimable/i.test(pbSrc) && !/anped.{0,20}undefined.{0,80}rather than/i.test(pbSrc),
+        'learner-facing wording has moved from "undefined" to "Not estimable"');
     }
     assert('2a-ui-scoped', unauthorized.length === 0, `Only the 3 Stage-12C-sanctioned files (app-shell.jsx, core-screens.jsx, main.jsx) differ within app/ui/+main.jsx — found unauthorized: ${JSON.stringify(unauthorized)}`);
   }

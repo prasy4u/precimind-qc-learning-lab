@@ -199,12 +199,28 @@ async function main() {
     ok('nped-3', u.detected === false && (u.nped === undefined || u.nped === null), 'undetected run leaves NPed undefined, not a large number');
   }
   {
-    // SC27 invariant: ANPed must be undefined when ANY trial failed to detect.
+    // SC27 (scientific owner adjudication, Dr Prasenjit Mitra + ChatGPT):
+    // the computational safeguard is UNCHANGED — anped MUST remain
+    // undefined internally whenever any trial is undetected, and it must
+    // never be silently averaged over the detected-only subset. What
+    // changed is the LEARNER-FACING description: "undefined" is replaced
+    // by the more precise "Not estimable" (an ordinary arithmetic mean
+    // cannot incorporate a right-censored detection time), the
+    // censoringNote must explain the downward-bias risk of averaging
+    // detected-only runs, and detection rate must be reported alongside
+    // so probability of detection and detection delay stay distinct.
     const allDet = PB.summarizeNpedTrials([{detected:true,nped:5},{detected:true,nped:7}]);
     ok('anped-1', allDet.supported === true && near(allDet.anped ?? allDet.value, 6), 'ANPed = mean of NPed when all trials detected');
+    ok('anped-1b', allDet.censoringNote === null, 'no censoring note when every trial detected');
     const oneMissed = PB.summarizeNpedTrials([{detected:true,nped:5},{detected:false,nped:undefined}]);
     const a = oneMissed.anped ?? oneMissed.value;
-    ok('anped-2-SC27', a === undefined || a === null, 'SC27: ANPed left undefined when any trial failed to detect (no survivorship-biased average)');
+    ok('anped-2-SC27-computation', a === undefined || a === null, 'SC27: the underlying anped value is STILL undefined when any trial fails to detect (computational safeguard unchanged — no survivorship-biased average)');
+    ok('anped-2-SC27-not-undefined-word', !/\bundefined\b/i.test(oneMissed.censoringNote || ''), 'SC27: learner-facing wording no longer describes this as "undefined"');
+    ok('anped-2-SC27-not-estimable', /not estimable/i.test(oneMissed.censoringNote || ''), 'SC27: learner-facing wording states ANPed is "Not estimable"');
+    ok('anped-2-SC27-censoring', /censor/i.test(oneMissed.censoringNote || ''), 'SC27: wording explains the right-censoring concept');
+    ok('anped-2-SC27-bias-risk', /bias/i.test(oneMissed.censoringNote || '') && /downward/i.test(oneMissed.censoringNote || ''), 'SC27: wording explains averaging detected-only runs would bias delay downward');
+    ok('anped-2-SC27-detection-rate-alongside', typeof oneMissed.detectionRatePercent === 'number', 'detection rate is retained alongside ANPed so the two are interpreted separately');
+    ok('anped-2-SC27-no-artificial-value', a !== 100 && a !== 101, 'SC27: no artificial NPed (simulation horizon or horizon+1) is ever substituted');
     ok('anped-3', PB.summarizeNpedTrials([]).supported === false, 'at least one trial required');
   }
   ok('stream-1', PB.runPbrtqcStream('not-an-array',{}).supported === false, 'non-array input rejected');

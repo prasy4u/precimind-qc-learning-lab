@@ -50,9 +50,20 @@ The software never collapses these distinct concepts into one another:
   kept distinct.
 - **NPed** (number of patient results to detect) is a genuine raw
   patient-result count.
-- **ANPed** (average NPed) is explicitly left **undefined** when any
-  simulation run failed to detect the introduced error at all, rather
-  than silently averaging over only the detected runs.
+- **ANPed** (average NPed): reported numerically only when every
+  simulation run detects the introduced error within the simulation
+  horizon. If one or more runs do not detect it, that run's detection
+  time is **right-censored** (known only to exceed the horizon), an
+  ordinary arithmetic mean cannot incorporate a censored value, and
+  ANPed is reported as **"Not estimable"** — never silently averaged
+  over only the detected runs, which would bias the apparent detection
+  delay downward. The detection rate and the mean/median NPed among the
+  detected runs are shown alongside, so probability of detection and
+  detection delay are interpreted as distinct questions rather than
+  conflated. No artificial NPed value (the simulation horizon, or
+  horizon + 1) is ever assigned to an undetected run, and no
+  survival-analysis functionality (e.g. Kaplan-Meier) is introduced.
+  (SC27, scientific owner adjudication: Dr Prasenjit Mitra + ChatGPT.)
 
 ## QC-03: QC materials and control statistics
 - **Calibrator vs. QC material**: a calibrator establishes/adjusts the

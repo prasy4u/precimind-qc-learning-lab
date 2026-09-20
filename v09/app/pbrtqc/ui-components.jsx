@@ -146,8 +146,10 @@ export function EwmaSummary({ result }) {
 }
 
 /* -------------------------------------------------------------------------
-   NPed / ANPed summary card (spec sections 60-69). Explicitly labels
-   censored (undetected) trials rather than silently averaging around them.
+   NPed / ANPed summary card (spec sections 60-69). SC27 (scientific owner
+   adjudication): explicitly labels right-censored (undetected) trials as
+   "Not estimable" rather than silently averaging around them or calling
+   them merely "undefined".
    ------------------------------------------------------------------------- */
 export function NPedSummaryCard({ nped }) {
   if (!nped) return null;
@@ -174,7 +176,7 @@ export function MultiTrialNpedSummary({ summary }) {
     <div className="bv-result-card">
       <div className="metric-row">
         <MetricCard label="Detection rate" value={summary.detectionRatePercent.toFixed(1) + "%"} sub={summary.detectedTrials + " / " + summary.totalTrials + " trials"} />
-        <MetricCard label="ANPed" value={summary.allTrialsDetected ? summary.anped.toFixed(1) : "Not reported"} />
+        <MetricCard label="ANPed" value={summary.allTrialsDetected ? summary.anped.toFixed(1) : "Not estimable"} />
         <MetricCard label="Mean NPed (detected trials)" value={summary.meanNpedAmongDetected != null ? summary.meanNpedAmongDetected.toFixed(1) : "—"} />
         <MetricCard label="Median NPed (detected trials)" value={summary.medianNpedAmongDetected != null ? summary.medianNpedAmongDetected.toFixed(1) : "—"} />
       </div>

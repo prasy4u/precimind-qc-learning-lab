@@ -299,11 +299,28 @@ export function calculateNPed(errorOnsetRawIndex, firstAlertRawIndex, simulation
 
 /* -------------------------------------------------------------------------
    Multi-trial NPed summary (spec sections 65-69). ANPed is the mean of
-   NPed values ONLY when every trial detected the injected error. If any
-   trial is undetected, `anped` MUST remain undefined — the function must
-   never silently average the detected-only subset and call it ANPed.
+   NPed across trials, but this is an ordinary arithmetic mean and is only
+   a valid estimator when every trial's detection time is fully observed.
+   When one or more trials never detect the injected error within the
+   finite simulation horizon, that trial's detection time is
+   RIGHT-CENSORED — known only to exceed the horizon, not what its true
+   value would have been. An ordinary arithmetic mean cannot incorporate a
+   censored observation, so the unconditional ANPed is NOT ESTIMABLE by an
+   ordinary mean in that situation.
+
+   SC27 (scientific owner adjudication, Dr Prasenjit Mitra + ChatGPT): the
+   computational safeguard is unchanged — `anped` MUST remain undefined
+   whenever any trial is undetected, and this function must NEVER silently
+   average the detected-only subset and present that as ANPed, because
+   doing so would bias the apparent detection delay downward. The prior
+   terminology described this as ANPed being "undefined"; the adjudicated,
+   more precise description is that ANPed is "not estimable" due to
+   right-censoring. No survival-analysis functionality (e.g. Kaplan-Meier)
+   is introduced in v1.0, and no artificial NPed value (the simulation
+   horizon, or horizon + 1) is ever assigned to an undetected trial.
    Detection rate and a separately labelled mean/median NPed among
-   detected trials are reported instead in that case.
+   detected trials are reported alongside, so probability of detection and
+   detection delay are interpreted separately rather than conflated.
    ------------------------------------------------------------------------- */
 export function summarizeNpedTrials(trials) {
   if (!Array.isArray(trials) || trials.length === 0) {
@@ -334,7 +351,7 @@ export function summarizeNpedTrials(trials) {
     allTrialsDetected,
     censoringNote: allTrialsDetected
       ? null
-      : "ANPed across all trials is not reported because at least one trial was censored/undetected, and v0.8 does not impose an arbitrary censoring value. Detection rate and the mean/median NPed among the trials that WERE detected are shown separately instead."
+      : "ANPed is Not estimable: at least one trial did not detect the introduced error within the simulation horizon, so that trial's detection time is right-censored (known only to exceed the horizon). An ordinary arithmetic mean cannot include a censored value, and averaging only the detected trials would bias the apparent detection delay downward — a poorly-performing configuration would look better than it is. The detection rate and the mean/median NPed among the trials that WERE detected are reported separately instead, so probability of detection and detection delay are interpreted as distinct questions."
   };
 }
 

@@ -1360,9 +1360,9 @@ The source explicitly names and rejects winsorisation (clamping to limit) as a d
 
 ---
 
-### INVAR-104: ANPed Only When All Trials Detected
+### INVAR-104: ANPed Not Estimable by Ordinary Mean Under Censoring (SC27-revised)
 
-`summarizeNpedTrials(trials)`: `anped` = mean NPed **only** when `allTrialsDetected=true`. When any trial is undetected: `anped === undefined` — never averaged over detected-only subset and presented as ANPed. Separated `meanNpedAmongDetected` and `detectionRatePercent` are reported separately when censoring occurs.
+`summarizeNpedTrials(trials)`: `anped` = mean NPed **only** when `allTrialsDetected=true`. When any trial is undetected, that trial's detection time is right-censored (known only to exceed the finite simulation horizon), so an ordinary arithmetic mean cannot incorporate it: `anped === undefined` internally — never averaged over the detected-only subset and presented as ANPed. Learner-facing wording reports this as ANPed **"Not estimable"** (SC27 scientific owner adjudication, Dr Prasenjit Mitra + ChatGPT, superseding the prior "undefined" terminology) rather than a bare undefined/blank value, and explains that averaging only detected runs would bias the apparent detection delay downward. Separated `meanNpedAmongDetected` and `detectionRatePercent` are reported alongside when censoring occurs, so probability of detection and detection delay remain distinct questions. No artificial NPed value (horizon or horizon+1) is ever assigned to an undetected trial, and no survival-analysis functionality is introduced.
 
 - **Tests:** M-01 through M-13
 

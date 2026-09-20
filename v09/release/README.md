@@ -38,8 +38,13 @@ The intended public application URL at release is
 **https://precimind.drprasenjitmitra.com/** (hosted at the root of its
 own subdomain). To self-host, serve the contents of this package's
 application files with any static web server from the host/domain
-**root** and open the served URL in a modern Chromium-based browser. See "Supported
-execution method" below for the tested root-vs-subpath constraint.
+**root** and open the served URL in a modern Chromium-based browser.
+Non-root subpath deployment of this pre-built package is confirmed
+non-functional (the build uses absolute asset paths). Rebuilding from
+source with a configured base path may allow subpath deployment, but
+this has not been tested and is not supported in v0.9.0 — see
+"Supported execution method" below for the tested root-vs-subpath
+constraint.
 
 ### Offline use
 See the separate Offline distribution package and its own instructions

@@ -18,19 +18,21 @@ were previously open governance blockers:
 - **Software authorship / citation metadata**: Prasenjit Mitra, ORCID
   0000-0003-4826-1587 (`CITATION.cff`).
 - **Public security-reporting contact**: `drmitraprasenjit@gmail.com` (`SECURITY.md`).
-- **Intended public GitHub repository identity**: `prasy4u/precimind-qc-learning-lab`.
-- **Public application hosting architecture**: root of its
-  own subdomain, `https://qc.drprasenjitmitra.com/` — deployed and
+- **Public GitHub repository**: `https://github.com/prasy4u/precimind-qc-learning-lab` — public.
+- **Public application hosting architecture**: the production build
+  is deployed through the repository's GitHub Pages workflow to
+  `https://qc.drprasenjitmitra.com/` (root of its own subdomain) —
   publicly accessible; manually accepted by the project owner.
 
 None of the above remain blockers.
 
 **Application hosting status**: complete. The application is deployed
-and publicly accessible at `https://qc.drprasenjitmitra.com/`, and this
-deployment has been manually accepted by the project owner. This is
-distinct from, and does not require, publication of the GitHub
-repository, a `v0.9.0` tag, a GitHub Release, or a Zenodo deposition —
-each of those remains a separate, sequenced action listed below.
+through the repository's GitHub Pages workflow and is publicly
+accessible at `https://qc.drprasenjitmitra.com/`, and this deployment
+has been manually accepted by the project owner. The GitHub repository
+itself is also public. This is distinct from, and does not require, a
+`v0.9.0` tag, a GitHub Release, or a Zenodo deposition — each of those
+remains a separate, sequenced action listed below.
 
 ## Publication/deployment actions (not software defects, not blockers)
 
@@ -38,7 +40,6 @@ These are sequenced actions the project owner will take at actual
 publication time — none of them reflect a defect in this candidate,
 and none require further Stage 12F engineering work:
 
-- Create the public GitHub repository and push the accepted commit.
 - Create the final `v0.9.0` tag — only after independent acceptance audit.
 - Create a GitHub Release.
 - Optionally enable GitHub Private Vulnerability Reporting as an

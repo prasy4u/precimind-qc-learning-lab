@@ -7,7 +7,7 @@
   "copyrightNotice": "Copyright 2026 Prasenjit Mitra",
   "softwareLicense": "Apache-2.0",
   "authorOrcid": "https://orcid.org/0000-0003-4826-1587",
-  "plannedPublicRepository": "https://github.com/prasy4u/precimind-qc-learning-lab",
+  "publicRepository": "https://github.com/prasy4u/precimind-qc-learning-lab",
   "publicApplicationUrl": "https://qc.drprasenjitmitra.com/",
   "sourceBranch": "v0.9-development",
   "releaseCommit": "GENERATED-AT-PACKAGING-TIME \u2014 see the actual RELEASE_PROVENANCE.json inside the delivered Web/Offline ZIPs for the exact commit this specific release candidate was packaged from",

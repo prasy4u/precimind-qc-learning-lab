@@ -14,7 +14,7 @@ npx vite build --config vite.production-integrated.config.mjs
 node tools/hash-build-tree.cjs dist-vite-production
 ```
 
-Expected tree hash (current: QC-03 content + pre-release visual polish): `b78a4ce76e6919ecb44f2494b8e209a7ee473eb2b0df092a8fb62402062fa8f9`
+Expected tree hash (current: QC-03 content + pre-release visual polish): `0a1957c716df9df00f9275a1199d594c353793a22c2d39221e439e57905f9a0b`
 (historical pre-QC-03 baseline: `04fa0a3222150b7d07300617685eaf3ccc46fd08dd3f0129fe027377ce2b2ed1`)
 
 This hash is computed over a canonical manifest of file paths and

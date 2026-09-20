@@ -25,7 +25,7 @@ export const PATHWAY_PHASES = [
    list of steps (e.g. "start here" logic) without the phase grouping. */
 export const LEARNING_PATHWAY = PATHWAY_PHASES.reduce((acc, p) => acc.concat(p.steps), []);
 
-export function HomeScreen({ level, setLevel, goto, openDiagnostic }) {
+export function HomeScreen({ level, setLevel, goto, openDiagnostic, startGuided }) {
   return (
     <div className="screen">
       <section className="hero">
@@ -65,7 +65,23 @@ export function HomeScreen({ level, setLevel, goto, openDiagnostic }) {
             </div>
           </div>
         ))}
-        <button className="btn-link start-here-link" onClick={() => goto("stats")}>Start here if you're new to QC →</button>
+        {/* v1.0 RC (Workstream 4): the beginner entry point now starts an
+            actual guided sequence rather than performing a bare route change.
+            Free exploration is presented as an equal, explicit alternative and
+            the global navigation remains fully available — guidance is
+            scaffolding, never restriction. */}
+        <div className="home-modes">
+          <div className="home-mode home-mode--guided">
+            <h3>New to QC? Start guided learning</h3>
+            <p>A 13-step pathway through the laboratories in order. Each step tells you what to do, how to know you are ready to continue, and which topic follows.</p>
+            <button className="btn-primary" onClick={startGuided} data-testid="start-guided">Start Guided Learning &rarr;</button>
+          </div>
+          <div className="home-mode">
+            <h3>Already know your way around?</h3>
+            <p>Every laboratory stays open at every level. Nothing is locked, and you can open any module directly from the navigation bar at any time.</p>
+            <button className="btn-secondary" onClick={() => goto("map")} data-testid="explore-labs">Explore individual laboratories</button>
+          </div>
+        </div>
       </section>
 
       <h2 className="section-title">Choose your starting level</h2>

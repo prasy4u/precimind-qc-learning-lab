@@ -6,6 +6,8 @@ import { RiskFrequencyLabScreen } from "../risk/screens.jsx";
 import { RuleLaboratoryScreen } from "../rules/screens.jsx";
 import { QCStrategyLabScreen } from "../strategy/screens.jsx";
 import { QCMaterialsScreen } from "../qc-materials/screens.jsx";
+import { GuidedHeader, GuidedFooter } from "./guided-panel.jsx";
+import { GUIDED_PATH, resolveGuidedStep } from "./guided-path.js";
 import { LEVELS, LEVEL_LABELS } from "./app-data.js";
 import { AboutModal, CompetencyMapScreen, DiagnosticModal, EvidenceScreen, GlossaryModal, HomeScreen, LJLabScreen, PatternChallengeScreen, SigmaSandboxScreen, StatsPlaygroundScreen } from "./core-screens.jsx";
 import { useState, useMemo, useRef, useEffect } from "react";
@@ -71,6 +73,11 @@ export function App() {
   const [level, setLevel] = useState("beginner");
   const [screen, setScreen] = useState(() => screenFromHash());
   const [showDiagnostic, setShowDiagnostic] = useState(false);
+  // Guided-learning position. null = not in guided mode (free exploration).
+  // The hash remains the single source of truth for WHICH SCREEN is shown;
+  // this only records the learner's position within the pathway, which is
+  // required because two pathway steps (APS and QC strategy) share one screen.
+  const [guidedStep, setGuidedStep] = useState(null);
   const [showGlossary, setShowGlossary] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const [progress, setProgress] = useState({ stats: false, lj: false, pattern: false, rules: false, strategy: false, sigma: false, risk: false, investigation: false, "external-assurance": false, "bv-rcv": false, pbrtqc: false });
@@ -101,7 +108,8 @@ export function App() {
   }
 
   let body;
-  if (screen === "home") body = <HomeScreen level={level} setLevel={setLevel} goto={goto} openDiagnostic={() => setShowDiagnostic(true)} />;
+  if (screen === "home") body = <HomeScreen level={level} setLevel={setLevel} goto={goto} openDiagnostic={() => setShowDiagnostic(true)}
+      startGuided={() => { setGuidedStep(0); goto(GUIDED_PATH[0].screen); }} />;
   else if (screen === "map") body = <CompetencyMapScreen level={level} goto={goto} progress={progress} />;
   else if (screen === "stats") body = <StatsPlaygroundScreen level={level} markProgress={markProgress} goto={goto} />;
   else if (screen === "lj") body = <LJLabScreen level={level} markProgress={markProgress} goto={goto} />;
@@ -122,6 +130,25 @@ export function App() {
       onReturn={() => goto("home")}
     />
   );
+
+  // Keep the guided position consistent with whatever screen the hash
+  // resolved to. If the learner navigated out of the pathway entirely
+  // (global nav, Back, direct URL), guided mode simply ends — nothing is
+  // locked and no navigation is blocked.
+  // Derived only — never written back during render. guidedStep records the
+  // learner's pathway position; activeGuidedStep decides whether scaffolding
+  // is shown for the screen the hash actually resolved to.
+  const activeGuidedStep = resolveGuidedStep(guidedStep, screen);
+  const exitGuided = () => { setGuidedStep(null); goto("home"); };
+  if (activeGuidedStep !== null) {
+    body = (
+      <>
+        <GuidedHeader step={activeGuidedStep} goto={goto} onExit={exitGuided} />
+        {body}
+        <GuidedFooter step={activeGuidedStep} goto={goto} setStep={setGuidedStep} onExit={exitGuided} />
+      </>
+    );
+  }
 
   return (
     <div className="app-shell">

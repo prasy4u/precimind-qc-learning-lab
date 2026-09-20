@@ -11,7 +11,8 @@ reserved ahead of Zenodo publication.
 
 **Software release readiness and Zenodo publication status are
 distinct.** The software itself is release-ready: all
-scientific/runtime/governance items in `V09_RELEASE_CHECKLIST.md` are
+scientific/runtime/governance items in `V09_RELEASE_CHECKLIST.md`
+(available in the source/Audit Repository package) are
 **PASS**. The Zenodo record for this DOI, however, remains an
 **unpublished draft** — see "Digital object identifier (DOI)" below.
 
@@ -111,7 +112,8 @@ reserved but does not yet resolve publicly, and the Zenodo record has
 not yet been published. `CITATION.cff` and `RELEASE_PROVENANCE.json`
 already carry this reserved DOI ahead of publication; publishing the
 Zenodo draft to activate it is a separate, pending action — see
-`RELEASE_BLOCKERS.md`.
+`RELEASE_BLOCKERS.md` (available in the source/Audit Repository
+package).
 
 ## Major validation performed
 

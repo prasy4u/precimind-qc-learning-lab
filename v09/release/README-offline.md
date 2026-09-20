@@ -66,7 +66,7 @@ this has not been tested and is not supported in v0.9.0.
 ## Online use
 
 If you have internet access, the same functionality is available at
-**https://precimind.drprasenjitmitra.com/**, or see the separate Web
+**https://qc.drprasenjitmitra.com/**, or see the separate Web
 distribution package for a self-hosted online deployment.
 
 ## Research/instructor analytics status

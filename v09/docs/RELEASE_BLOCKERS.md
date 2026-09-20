@@ -19,10 +19,18 @@ were previously open governance blockers:
   0000-0003-4826-1587 (`CITATION.cff`).
 - **Public security-reporting contact**: `drmitraprasenjit@gmail.com` (`SECURITY.md`).
 - **Intended public GitHub repository identity**: `prasy4u/precimind-qc-learning-lab`.
-- **Intended public application hosting architecture**: root of its
-  own subdomain, `https://precimind.drprasenjitmitra.com/`.
+- **Public application hosting architecture**: root of its
+  own subdomain, `https://qc.drprasenjitmitra.com/` — deployed and
+  publicly accessible; manually accepted by the project owner.
 
 None of the above remain blockers.
+
+**Application hosting status**: complete. The application is deployed
+and publicly accessible at `https://qc.drprasenjitmitra.com/`, and this
+deployment has been manually accepted by the project owner. This is
+distinct from, and does not require, publication of the GitHub
+repository, a `v0.9.0` tag, a GitHub Release, or a Zenodo deposition —
+each of those remains a separate, sequenced action listed below.
 
 ## Publication/deployment actions (not software defects, not blockers)
 
@@ -33,8 +41,6 @@ and none require further Stage 12F engineering work:
 - Create the public GitHub repository and push the accepted commit.
 - Create the final `v0.9.0` tag — only after independent acceptance audit.
 - Create a GitHub Release.
-- Enable/configure GitHub Pages (or equivalent) for
-  `precimind.drprasenjitmitra.com`, including DNS and HTTPS enforcement.
 - Optionally enable GitHub Private Vulnerability Reporting as an
   additional channel alongside the email contact.
 - Deposit the release into Zenodo and receive a DOI — **naturally
@@ -47,7 +53,7 @@ and none require further Stage 12F engineering work:
 - Subpath web deployment (e.g. a non-root path under a shared domain)
   does not work with the current absolute-path build; documented as a
   deployment constraint, consistent with the confirmed root-of-subdomain
-  hosting architecture (`https://precimind.drprasenjitmitra.com/`) —
+  hosting architecture (`https://qc.drprasenjitmitra.com/`) —
   not a defect requiring a fix before this release.
 - Only Chromium browser testing was performed in this validation
   environment (Firefox/WebKit unavailable) — reported honestly, not

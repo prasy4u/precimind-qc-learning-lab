@@ -34,8 +34,8 @@ locally in your own browser. See `PRIVACY.md` for full detail.
 ## How to run it
 
 ### Online / web deployment
-The intended public application URL at release is
-**https://precimind.drprasenjitmitra.com/** (hosted at the root of its
+The public application URL is
+**https://qc.drprasenjitmitra.com/** (hosted at the root of its
 own subdomain). To self-host, serve the contents of this package's
 application files with any static web server from the host/domain
 **root** and open the served URL in a modern Chromium-based browser.

@@ -8,7 +8,7 @@
   "softwareLicense": "Apache-2.0",
   "authorOrcid": "https://orcid.org/0000-0003-4826-1587",
   "plannedPublicRepository": "https://github.com/prasy4u/precimind-qc-learning-lab",
-  "plannedPublicApplicationUrl": "https://precimind.drprasenjitmitra.com/",
+  "publicApplicationUrl": "https://qc.drprasenjitmitra.com/",
   "sourceBranch": "v0.9-development",
   "releaseCommit": "GENERATED-AT-PACKAGING-TIME \u2014 see the actual RELEASE_PROVENANCE.json inside the delivered Web/Offline ZIPs for the exact commit this specific release candidate was packaged from",
   "releaseCommitCount": "GENERATED-AT-PACKAGING-TIME",

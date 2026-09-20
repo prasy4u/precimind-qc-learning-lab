@@ -51,8 +51,8 @@ sensitive research material and handle it accordingly.
 ## Hosting distinction
 
 The PreciMind application itself does not transmit learner analytics
-to any server. The planned public application URL is
-`https://precimind.drprasenjitmitra.com/`, hosted at the root of its
+to any server. The public application URL is
+`https://qc.drprasenjitmitra.com/`, hosted at the root of its
 own subdomain (root-path hosting is required — see this package's own
 `README.md`
 for the documented deployment constraint). Once actually deployed,

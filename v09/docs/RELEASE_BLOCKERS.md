@@ -56,6 +56,29 @@ and none require further Stage 12F engineering work:
   targeted accessibility verification (documented in
   `V09_RELEASE_CHECKLIST.md`).
 
+## v1.1+ enhancement backlog (not blockers, not defects)
+
+- **Multi-trial PBRTQC performance summary UI.** `summarizeNpedTrials`
+  (calculation) and `MultiTrialNpedSummary` (display component) in
+  `app/pbrtqc/` implement and pass tests against the SC27-adjudicated
+  ANPed/censoring doctrine (see `docs/SCIENTIFIC_BASIS.md` and
+  `SCIENTIFIC_INVARIANTS.md` INVAR-104), but neither is currently
+  imported by `app/pbrtqc/screens.jsx`. The Patient Surveillance Lab
+  (`#/pbrtqc`) does not display a multi-trial detection-rate/ANPed
+  summary in v0.9.0. This is not an incomplete in-progress feature on
+  the shipped screen — it is a separate, self-contained function and
+  component that were never wired in. Confirmed via a network of checks
+  in the v1.0 remediation: no import, call site, or dead reference to
+  either symbol exists anywhere in `screens.jsx`, and the corresponding
+  learner-facing strings are absent from the production bundle. When
+  this is integrated in a future release, the required interpretation
+  (detection rate reported alongside ANPed, nondetection represented as
+  "Not estimable" rather than a biased detected-runs-only mean, no
+  artificial substituted NPed value, no survival-analysis
+  functionality) is already implemented and tested — the scientific
+  doctrine was corrected prospectively specifically so this would be
+  true from the first release that exposes it.
+
 ## Classification
 
 **READY FOR INDEPENDENT RELEASE AUDIT.** All software/scientific/

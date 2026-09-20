@@ -50,20 +50,34 @@ The software never collapses these distinct concepts into one another:
   kept distinct.
 - **NPed** (number of patient results to detect) is a genuine raw
   patient-result count.
-- **ANPed** (average NPed): reported numerically only when every
-  simulation run detects the introduced error within the simulation
-  horizon. If one or more runs do not detect it, that run's detection
-  time is **right-censored** (known only to exceed the horizon), an
-  ordinary arithmetic mean cannot incorporate a censored value, and
-  ANPed is reported as **"Not estimable"** — never silently averaged
-  over only the detected runs, which would bias the apparent detection
-  delay downward. The detection rate and the mean/median NPed among the
-  detected runs are shown alongside, so probability of detection and
-  detection delay are interpreted as distinct questions rather than
-  conflated. No artificial NPed value (the simulation horizon, or
-  horizon + 1) is ever assigned to an undetected run, and no
-  survival-analysis functionality (e.g. Kaplan-Meier) is introduced.
+- **ANPed** (average NPed): the doctrine governing multi-trial ANPed
+  summarisation is that ANPed is only a valid ordinary-mean estimate
+  when every simulation run detects the introduced error within the
+  simulation horizon. If one or more runs do not detect it, that run's
+  detection time is **right-censored** (known only to exceed the
+  horizon), an ordinary arithmetic mean cannot incorporate a censored
+  value, and the correct treatment is to report ANPed as
+  **"Not estimable"** — never silently averaged over only the detected
+  runs, which would bias the apparent detection delay downward. The
+  detection rate and the mean/median NPed among the detected runs
+  should be shown alongside, so probability of detection and detection
+  delay are interpreted as distinct questions rather than conflated. No
+  artificial NPed value (the simulation horizon, or horizon + 1) is
+  ever assigned to an undetected run, and no survival-analysis
+  functionality (e.g. Kaplan-Meier) is introduced.
   (SC27, scientific owner adjudication: Dr Prasenjit Mitra + ChatGPT.)
+
+  **Implementation status (v0.9.0):** the underlying calculation
+  (`summarizeNpedTrials`) and a matching summary-card component
+  (`MultiTrialNpedSummary`) implement and pass tests against this exact
+  doctrine, but neither is currently wired into any shipped learner
+  screen — the Patient Surveillance Lab (`#/pbrtqc`) does not display a
+  multi-trial ANPed summary in this release. The doctrine above has
+  been corrected prospectively so that if/when this functionality is
+  exposed to learners in a future release, nondetection is represented
+  as "Not estimable" from the outset, never as a biased
+  detected-runs-only mean. See `docs/RELEASE_BLOCKERS.md` for the
+  corresponding v1.1+ backlog entry.
 
 ## QC-03: QC materials and control statistics
 - **Calibrator vs. QC material**: a calibrator establishes/adjusts the

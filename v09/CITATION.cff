@@ -2,7 +2,8 @@ cff-version: 1.2.0
 message: "If you use PreciMind QC Learning Lab in your work, please cite the software."
 title: "PreciMind QC Learning Lab"
 type: software
-version: 0.9.0
+version: 1.0.0
+doi: 10.5281/zenodo.22856598
 authors:
   - family-names: "Mitra"
     given-names: "Prasenjit"
@@ -14,5 +15,7 @@ license: "Apache-2.0"
 # Original educational content is (c) 2026 Prasenjit Mitra, all rights
 # reserved, and is not covered by Apache-2.0. See NOTICE for the full
 # two-part licensing scope.
-# No digital object identifier has been reserved or minted. The relevant
-# CFF field must be added only after an actual Zenodo deposition.
+# The doi field above is the RESERVED DOI (10.5281/zenodo.22856598) for
+# this v1.0.0 release. The Zenodo record is currently an unpublished
+# draft -- the DOI is reserved but not yet active/resolving publicly.
+# Do not treat this as confirmation that the Zenodo record is published.

@@ -760,11 +760,15 @@ export function GlossaryModal({ onClose }) {
 export function AboutModal({ onClose }) {
   return (
     <Modal title="About PreciMind" onClose={onClose}>
-      <p><strong>PreciMind QC Learning Lab</strong><br />Version 0.9.0</p>
+      <p><strong>PreciMind QC Learning Lab</strong><br />Version 1.0.0</p>
       <p className="muted small">
         Created and developed by Dr Prasenjit Mitra<br />
         ORCID: <a href="https://orcid.org/0000-0003-4826-1587" target="_blank" rel="noopener noreferrer">0000-0003-4826-1587</a><br />
         &copy; 2026 Prasenjit Mitra
+      </p>
+      <p className="muted small">
+        Reserved DOI for v1.0.0: <a href="https://doi.org/10.5281/zenodo.22856598" target="_blank" rel="noopener noreferrer">10.5281/zenodo.22856598</a><br />
+        The Zenodo record is currently an unpublished draft; this DOI is reserved but not yet active.
       </p>
       <p className="muted small">
         Software is licensed under the Apache License, Version 2.0.

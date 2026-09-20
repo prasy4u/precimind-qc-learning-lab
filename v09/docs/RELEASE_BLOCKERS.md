@@ -1,4 +1,4 @@
-# Release Blockers — v0.9.0 Release Candidate
+# Release Blockers — v1.0.0 Release Candidate
 
 ## Software/runtime/scientific blockers
 
@@ -31,8 +31,16 @@ through the repository's GitHub Pages workflow and is publicly
 accessible at `https://qc.drprasenjitmitra.com/`, and this deployment
 has been manually accepted by the project owner. The GitHub repository
 itself is also public. This is distinct from, and does not require, a
-`v0.9.0` tag, a GitHub Release, or a Zenodo deposition — each of those
+`v1.0.0` tag, a GitHub Release, or Zenodo publication — each of those
 remains a separate, sequenced action listed below.
+
+**DOI status**: a DOI has been **reserved** for this v1.0.0 release —
+`10.5281/zenodo.22856598` (https://doi.org/10.5281/zenodo.22856598).
+The Zenodo record is currently an **unpublished draft**; the DOI does
+not yet resolve publicly. `CITATION.cff` and this release's provenance
+metadata already carry the reserved DOI ahead of publication, as
+instructed. Publishing the Zenodo draft remains a separate, pending
+action (see below).
 
 ## Publication/deployment actions (not software defects, not blockers)
 
@@ -40,14 +48,16 @@ These are sequenced actions the project owner will take at actual
 publication time — none of them reflect a defect in this candidate,
 and none require further Stage 12F engineering work:
 
-- Create the final `v0.9.0` tag — only after independent acceptance audit.
+- Create the final `v1.0.0` tag — only after independent acceptance audit.
 - Create a GitHub Release.
 - Optionally enable GitHub Private Vulnerability Reporting as an
   additional channel alongside the email contact.
-- Deposit the release into Zenodo and receive a DOI — **naturally
-  inapplicable until deposition occurs**; update `CITATION.cff` and the
-  Zenodo metadata with the DOI at that time. This is a
-  **PENDING RELEASE ACTION**, never a FAIL/BLOCKED item.
+- Publish the Zenodo draft to activate the reserved DOI
+  (`10.5281/zenodo.22856598`) — the DOI is already reserved and already
+  recorded in `CITATION.cff` and release provenance ahead of
+  publication; only the act of publishing the Zenodo record itself
+  remains outstanding. This is a **PENDING RELEASE ACTION**, never a
+  FAIL/BLOCKED item.
 
 ## Known, documented, non-blocking limitations
 
@@ -72,7 +82,7 @@ and none require further Stage 12F engineering work:
   `SCIENTIFIC_INVARIANTS.md` INVAR-104), but neither is currently
   imported by `app/pbrtqc/screens.jsx`. The Patient Surveillance Lab
   (`#/pbrtqc`) does not display a multi-trial detection-rate/ANPed
-  summary in v0.9.0. This is not an incomplete in-progress feature on
+  summary in this release. This is not an incomplete in-progress feature on
   the shipped screen — it is a separate, self-contained function and
   component that were never wired in. Confirmed via a network of checks
   in the v1.0 remediation: no import, call site, or dead reference to

@@ -41,7 +41,7 @@ ok('LIC-cff-scope-note', /software/i.test(cff) && /all rights\s*\n?#?\s*reserved
 
 console.log('\n=== WS10: accepted minor corrections ===');
 ok('MIN-root-readme', rootReadme.length > 500, 'root README.md exists at the repository root');
-ok('MIN-readme-version', /0\.9\.0/.test(rootReadme), 'root README states version 0.9.0');
+ok('MIN-readme-version', /1\.0\.0/.test(rootReadme), 'root README states version 1.0.0');
 const pkg = JSON.parse(read(path.join(V09, 'package.json')));
 ok('MIN-build-script', pkg.scripts['build:production'] === 'vite build --config vite.production-integrated.config.mjs', 'named production build script exists');
 const stats = read(path.join(V09, 'app', 'core', 'statistics.js'));
@@ -54,20 +54,22 @@ ok('MIN-proto-appdata', !/used in this prototype/.test(appData), 'evidence prose
 ok('MIN-proto-exercise-kept', /prototype exercise/.test(screens), 'exercise-level "prototype exercise" wording deliberately preserved');
 
 console.log('\n=== WS11: citation / release metadata consistency ===');
-ok('CIT-version', /version:\s*0\.9\.0/.test(cff), 'CITATION.cff version is 0.9.0');
+ok('CIT-version', /version:\s*1\.0\.0/.test(cff), 'CITATION.cff version is 1.0.0');
 ok('CIT-orcid', /0000-0003-4826-1587/.test(cff), 'CITATION.cff carries the ORCID');
-ok('CIT-no-doi', !/^doi:/m.test(cff), 'CITATION.cff contains no fabricated DOI');
-ok('CIT-placeholder', /DOI-PLACEHOLDER-AWAITING-ZENODO-RESERVATION/.test(rootReadme) && /DOI-PLACEHOLDER-AWAITING-ZENODO-RESERVATION/.test(relReadme), 'DOI placeholder is unmistakable and consistent');
+ok('CIT-doi-exact', /^doi:\s*10\.5281\/zenodo\.22856598\s*$/m.test(cff), 'CITATION.cff carries the exact reserved DOI (10.5281/zenodo.22856598), not a fabricated or different value');
+ok('CIT-doi-unpublished-caveat', /unpublished/i.test(cff), 'CITATION.cff documents that the Zenodo record is unpublished, alongside the reserved DOI');
+ok('CIT-no-placeholder', !/DOI-PLACEHOLDER-AWAITING-ZENODO-RESERVATION/.test(rootReadme) && !/DOI-PLACEHOLDER-AWAITING-ZENODO-RESERVATION/.test(relReadme), 'the old DOI placeholder is gone from both READMEs now that a real DOI is reserved');
+ok('README-doi-exact', rootReadme.includes('10.5281/zenodo.22856598') && relReadme.includes('10.5281/zenodo.22856598'), 'both READMEs carry the exact reserved DOI');
 ok('CIT-orcid-about', /0000-0003-4826-1587/.test(screens), 'About modal carries the same ORCID');
 for (const [n, t] of [['root README', rootReadme], ['release README', relReadme], ['About', screens], ['CITATION.cff', cff]]) {
   ok(`CIT-name-${n}`, /Prasenjit Mitra/.test(t), `${n} attributes Prasenjit Mitra`);
 }
 
-console.log('\n=== Version freeze at 0.9.0 ===');
-ok('VER-file', read(path.join(V09, 'VERSION')).trim() === '0.9.0', 'VERSION is 0.9.0');
-ok('VER-pkg', pkg.version === '0.9.0', 'package.json version is 0.9.0');
-ok('VER-about', /Version 0\.9\.0/.test(screens), 'About modal shows Version 0.9.0');
-ok('VER-no-100', !/Version 1\.0\.0/.test(screens) && !/"version": "1\.0\.0"/.test(read(path.join(V09, 'package.json'))), 'nothing claims v1.0.0');
+console.log('\n=== Version freeze at 1.0.0 (promoted from 0.9.0 by explicit instruction) ===');
+ok('VER-file', read(path.join(V09, 'VERSION')).trim() === '1.0.0', 'VERSION is 1.0.0');
+ok('VER-pkg', pkg.version === '1.0.0', 'package.json version is 1.0.0');
+ok('VER-about', /Version 1\.0\.0/.test(screens), 'About modal shows Version 1.0.0');
+ok('VER-no-stale-090', !/Version 0\.9\.0/.test(screens) && !/"version":\s*"0\.9\.0"/.test(read(path.join(V09, 'package.json'))), 'no stale "Version 0.9.0" residue in the About modal or package.json now that 1.0.0 is current');
 
 const total = passed + failed;
 console.log(`\n${'='.repeat(60)}`);

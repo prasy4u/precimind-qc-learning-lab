@@ -1,6 +1,6 @@
 # PreciMind QC Learning Lab
 
-**Version 0.9.0**
+**Version 1.0.0** — first stable release
 
 An educational simulation platform for laboratory-medicine
 quality-control (QC) decision-making.
@@ -42,7 +42,7 @@ application files with any static web server from the host/domain
 Non-root subpath deployment of this pre-built package is confirmed
 non-functional (the build uses absolute asset paths). Rebuilding from
 source with a configured base path may allow subpath deployment, but
-this has not been tested and is not supported in v0.9.0 — see
+this has not been tested and is not supported in v1.0.0 — see
 "Supported execution method" below for the tested root-vs-subpath
 constraint.
 
@@ -54,7 +54,7 @@ directly (see that package's README for the actual tested method).
 
 ## Supported execution method / browser support actually tested
 
-This v0.9.0 release was validated with a real **Chromium** browser
+This v1.0.0 release was validated with a real **Chromium** browser
 at desktop (1920×1080, 1366×768) and mobile (390×844) viewports.
 Firefox and WebKit/Safari were not available for testing in this
 validation environment — this is reported honestly as untested, not
@@ -98,11 +98,13 @@ figures. The canonical statement is in `NOTICE`; see also
 See `CITATION.cff` for citation metadata (author, ORCID, repository, and the
 software licence). Its `license` field refers to the software only.
 
-DOI: `<DOI-PLACEHOLDER-AWAITING-ZENODO-RESERVATION>` — no DOI has been
-reserved or minted, and this placeholder must be replaced only after an
-actual Zenodo deposition.
+DOI: [10.5281/zenodo.22856598](https://doi.org/10.5281/zenodo.22856598)
+— reserved for this v1.0.0 release. The Zenodo record is currently an
+unpublished draft; this DOI is reserved but does not yet resolve
+publicly. This is not a confirmation that the Zenodo record has been
+published.
 
 ## Version and provenance
 
-Version: **0.9.0**. See `RELEASE_PROVENANCE.json` for the exact source
+Version: **1.0.0**. See `RELEASE_PROVENANCE.json` for the exact source
 commit, build hashes, and schema versions this package was built from.

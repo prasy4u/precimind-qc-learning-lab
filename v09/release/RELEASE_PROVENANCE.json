@@ -1,8 +1,11 @@
 {
   "_templateNote": "This is the TRACKED, source-neutral provenance TEMPLATE committed to the repository. It cannot self-reference the exact final commit that includes this very file (that would be a self-referential impossibility). The GENERATED distribution provenance actually shipped inside the Web/Offline packages is produced AFTER the closing commit exists, with releaseCommit/releaseCommitCount filled in to that exact final commit. See GENERATION_STEPS below. CRITICAL: the generated distribution file must NEVER be written inside this Git worktree (v09/release/ or anywhere else under v09/) \u2014 doing so previously left an untracked file inside the Audit Repository package, which is a defect. Generate it in a location entirely outside the tracked worktree, then copy it only into the Web/Offline package STAGING directories (which are themselves excluded from the Audit Repository ZIP).",
   "productName": "PreciMind QC Learning Lab",
-  "releaseVersion": "0.9.0",
-  "releaseStage": "v0.9.0 final pre-release candidate after QC-03 content closure and pre-release visual polish (not yet tagged or published)",
+  "releaseVersion": "1.0.0",
+  "releaseStage": "v1.0.0 first stable release candidate; DOI reserved (10.5281/zenodo.22856598) in an unpublished Zenodo draft; not yet tagged or GitHub-released; Zenodo record not yet published",
+  "reservedDoi": "10.5281/zenodo.22856598",
+  "reservedDoiUrl": "https://doi.org/10.5281/zenodo.22856598",
+  "doiStatus": "RESERVED, NOT PUBLISHED -- the Zenodo record is an unpublished draft; the DOI does not yet resolve publicly",
   "softwareOwner": "Prasenjit Mitra",
   "copyrightNotice": "Copyright 2026 Prasenjit Mitra",
   "softwareLicense": "Apache-2.0",
@@ -16,8 +19,9 @@
   "runtimeBaselineCommitCount": "GENERATED-AT-PACKAGING-TIME",
   "historicalRuntimeBaselineCommit": "813596f920af907fb13dfb731b4db9d48dfc1044",
   "historicalRuntimeBaselineCommitCount": 78,
-  "runtimeBaselineNote": "Three distinct roles, deliberately not conflated. historicalRuntimeBaselineCommit 813596f9... (commit 78) was the Stage 12E-accepted runtime baseline BEFORE the QC-03 pre-release content closure. runtimeBaselineCommit is the FINAL v0.9.0 learner-runtime/visual baseline: the last commit that changed learner-facing runtime source or CSS, produced by the accepted pre-release visual-polish closure. releaseCommit is the final release-governance/packaging commit, which contains ONLY release documentation and provenance changes \u2014 no learner-facing source changed between the runtime baseline commit and the release commit, and the production build hash is identical across both.",
-  "productionBuildHash": "3de8d5d9f69fcd4edae0aa39136be2bf61573c39cab2c15aff84f125f97bffa7",
+  "runtimeBaselineNote": "This v1.0.0 version/DOI promotion commit changes learner-facing runtime source (the About modal's version and citation text), so it is itself the new runtime baseline -- releaseCommit and runtimeBaselineCommit converge at this commit, exactly as they did at the prior v0.9.0 QC-03 closure. previousAcceptedProductionBuildHash (3de8d5d9...) was the accepted v0.9.0 RC hash immediately before this promotion; productionBuildHash above is the new v1.0.0 hash, differing ONLY by the version/DOI text change described in \"note\" below. historicalRuntimeBaselineCommit 813596f9... (commit 78) was the Stage 12E-accepted runtime baseline before the QC-03 closure, retained for provenance history only.",
+  "productionBuildHash": "c58603380f4714cfc6f15b8bfed239334a2c82cb0539b407e501d11cc414abb4",
+  "previousAcceptedProductionBuildHash": "3de8d5d9f69fcd4edae0aa39136be2bf61573c39cab2c15aff84f125f97bffa7",
   "historicalProductionBuildHash": "04fa0a3222150b7d07300617685eaf3ccc46fd08dd3f0129fe027377ce2b2ed1",
   "developmentBuildHash": "c625fa7b53beac8481e24a2e0815843f85c55a0d993e1b3fd4c5bfc25ddc527a",
   "caseSchemaVersion": "1.1.0",
@@ -37,5 +41,5 @@
     "5. Copy that generated file only into the Web/Offline package STAGING directories (release/web-package/RELEASE_PROVENANCE.json, release/offline-package/RELEASE_PROVENANCE.json) \u2014 both of which are themselves excluded from the Audit Repository ZIP and are not tracked by Git.",
     "6. Verify the Audit Repository ZIP's extracted worktree shows a clean `git status --porcelain` (no output) before delivery."
   ],
-  "note": "productionBuildHash above is the final QC-03-inclusive and visually polished v0.9.0 production build \u2014 the exact learner-facing runtime shipped in the Web and Offline packages. historicalProductionBuildHash is the earlier, superseded pre-QC-03 value, retained for provenance history only. This release includes the complete QC-01 through QC-12 competency pathway (QC-03 was the last remaining unimplemented module). This file intentionally omits an unstable generation timestamp; commit hashes and build hashes are the authoritative, reproducible provenance anchors."
+  "note": "productionBuildHash above is the final v1.0.0 production build \u2014 the exact learner-facing runtime shipped in the Web and Offline packages. The ONLY source-level change from previousAcceptedProductionBuildHash (the accepted v0.9.0 RC hash) is the learner-visible version/DOI text in the About modal (Version 1.0.0; reserved DOI 10.5281/zenodo.22856598, explicitly marked unpublished) \u2014 no calculation, decision logic, QC rule, case, scientific content, navigation, or CSS changed. Verified reproducible across two consecutive clean rebuilds. historicalProductionBuildHash is the earlier, superseded pre-QC-03 value, retained for provenance history only. This file intentionally omits an unstable generation timestamp; commit hashes and build hashes are the authoritative, reproducible provenance anchors."
 }

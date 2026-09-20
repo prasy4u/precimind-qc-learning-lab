@@ -50,7 +50,7 @@ reproduce the identical archive byte-for-byte).
 If genuinely byte-reproducible ZIPs are required in the future, this
 would require a packaging step that explicitly normalizes file
 ordering, strips timestamps, and pins compression settings — not
-implemented for this v0.9.0 distribution.
+implemented for this v1.0.0 distribution.
 
 ## What is NOT reproducible by design
 

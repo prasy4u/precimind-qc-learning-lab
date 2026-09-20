@@ -1,6 +1,6 @@
 # PreciMind QC Learning Lab
 
-**Version 0.9.0** · Educational simulation for clinical laboratory quality control
+**Version 1.0.0** · Educational simulation for clinical laboratory quality control
 
 An interactive, browser-based platform for developing analytical quality-control
 reasoning through simulation. Created and developed by **Dr Prasenjit Mitra**
@@ -45,7 +45,7 @@ email, staff ID, institution or patient identifier is ever collected. See
 ## Running it
 
 Requires a static web server at a host **root** (the build uses absolute asset
-paths; non-root subpath deployment is not supported in v0.9.0).
+paths; non-root subpath deployment is not supported in v1.0.0).
 
 ```bash
 cd v09
@@ -91,12 +91,13 @@ The canonical statement is in [`NOTICE`](NOTICE); see also
 
 See [`CITATION.cff`](v09/CITATION.cff).
 
-> **DOI:** `<DOI-PLACEHOLDER-AWAITING-ZENODO-RESERVATION>` — no DOI has been
-> reserved or minted. This placeholder must be replaced only after an actual
-> Zenodo deposition.
+> **DOI:** [10.5281/zenodo.22856598](https://doi.org/10.5281/zenodo.22856598)
+> — reserved for this v1.0.0 release. The Zenodo record is currently an
+> unpublished draft; this DOI is reserved but does not yet resolve publicly.
 
 ## Status
 
-**v0.9.0 release candidate.** Not yet tagged, published or deposited.
+**v1.0.0.** Software release-ready; DOI reserved (Zenodo record unpublished).
+Not yet tagged or published as a GitHub Release.
 See [`v09/CHANGELOG.md`](v09/CHANGELOG.md) and
 [`v09/docs/V09_RELEASE_CHECKLIST.md`](v09/docs/V09_RELEASE_CHECKLIST.md).

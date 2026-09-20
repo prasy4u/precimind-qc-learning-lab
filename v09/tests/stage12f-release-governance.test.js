@@ -82,11 +82,11 @@ async function main() {
   {
     const pkg = JSON.parse(fs.readFileSync(path.join(V09, 'package.json'), 'utf8'));
     assert('PKG-NAME', pkg.name === 'precimind-qc-learning-lab', `package.json name is current (found "${pkg.name}")`);
-    assert('PKG-VERSION', pkg.version === '0.9.0', `package.json version is current (found "${pkg.version}")`);
+    assert('PKG-VERSION', pkg.version === '1.0.0', `package.json version is current (found "${pkg.version}")`);
     assert('PKG-NO-BRIDGE-DESC', !/Stage 11C1|migration bridge/i.test(pkg.description || ''), 'package.json description no longer describes the obsolete Stage 11C1 bridge');
     const lock = JSON.parse(fs.readFileSync(path.join(V09, 'package-lock.json'), 'utf8'));
     assert('LOCK-NAME', lock.name === 'precimind-qc-learning-lab', `package-lock.json name is current (found "${lock.name}")`);
-    assert('LOCK-VERSION', lock.version === '0.9.0', `package-lock.json version is current (found "${lock.version}")`);
+    assert('LOCK-VERSION', lock.version === '1.0.0', `package-lock.json version is current (found "${lock.version}")`);
     assert('LOCK-ROOT-PKG-NAME', lock.packages[''].name === 'precimind-qc-learning-lab', 'package-lock.json root package entry name is current');
     // Dependencies genuinely unchanged (metadata-only change).
     assert('PKG-DEPS-UNCHANGED', JSON.stringify(pkg.dependencies) === JSON.stringify({ react: '^19.2.8', 'react-dom': '^19.2.8' }), 'Dependencies are genuinely unchanged (metadata-only edit)');
@@ -109,7 +109,8 @@ async function main() {
     const citationText = fs.readFileSync(path.join(V09, 'CITATION.cff'), 'utf8');
     assert('CITATION-HAS-ORCID', citationText.includes('0000-0003-4826-1587'), 'CITATION.cff includes the confirmed ORCID');
     assert('CITATION-HAS-REPO', citationText.includes('github.com/prasy4u/precimind-qc-learning-lab'), 'CITATION.cff includes the confirmed repository URL');
-    assert('CITATION-NO-DOI', !citationText.includes('doi:'), 'CITATION.cff does not invent a DOI');
+    assert('CITATION-HAS-EXACT-DOI', /^doi:\s*10\.5281\/zenodo\.22856598\s*$/m.test(citationText), 'CITATION.cff carries the exact reserved DOI (10.5281/zenodo.22856598), not an invented or different value');
+    assert('CITATION-DOI-UNPUBLISHED-CAVEAT', /unpublished/i.test(citationText), 'CITATION.cff documents that the Zenodo record is unpublished alongside the reserved DOI');
     assert('CITATION-NO-DATE-RELEASED', !citationText.includes('date-released'), 'CITATION.cff does not invent a release date');
 
     // Zero stale "LICENSE DECISION PENDING" wording anywhere in release docs.
@@ -134,10 +135,16 @@ async function main() {
 
   console.log('\n=== Publication-stamp closure: stale governance/wording fixes ===');
   {
-    const releaseNotesText = fs.readFileSync(path.join(V09, 'release', 'RELEASE_NOTES_v0.9.0.md'), 'utf8');
-    assert('NOTES-NO-STALE-PENDING', !/remain pending project-owner decisions/i.test(releaseNotesText), 'RELEASE_NOTES_v0.9.0.md no longer claims license/security/citation remain pending project-owner decisions');
-    assert('NOTES-MENTIONS-RESOLVED', /resolved/i.test(releaseNotesText), 'RELEASE_NOTES_v0.9.0.md states the governance items are resolved');
-    assert('NOTES-DOI-STILL-PENDING', /Zenodo/i.test(releaseNotesText), 'RELEASE_NOTES_v0.9.0.md still correctly notes Zenodo DOI as a distinct future action');
+    // The CURRENT release notes are v1.0.0; RELEASE_NOTES_v0.9.0.md is
+    // preserved unmodified as legitimate historical record and is
+    // intentionally NOT re-checked here.
+    const releaseNotesText = fs.readFileSync(path.join(V09, 'release', 'RELEASE_NOTES_v1.0.0.md'), 'utf8');
+    assert('NOTES-NO-STALE-PENDING', !/remain pending project-owner decisions/i.test(releaseNotesText), 'RELEASE_NOTES_v1.0.0.md no longer claims license/security/citation remain pending project-owner decisions');
+    assert('NOTES-MENTIONS-RESOLVED', /resolved/i.test(releaseNotesText), 'RELEASE_NOTES_v1.0.0.md states the governance items are resolved');
+    assert('NOTES-DOI-STILL-PENDING', /Zenodo/i.test(releaseNotesText), 'RELEASE_NOTES_v1.0.0.md still correctly discusses Zenodo');
+    assert('NOTES-DOI-EXACT', releaseNotesText.includes('10.5281/zenodo.22856598'), 'RELEASE_NOTES_v1.0.0.md carries the exact reserved DOI');
+    assert('NOTES-DOI-NOT-PUBLISHED-CLAIM', !/Zenodo record (is|has been) published/i.test(releaseNotesText), 'RELEASE_NOTES_v1.0.0.md does not claim the Zenodo record is published');
+    assert('NOTES-HISTORICAL-PRESERVED', fs.existsSync(path.join(V09, 'release', 'RELEASE_NOTES_v0.9.0.md')), 'the historical RELEASE_NOTES_v0.9.0.md is preserved, not deleted or overwritten');
 
     const bothPackagesPresent = fs.existsSync(path.join(V09, 'release', 'web-package')) && fs.existsSync(path.join(V09, 'release', 'offline-package'));
     if (!bothPackagesPresent) {
@@ -178,18 +185,15 @@ async function main() {
     // independently-reproducibility-verified change, not a defect. The
     // hash below is the new accepted invariant for all FUTURE
     // closures that do not themselves modify production source
-    // (04fa0a3222... remains the historical Stage 12E/12F-ownership-closure
-    // baseline, documented in RELEASE_PROVENANCE.json's history, not a
-    // value this test should keep re-asserting after an authorized change).
-    // This closure (QC-03 final independent-audit correction) added
-    // genuine new content (handling doctrine, APS distinction, glossary
-    // terms), so the hash legitimately advanced again from the prior
     // The production hash legitimately advances whenever learner-facing
-    // source changes. Lineage: 04fa0a3222... (pre-QC-03) ->
+    // source changes. Full lineage: 04fa0a3222... (pre-QC-03) ->
     // 23abd76bfd... (QC-03 initial) -> 587a0917f9... (QC-03 audit
-    // correction) -> the value below (pre-release visual polish: CSS
-    // tokens + presentational JSX only, no scientific change).
-    assert('PROD-HASH-UNCHANGED', hash === '3de8d5d9f69fcd4edae0aa39136be2bf61573c39cab2c15aff84f125f97bffa7', `Production tree hash matches the current accepted invariant (found ${hash})`);
+    // correction) -> 2cbd97aa17... (pre-release visual polish) ->
+    // 0a1957c716... (guided-learning architecture) ->
+    // 3de8d5d9f6... (accepted v0.9.0 RC) -> the value below (v1.0.0
+    // version/DOI promotion: About-modal version+citation text only,
+    // no scientific change).
+    assert('PROD-HASH-UNCHANGED', hash === 'c58603380f4714cfc6f15b8bfed239334a2c82cb0539b407e501d11cc414abb4', `Production tree hash matches the current accepted invariant (found ${hash})`);
   }
 
   const total = passed + failed;

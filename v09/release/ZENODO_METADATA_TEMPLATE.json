@@ -1,7 +1,7 @@
 {
-  "_blocker_note": "PREPARATION ONLY. This template is NOT uploaded to Zenodo and Zenodo has not been contacted. DOI/record ID/deposition ID/publication date remain PENDING RELEASE ACTION — naturally inapplicable until deposition actually occurs. This is not a software blocker.",
+  "_blocker_note": "PREPARATION TEMPLATE. This template mirrors the metadata for the RESERVED Zenodo draft (DOI 10.5281/zenodo.22856598). The Zenodo record itself remains an UNPUBLISHED DRAFT -- publication, deposition finalisation, and publication_date remain a PENDING RELEASE ACTION. Do not treat the presence of a reserved doi/version below as confirmation that the record has been published.",
   "title": "PreciMind QC Learning Lab",
-  "version": "0.9.0",
+  "version": "1.0.0",
   "upload_type": "software",
   "description": "PreciMind QC Learning Lab is an educational simulation platform for laboratory-medicine quality-control (QC) decision-making, covering eleven tracked interactive QC laboratories plus a Morning QC capstone scenario. Simulation-learning software; not a medical device and not intended for clinical decision-making.",
   "creators": [
@@ -12,7 +12,7 @@
   ],
   "access_right": "open",
   "license": "Apache-2.0",
-  "doi": null,
+  "doi": "10.5281/zenodo.22856598",
   "related_identifiers": [
     {
       "identifier": "https://github.com/prasy4u/precimind-qc-learning-lab",
@@ -27,5 +27,5 @@
     "clinical chemistry education"
   ],
   "language": "eng",
-  "publication_date": "PENDING — set to actual deposition date"
+  "publication_date": "PENDING \u2014 set to actual deposition date"
 }

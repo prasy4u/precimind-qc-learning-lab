@@ -25,7 +25,7 @@ assert('FOOTER-AUTHOR', /Developed by Dr Prasenjit Mitra/.test(shell), 'Footer s
 assert('FOOTER-COPYRIGHT', /2026 Prasenjit Mitra/.test(shell) && /Apache License 2\.0/.test(shell), 'Footer shows the 2026 copyright and Apache License 2.0');
 assert('HOME-BYLINE', /Created by Dr Prasenjit Mitra/.test(screens), 'Home screen shows the "Created by Dr Prasenjit Mitra" byline');
 assert('ABOUT-TITLE', /title="About PreciMind"/.test(screens), 'About modal is titled "About PreciMind"');
-assert('ABOUT-VERSION', /Version 0\.9\.0/.test(screens), 'About modal states Version 0.9.0');
+assert('ABOUT-VERSION', /Version 1\.0\.0/.test(screens), 'About modal states Version 1.0.0');
 assert('ABOUT-AUTHOR', /Created and developed by Dr Prasenjit Mitra/.test(screens), 'About modal credits Dr Prasenjit Mitra');
 assert('ABOUT-ORCID', /0000-0003-4826-1587/.test(screens), 'About modal shows the ORCID');
 assert('ABOUT-COPYRIGHT', /2026 Prasenjit Mitra/.test(screens), 'About modal shows the copyright notice');

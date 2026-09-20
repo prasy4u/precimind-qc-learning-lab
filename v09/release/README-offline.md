@@ -1,4 +1,4 @@
-# PreciMind QC Learning Lab — Offline Distribution Package (v0.9.0)
+# PreciMind QC Learning Lab — Offline Distribution Package (v1.0.0)
 
 This package contains the complete learner-facing static web application
 for use **without an internet connection**, plus release documentation.
@@ -53,7 +53,7 @@ outbound network request.
 
 ## Supported execution method / browser support actually tested
 
-This v0.9.0 release was validated with a real **Chromium** browser
+This v1.0.0 release was validated with a real **Chromium** browser
 at desktop (1920×1080, 1366×768) and mobile (390×844) viewports,
 served from the root of a local static HTTP server as described above.
 Firefox and WebKit/Safari were not available for testing in this
@@ -61,7 +61,7 @@ validation environment — this is reported honestly as untested, not
 claimed as unsupported. Non-root subpath serving is confirmed
 non-functional (the build uses absolute asset paths); rebuilding from
 source with a configured base path may allow subpath deployment, but
-this has not been tested and is not supported in v0.9.0.
+this has not been tested and is not supported in v1.0.0.
 
 ## Online use
 
@@ -102,6 +102,8 @@ figures. The canonical statement is in `NOTICE`; see also
 See `CITATION.cff` for citation metadata (author, ORCID, repository, and
 the software licence). Its `license` field refers to the software only.
 
-DOI: `<DOI-PLACEHOLDER-AWAITING-ZENODO-RESERVATION>` — no DOI has been
-reserved or minted, and this placeholder must be replaced only after an
-actual Zenodo deposition.
+DOI: [10.5281/zenodo.22856598](https://doi.org/10.5281/zenodo.22856598)
+— reserved for this v1.0.0 release. The Zenodo record is currently an
+unpublished draft; this DOI is reserved but does not yet resolve
+publicly. This is not a confirmation that the Zenodo record has been
+published.

@@ -1,4 +1,8 @@
-# v0.9.0 Release Checklist
+# v1.0.0 Release Checklist
+
+(This checklist tracks the same accepted governance/scientific state
+first established for the v0.9.0 release candidate and now carried
+forward, plus the version/DOI promotion described in `CHANGELOG.md`.)
 
 States used: `PASS`, `FAIL`, `BLOCKED`, `NOT APPLICABLE`, `NOT TESTED`.
 
@@ -11,7 +15,7 @@ States used: `PASS`, `FAIL`, `BLOCKED`, `NOT APPLICABLE`, `NOT TESTED`.
 
 ## Runtime integrity
 - Production build succeeds: **PASS**
-- Production build hash: historical pre-QC-03 hash `04fa0a3222150b7d07300617685eaf3ccc46fd08dd3f0129fe027377ce2b2ed1`; current hash (QC-03 content + pre-release visual polish) `3de8d5d9f69fcd4edae0aa39136be2bf61573c39cab2c15aff84f125f97bffa7` — legitimately changed because QC-03 added learner-facing production source and the visual-polish closure changed CSS/presentational markup (the two are NOT byte-identical, and are not described as such); reproducible rebuild (2 consecutive independent rebuilds from the same committed source): **PASS**
+- Production build hash: historical pre-QC-03 hash `04fa0a3222150b7d07300617685eaf3ccc46fd08dd3f0129fe027377ce2b2ed1`; previously accepted v0.9.0 RC hash `3de8d5d9f69fcd4edae0aa39136be2bf61573c39cab2c15aff84f125f97bffa7`; current v1.0.0 hash `c58603380f4714cfc6f15b8bfed239334a2c82cb0539b407e501d11cc414abb4` — legitimately changed because the About modal's learner-visible version/DOI text was updated (Version 1.0.0; reserved DOI 10.5281/zenodo.22856598, unpublished) — no calculation, decision logic, QC rule, case, scientific content, navigation, or CSS changed; reproducible rebuild (2 consecutive independent rebuilds from the same committed source): **PASS**
 - No console errors in clean-room web validation (aside from the browser's own harmless automatic favicon request): **PASS**
 - No unhandled page exceptions in clean-room web/offline validation: **PASS**
 - No unexpected (non-localhost) network requests: **PASS**
@@ -63,7 +67,7 @@ States used: `PASS`, `FAIL`, `BLOCKED`, `NOT APPLICABLE`, `NOT TESTED`.
 ## Citation
 - `CITATION.cff` present and YAML-valid: **PASS**
 - Real, confirmed author/ORCID/repository/license metadata: **PASS** — resolved by the project owner (Prasenjit Mitra; ORCID 0000-0003-4826-1587)
-- DOI: **PENDING RELEASE ACTION** — naturally inapplicable until Zenodo deposition occurs; not a software blocker
+- DOI: **RESERVED** — `10.5281/zenodo.22856598` (https://doi.org/10.5281/zenodo.22856598), recorded in `CITATION.cff` and release provenance. The Zenodo record itself remains an **unpublished draft**; publishing it is a separate **PENDING RELEASE ACTION**, not a software blocker.
 
 ## Licensing
 - Source-code license decided and documented: **PASS** — Apache License 2.0, resolved by the project owner (`LICENSE`, `NOTICE`, `LICENSE_STATUS.md`, `package.json`)
@@ -90,7 +94,9 @@ States used: `PASS`, `FAIL`, `BLOCKED`, `NOT APPLICABLE`, `NOT TESTED`.
 Ownership, copyright, authorship, ORCID, software license, and the
 security-reporting contact are all now resolved by the project owner.
 Every software/scientific/runtime/privacy item above is **PASS**.
-Remaining items (creating the public GitHub repository, pushing,
-tagging, enabling GitHub Pages, DNS/HTTPS configuration, Zenodo
-deposition and DOI) are publication/deployment actions, not defects in
-this candidate — see `RELEASE_BLOCKERS.md` for their sequencing.
+The GitHub repository is public and the application is deployed via
+the repository's GitHub Pages workflow (see `RELEASE_BLOCKERS.md`).
+Remaining items (creating the `v1.0.0` tag, a GitHub Release, and
+publishing the Zenodo draft to activate the reserved DOI) are
+publication/deployment actions, not defects in this candidate — see
+`RELEASE_BLOCKERS.md` for their sequencing.

@@ -57,6 +57,12 @@ async function main() {
       'v09/app/ui/original-v0.8.css',                      // global design tokens / stylesheet
       'v09/app/ui/guided-panel.jsx',                       // v1.0 RC: guided-learning scaffolding
       'v09/app/ui/guided-path.js',                         // v1.0 RC: guided pathway content
+      // Typographic P3 correction: Levey-Jennings non-breaking hyphen
+      // (U+2011) to prevent an awkward line-wrap in Safari. Text-content
+      // only -- no scientific wording, structure or logic changed.
+      'v09/app/morning-qc/ui/ui-model.js',                 // LJ_CHART label string
+      'v09/app/qc-materials/data.js',                      // handling-intro prose
+      'v09/app/qc-materials/screens.jsx',                  // "Next: Levey-Jennings Laboratory" button text
     ]);
     let diffNames = [];
     try {

@@ -17,7 +17,7 @@ export const QC03_TITLE = "QC Materials & Control Statistics";
 export const QC03_STAGE = "Understand";
 
 export const QC03_INTRO =
-  "Reliable QC interpretation begins before the first point is plotted on a Levey-Jennings chart. " +
+  "Reliable QC interpretation begins before the first point is plotted on a Levey‑Jennings chart. " +
   "The control material, its handling, the centre and dispersion assigned to it, and how those statistics " +
   "were established all influence what the chart means.";
 

@@ -86,7 +86,7 @@ export function QCMaterialsScreen({ level, goto }) {
           {stationIdx > 0 && <button className="btn-secondary" onClick={() => setStationIdx(i => i - 1)}>&larr; Previous station</button>}
           {stationIdx < STATIONS.length - 1 && <button className="btn-primary" onClick={() => setStationIdx(i => i + 1)}>Next station &rarr;</button>}
         </div>
-        <button className="btn-secondary" onClick={() => goto("lj")}>Next: Levey-Jennings Laboratory &rarr;</button>
+        <button className="btn-secondary" onClick={() => goto("lj")}>Next: Levey‑Jennings Laboratory &rarr;</button>
       </div>
     </div>
   );

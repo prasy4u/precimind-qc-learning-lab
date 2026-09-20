@@ -15,7 +15,7 @@
 
 export const PANEL_TYPE_LABELS = {
   QC_HISTORY: 'QC History',
-  LJ_CHART: 'Levey-Jennings Chart',
+  LJ_CHART: 'Levey‑Jennings Chart',
   ANALYZER_STATUS: 'Analyzer Status',
   REAGENT_LOT: 'Reagent Lot',
   CALIBRATION: 'Calibration',

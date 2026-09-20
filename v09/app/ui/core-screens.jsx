@@ -30,7 +30,7 @@ export function HomeScreen({ level, setLevel, goto, openDiagnostic, startGuided 
     <div className="screen">
       <section className="hero">
         <h1>Learn Quality Control by Doing It</h1>
-        <p className="hero-sub">Build analytical QC competence through interactive statistics, Levey-Jennings interpretation, pattern recognition and Sigma exploration.</p>
+        <p className="hero-sub">Build analytical QC competence through interactive statistics, Levey‑Jennings interpretation, pattern recognition and Sigma exploration.</p>
         <p className="hero-byline">Created by Dr Prasenjit Mitra</p>
       </section>
       <Disclaimer />
@@ -414,9 +414,9 @@ export function LJLabScreen({ level, markProgress, goto }) {
 
   return (
     <div className="screen">
-      <h1>Levey-Jennings Laboratory</h1>
+      <h1>Levey‑Jennings Laboratory</h1>
       <p className="explain-text">{LJ_LAB_EXPLANATION[level]}</p>
-      <ScientificBasisNote goto={goto} text="Levey-Jennings charting and SD-based control limits are a long-established laboratory QC convention; see Evidence for the statistical QC literature acknowledged here." />
+      <ScientificBasisNote goto={goto} text="Levey‑Jennings charting and SD-based control limits are a long-established laboratory QC convention; see Evidence for the statistical QC literature acknowledged here." />
 
       <div className="dataset-characteristics">
         <h2>Dataset characteristics <span className="muted small">(fixed — not affected by the controls below)</span></h2>

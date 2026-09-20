@@ -61,6 +61,9 @@ async function main() {
       'v09/app/morning-qc/ui/production-case-select.jsx',
       'v09/app/morning-qc/ui/morning-qc-room.css',
       'v09/app/morning-qc/ui/dev-launcher.jsx',
+      // Typographic P3 correction: Levey-Jennings non-breaking hyphen
+      // (U+2011) in the LJ_CHART panel-type label string only.
+      'v09/app/morning-qc/ui/ui-model.js',
       // Pre-release visual-polish closure: presentational className only
       // (adds .mqc-patient-impact for the status treatment). No state
       // label, transition, or decision semantics changed.

@@ -11,7 +11,7 @@ States used: `PASS`, `FAIL`, `BLOCKED`, `NOT APPLICABLE`, `NOT TESTED`.
 
 ## Runtime integrity
 - Production build succeeds: **PASS**
-- Production build hash: historical pre-QC-03 hash `04fa0a3222150b7d07300617685eaf3ccc46fd08dd3f0129fe027377ce2b2ed1`; current hash (QC-03 content + pre-release visual polish) `2cbd97aa17e5eb36337d4fdce416d443c335cb5a37a6d13e98cb2d9bf291d30d` — legitimately changed because QC-03 added learner-facing production source and the visual-polish closure changed CSS/presentational markup (the two are NOT byte-identical, and are not described as such); reproducible rebuild (2 consecutive independent rebuilds from the same committed source): **PASS**
+- Production build hash: historical pre-QC-03 hash `04fa0a3222150b7d07300617685eaf3ccc46fd08dd3f0129fe027377ce2b2ed1`; current hash (QC-03 content + pre-release visual polish) `3de8d5d9f69fcd4edae0aa39136be2bf61573c39cab2c15aff84f125f97bffa7` — legitimately changed because QC-03 added learner-facing production source and the visual-polish closure changed CSS/presentational markup (the two are NOT byte-identical, and are not described as such); reproducible rebuild (2 consecutive independent rebuilds from the same committed source): **PASS**
 - No console errors in clean-room web validation (aside from the browser's own harmless automatic favicon request): **PASS**
 - No unhandled page exceptions in clean-room web/offline validation: **PASS**
 - No unexpected (non-localhost) network requests: **PASS**

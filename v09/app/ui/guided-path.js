@@ -33,14 +33,14 @@ export const GUIDED_PATH = [
     whatToDo: "Work through the five stations in order and complete the Learning Check at the end.",
     completion: "You are ready to continue when you can explain why a numerically extreme QC result is not, on its own, a reason to exclude it.",
     takeaway: "The quality of a control chart is limited by the quality of the statistics behind it. Control material selection, handling and the way the mean and SD were established all shape what a later chart can tell you.",
-    whyNext: "Once a mean and SD exist, QC results can be plotted against them — which is what a Levey-Jennings chart does."
+    whyNext: "Once a mean and SD exist, QC results can be plotted against them — which is what a Levey‑Jennings chart does."
   },
   {
     screen: "lj", label: "QC charts", phase: "Understand",
-    goal: "Read a Levey-Jennings chart and understand how the assigned mean and SD determine where every point falls relative to the control lines.",
+    goal: "Read a Levey‑Jennings chart and understand how the assigned mean and SD determine where every point falls relative to the control lines.",
     whatToDo: "Change the assigned mean and assigned SD and watch how the same underlying results move relative to the ±1, ±2 and ±3 SD lines. Switch between raw units and SD units to see the same data expressed two ways.",
     completion: "You are ready to continue when you can explain why changing the assigned SD changes the appearance of the chart without changing any measured result.",
-    takeaway: "A Levey-Jennings chart shows results on a scale defined by the assigned mean and SD. The chart is an interpretation of the data, not the data itself.",
+    takeaway: "A Levey‑Jennings chart shows results on a scale defined by the assigned mean and SD. The chart is an interpretation of the data, not the data itself.",
     whyNext: "Once you can read a single chart, the next question is what shapes across several points actually mean."
   },
   {

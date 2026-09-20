@@ -29,7 +29,7 @@ export const COMPETENCY_MODULES = [
   { id: "QC-01", title: "Statistical Foundations", stage: "Understand", status: "available", screen: "stats" },
   { id: "QC-02", title: "Analytical Variation, Precision & Bias", stage: "Understand", status: "available", screen: "stats" },
   { id: "QC-03", title: "QC Materials & Control Statistics", stage: "Understand", status: "available", screen: "qc-materials" },
-  { id: "QC-04", title: "Levey-Jennings Interpretation", stage: "Interpret", status: "available", screen: "lj" },
+  { id: "QC-04", title: "Levey‑Jennings Interpretation", stage: "Interpret", status: "available", screen: "lj" },
   { id: "QC-05", title: "Statistical Control Rules", stage: "Interpret", status: "available", screen: "rules" },
   { id: "QC-06", title: "Analytical Performance Specifications", stage: "Apply", status: "available", screen: "strategy" },
   { id: "QC-07", title: "Biological Variation & RCV", stage: "Apply", status: "available", screen: "bv-rcv" },
@@ -60,7 +60,7 @@ export const GLOSSARY = [
   { term: "Third-party control", def: "QC material sourced independently of the reagent/instrument manufacturer." },
   { term: "Control lot", def: "A specific manufactured batch of QC material; a new lot may have different statistics from the previous one and should be evaluated before routine use." },
   { term: "Control limit", def: "A boundary, typically expressed in SD units from the mean, used as a visual or statistical reference on a control chart." },
-  { term: "Levey-Jennings chart", def: "A control chart plotting QC results in run order against the mean and SD-based control limits, used to visualise analytical stability over time." },
+  { term: "Levey‑Jennings chart", def: "A control chart plotting QC results in run order against the mean and SD-based control limits, used to visualise analytical stability over time." },
   { term: "Analytical performance specification (APS)", def: "A stated requirement for acceptable analytical performance (e.g. allowable bias, imprecision or total error), selected using a defined scientific rationale." },
   { term: "Allowable total error (TEa)", def: "A specification expressing the maximum combined bias and imprecision considered acceptable for a given analyte and clinical context." },
   { term: "Sigma metric", def: "In the simplified total-error framework used here, Sigma = (TEa% − |Bias%|) / CV%. It expresses analytical performance relative to a selected requirement, not an absolute or universal quality label." },
@@ -229,7 +229,7 @@ export const DIAGNOSTIC_QUESTIONS = [
   },
   {
     topic: "LJ interpretation", domain: "lj",
-    prompt: "On a Levey-Jennings chart, a single point appears just above the +2 SD line. What is the most defensible immediate interpretation?",
+    prompt: "On a Levey‑Jennings chart, a single point appears just above the +2 SD line. What is the most defensible immediate interpretation?",
     options: [
       { text: "The run has failed and must be rejected", w: 1 },
       { text: "The point deserves attention but is not, by itself, proof of instability", w: 3 },
@@ -304,13 +304,13 @@ export function buildDomainProfile(answers) {
 
 export const STATS_PLAYGROUND_EXPLANATION = {
   beginner: "Mean is the centre of your data. SD is the spread around that centre. CV expresses spread relative to the mean, as a percentage. Bias is a displacement away from a target value.",
-  intermediate: "Imprecision shows up as dispersion (SD, CV) around the process centre. Systematic displacement shows up as bias relative to a target. Both behaviours will later look different on a Levey-Jennings chart.",
+  intermediate: "Imprecision shows up as dispersion (SD, CV) around the process centre. Systematic displacement shows up as bias relative to a target. Both behaviours will later look different on a Levey‑Jennings chart.",
   advanced: "CV and bias describe two distinct dimensions of analytical performance. Improving CV (reducing random variation) and reducing bias (removing systematic displacement) are different improvement problems, often requiring different corrective actions.",
   expert: "Statistical description of a process — mean, SD, CV, bias — is necessary but not sufficient. Statistical control does not by itself establish clinical fitness for purpose; that judgement also depends on the target value's validity and the applicable analytical performance specification."
 };
 
 export const LJ_LAB_EXPLANATION = {
-  beginner: "A Levey-Jennings chart plots QC results in run order, with horizontal lines marking the mean and ±1, ±2 and ±3 SD. It lets you see at a glance where each result falls relative to the expected spread.",
+  beginner: "A Levey‑Jennings chart plots QC results in run order, with horizontal lines marking the mean and ±1, ±2 and ±3 SD. It lets you see at a glance where each result falls relative to the expected spread.",
   intermediate: "The SD used to draw control limits determines how far a given raw value appears from the mean in SD units. The same raw data can look very different depending on which SD is assigned to the chart.",
   advanced: "Laboratory-established statistics (the assigned mean and SD) are usually derived from historical QC data over a defined period. If that historical estimate is inappropriate — too narrow, too wide, or drawn from an unstable period — every subsequent interpretation built on it is distorted.",
   expert: "Widening or narrowing control limits changes the sensitivity and false-rejection behaviour of the entire QC procedure, independent of any real change in the analytical process. Establishing and periodically reviewing appropriate QC statistics is itself a QC-design decision, not a formality."

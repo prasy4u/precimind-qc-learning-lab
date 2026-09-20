@@ -138,4 +138,4 @@ the current release-readiness state.
 
 ### Build reproducibility closure
 
-The final production package was rebuilt from `package-lock.json` using the locked Vite 8.2.2 toolchain before temporary test-only dependencies were introduced. This is a build-provenance correction only; application source and scientific behaviour are unchanged.
+The final production package was rebuilt from `package-lock.json` (available in the source/Audit Repository package) using the locked Vite 8.2.2 toolchain before temporary test-only dependencies were introduced. This is a build-provenance correction only; application source and scientific behaviour are unchanged.

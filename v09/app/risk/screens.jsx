@@ -35,7 +35,7 @@ export const MISCONCEPTION_NOTES = {
 export function ConceptsPanel() {
   return (
     <div>
-      <h3>Four terms that are easy to conflate</h3>
+      <h2>Four terms that are easy to conflate</h2>
       <ul className="mini-explain-list">
         <li>{QC_PROCEDURE_DEFINITION}</li>
         <li>{QC_EVENT_DEFINITION}</li>

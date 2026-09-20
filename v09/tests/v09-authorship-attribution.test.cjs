@@ -37,7 +37,13 @@ assert('NO-VERSION-08', !/Version 0\.8/.test(learnerFacing), 'No learner-facing 
 assert('ABOUT-TEXT-NOT-PROTOTYPE', !/educational prototype/.test(data), 'The About disclaimer no longer calls the release an "educational prototype"');
 
 console.log('\n=== Licensing / attribution correctness ===');
-assert('NO-ALL-RIGHTS-RESERVED', !/All rights reserved/i.test(learnerFacing), 'No "All rights reserved" claim (the software is Apache-2.0 licensed)');
+// v1.0 RC Workstream 8 supersedes the original blanket assertion here. The
+// owner-approved scope is two-part: the SOFTWARE is Apache-2.0, while ORIGINAL
+// EDUCATIONAL CONTENT is reserved. So an "all rights reserved" statement is now
+// expected — but it must never be attached to the software.
+assert('SOFTWARE-NOT-RESERVED', !/software[^.]{0,60}all rights reserved/i.test(learnerFacing), 'No claim that the SOFTWARE is all-rights-reserved (software remains Apache-2.0)');
+assert('CONTENT-RESERVED', /all rights reserved/i.test(learnerFacing), 'Educational-content reservation is stated in learner-facing surfaces');
+assert('APACHE-STILL-STATED', /Apache License/i.test(learnerFacing), 'Apache-2.0 software licence is still stated learner-facing');
 // Legal/copyright metadata uses the plain legal name; the professional
 // display name is used only for human-readable attribution.
 assert('COPYRIGHT-USES-LEGAL-NAME', !/\u00a9 2026 Dr Prasenjit Mitra|copy; 2026 Dr Prasenjit Mitra/.test(learnerFacing), 'Copyright notices use the legal name "Prasenjit Mitra", not the "Dr" display form');

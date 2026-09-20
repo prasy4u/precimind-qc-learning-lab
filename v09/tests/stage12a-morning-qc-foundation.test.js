@@ -57,17 +57,47 @@ async function main() {
     // design-token/stylesheet layer and is an authorized VISUAL-TOKENS /
     // GLOBAL-CSS change class for that closure. It contains no scientific,
     // engine, case, analytics, storage or research logic.
-    const STAGE12C_SANCTIONED = new Set(['v09/app/ui/app-shell.jsx', 'v09/app/ui/core-screens.jsx', 'v09/app/main.jsx', 'v09/app/ui/app-data.js', 'v09/app/ui/original-v0.8.css']);
+    const STAGE12C_SANCTIONED = new Set(['v09/app/ui/app-shell.jsx', 'v09/app/ui/core-screens.jsx', 'v09/app/main.jsx', 'v09/app/ui/app-data.js', 'v09/app/ui/original-v0.8.css',
+      // v1.0 RC Workstream 4: guided-learning scaffolding — presentational
+      // only, no scientific/engine/case/analytics logic.
+      'v09/app/ui/guided-panel.jsx', 'v09/app/ui/guided-path.js']);
     const uiDiff = (() => { try { return execSync(`git diff ${BASE_REF} --name-only -- v09/app/ui`, { cwd: ROOT }).toString().trim().split('\n').filter(Boolean); } catch { return null; } })();
     const mainDiff = (() => { try { return execSync(`git diff ${BASE_REF} --name-only -- v09/app/main.jsx`, { cwd: ROOT }).toString().trim().split('\n').filter(Boolean); } catch { return null; } })();
     const allDiffs = [...(uiDiff || []), ...(mainDiff || [])];
     const unauthorized = allDiffs.filter(f => !STAGE12C_SANCTIONED.has(f));
-    assert('2a-other34', unchangedSince('v09/app/core', BASE_REF) && unchangedSince('v09/app/rules', BASE_REF) &&
-      unchangedSince('v09/app/strategy', BASE_REF) && unchangedSince('v09/app/risk', BASE_REF) &&
-      unchangedSince('v09/app/investigation', BASE_REF) && unchangedSince('v09/app/eqa', BASE_REF) &&
-      unchangedSince('v09/app/bv', BASE_REF) && unchangedSince('v09/app/pbrtqc', BASE_REF) &&
-      unchangedSince('v09/app/opchar', BASE_REF),
-      'All other 9 inherited module directories remain completely unchanged since Stage 11C2');
+    // v1.0 RC Workstream 10 made two authorised classes of change inside these
+    // inherited directories: removal of unconditional production console
+    // logging, and heading-level (h3->h2, h4->h3) accessibility corrections.
+    // Rather than weaken this guard to a blanket pass, it now (a) still
+    // requires the four untouched directories to be byte-unchanged, (b) names
+    // exactly which files may differ in the remaining five, and (c) asserts
+    // that no SCIENTIFIC logic changed in those files.
+    const WS10_AUTHORISED = new Set([
+      'v09/app/core/statistics.js',      // console fixture logging removed
+      'v09/app/strategy/screens.jsx',    // heading levels only
+      'v09/app/risk/screens.jsx',        // heading levels only
+      'v09/app/bv/screens.jsx',          // heading levels only
+      'v09/app/pbrtqc/screens.jsx',      // heading levels only
+    ]);
+    const inheritedDirs = ['core','rules','strategy','sigma','risk','investigation','eqa','bv','pbrtqc','opchar'];
+    let inheritedDiff = [];
+    try {
+      inheritedDiff = execSync(`git diff ${BASE_REF} --name-only -- ${inheritedDirs.map(d => 'v09/app/' + d).join(' ')}`, { cwd: ROOT })
+        .toString().trim().split('\n').filter(Boolean);
+    } catch { inheritedDiff = []; }
+    const unauthorisedInherited = inheritedDiff.filter(f => !WS10_AUTHORISED.has(f));
+    assert('2a-other34', unauthorisedInherited.length === 0,
+      `Only the WS10-authorised files differ in the inherited module directories (found unauthorised: ${JSON.stringify(unauthorisedInherited)})`);
+    // The scientific surface of statistics.js must be untouched by that change.
+    {
+      const statsSrc = fs.readFileSync(path.join(ROOT, 'v09', 'app', 'core', 'statistics.js'), 'utf8');
+      const exported = (statsSrc.match(/^export function [A-Za-z0-9_]+/gm) || []).map(x => x.split(' ').pop()).sort();
+      const EXPECTED = ['calcBiasPercent','calcCVPercent','calcMean','calcSampleSD','calcSigma','fmt','fmtSigned','roundTo','runFixtureChecks'].sort();
+      assert('2a-stats-surface', JSON.stringify(exported) === JSON.stringify(EXPECTED),
+        `statistics.js still exports exactly the accepted function set (found ${JSON.stringify(exported)})`);
+      assert('2a-stats-nminus1', statsSrc.includes('values.length - 1'), 'statistics.js still uses the n-1 sample SD denominator');
+      assert('2a-stats-fixtures', /export const FIXTURE_RESULTS = runFixtureChecks\(\)/.test(statsSrc), 'the scientific fixture self-check still runs at import');
+    }
     assert('2a-ui-scoped', unauthorized.length === 0, `Only the 3 Stage-12C-sanctioned files (app-shell.jsx, core-screens.jsx, main.jsx) differ within app/ui/+main.jsx — found unauthorized: ${JSON.stringify(unauthorized)}`);
   }
   assert('2b', unchangedSince('v09/src', BASE_REF), 'Frozen v09/src/** unchanged');

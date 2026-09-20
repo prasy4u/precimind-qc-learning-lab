@@ -38,19 +38,19 @@ export function PbrtqcFoundationsPanel({ markProgress }) {
       <p className="callout-inline">{PBRTQC_COMPLEMENTARY_NOTE}</p>
       <p className="callout-inline">{NEVER_CALIBRATION_FAILURE_NOTE}</p>
 
-      <h3>N, R, M and W are different</h3>
+      <h2>N, R, M and W are different</h2>
       <div className="nrm-row">
-        <div className="quadrant-cell"><h4>{N_R_M_W_DISTINCTION_EXAMPLE.n.symbol} = {N_R_M_W_DISTINCTION_EXAMPLE.n.value}</h4><p className="muted small">{N_R_M_W_DISTINCTION_EXAMPLE.n.meaning}</p></div>
-        <div className="quadrant-cell"><h4>{N_R_M_W_DISTINCTION_EXAMPLE.r.symbol} = {N_R_M_W_DISTINCTION_EXAMPLE.r.value}</h4><p className="muted small">{N_R_M_W_DISTINCTION_EXAMPLE.r.meaning}</p></div>
-        <div className="quadrant-cell"><h4>{N_R_M_W_DISTINCTION_EXAMPLE.m.symbol} = {N_R_M_W_DISTINCTION_EXAMPLE.m.value}</h4><p className="muted small">{N_R_M_W_DISTINCTION_EXAMPLE.m.meaning}</p></div>
-        <div className="quadrant-cell"><h4>{N_R_M_W_DISTINCTION_EXAMPLE.w.symbol} = {N_R_M_W_DISTINCTION_EXAMPLE.w.value}</h4><p className="muted small">{N_R_M_W_DISTINCTION_EXAMPLE.w.meaning}</p></div>
+        <div className="quadrant-cell"><h3>{N_R_M_W_DISTINCTION_EXAMPLE.n.symbol} = {N_R_M_W_DISTINCTION_EXAMPLE.n.value}</h3><p className="muted small">{N_R_M_W_DISTINCTION_EXAMPLE.n.meaning}</p></div>
+        <div className="quadrant-cell"><h3>{N_R_M_W_DISTINCTION_EXAMPLE.r.symbol} = {N_R_M_W_DISTINCTION_EXAMPLE.r.value}</h3><p className="muted small">{N_R_M_W_DISTINCTION_EXAMPLE.r.meaning}</p></div>
+        <div className="quadrant-cell"><h3>{N_R_M_W_DISTINCTION_EXAMPLE.m.symbol} = {N_R_M_W_DISTINCTION_EXAMPLE.m.value}</h3><p className="muted small">{N_R_M_W_DISTINCTION_EXAMPLE.m.meaning}</p></div>
+        <div className="quadrant-cell"><h3>{N_R_M_W_DISTINCTION_EXAMPLE.w.symbol} = {N_R_M_W_DISTINCTION_EXAMPLE.w.value}</h3><p className="muted small">{N_R_M_W_DISTINCTION_EXAMPLE.w.meaning}</p></div>
       </div>
       <div className="callout banner-callout">{N_R_M_W_DISTINCTION_STATEMENT}</div>
 
       <h3>PBRTQC vs. two easily confused ideas</h3>
       <div className="quadrant-grid">
-        <div className="quadrant-cell"><h4>PBRTQC vs. RCV</h4><p className="muted small">{PBRTQC_VS_RCV_DISTINCTION}</p></div>
-        <div className="quadrant-cell"><h4>PBRTQC vs. CVG / biological variation</h4><p className="muted small">{PBRTQC_VS_CVG_DISTINCTION}</p></div>
+        <div className="quadrant-cell"><h3>PBRTQC vs. RCV</h3><p className="muted small">{PBRTQC_VS_RCV_DISTINCTION}</p></div>
+        <div className="quadrant-cell"><h3>PBRTQC vs. CVG / biological variation</h3><p className="muted small">{PBRTQC_VS_CVG_DISTINCTION}</p></div>
       </div>
 
       <h3>What PBRTQC is not</h3>
@@ -104,7 +104,7 @@ export function PatientDistributionLabPanel({ goto }) {
         {PATIENT_POPULATIONS.map(p => <button key={p.id} className={"option-btn small" + (popId === p.id ? " option-selected" : "")} onClick={() => setPopId(p.id)}>{p.name}</button>)}
       </div>
       <div className="bv-provenance-card">
-        <h4>{pop.displayName}</h4>
+        <h3>{pop.displayName}</h3>
         <p className="muted small">{pop.description}</p>
         <p className="muted small"><strong>Case-mix pattern:</strong> {pop.caseMixPattern}</p>
         <p className="muted small"><strong>Provenance:</strong> {pop.provenance}</p>

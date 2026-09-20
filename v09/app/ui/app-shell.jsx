@@ -182,7 +182,7 @@ export function App() {
         <div className="footer-brand">PreciMind QC Learning Lab</div>
         <div className="footer-tag">Educational simulation for analytical quality control.</div>
         <div className="footer-author">Developed by Dr Prasenjit Mitra</div>
-        <div className="footer-copyright">&copy; 2026 Prasenjit Mitra &middot; Licensed under the Apache License 2.0</div>
+        <div className="footer-copyright">&copy; 2026 Prasenjit Mitra &middot; Software licensed under the Apache License 2.0 &middot; Educational content all rights reserved</div>
         <div className="footer-links">
           <button className="btn-link" onClick={() => goto("evidence")}>Evidence</button>
           <button className="btn-link" onClick={() => setShowGlossary(true)}>Glossary</button>

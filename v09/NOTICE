@@ -1,18 +1,68 @@
 PreciMind QC Learning Lab
 Copyright 2026 Prasenjit Mitra
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+================================================================================
+LICENSING SCOPE
+================================================================================
+
+This repository contains material under two different sets of terms. Please
+read both before reusing any part of it.
+
+--------------------------------------------------------------------------------
+1. SOFTWARE / SOURCE CODE  —  Apache License 2.0
+--------------------------------------------------------------------------------
+
+The software and source code of PreciMind QC Learning Lab are licensed under
+the Apache License, Version 2.0 (the "License"). You may not use these files
+except in compliance with the License. You may obtain a copy of the License at
 
     http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+Unless required by applicable law or agreed to in writing, software distributed
+under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+CONDITIONS OF ANY KIND, either express or implied. See the License for the
+specific language governing permissions and limitations under the License.
 
-This product includes third-party open-source software components;
-see THIRD_PARTY_NOTICES.md for the full inventory and their respective
-licenses.
+This covers the application code: components, engines, calculation and rule
+logic, build configuration, tests and tooling.
+
+--------------------------------------------------------------------------------
+2. ORIGINAL EDUCATIONAL CONTENT  —  (c) 2026 Prasenjit Mitra. All rights reserved.
+--------------------------------------------------------------------------------
+
+The original educational content of PreciMind QC Learning Lab is NOT licensed
+under Apache-2.0. It is:
+
+    Copyright (c) 2026 Prasenjit Mitra. All rights reserved.
+
+This includes, unless an individual item is expressly marked otherwise:
+
+  - original educational and explanatory prose;
+  - teaching cases and scenarios, including the Morning QC case bank;
+  - questions, answer options, feedback text and learning-check content;
+  - guided-learning pathway content;
+  - original figures, diagrams and graphics;
+  - other original copyrightable educational material.
+
+Because the educational content and the software are not separated by
+directory or file extension — teaching prose, cases and datasets are authored
+inside .js files alongside code — the distinction is one of subject matter
+rather than file location. Apache-2.0 applies to the software; it does not
+grant rights over the educational content above.
+
+--------------------------------------------------------------------------------
+3. THIRD-PARTY MATERIAL  —  respective rights and licences
+--------------------------------------------------------------------------------
+
+Third-party standards, publications, trademarks and other externally sourced
+materials remain subject to their own respective rights and licences, and are
+not licensed by this repository. Cited scientific literature and standards are
+referenced only; their text is not reproduced here.
+
+See THIRD_PARTY_NOTICES.md for the software dependency inventory.
+
+================================================================================
+
+Attribution requirements of the Apache License 2.0 continue to apply to the
+software, including retention of this NOTICE file where required by Section 4(d)
+of the License.

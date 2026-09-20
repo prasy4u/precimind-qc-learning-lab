@@ -11,6 +11,7 @@
     "test:stage11c1": "node tests/stage11c1-vite-bridge.test.js",
     "test:browser-bridge": "node tests/browser/v09-vite-bridge-equivalence.e2e.js",
     "build:modular": "vite build --config vite.modular.config.mjs",
+    "build:production": "vite build --config vite.production-integrated.config.mjs",
     "hash:modular": "node tools/hash-build-tree.cjs dist-vite",
     "test:stage11c2": "node tests/stage11c2-esm-single-root.test.js",
     "test:browser-modular": "node tests/browser/v09-stage11c2-modular-equivalence.e2e.js"

@@ -121,13 +121,18 @@ export function runFixtureChecks() {
 }
 
 export const FIXTURE_RESULTS = runFixtureChecks();
+
+/* v1.0 RC (Workstream 10): the fixture results were previously written to
+   the browser console unconditionally on every page load, which is console
+   noise in a released application. FIXTURE_RESULTS remains exported and is
+   still computed at import, so the self-check still runs and the automated
+   suites still assert it — only the unconditional logging is removed.
+   A genuine fixture FAILURE is still surfaced, because that is a real fault
+   a learner or reviewer should be able to see. */
 if (typeof console !== "undefined") {
   const failed = FIXTURE_RESULTS.filter(r => !r[1]);
-  console.log("[PreciMind] Scientific validation fixtures:", FIXTURE_RESULTS);
   if (failed.length) {
-    console.error("[PreciMind] FIXTURE FAILURES:", failed);
-  } else {
-    console.log("[PreciMind] All " + FIXTURE_RESULTS.length + " validation fixtures passed.");
+    console.error("[PreciMind] SCIENTIFIC FIXTURE FAILURES:", failed);
   }
 }
 

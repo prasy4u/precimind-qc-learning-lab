@@ -10,3 +10,9 @@ authors:
 repository-code: "https://github.com/prasy4u/precimind-qc-learning-lab"
 url: "https://precimind.drprasenjitmitra.com/"
 license: "Apache-2.0"
+# The license field above refers to the SOFTWARE, as required by CFF.
+# Original educational content is (c) 2026 Prasenjit Mitra, all rights
+# reserved, and is not covered by Apache-2.0. See NOTICE for the full
+# two-part licensing scope.
+# No digital object identifier has been reserved or minted. The relevant
+# CFF field must be added only after an actual Zenodo deposition.

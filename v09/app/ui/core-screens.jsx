@@ -419,7 +419,7 @@ export function LJLabScreen({ level, markProgress, goto }) {
       <ScientificBasisNote goto={goto} text="Levey-Jennings charting and SD-based control limits are a long-established laboratory QC convention; see Evidence for the statistical QC literature acknowledged here." />
 
       <div className="dataset-characteristics">
-        <h3>Dataset characteristics <span className="muted small">(fixed — not affected by the controls below)</span></h3>
+        <h2>Dataset characteristics <span className="muted small">(fixed — not affected by the controls below)</span></h2>
         <div className="metric-row">
           <MetricCard label="Generating centre" value={fmt(LJ_TRUE_MEAN, 0)} sub="Fixed, true value used to create the raw data" />
           <MetricCard label="Generating SD" value={fmt(LJ_TRUE_SD, 0)} sub="Fixed, true value used to create the raw data" />
@@ -696,7 +696,7 @@ export function EvidenceScreen() {
   return (
     <div className="screen">
       <h1>Evidence & Scientific Basis</h1>
-      <p className="muted">This prototype draws on established concepts in analytical quality control. It does not reproduce copyrighted figures or standard text, and does not claim to ensure compliance with any specific standard. For each source below: what it informs in this application, and — just as importantly — what this application does not claim from it.</p>
+      <p className="muted">This application draws on established concepts in analytical quality control. It does not reproduce copyrighted figures or standard text, and does not claim to ensure compliance with any specific standard. For each source below: what it informs in this application, and — just as importantly — what this application does not claim from it.</p>
 
       <p className="callout small">{EVIDENCE_HIERARCHY_AUTHORITY_NOTE}</p>
 
@@ -764,7 +764,13 @@ export function AboutModal({ onClose }) {
       <p className="muted small">
         Created and developed by Dr Prasenjit Mitra<br />
         ORCID: <a href="https://orcid.org/0000-0003-4826-1587" target="_blank" rel="noopener noreferrer">0000-0003-4826-1587</a><br />
-        &copy; 2026 Prasenjit Mitra &middot; Licensed under the Apache License, Version 2.0
+        &copy; 2026 Prasenjit Mitra
+      </p>
+      <p className="muted small">
+        Software is licensed under the Apache License, Version 2.0.
+        Original educational content (explanatory prose, teaching cases and scenarios,
+        questions and feedback, original figures) is &copy; 2026 Prasenjit Mitra, all rights reserved.
+        Third-party standards, publications and trademarks remain subject to their own rights and licences.
       </p>
       <p>{ABOUT_TEXT}</p>
       <p className="muted small">No login, analytics, external data connections, or AI-generated tutoring are used within this application. All calculations run locally and deterministically.</p>

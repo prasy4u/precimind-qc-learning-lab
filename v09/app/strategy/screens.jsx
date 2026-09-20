@@ -28,7 +28,7 @@ export function ExerciseRevealCard({ title, prompt, children, answer, note }) {
   const [revealed, setRevealed] = useState(false);
   return (
     <div className="exercise-reveal-card">
-      <h4>{title}</h4>
+      <h3>{title}</h3>
       {children}
       <p className="q-prompt">{prompt}</p>
       {!revealed
@@ -61,11 +61,11 @@ export function APSExplorerPanel() {
     <div>
       <p className="muted">An analytical performance specification (APS) is a <strong>selected quality requirement</strong> — not an intrinsic property of the analyte itself. The same analyte can legitimately carry different stated requirements depending on which model or source is used.</p>
 
-      <h3>The three Milan models</h3>
+      <h2>The three Milan models</h2>
       <div className="milan-grid">
         {MILAN_MODELS.map(m => (
           <div className="milan-card" key={m.id}>
-            <h4>{m.name}</h4>
+            <h3>{m.name}</h3>
             <p>{m.description}</p>
             <p className="muted small">{m.applicabilityNote}</p>
           </div>
@@ -87,7 +87,7 @@ export function APSExplorerPanel() {
         ))}
       </div>
       <div className="case-panel">
-        <h4>Case {kase.id} of {APS_CLASSIFICATION_CASES.length}</h4>
+        <h3>Case {kase.id} of {APS_CLASSIFICATION_CASES.length}</h3>
         <p>{kase.scenario}</p>
         <div className="option-list option-list-grid">
           {APS_SOURCE_OPTIONS.map(o => (
@@ -242,7 +242,7 @@ export function WhyNotAllRulesCard() {
   const ex = WHY_NOT_ALL_RULES_EXERCISE;
   return (
     <div className="exercise-reveal-card">
-      <h4>Why not use every QC rule?</h4>
+      <h3>Why not use every QC rule?</h3>
       <p className="muted small">{ex.scenario}</p>
       <div className="option-list">
         <button className={"option-btn" + (choice === "aggressive" ? " option-selected" : "")} onClick={() => setChoice("aggressive")}>{ex.optionA.label}</button>
@@ -265,7 +265,7 @@ export function WhyNotOnly13sCard() {
   const ex = WHY_NOT_ONLY_13S_EXERCISE;
   return (
     <div className="exercise-reveal-card">
-      <h4>Why not rely on a minimal procedure everywhere?</h4>
+      <h3>Why not rely on a minimal procedure everywhere?</h3>
       <p className="muted small">{ex.scenario}</p>
       <p className="q-prompt">{ex.question}</p>
       {!revealed ? <button className="btn-secondary" onClick={() => setRevealed(true)}>Reveal answer</button> : (

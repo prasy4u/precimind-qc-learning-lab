@@ -63,11 +63,11 @@ export function VariationFoundationsPanel({ markProgress }) {
 
   return (
     <div>
-      <h3>Which component answers which question?</h3>
+      <h2>Which component answers which question?</h2>
       <div className="quadrant-grid">
         {COMPONENT_QUESTION_PANEL.map(c => (
           <div key={c.component} className="quadrant-cell">
-            <h4>{c.component}</h4>
+            <h3>{c.component}</h3>
             <p className="muted small">{c.question}</p>
           </div>
         ))}
@@ -162,11 +162,11 @@ export function BvExplorerPanel({ goto }) {
 
       <h3>Reference interval vs. reference change value — two signature cases</h3>
       <p className="muted">Both cases use CVA = {cases.cva}%, CVI = {cases.cvi}%, reference interval {cases.referenceInterval.low}-{cases.referenceInterval.high} {cases.referenceInterval.units}.</p>
-      <h4>Case A — inside the reference interval</h4>
+      <h3>Case A — inside the reference interval</h3>
       <p className="muted small">{cases.caseA.narrative}</p>
       <RiVsRcvComparisonPanel referenceInterval={cases.referenceInterval} previousResult={cases.caseA.previousResult} currentResult={cases.caseA.currentResult} cva={cases.cva} cvi={cases.cvi} zConventionId={cases.zConventionId} />
       <ExerciseRevealCard title="" prompt={cases.caseA.question} answer={cases.caseA.correctAnswer} note={cases.caseA.explanation} />
-      <h4>Case B — outside the reference interval</h4>
+      <h3>Case B — outside the reference interval</h3>
       <p className="muted small">{cases.caseB.narrative}</p>
       <RiVsRcvComparisonPanel referenceInterval={cases.referenceInterval} previousResult={cases.caseB.previousResult} currentResult={cases.caseB.currentResult} cva={cases.cva} cvi={cases.cvi} zConventionId={cases.zConventionId} />
       <ExerciseRevealCard title="" prompt={cases.caseB.question} answer={cases.caseB.correctAnswer} note={cases.caseB.explanation} />
@@ -206,7 +206,7 @@ export function ApsFromBvPanel({ goto }) {
       <div className="quadrant-grid">
         {APS_VS_RCV_DISTINCTION_PANEL.map((qa, i) => (
           <div key={i} className="quadrant-cell">
-            <h4>{qa.question}</h4>
+            <h3>{qa.question}</h3>
             <p className="muted small">{qa.answer}</p>
           </div>
         ))}

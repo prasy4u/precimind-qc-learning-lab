@@ -1,41 +1,46 @@
-# License Status
+# Licence Status
 
-**RESOLVED.**
+**RESOLVED.** This repository is released under a deliberate two-part scope.
 
-- **Software owner:** Prasenjit Mitra
-- **Copyright owner:** Prasenjit Mitra
-- **Software license:** Apache License 2.0
-- **Licensing decision:** resolved by the project owner, who holds the
-  authority (including under applicable institutional IPR policy) to
-  license this software.
-- **Source release:** permitted by the owner under the terms of the
-  Apache License 2.0.
+| Material | Terms |
+|---|---|
+| **Software / source code** | **Apache License 2.0** — full text in `LICENSE` |
+| **Original educational content** | **© 2026 Prasenjit Mitra. All rights reserved.** |
+| **Third-party material** | Remains subject to its own respective rights and licences |
 
-The full, standard, unmodified Apache License 2.0 text is provided in
-the `LICENSE` file at the repository root. A companion `NOTICE` file
-carries the copyright attribution:
+- **Software owner / copyright owner:** Prasenjit Mitra
+- **Author:** Prasenjit Mitra (ORCID [0000-0003-4826-1587](https://orcid.org/0000-0003-4826-1587))
 
-```
-PreciMind QC Learning Lab
-Copyright 2026 Prasenjit Mitra
-```
+## What each part covers
 
-This project's own `package.json` declares `"license": "Apache-2.0"`,
-synchronized in `package-lock.json` (both available in the
-source/Audit Repository package, not part of this learner-facing
-distribution).
+**Apache-2.0 (software)** covers the application code: components, engines, the
+calculation and rule logic, build configuration, tests and tooling.
+The project’s package manifest declares `"license": "Apache-2.0"` for the software package (that manifest is available in the source/Audit Repository package).
 
-## Educational content licensing
+**All rights reserved (educational content)** covers original educational and
+explanatory prose, teaching cases and scenarios (including the Morning QC case
+bank), questions, answer options, feedback text, guided-learning pathway
+content, original figures and graphics, and other original copyrightable
+educational material — unless an individual item is expressly marked otherwise.
 
-This release does not separately license specific educational content
-under Creative Commons or any other content license. Apache-2.0 is the
-authoritative license for the software source code. A separate content
-license for educational materials may be decided later if desired —
-that is a distinct, future decision, not part of this release closure.
+**Third-party material** — standards, publications, trademarks and other
+externally sourced materials — is not licensed by this repository. Cited
+scientific literature and standards are referenced only; their text is not
+reproduced. See `THIRD_PARTY_NOTICES.md`.
 
-## Third-party components
+## A note on scope
 
-This project's own Apache-2.0 license does not supersede the
-individual licenses of third-party components it depends on. See
-`THIRD_PARTY_NOTICES.md` for the full dependency/asset inventory and
-their respective licenses (all MIT or Apache-2.0 as of this release).
+The educational content is not separated from the software by directory or file
+extension: teaching prose, cases and datasets are authored inside `.js` files
+alongside code. The distinction is therefore one of **subject matter**, not file
+location. Apache-2.0 applies to the software; it does not grant rights over the
+educational content.
+
+## Creative Commons
+
+No Creative Commons licence is applied. CC licences are designed for
+creative/content works rather than source code, and the educational content here
+is reserved rather than openly licensed. A separate content licence may be
+considered in future; that would be a distinct decision from this one.
+
+Full canonical statement: see `NOTICE` at the repository root.

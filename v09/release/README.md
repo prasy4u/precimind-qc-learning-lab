@@ -73,11 +73,29 @@ and must not be used for employment-performance evaluation.
 Planned public repository at release:
 **https://github.com/prasy4u/precimind-qc-learning-lab**.
 
+## Licensing
+
+This release has a deliberate two-part scope:
+
+| Material | Terms |
+|---|---|
+| Software / source code | **Apache License 2.0** (`LICENSE`) |
+| Original educational content | **© 2026 Prasenjit Mitra. All rights reserved.** |
+| Third-party material | Respective rights and licences |
+
+Original educational content means explanatory prose, teaching cases and
+scenarios, questions and feedback, guided-pathway content and original
+figures. The canonical statement is in `NOTICE`; see also
+`LICENSE_STATUS.md`.
+
 ## Citation
 
-See `CITATION.cff` for citation metadata (author, ORCID, repository,
-license). A DOI is not yet available — it will be added after Zenodo
-deposition, which has not yet occurred.
+See `CITATION.cff` for citation metadata (author, ORCID, repository, and the
+software licence). Its `license` field refers to the software only.
+
+DOI: `<DOI-PLACEHOLDER-AWAITING-ZENODO-RESERVATION>` — no DOI has been
+reserved or minted, and this placeholder must be replaced only after an
+actual Zenodo deposition.
 
 ## Version and provenance
 

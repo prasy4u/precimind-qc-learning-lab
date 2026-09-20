@@ -55,6 +55,8 @@ async function main() {
       // Pre-release visual-polish closure (presentation only, no logic):
       'v09/app/morning-qc/ui/patient-impact-panel.jsx',    // .mqc-patient-impact status class
       'v09/app/ui/original-v0.8.css',                      // global design tokens / stylesheet
+      'v09/app/ui/guided-panel.jsx',                       // v1.0 RC: guided-learning scaffolding
+      'v09/app/ui/guided-path.js',                         // v1.0 RC: guided pathway content
     ]);
     let diffNames = [];
     try {

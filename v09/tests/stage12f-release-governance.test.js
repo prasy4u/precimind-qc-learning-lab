@@ -110,7 +110,7 @@ async function main() {
     assert('CITATION-HAS-ORCID', citationText.includes('0000-0003-4826-1587'), 'CITATION.cff includes the confirmed ORCID');
     assert('CITATION-HAS-REPO', citationText.includes('github.com/prasy4u/precimind-qc-learning-lab'), 'CITATION.cff includes the confirmed repository URL');
     assert('CITATION-HAS-EXACT-DOI', /^doi:\s*10\.5281\/zenodo\.22856598\s*$/m.test(citationText), 'CITATION.cff carries the exact reserved DOI (10.5281/zenodo.22856598), not an invented or different value');
-    assert('CITATION-DOI-UNPUBLISHED-CAVEAT', /unpublished/i.test(citationText), 'CITATION.cff documents that the Zenodo record is unpublished alongside the reserved DOI');
+    assert('CITATION-DOI-FUTURE-PROOF', !/unpublished|not yet active|does not yet resolve/i.test(citationText), 'CITATION.cff carries the DOI without temporary publication-status wording');
     assert('CITATION-NO-DATE-RELEASED', !citationText.includes('date-released'), 'CITATION.cff does not invent a release date');
 
     // Zero stale "LICENSE DECISION PENDING" wording anywhere in release docs.
@@ -193,7 +193,7 @@ async function main() {
     // 3de8d5d9f6... (accepted v0.9.0 RC) -> the value below (v1.0.0
     // version/DOI promotion: About-modal version+citation text only,
     // no scientific change).
-    assert('PROD-HASH-UNCHANGED', hash === 'c58603380f4714cfc6f15b8bfed239334a2c82cb0539b407e501d11cc414abb4', `Production tree hash matches the current accepted invariant (found ${hash})`);
+    assert('PROD-HASH-UNCHANGED', hash === 'cb437f0344d022b393cb9786d460292ebdc047cde0a4436b087ed3af6705e5e1', `Production tree hash matches the current accepted invariant (found ${hash})`);
   }
 
   const total = passed + failed;

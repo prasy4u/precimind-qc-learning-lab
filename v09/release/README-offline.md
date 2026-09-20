@@ -103,7 +103,3 @@ See `CITATION.cff` for citation metadata (author, ORCID, repository, and
 the software licence). Its `license` field refers to the software only.
 
 DOI: [10.5281/zenodo.22856598](https://doi.org/10.5281/zenodo.22856598)
-— reserved for this v1.0.0 release. The Zenodo record is currently an
-unpublished draft; this DOI is reserved but does not yet resolve
-publicly. This is not a confirmation that the Zenodo record has been
-published.

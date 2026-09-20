@@ -6,15 +6,11 @@ PreciMind QC Learning Lab v1.0.0 is the first stable, citable release
 of an educational simulation platform for laboratory-medicine
 quality-control (QC) decision-making. It promotes the accepted v0.9.0
 release candidate — the same governance-resolved, scientifically
-validated production runtime — to a formal version, with a DOI now
-reserved ahead of Zenodo publication.
+validated production runtime — to the first stable citable release,
+with DOI 10.5281/zenodo.22856598.
 
-**Software release readiness and Zenodo publication status are
-distinct.** The software itself is release-ready: all
-scientific/runtime/governance items in `V09_RELEASE_CHECKLIST.md`
-(available in the source/Audit Repository package) are
-**PASS**. The Zenodo record for this DOI, however, remains an
-**unpublished draft** — see "Digital object identifier (DOI)" below.
+All scientific/runtime/governance items in `V09_RELEASE_CHECKLIST.md`
+(available in the source/Audit Repository package) are **PASS**.
 
 ## What's included
 
@@ -96,24 +92,16 @@ This promotion is a **version/DOI metadata change only**. The
 production runtime is functionally identical: no calculation, decision
 logic, QC rule, case, scientific content, navigation, or CSS changed.
 The only learner-visible difference is the version number and a
-reserved-DOI citation line shown in the About modal. The production
+DOI citation line shown in the About modal. The production
 build hash therefore changed — from the accepted v0.9.0 RC hash to a
 new v1.0.0 hash — for that reason alone; see `RELEASE_PROVENANCE.json`
 for both values and independently reproducible confirmation.
 
 ## Digital object identifier (DOI)
 
-A DOI has been **reserved** for this release:
-
 **10.5281/zenodo.22856598** (https://doi.org/10.5281/zenodo.22856598)
 
-The Zenodo record is currently an **unpublished draft**. The DOI is
-reserved but does not yet resolve publicly, and the Zenodo record has
-not yet been published. `CITATION.cff` and `RELEASE_PROVENANCE.json`
-already carry this reserved DOI ahead of publication; publishing the
-Zenodo draft to activate it is a separate, pending action — see
-`RELEASE_BLOCKERS.md` (available in the source/Audit Repository
-package).
+The DOI is recorded in `CITATION.cff` and `RELEASE_PROVENANCE.json`.
 
 ## Major validation performed
 
@@ -145,7 +133,5 @@ the current release-readiness state.
   the public security-reporting contact, and citation metadata are all
   resolved (see `LICENSE`, `NOTICE`, `CITATION.cff`, `SECURITY.md`).
   The GitHub repository is public and the application is deployed via
-  the repository's GitHub Pages workflow. The Zenodo record for the
-  reserved DOI above remains unpublished — see `RELEASE_BLOCKERS.md`
-  (available in the source/Audit Repository package) for its
-  sequencing alongside the `v1.0.0` tag and GitHub Release.
+  the repository's GitHub Pages workflow. The DOI above identifies
+  this v1.0.0 release.

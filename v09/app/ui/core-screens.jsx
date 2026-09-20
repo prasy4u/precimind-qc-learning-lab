@@ -767,8 +767,7 @@ export function AboutModal({ onClose }) {
         &copy; 2026 Prasenjit Mitra
       </p>
       <p className="muted small">
-        Reserved DOI for v1.0.0: <a href="https://doi.org/10.5281/zenodo.22856598" target="_blank" rel="noopener noreferrer">10.5281/zenodo.22856598</a><br />
-        The Zenodo record is currently an unpublished draft; this DOI is reserved but not yet active.
+        DOI: <a href="https://doi.org/10.5281/zenodo.22856598" target="_blank" rel="noopener noreferrer">10.5281/zenodo.22856598</a>
       </p>
       <p className="muted small">
         Software is licensed under the Apache License, Version 2.0.

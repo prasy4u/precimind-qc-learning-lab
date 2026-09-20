@@ -57,7 +57,7 @@ console.log('\n=== WS11: citation / release metadata consistency ===');
 ok('CIT-version', /version:\s*1\.0\.0/.test(cff), 'CITATION.cff version is 1.0.0');
 ok('CIT-orcid', /0000-0003-4826-1587/.test(cff), 'CITATION.cff carries the ORCID');
 ok('CIT-doi-exact', /^doi:\s*10\.5281\/zenodo\.22856598\s*$/m.test(cff), 'CITATION.cff carries the exact reserved DOI (10.5281/zenodo.22856598), not a fabricated or different value');
-ok('CIT-doi-unpublished-caveat', /unpublished/i.test(cff), 'CITATION.cff documents that the Zenodo record is unpublished, alongside the reserved DOI');
+ok('CIT-doi-future-proof', !/unpublished|not yet active|does not yet resolve/i.test(cff), 'CITATION.cff carries the DOI without temporary publication-status wording');
 ok('CIT-no-placeholder', !/DOI-PLACEHOLDER-AWAITING-ZENODO-RESERVATION/.test(rootReadme) && !/DOI-PLACEHOLDER-AWAITING-ZENODO-RESERVATION/.test(relReadme), 'the old DOI placeholder is gone from both READMEs now that a real DOI is reserved');
 ok('README-doi-exact', rootReadme.includes('10.5281/zenodo.22856598') && relReadme.includes('10.5281/zenodo.22856598'), 'both READMEs carry the exact reserved DOI');
 ok('CIT-orcid-about', /0000-0003-4826-1587/.test(screens), 'About modal carries the same ORCID');

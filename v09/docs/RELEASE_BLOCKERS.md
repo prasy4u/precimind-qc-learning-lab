@@ -34,13 +34,7 @@ itself is also public. This is distinct from, and does not require, a
 `v1.0.0` tag, a GitHub Release, or Zenodo publication — each of those
 remains a separate, sequenced action listed below.
 
-**DOI status**: a DOI has been **reserved** for this v1.0.0 release —
-`10.5281/zenodo.22856598` (https://doi.org/10.5281/zenodo.22856598).
-The Zenodo record is currently an **unpublished draft**; the DOI does
-not yet resolve publicly. `CITATION.cff` and this release's provenance
-metadata already carry the reserved DOI ahead of publication, as
-instructed. Publishing the Zenodo draft remains a separate, pending
-action (see below).
+**DOI:** `10.5281/zenodo.22856598` (https://doi.org/10.5281/zenodo.22856598). The DOI is embedded in the v1.0.0 citation and provenance metadata.
 
 ## Publication/deployment actions (not software defects, not blockers)
 
@@ -52,12 +46,7 @@ and none require further Stage 12F engineering work:
 - Create a GitHub Release.
 - Optionally enable GitHub Private Vulnerability Reporting as an
   additional channel alongside the email contact.
-- Publish the Zenodo draft to activate the reserved DOI
-  (`10.5281/zenodo.22856598`) — the DOI is already reserved and already
-  recorded in `CITATION.cff` and release provenance ahead of
-  publication; only the act of publishing the Zenodo record itself
-  remains outstanding. This is a **PENDING RELEASE ACTION**, never a
-  FAIL/BLOCKED item.
+- Final publication sequence: create the `v1.0.0` tag, create the GitHub Release, and publish the prepared Zenodo record for DOI `10.5281/zenodo.22856598`.
 
 ## Known, documented, non-blocking limitations
 

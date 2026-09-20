@@ -92,12 +92,9 @@ The canonical statement is in [`NOTICE`](NOTICE); see also
 See [`CITATION.cff`](v09/CITATION.cff).
 
 > **DOI:** [10.5281/zenodo.22856598](https://doi.org/10.5281/zenodo.22856598)
-> — reserved for this v1.0.0 release. The Zenodo record is currently an
-> unpublished draft; this DOI is reserved but does not yet resolve publicly.
 
 ## Status
 
-**v1.0.0.** Software release-ready; DOI reserved (Zenodo record unpublished).
-Not yet tagged or published as a GitHub Release.
+**v1.0.0.** First stable citable release of PreciMind QC Learning Lab.
 See [`v09/CHANGELOG.md`](v09/CHANGELOG.md) and
 [`v09/docs/V09_RELEASE_CHECKLIST.md`](v09/docs/V09_RELEASE_CHECKLIST.md).

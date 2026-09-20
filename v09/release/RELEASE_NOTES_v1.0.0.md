@@ -135,3 +135,7 @@ the current release-readiness state.
   The GitHub repository is public and the application is deployed via
   the repository's GitHub Pages workflow. The DOI above identifies
   this v1.0.0 release.
+
+### Build reproducibility closure
+
+The final production package was rebuilt from `package-lock.json` using the locked Vite 8.2.2 toolchain before temporary test-only dependencies were introduced. This is a build-provenance correction only; application source and scientific behaviour are unchanged.

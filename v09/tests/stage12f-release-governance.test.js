@@ -193,7 +193,7 @@ async function main() {
     // 3de8d5d9f6... (accepted v0.9.0 RC) -> the value below (v1.0.0
     // version/DOI promotion: About-modal version+citation text only,
     // no scientific change).
-    assert('PROD-HASH-UNCHANGED', hash === 'cb437f0344d022b393cb9786d460292ebdc047cde0a4436b087ed3af6705e5e1', `Production tree hash matches the current accepted invariant (found ${hash})`);
+    assert('PROD-HASH-UNCHANGED', hash === '850457b66e7e769060e8319191548edac3d1b8eeb44d5f546a9ebb0788c2de95', `Production tree hash matches the current accepted invariant (found ${hash})`);
   }
 
   const total = passed + failed;
